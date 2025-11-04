@@ -404,21 +404,59 @@ fun MainScreen(
                 @Suppress("DEPRECATION")
                 context.packageManager.getPackageInfo(context.packageName, 0)
             }
-            packageInfo?.versionName ?: "1.0.3"
+            val version = packageInfo?.versionName ?: "0.0.0"
+            android.util.Log.d("UpdateCheck", "读取到的版本号: $version")
+            version
         } catch (e: Exception) {
-            "1.0.3"
+            android.util.Log.e("UpdateCheck", "读取版本号失败，使用默认值", e)
+            "0.0.0" // 使用最低版本号作为默认值，确保能检测到更新
         }
     }
     
-    // 每次进入主页时自动检查更新
-    androidx.compose.runtime.SideEffect {
-        updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
+    // 每次进入主页时自动检查更新（使用LaunchedEffect确保只在组合时执行一次）
+    LaunchedEffect(Unit) {
+        android.util.Log.d("UpdateCheck", "开始自动检查更新，当前版本: $currentVersion")
+        
+        // 先检查初始状态，如果已经是HasUpdate状态，立即显示弹窗（处理从后台恢复的情况）
+        val initialState = updateViewModel.updateState.value
+        if (initialState is org.streambox.app.update.UpdateState.HasUpdate) {
+            android.util.Log.d("UpdateCheck", "初始状态已是HasUpdate，显示弹窗")
+            kotlinx.coroutines.delay(500)
+            showAutoUpdateDialog = true
+        } else {
+            // 否则开始检查更新
+            updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
+        }
     }
     
     // 当检测到有新版本时，自动显示更新弹窗
+    // 使用LaunchedEffect监听updateState变化，并在状态为HasUpdate时显示弹窗
     LaunchedEffect(updateState) {
-        if (updateState is org.streambox.app.update.UpdateState.HasUpdate) {
-            showAutoUpdateDialog = true
+        val state = updateState
+        when (state) {
+            is org.streambox.app.update.UpdateState.HasUpdate -> {
+                android.util.Log.d("UpdateCheck", "检测到新版本: ${state.version.version}")
+                // 延迟一小段时间确保UI已准备好
+                kotlinx.coroutines.delay(300)
+                showAutoUpdateDialog = true
+            }
+            is org.streambox.app.update.UpdateState.CheckFailed -> {
+                android.util.Log.e("UpdateCheck", "检查更新失败: ${state.error}")
+                // 如果是rate limit错误，也显示弹窗提示用户
+                if (state.error.contains("rate limit", ignoreCase = true) || 
+                    state.error.contains("请求次数", ignoreCase = true)) {
+                    android.util.Log.d("UpdateCheck", "Rate limit错误，显示弹窗提示用户")
+                    kotlinx.coroutines.delay(300)
+                    showAutoUpdateDialog = true
+                }
+            }
+            is org.streambox.app.update.UpdateState.UpToDate -> {
+                android.util.Log.d("UpdateCheck", "当前已是最新版本")
+            }
+            is org.streambox.app.update.UpdateState.Checking -> {
+                android.util.Log.d("UpdateCheck", "正在检查更新...")
+            }
+            else -> {}
         }
     }
     
@@ -722,12 +760,38 @@ fun MainScreen(
     }
     
     // 自动更新弹窗（检测到新版本时自动显示）
-    if (showAutoUpdateDialog) {
+    // 注意：只在HasUpdate状态时显示自动弹窗，避免在Idle状态时重复检查
+    val currentUpdateState by updateViewModel.updateState.collectAsState()
+    
+    // 当状态为HasUpdate时，显示自动更新弹窗
+    if (showAutoUpdateDialog && currentUpdateState is org.streambox.app.update.UpdateState.HasUpdate) {
         UpdateDialog(
-            onDismiss = { showAutoUpdateDialog = false },
+            onDismiss = { 
+                showAutoUpdateDialog = false
+                android.util.Log.d("UpdateCheck", "用户关闭了自动更新弹窗")
+            },
             updateViewModel = updateViewModel,
             context = context
         )
+    }
+    
+    // 当检查失败时，如果错误信息包含rate limit，也显示弹窗提示用户
+    if (showAutoUpdateDialog && currentUpdateState is org.streambox.app.update.UpdateState.CheckFailed) {
+        val errorState = currentUpdateState as org.streambox.app.update.UpdateState.CheckFailed
+        if (errorState.error.contains("rate limit", ignoreCase = true) || 
+            errorState.error.contains("请求次数", ignoreCase = true)) {
+            UpdateDialog(
+                onDismiss = { 
+                    showAutoUpdateDialog = false
+                    android.util.Log.d("UpdateCheck", "用户关闭了更新检查失败弹窗")
+                },
+                updateViewModel = updateViewModel,
+                context = context
+            )
+        } else {
+            // 其他错误不显示弹窗，静默失败
+            showAutoUpdateDialog = false
+        }
     }
 }
 

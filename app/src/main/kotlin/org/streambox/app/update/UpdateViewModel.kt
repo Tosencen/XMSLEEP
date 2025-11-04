@@ -44,10 +44,13 @@ class UpdateViewModel(private val context: Context) {
      */
     fun startAutomaticCheckLatestVersion(currentVersion: String) {
         val currentTime = System.currentTimeMillis()
+        val timeSinceLastCheck = currentTime - lastCheckTime
         // 1小时内只检查一次
-        if (currentTime - lastCheckTime < 1000 * 60 * 60 * 1) {
+        if (lastCheckTime > 0 && timeSinceLastCheck < 1000 * 60 * 60 * 1) {
+            android.util.Log.d("UpdateCheck", "距离上次检查仅 ${timeSinceLastCheck / 1000 / 60} 分钟，跳过本次检查")
             return
         }
+        android.util.Log.d("UpdateCheck", "开始检查更新，当前版本: $currentVersion")
         checkUpdate(currentVersion)
     }
     
@@ -59,23 +62,31 @@ class UpdateViewModel(private val context: Context) {
         scope.launch {
             _updateState.value = UpdateState.Checking
             lastCheckTime = System.currentTimeMillis()
+            android.util.Log.d("UpdateCheck", "开始调用UpdateChecker.checkLatestVersion，当前版本: $currentVersion")
             try {
                 val newVersion = withContext(Dispatchers.IO) {
                     updateChecker.checkLatestVersion(currentVersion)
                 }
                 
+                android.util.Log.d("UpdateCheck", "UpdateChecker返回结果: ${if (newVersion != null) "有新版本 ${newVersion.version}" else "无新版本"}")
+                
                 if (newVersion != null) {
                     _latestVersion = newVersion
                     _updateState.value = UpdateState.HasUpdate(newVersion)
+                    android.util.Log.d("UpdateCheck", "已设置更新状态为HasUpdate")
                 } else {
                     _updateState.value = UpdateState.UpToDate
+                    android.util.Log.d("UpdateCheck", "已设置更新状态为UpToDate")
                 }
             } catch (e: IOException) {
                 // 网络错误或 rate limit 错误
                 val errorMsg = e.message ?: "网络连接失败，请检查网络后重试"
+                android.util.Log.e("UpdateCheck", "检查更新失败 (IOException): $errorMsg", e)
                 _updateState.value = UpdateState.CheckFailed(errorMsg)
             } catch (e: Exception) {
-                _updateState.value = UpdateState.CheckFailed(e.message ?: "检查更新失败")
+                val errorMsg = e.message ?: "检查更新失败"
+                android.util.Log.e("UpdateCheck", "检查更新失败 (Exception): $errorMsg", e)
+                _updateState.value = UpdateState.CheckFailed(errorMsg)
             }
         }
     }
