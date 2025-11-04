@@ -1,0 +1,16 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/chen/Desktop/StreamBox/datasource/xmbox/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest4409926699764200865.xml:2:13-83
+INJECTED from /Users/chen/Desktop/StreamBox/datasource/xmbox/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest4409926699764200865.xml:2:13-83
+	package
+		INJECTED from /Users/chen/Desktop/StreamBox/datasource/xmbox/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest4409926699764200865.xml
+	xmlns:android
+		ADDED from /Users/chen/Desktop/StreamBox/datasource/xmbox/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest4409926699764200865.xml:2:23-81
+uses-sdk
+INJECTED from /Users/chen/Desktop/StreamBox/datasource/xmbox/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest4409926699764200865.xml reason: use-sdk injection requested
+INJECTED from /Users/chen/Desktop/StreamBox/datasource/xmbox/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest4409926699764200865.xml
+INJECTED from /Users/chen/Desktop/StreamBox/datasource/xmbox/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest4409926699764200865.xml
+	android:targetSdkVersion
+		INJECTED from /Users/chen/Desktop/StreamBox/datasource/xmbox/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest4409926699764200865.xml
+	android:minSdkVersion
+		INJECTED from /Users/chen/Desktop/StreamBox/datasource/xmbox/build/intermediates/tmp/ProcessLibraryManifest/debug/tempAndroidManifest4409926699764200865.xml

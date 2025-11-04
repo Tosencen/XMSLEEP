@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 使用纯色背景，自动适配深浅色模式 -->
+    <background android:drawable="@color/launcher_background" />
+    <!-- 前景图标：使用 inset 缩小显示（因为图标铺满了画布），并应用主题着色 -->
+    <foreground>
+        <inset
+            android:drawable="@drawable/ic_launcher_foreground_tinted"
+            android:inset="20%" />
+    </foreground>
+    <!-- 主题图标：也需要使用 inset 保持大小一致 -->
+    <monochrome>
+        <inset
+            android:drawable="@mipmap/ic_launcher_foreground"
+            android:inset="20%" />
+    </monochrome>
+</adaptive-icon>
