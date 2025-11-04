@@ -3,6 +3,7 @@ package org.streambox.app.update
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -143,9 +144,11 @@ class UpdateChecker(
 
 @Serializable
 data class GitHubRelease(
+    @SerialName("tag_name")
     val tagName: String,
     val name: String,
     val body: String,
+    @SerialName("published_at")
     val publishedAt: String,
     val assets: List<GitHubAsset>
 )
@@ -153,6 +156,7 @@ data class GitHubRelease(
 @Serializable
 data class GitHubAsset(
     val name: String,
+    @SerialName("browser_download_url")
     val browserDownloadUrl: String,
     val size: Long
 )
