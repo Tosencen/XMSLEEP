@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -12,13 +13,27 @@ android {
         applicationId = "org.streambox.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.0.1"
+    }
+    
+    signingConfigs {
+        create("release") {
+            storeFile = file("${project.rootDir}/release.keystore")
+            storePassword = "xmsleep2025"
+            keyAlias = "xmsleep"
+            keyPassword = "xmsleep2025"
+            enableV1Signing = true
+            enableV2Signing = true
+            enableV3Signing = true
+            enableV4Signing = true
+        }
     }
     
     buildTypes {
         release {
             isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     
@@ -33,6 +48,9 @@ android {
     
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs += listOf(
+            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
+        )
     }
 }
 
@@ -44,9 +62,11 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.foundation:foundation")
     
     // AndroidX
     implementation("androidx.core:core-ktx:1.15.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.navigation:navigation-compose:2.8.5")
     
@@ -59,8 +79,22 @@ dependencies {
     // XMBOX 视频源识别模块
     implementation(project(":datasource:xmbox"))
     
-    // Coil - 图片加载
-    implementation("io.coil-kt:coil-compose:2.5.0")
+           // Coil - 图片加载
+           implementation("io.coil-kt:coil-compose:2.5.0")
+           
+           // Kotlin Serialization
+           implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    
+    // Lottie - 用于显示JSON动画（声音模块需要）
+    implementation("com.airbnb.android:lottie:6.1.0")
+    
+    // ExoPlayer/Media3 - 用于无缝循环播放音频（声音模块需要）
+    implementation("androidx.media3:media3-exoplayer:1.2.1")
+    implementation("androidx.media3:media3-ui:1.2.1")
+    implementation("androidx.media3:media3-common:1.2.1")
+    
+    // OkHttp - 用于网络请求和文件下载
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     
     // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
