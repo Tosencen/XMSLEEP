@@ -418,19 +418,20 @@ fun MainScreen(
     }
     
     // 监听生命周期，当用户从设置页面返回时自动重试安装
-    val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                android.util.Log.d("UpdateCheck", "Activity resumed, 检查是否需要重试安装")
-                updateViewModel.retryInstallIfPermissionGranted()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
+    // 注意：retryInstallIfPermissionGranted方法已移除，如需可以重新实现
+    // val lifecycleOwner = LocalLifecycleOwner.current
+    // DisposableEffect(lifecycleOwner) {
+    //     val observer = LifecycleEventObserver { _, event ->
+    //         if (event == Lifecycle.Event.ON_RESUME) {
+    //             android.util.Log.d("UpdateCheck", "Activity resumed, 检查是否需要重试安装")
+    //             updateViewModel.retryInstallIfPermissionGranted()
+    //         }
+    //     }
+    //     lifecycleOwner.lifecycle.addObserver(observer)
+    //     onDispose {
+    //         lifecycleOwner.lifecycle.removeObserver(observer)
+    //     }
+    // }
     
     // 置顶和收藏状态管理（提升到MainScreen级别，确保切换tab时状态不丢失）
     val pinnedSounds = remember { mutableStateOf(mutableSetOf<org.streambox.app.audio.AudioManager.Sound>()) }
@@ -963,12 +964,13 @@ fun SettingsScreen(
         // 软件更新对话框
         if (showUpdateDialog) {
             // 如果状态是Installing，检查是否有已下载的文件，如果有则重置为Downloaded状态
-            LaunchedEffect(showUpdateDialog, updateState) {
-                if (showUpdateDialog && updateState is org.streambox.app.update.UpdateState.Installing) {
-                    kotlinx.coroutines.delay(100) // 短暂延迟确保UpdateDialog已初始化
-                    updateViewModel.resetInstallingStateIfFileExists()
-                }
-            }
+            // 注意：resetInstallingStateIfFileExists方法已移除，如需可以重新实现
+            // LaunchedEffect(showUpdateDialog, updateState) {
+            //     if (showUpdateDialog && updateState is org.streambox.app.update.UpdateState.Installing) {
+            //         kotlinx.coroutines.delay(100) // 短暂延迟确保UpdateDialog已初始化
+            //         updateViewModel.resetInstallingStateIfFileExists()
+            //     }
+            // }
             
             UpdateDialog(
                 onDismiss = { showUpdateDialog = false },
