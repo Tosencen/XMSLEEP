@@ -468,72 +468,23 @@ fun MainScreen(
         bottomBar = {
             // 只在主页面显示底部导航栏
             if (isMainRoute) {
-                Box(modifier = Modifier.fillMaxWidth()) {
                 NavigationBar {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                    NavigationBarItem(
-                                icon = { Icon(Icons.Default.GraphicEq, null) },
-                                label = { Text("白噪音") },
-                                selected = selectedItem == 1,
-                                onClick = { selectedItem = 1 }
-                            )
-                            // 中间留空，用于放置播放按钮
-                            Spacer(modifier = Modifier.weight(1f))
-                    NavigationBarItem(
-                        icon = { Icon(Icons.Default.Settings, null) },
-                        label = { Text("设置") },
-                                selected = selectedItem == 2,
-                                onClick = { selectedItem = 2 }
-                            )
-                        }
-                    }
-                    
-                    // 中间的播放按钮（一半在导航栏背景上，一半在外面）
-                    FloatingActionButton(
-                        onClick = {
-                            if (defaultAreaHasSounds) {
-                                if (defaultAreaSoundsPlaying) {
-                                    // 暂停所有默认播放区域的声音
-                                    pinnedSounds.value.forEach { sound ->
-                                        if (audioManager.isPlayingSound(sound)) {
-                                            audioManager.pauseSound(sound)
-                                        }
-                                    }
-                                } else {
-                                    // 播放所有默认播放区域的声音
-                                    pinnedSounds.value.forEach { sound ->
-                                        if (!audioManager.isPlayingSound(sound)) {
-                                            audioManager.playSound(context, sound)
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        modifier = Modifier
-                            .align(Alignment.Center)
-                            .offset(y = (-55).dp) // 继续向上移动更多
-                            .size(73.dp), // 放大30%（56dp * 1.3 ≈ 73dp）
-                        containerColor = MaterialTheme.colorScheme.surface, // 和底部导航栏背景一致
-                        contentColor = MaterialTheme.colorScheme.primary, // 图标使用主题色
-                        shape = CircleShape, // 确保圆形背景
-                        elevation = FloatingActionButtonDefaults.elevation(
-                            defaultElevation = 0.dp,
-                            pressedElevation = 0.dp,
-                            hoveredElevation = 0.dp,
-                            focusedElevation = 0.dp
-                        ) // 移除所有状态的投影
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
                     ) {
-                        Icon(
-                            imageVector = if (defaultAreaSoundsPlaying) {
-                                Icons.Default.Pause
-                            } else {
-                                Icons.Filled.PlayArrow
-                            },
-                            contentDescription = if (defaultAreaSoundsPlaying) "暂停" else "播放",
-                            modifier = Modifier.size(31.dp) // 图标也放大30%（24dp * 1.3 ≈ 31dp）
+                        NavigationBarItem(
+                            icon = { Icon(Icons.Default.GraphicEq, null) },
+                            label = { Text("白噪音") },
+                            selected = selectedItem == 1,
+                            onClick = { selectedItem = 1 }
+                        )
+                        Spacer(modifier = Modifier.width(32.dp)) // 两个tab之间的间距
+                        NavigationBarItem(
+                            icon = { Icon(Icons.Default.Settings, null) },
+                            label = { Text("设置") },
+                            selected = selectedItem == 2,
+                            onClick = { selectedItem = 2 }
                         )
                     }
                 }
@@ -791,8 +742,20 @@ fun SettingsScreen(
                 .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        // 设置标题
+        Text(
+            "设置",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        
         // 外观设置
-        Text("外观", style = MaterialTheme.typography.titleLarge)
+        Text(
+            "外观",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
             Card(
             onClick = onNavigateToTheme,
             colors = CardDefaults.cardColors(
@@ -834,7 +797,11 @@ fun SettingsScreen(
         Spacer(Modifier.height(8.dp))
         
         // 系统设置
-        Text("系统", style = MaterialTheme.typography.titleLarge)
+        Text(
+            "系统",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
         
         // 隐藏动画文件
         SwitchItem(
@@ -943,7 +910,11 @@ fun SettingsScreen(
         Spacer(Modifier.height(8.dp))
         
         // 其他
-        Text("其他", style = MaterialTheme.typography.titleLarge)
+        Text(
+            "其他",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.primary
+        )
         
         // 软件更新
         Card(
@@ -1057,9 +1028,7 @@ fun SettingsScreen(
         if (showAboutDialog) {
             AboutDialog(
                 onDismiss = { showAboutDialog = false },
-                context = context,
-                pinnedSoundsCount = pinnedSounds.value.size,
-                favoriteSoundsCount = favoriteSounds.value.size
+                context = context
             )
     }
     
@@ -1954,9 +1923,7 @@ fun ClearCacheDialog(
 @Composable
 fun AboutDialog(
     onDismiss: () -> Unit,
-    context: Context,
-    pinnedSoundsCount: Int = 0,
-    favoriteSoundsCount: Int = 0
+    context: Context
 ) {
     // 获取应用版本信息
     val packageInfo = try {
@@ -2026,28 +1993,13 @@ fun AboutDialog(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "• 选择您喜欢的声音卡片开始播放\n" +
+                        "• 点击声音卡片开始播放，再次点击停止\n" +
                         "• 点击音量图标可以单独调节每个声音的音量\n" +
+                        "• 点击标题可以设置默认播放区域或收藏声音\n" +
+                        "• 点击图书钉图标可以批量选择声音添加到默认播放区域\n" +
                         "• 使用倒计时功能可以设置自动停止播放的时间\n" +
-                        "• 在设置中可以调整主题、隐藏动画等",
+                        "• 在设置中可以调整主题、隐藏动画、切换布局等",
                         style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                
-                HorizontalDivider()
-                
-                // 实时统计信息
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        "使用统计",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "• 默认播放区域: $pinnedSoundsCount 个声音\n" +
-                        "• 收藏的声音: $favoriteSoundsCount 个",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
