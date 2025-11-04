@@ -29,10 +29,14 @@ class UpdateChecker(
      * 检查是否有新版本
      * @param currentVersion 当前版本号（如 "1.0.0"）
      * @return 如果有新版本返回 NewVersion，否则返回 null
+     * @throws IOException 当网络错误或rate limit时抛出
      */
     suspend fun checkLatestVersion(currentVersion: String): NewVersion? = withContext(Dispatchers.IO) {
         try {
             val url = "https://api.github.com/repos/$repositoryOwner/$repositoryName/releases/latest"
+            android.util.Log.d("UpdateChecker", "请求URL: $url")
+            android.util.Log.d("UpdateChecker", "当前版本: $currentVersion")
+            
             val request = Request.Builder()
                 .url(url)
                 .header("Accept", "application/vnd.github.v3+json")
@@ -45,6 +49,8 @@ class UpdateChecker(
             val remaining = response.header("X-RateLimit-Remaining")?.toIntOrNull() ?: -1
             val rateLimitReset = response.header("X-RateLimit-Reset")?.toLongOrNull()
             
+            android.util.Log.d("UpdateChecker", "HTTP响应码: ${response.code}, RateLimit剩余: $remaining")
+            
             if (!response.isSuccessful) {
                 // 处理 rate limit 错误
                 if (response.code == 403 && remaining == 0) {
@@ -53,39 +59,64 @@ class UpdateChecker(
                         java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
                             .format(java.util.Date(it * 1000))
                     } ?: "稍后"
+                    android.util.Log.e("UpdateChecker", "Rate limit已耗尽，重置时间: $resetTime")
                     throw IOException("GitHub API 请求次数已达上限，请于 $resetTime 后重试")
                 }
+                val errorBody = response.body?.string()
+                android.util.Log.e("UpdateChecker", "HTTP请求失败: ${response.code}, 响应体: $errorBody")
                 return@withContext null
             }
             
-            val body = response.body?.string() ?: return@withContext null
+            val body = response.body?.string() ?: run {
+                android.util.Log.e("UpdateChecker", "响应体为空")
+                return@withContext null
+            }
+            
+            android.util.Log.d("UpdateChecker", "响应体长度: ${body.length}")
+            
             val release = json.decodeFromString<GitHubRelease>(body)
+            android.util.Log.d("UpdateChecker", "最新Release: tagName=${release.tagName}, name=${release.name}, assets数量=${release.assets.size}")
+            
+            val latestVersion = release.tagName.removePrefix("v")
+            val compareResult = compareVersions(latestVersion, currentVersion)
+            android.util.Log.d("UpdateChecker", "版本比较: $latestVersion vs $currentVersion = $compareResult")
             
             // 比较版本号
-            if (compareVersions(release.tagName.removePrefix("v"), currentVersion) > 0) {
+            if (compareResult > 0) {
                 // 查找 APK 下载链接
                 val apkAsset = release.assets.firstOrNull { 
                     it.name.endsWith(".apk", ignoreCase = true) 
                 }
                 
+                android.util.Log.d("UpdateChecker", "找到APK资源: ${apkAsset?.name ?: "未找到"}")
+                
                 if (apkAsset != null) {
-                    return@withContext NewVersion(
-                        version = release.tagName.removePrefix("v"),
+                    val newVersion = NewVersion(
+                        version = latestVersion,
                         name = release.name.ifEmpty { release.tagName },
                         changelog = release.body,
                         downloadUrl = apkAsset.browserDownloadUrl,
                         publishedAt = release.publishedAt
                     )
+                    android.util.Log.d("UpdateChecker", "返回NewVersion: version=${newVersion.version}, downloadUrl=${newVersion.downloadUrl}")
+                    return@withContext newVersion
+                } else {
+                    android.util.Log.w("UpdateChecker", "未找到APK资源文件")
                 }
+            } else {
+                android.util.Log.d("UpdateChecker", "当前版本已是最新版本或更新")
             }
             
             null
         } catch (e: IOException) {
-            e.printStackTrace()
-            null
+            // 重新抛出IOException，让UpdateViewModel正确处理
+            android.util.Log.e("UpdateChecker", "IOException: ${e.message}", e)
+            throw e
         } catch (e: Exception) {
+            android.util.Log.e("UpdateChecker", "Exception: ${e.message}", e)
             e.printStackTrace()
-            null
+            // 其他异常也转换为IOException
+            throw IOException("检查更新失败: ${e.message}", e)
         }
     }
     
