@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>०.२५ गुणा</item>
+    <item>०.५ गुणा</item>
+    <item>०.७५ गुणा</item>
+    <item>सामान्य</item>
+    <item>१.२५ गुणा</item>
+    <item>१.५ गुणा</item>
+    <item>२ गुणा</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d सेकेन्ड फास्ट फर्वार्ड गर्नुहोस्</item>
+    <item quantity="other">%d सेकेन्ड फास्ट फर्वार्ड गर्नुहोस्</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d सेकेन्ड रिवाइन्ड गर्नुहोस्</item>
+    <item quantity="other">%d सेकेन्ड रिवाइन्ड गर्नुहोस्</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"होम पेजमा जानुहोस्"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"माथि नेभिगेट गर्नुहोस्"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"थप विकल्पहरू"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"सम्पन्न भयो"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"सबै हेर्नुहोस्"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"एउटा एप छान्नुहोस्"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"निष्क्रिय"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"सक्रिय"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"space"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"खोज्नुहोस्…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"क्वेरी खाली गर्नुहोस्"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"खोज प्रश्न"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"खोज"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"क्वेरी पेस गर्नुहोस्"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"आवाजमा आधारित खोजी"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"यसमार्फत सेयर गर्नुहोस्"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g> मार्फत सेयर गर्नुहोस्"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"संक्षिप्त गर्नुहोस्"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"जवाफ दिनुहोस्"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"भिडियो"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"काट्नुहोस्"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"अवैद्य इन्पुट"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"पपअप विन्डो"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"ड्रपडाउन मेनु"</string>
+    <string name="exo_controls_cc_disabled_description">सबटाइटलहरू सक्षम पार्नुहोस्</string>
+    <string name="exo_controls_cc_enabled_description">सबटाइटलहरू असक्षम पार्नुहोस्</string>
+    <string name="exo_controls_fastforward_description">फास्ट फर्वार्ड गर्नुहोस्</string>
+    <string name="exo_controls_fullscreen_enter_description">पूर्ण स्क्रिन मोडमा खोल्नुहोस्</string>
+    <string name="exo_controls_fullscreen_exit_description">पूर्ण स्क्रिन मोडबाट बाहिरिनुहोस्</string>
+    <string name="exo_controls_hide">प्लेयरसम्बन्धी नियन्त्रणहरू लुकाउनुहोस्</string>
+    <string name="exo_controls_next_description">अर्को</string>
+    <string name="exo_controls_overflow_hide_description">अतिरिक्त सेटिङहरू लुकाइयोस्</string>
+    <string name="exo_controls_overflow_show_description">अतिरिक्त सेटिङहरू देखाइयोस्</string>
+    <string name="exo_controls_pause_description">पज गर्नुहोस्</string>
+    <string name="exo_controls_play_description">प्ले गर्नुहोस्</string>
+    <string name="exo_controls_playback_speed">गति</string>
+    <string name="exo_controls_previous_description">अघिल्लो</string>
+    <string name="exo_controls_repeat_all_description">हालको मोड: सबै दोहोरिने। दोहोरिने मोड टगल गर्नुहोस्।</string>
+    <string name="exo_controls_repeat_off_description">हालको मोड: नदोहोरिने। दोहोरिने मोड टगल गर्नुहोस्।</string>
+    <string name="exo_controls_repeat_one_description">हालको मोड: एक पटक दोहोरिने। दोहोरिने मोड टगल गर्नुहोस्।</string>
+    <string name="exo_controls_rewind_description">रिवाइन्ड गर्नुहोस्</string>
+    <string name="exo_controls_seek_bar_description">हालसम्म भिडियो प्ले भएको अवधि</string>
+    <string name="exo_controls_settings_description">सेटिङ</string>
+    <string name="exo_controls_show">प्लेयरसम्बन्धी नियन्त्रणहरू देखाउनुहोस्</string>
+    <string name="exo_controls_shuffle_off_description">सफल मोड अन गर्नुहोस्</string>
+    <string name="exo_controls_shuffle_on_description">सफल मोड अफ गर्नुहोस्</string>
+    <string name="exo_controls_stop_description">रोक्नुहोस्</string>
+    <string name="exo_controls_vr_description">VR मोड</string>
+    <string name="exo_download_completed">डाउनलोड सम्पन्न भयो</string>
+    <string name="exo_download_description">डाउनलोड गर्नुहोस्</string>
+    <string name="exo_download_downloading">डाउनलोड गरिँदै छ</string>
+    <string name="exo_download_failed">डाउनलोड गर्न सकिएन</string>
+    <string name="exo_download_notification_channel_name">डाउनलोडहरू</string>
+    <string name="exo_download_paused">डाउनलोड गर्ने कार्य पज गरियो</string>
+    <string name="exo_download_paused_for_network">इन्टरनेटमा कनेक्ट भएपछि डाउनलोड गरिने छ</string>
+    <string name="exo_download_paused_for_wifi">WiFi मा कनेक्ट भएपछि डाउनलोड गरिने छ</string>
+    <string name="exo_download_removing">डाउनलोडहरू हटाउँदै</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">मोनो</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">वैकल्पिक</string>
+    <string name="exo_track_role_closed_captions">उपशीर्षकहरू</string>
+    <string name="exo_track_role_commentary">टिप्पणी</string>
+    <string name="exo_track_role_supplementary">पूरक</string>
+    <string name="exo_track_selection_auto">स्वतः</string>
+    <string name="exo_track_selection_none">कुनै पनि होइन</string>
+    <string name="exo_track_selection_title_audio">अडियो</string>
+    <string name="exo_track_selection_title_text">पाठ</string>
+    <string name="exo_track_selection_title_video">भिडियो</string>
+    <string name="exo_track_stereo">स्टेरियो</string>
+    <string name="exo_track_surround">सराउन्ड साउन्ड</string>
+    <string name="exo_track_surround_5_point_1">5.1 सराउन्ड साउन्ड</string>
+    <string name="exo_track_surround_7_point_1">7.1 सराउन्ड साउन्ड</string>
+    <string name="exo_track_unknown">अज्ञात</string>
     <string msgid="6827826412747255547" name="in_progress">"काम हुँदै छ"</string>
     <string msgid="7933458017204019916" name="indeterminate">"आंशिक रूपमा जाँच गरिएको"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"पुछारको पाना कोल्याप्स गर्नुहोस्"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"चयन गरिएको छैन"</string>
     <string msgid="5941395253238309765" name="range_end">"दायराको अन्तिम बिन्दु"</string>
     <string msgid="7097486360902471446" name="range_start">"दायराको सुरुवात बिन्दु"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"खोज"</string>
     <string msgid="6043586758067023" name="selected">"चयन गरिएको छ"</string>
     <string msgid="4139871816613051306" name="state_empty">"खाली"</string>
     <string msgid="5834637030682409883" name="state_off">"अफ छ"</string>

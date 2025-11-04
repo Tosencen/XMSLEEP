@@ -1,3 +1,21 @@
 R_DEF: Internal format may change without notice
 local
+color launcher_background
+drawable ic_launcher_foreground_tinted
+mipmap ic_launcher
+mipmap ic_launcher_foreground
+mipmap ic_launcher_round
+raw bird
+raw bird_chirping
+raw cat
+raw cat_purring
+raw dalei
+raw dalei_animation
+raw gouhuo
+raw gouhuo_animation
+raw rain_animation_optimized
+raw rain_sound_188158
+raw xishuai
+raw xishuai_animation
 string app_name
+xml file_paths

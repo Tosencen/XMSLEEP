@@ -1,5 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25 k.</item>
+    <item>0,5 k.</item>
+    <item>0,75 k.</item>
+    <item>Įprasta</item>
+    <item>1,25 k.</item>
+    <item>1,5 k.</item>
+    <item>2 k.</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Prasukti pirmyn %d sekundę</item>
+    <item quantity="few">Prasukti pirmyn %d sekundes</item>
+    <item quantity="many">Prasukti pirmyn %d sekundės</item>
+    <item quantity="other">Prasukti pirmyn %d sekundžių</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Atsukti atgal %d sekundę</item>
+    <item quantity="few">Atsukti atgal %d sekundes</item>
+    <item quantity="many">Atsukti atgal %d sekundės</item>
+    <item quantity="other">Atsukti atgal %d sekundžių</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Eiti į pagrindinį puslapį"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Naršyti aukštyn"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Daugiau parinkčių"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Atlikta"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Žr. viską"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Pasirinkite programą"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"IŠJUNGTI"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ĮJUNGTI"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"„Alt“ +"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"„Ctrl“ +"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"„delete“"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"„enter“"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"„Function“ +"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"„Meta“ +"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"„Shift“ +"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"„space“"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"„Sym“ +"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"„Menu“ +"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Ieškoti…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Išvalyti užklausą"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Paieškos užklausa"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Ieškoti"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Pateikti užklausą"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Paieška balsu"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Bendrinti su"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Bendrinti naudojant programą „<ns1:g id="APPLICATION_NAME">%s</ns1:g>“"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Sutraukti"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Atsakyti"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Vaizdo įrašas"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Atmesti"</string>
@@ -12,6 +60,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"Netinkama įvestis"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Iššokantysis langas"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Išskleidžiamasis meniu"</string>
+    <string name="exo_controls_cc_disabled_description">Įgalinti subtitrus</string>
+    <string name="exo_controls_cc_enabled_description">Išjungti subtitrus</string>
+    <string name="exo_controls_fastforward_description">Sukti pirmyn</string>
+    <string name="exo_controls_fullscreen_enter_description">Įjungti viso ekrano režimą</string>
+    <string name="exo_controls_fullscreen_exit_description">Išjungti viso ekrano režimą</string>
+    <string name="exo_controls_hide">Slėpti leistuvės valdiklius</string>
+    <string name="exo_controls_next_description">Kitas</string>
+    <string name="exo_controls_overflow_hide_description">Slėpti papildomus nustatymus</string>
+    <string name="exo_controls_overflow_show_description">Rodyti papildomus nustatymus</string>
+    <string name="exo_controls_pause_description">Pristabdyti</string>
+    <string name="exo_controls_play_description">Leisti</string>
+    <string name="exo_controls_playback_speed">Sparta</string>
+    <string name="exo_controls_previous_description">Ankstesnės</string>
+    <string name="exo_controls_repeat_all_description">Dabart. rež.: kart. viską. Perj. pakart. r.</string>
+    <string name="exo_controls_repeat_off_description">Dabart. rež.: nekart. nieko. Perj. pakart. r.</string>
+    <string name="exo_controls_repeat_one_description">Dabart. rež.: kart. vieną. Perj. pakart. r.</string>
+    <string name="exo_controls_rewind_description">Sukti atgal</string>
+    <string name="exo_controls_seek_bar_description">Atkūrimo eiga</string>
+    <string name="exo_controls_settings_description">Nustatymai</string>
+    <string name="exo_controls_show">Rodyti leistuvės valdiklius</string>
+    <string name="exo_controls_shuffle_off_description">Įgalinti maišymo režimą</string>
+    <string name="exo_controls_shuffle_on_description">Išjungti maišymo režimą</string>
+    <string name="exo_controls_stop_description">Sustabdyti</string>
+    <string name="exo_controls_vr_description">VR režimas</string>
+    <string name="exo_download_completed">Atsisiuntimo procesas baigtas</string>
+    <string name="exo_download_description">Atsisiųsti</string>
+    <string name="exo_download_downloading">Atsisiunčiama</string>
+    <string name="exo_download_failed">Nepavyko atsisiųsti</string>
+    <string name="exo_download_notification_channel_name">Atsisiuntimai</string>
+    <string name="exo_download_paused">Atsisiuntimai pristabdyti</string>
+    <string name="exo_download_paused_for_network">Norint tęsti atsis., laukiama tinklo</string>
+    <string name="exo_download_paused_for_wifi">Norint tęsti atsis., laukiama „Wi-Fi“</string>
+    <string name="exo_download_removing">Pašalinami atsisiuntimai</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mb/s</string>
+    <string name="exo_track_mono">Monofoninis</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Alternatyvus</string>
+    <string name="exo_track_role_closed_captions">Subtitrai</string>
+    <string name="exo_track_role_commentary">Komentaras</string>
+    <string name="exo_track_role_supplementary">Papildomas</string>
+    <string name="exo_track_selection_auto">Automatinė</string>
+    <string name="exo_track_selection_none">Nėra</string>
+    <string name="exo_track_selection_title_audio">Garso įrašas</string>
+    <string name="exo_track_selection_title_text">Tekstas</string>
+    <string name="exo_track_selection_title_video">Vaizdo įrašas</string>
+    <string name="exo_track_stereo">Stereofoninis</string>
+    <string name="exo_track_surround">Erdvinis garsas</string>
+    <string name="exo_track_surround_5_point_1">5.1 erdvinis garsas</string>
+    <string name="exo_track_surround_7_point_1">7.1 erdvinis garsas</string>
+    <string name="exo_track_unknown">Nežinomas</string>
     <string msgid="6827826412747255547" name="in_progress">"Vyksta"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Iš dalies pažymėta"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Sutraukti apatinį lapą"</string>
@@ -75,6 +174,7 @@
     <string msgid="6610465462668679431" name="not_selected">"Nepasirinkta"</string>
     <string msgid="5941395253238309765" name="range_end">"Diapazono pabaiga"</string>
     <string msgid="7097486360902471446" name="range_start">"Diapazono pradžia"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Ieškoti"</string>
     <string msgid="6043586758067023" name="selected">"Pasirinkta"</string>
     <string msgid="4139871816613051306" name="state_empty">"Tuščia"</string>
     <string msgid="5834637030682409883" name="state_off">"Išjungta"</string>

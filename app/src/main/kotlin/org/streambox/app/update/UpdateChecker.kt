@@ -40,7 +40,21 @@ class UpdateChecker(
                 .build()
             
             val response = client.newCall(request).execute()
+            
+            // 检查 rate limit
+            val remaining = response.header("X-RateLimit-Remaining")?.toIntOrNull() ?: -1
+            val rateLimitReset = response.header("X-RateLimit-Reset")?.toLongOrNull()
+            
             if (!response.isSuccessful) {
+                // 处理 rate limit 错误
+                if (response.code == 403 && remaining == 0) {
+                    // Rate limit 已耗尽
+                    val resetTime = rateLimitReset?.let { 
+                        java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+                            .format(java.util.Date(it * 1000))
+                    } ?: "稍后"
+                    throw IOException("GitHub API 请求次数已达上限，请于 $resetTime 后重试")
+                }
                 return@withContext null
             }
             

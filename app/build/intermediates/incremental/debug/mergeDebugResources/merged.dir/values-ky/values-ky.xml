@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Орточо</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d секунд алдыга түрдүрүү</item>
+    <item quantity="other">%d секунд алдыга түрдүрүү</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d секунд артка түрдүрүү</item>
+    <item quantity="other">%d секунд артка түрдүрүү</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Башкы бетке чабыттоо"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Мурунку экранга өтүү"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Дагы параметрлер"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Бүттү"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Баарын көрүү"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Колдонмо тандоо"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"ӨЧҮК"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"КҮЙҮК"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"боштук"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Издөө…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Сурамды өчүрүү"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Изделген сурам"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Издөө"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Сурам тапшыруу"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Айтып издөө"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Төмөнкү менен бөлүшүү"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g> аркылуу бөлүшүү"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Жыйыштыруу"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Жооп берүү"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Видео"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Четке кагуу"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"Киргизилген маалымат жараксыз"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Калкыма терезе"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Түрүлмө меню"</string>
+    <string name="exo_controls_cc_disabled_description">Коштомо жазууларды иштетүү</string>
+    <string name="exo_controls_cc_enabled_description">Коштомо жазууларды өчүрүү</string>
+    <string name="exo_controls_fastforward_description">Алдыга түрүү</string>
+    <string name="exo_controls_fullscreen_enter_description">Толук экранга кирүү</string>
+    <string name="exo_controls_fullscreen_exit_description">Толук экран режиминен чыгуу</string>
+    <string name="exo_controls_hide">Ойноткучту башкаруу элементтерин жашыруу</string>
+    <string name="exo_controls_next_description">Кийинки</string>
+    <string name="exo_controls_overflow_hide_description">Кошумча параметрлерди жашыруу</string>
+    <string name="exo_controls_overflow_show_description">Кошумча параметрлерди көрсөтүү</string>
+    <string name="exo_controls_pause_description">Тындыруу</string>
+    <string name="exo_controls_play_description">Ойнотуу</string>
+    <string name="exo_controls_playback_speed">Ылдамдык</string>
+    <string name="exo_controls_previous_description">Мурунку</string>
+    <string name="exo_controls_repeat_all_description">Учурдагы режим: Баарын кайталоо. Кайталоо режимин өчүрүү/күйгүзүү.</string>
+    <string name="exo_controls_repeat_off_description">Учурдагы режим: Кайталанбасын. Кайталоо режимин өчүрүү/күйгүзүү.</string>
+    <string name="exo_controls_repeat_one_description">Учурдагы режим: Бир медианы кайталоо. Кайталоо режимин өчүрүү/күйгүзүү.</string>
+    <string name="exo_controls_rewind_description">Артка түрүү</string>
+    <string name="exo_controls_seek_bar_description">Ойнотуу көрсөткүчү</string>
+    <string name="exo_controls_settings_description">Параметрлер</string>
+    <string name="exo_controls_show">Ойноткучту башкаруу элементтерин көрсөтүү</string>
+    <string name="exo_controls_shuffle_off_description">Аралаштыруу режимин күйгүзүү</string>
+    <string name="exo_controls_shuffle_on_description">Аралаштыруу режимин өчүрүү</string>
+    <string name="exo_controls_stop_description">Токтотуу</string>
+    <string name="exo_controls_vr_description">VR режими</string>
+    <string name="exo_download_completed">Жүктөп алуу аяктады</string>
+    <string name="exo_download_description">Жүктөп алуу</string>
+    <string name="exo_download_downloading">Жүктөлүп алынууда</string>
+    <string name="exo_download_failed">Жүктөлүп алынбай калды</string>
+    <string name="exo_download_notification_channel_name">Жүктөлүп алынгандар</string>
+    <string name="exo_download_paused">Жүктөп алуу тындырылды</string>
+    <string name="exo_download_paused_for_network">Тармакка туташуу күтүлүүдө</string>
+    <string name="exo_download_paused_for_wifi">WiFi\'га туташуу күтүлүүдө</string>
+    <string name="exo_download_removing">Жүктөлүп алынгандар өчүрүлүүдө</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Мб/сек.</string>
+    <string name="exo_track_mono">Моно</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Альтернативдүү трек</string>
+    <string name="exo_track_role_closed_captions">Коштомо жазуулар</string>
+    <string name="exo_track_role_commentary">Пикир</string>
+    <string name="exo_track_role_supplementary">Кошумча трек</string>
+    <string name="exo_track_selection_auto">Авто</string>
+    <string name="exo_track_selection_none">Жок</string>
+    <string name="exo_track_selection_title_audio">Аудио</string>
+    <string name="exo_track_selection_title_text">Текст</string>
+    <string name="exo_track_selection_title_video">Видео</string>
+    <string name="exo_track_stereo">Стерео</string>
+    <string name="exo_track_surround">Көлөмдүү үн</string>
+    <string name="exo_track_surround_5_point_1">5.1 көлөмдүү добуш</string>
+    <string name="exo_track_surround_7_point_1">7.1 көлөмдүү добуш</string>
+    <string name="exo_track_unknown">Белгисиз</string>
     <string msgid="6827826412747255547" name="in_progress">"Аткарылууда"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Жарым-жартылай текшерилди"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Ылдыйкы экранды жыйыштыруу"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"Тандалган жок"</string>
     <string msgid="5941395253238309765" name="range_end">"Диапазондун аягы"</string>
     <string msgid="7097486360902471446" name="range_start">"Диапазондун башы"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Издөө"</string>
     <string msgid="6043586758067023" name="selected">"Тандалды"</string>
     <string msgid="4139871816613051306" name="state_empty">"Бош"</string>
     <string msgid="5834637030682409883" name="state_off">"Өчүк"</string>

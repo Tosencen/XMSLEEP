@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>Okujwayelekile</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Dlulisela phambili ngamasekhondi angu-%d</item>
+    <item quantity="other">Dlulisela phambili ngamasekhondi angu-%d</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Hlehlisa ngamasekhondi angu-%d</item>
+    <item quantity="other">Hlehlisa ngamasekhondi angu-%d</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Zulazulela ekhaya"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Zulazulela phezulu"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Ezinye izinketho"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Kwenziwe"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Buka konke"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Khetha insiza"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"VALA"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"VULA"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"space"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Imenyu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Sesha…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Sula inkinga"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Sesha umbuzo"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Sesha"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Thumela umbuzo"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Ukusesha ngezwi"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Yabelana no"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Yabelana ne-<ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Goqa"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Phendula"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Ividiyo"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Yenqaba"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"Okufakwayo okungalungile"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Iwindi Lesikhashana"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Imenyu eya phansi"</string>
+    <string name="exo_controls_cc_disabled_description">Nika amandla imibhalo engezansi</string>
+    <string name="exo_controls_cc_enabled_description">Khubaza imibhalo engezansi</string>
+    <string name="exo_controls_fastforward_description">Dlulisela phambili</string>
+    <string name="exo_controls_fullscreen_enter_description">Faka isikrini esigcwele</string>
+    <string name="exo_controls_fullscreen_exit_description">Phuma kusikrini esigcwele</string>
+    <string name="exo_controls_hide">Fihla izilawuli zesidlali</string>
+    <string name="exo_controls_next_description">Okulandelayo</string>
+    <string name="exo_controls_overflow_hide_description">Fihla izilungiselelo ezingeziwe</string>
+    <string name="exo_controls_overflow_show_description">Bonisa izilungiselelo ezingeziwe</string>
+    <string name="exo_controls_pause_description">Phumula</string>
+    <string name="exo_controls_play_description">Dlala</string>
+    <string name="exo_controls_playback_speed">Isivinini</string>
+    <string name="exo_controls_previous_description">Okwangaphambilini</string>
+    <string name="exo_controls_repeat_all_description">Imodi yamanje: Phinda konke. Guqula imodi yokuphinda.</string>
+    <string name="exo_controls_repeat_off_description">Imodeli yamanje: Ungaphindi lutho. Guqula imodi yokuphinda.</string>
+    <string name="exo_controls_repeat_one_description">Imodi yamanje: Phinda kanye. Guqula imodi yokuphinda.</string>
+    <string name="exo_controls_rewind_description">Buyisela emuva</string>
+    <string name="exo_controls_seek_bar_description">Inqubekela phambili yokudlala</string>
+    <string name="exo_controls_settings_description">Amasethingi</string>
+    <string name="exo_controls_show">Bonisa izilawuli zesidlali</string>
+    <string name="exo_controls_shuffle_off_description">Nika amandla imodi yokushova</string>
+    <string name="exo_controls_shuffle_on_description">Khubaza imodi yokushova</string>
+    <string name="exo_controls_stop_description">Misa</string>
+    <string name="exo_controls_vr_description">Inqubo ye-VR</string>
+    <string name="exo_download_completed">Ukulanda kuqedile</string>
+    <string name="exo_download_description">Landa</string>
+    <string name="exo_download_downloading">Iyalanda</string>
+    <string name="exo_download_failed">Ukulanda kuhlulekile</string>
+    <string name="exo_download_notification_channel_name">Ukulandwa</string>
+    <string name="exo_download_paused">Okulandwayo kumiswe isikhashana</string>
+    <string name="exo_download_paused_for_network">Ukulanda kulinde inethiwekhi</string>
+    <string name="exo_download_paused_for_wifi">Ukulanda kulinde i-WiFi</string>
+    <string name="exo_download_removing">Kususwa okulandiwe</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">Okukodwa</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Okunye</string>
+    <string name="exo_track_role_closed_captions">CC</string>
+    <string name="exo_track_role_commentary">Abahlaziyi</string>
+    <string name="exo_track_role_supplementary">Okungeziwe</string>
+    <string name="exo_track_selection_auto">Okuzenzakalelayo</string>
+    <string name="exo_track_selection_none">Lutho</string>
+    <string name="exo_track_selection_title_audio">Umsindo</string>
+    <string name="exo_track_selection_title_text">Umbhalo</string>
+    <string name="exo_track_selection_title_video">Ividiyo</string>
+    <string name="exo_track_stereo">I-Stereo</string>
+    <string name="exo_track_surround">Umsindo ozungelezile</string>
+    <string name="exo_track_surround_5_point_1">Umsindo ozungelezile ongu-5.1</string>
+    <string name="exo_track_surround_7_point_1">Umsindo ozungelezile ongu-7.1</string>
+    <string name="exo_track_unknown">Akwaziwa</string>
     <string msgid="6827826412747255547" name="in_progress">"Kuyaqhubeka"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Kuhlolwe kancane"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Goqa ishidi eliphansi"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"Ayikhethiwe"</string>
     <string msgid="5941395253238309765" name="range_end">"Umkhawulo wobubanzi"</string>
     <string msgid="7097486360902471446" name="range_start">"Ukuqala kobubanzi"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Sesha"</string>
     <string msgid="6043586758067023" name="selected">"Okukhethiwe"</string>
     <string msgid="4139871816613051306" name="state_empty">"Akunalutho"</string>
     <string msgid="5834637030682409883" name="state_off">"Ivaliwe"</string>

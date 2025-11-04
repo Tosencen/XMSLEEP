@@ -33,11 +33,54 @@ object XmboxConfigParser {
     
     /**
      * 解析 JSON 格式配置
+     * 
+     * XMBOX 支持的格式：
+     * 1. 单源配置：包含 url, name, type 等字段的单个配置对象
+     * 2. 多源配置：包含 sites 数组，每个 site 是一个视频源配置
+     * 3. CatVodTV 格式：包含 sites 数组，每个 site 有 key, name, type, api 等字段
      */
     private fun parseJson(jsonString: String, name: String): XmboxConfig? {
         val jsonElement = json.parseToJsonElement(jsonString)
         
         if (jsonElement is JsonObject) {
+            // 检查是否是包含 sites 数组的多源配置文件（CatVodTV/XMBOX 格式）
+            val sitesArray = jsonElement["sites"]?.jsonArray
+            if (sitesArray != null && sitesArray.isNotEmpty()) {
+                // 这是一个多源配置文件，取第一个源作为默认源
+                // 注意：XMBOX 会解析整个 sites 数组，但我们这里只返回第一个源
+                val firstSite = sitesArray.firstOrNull()?.jsonObject ?: return null
+                
+                // 对于包含 sites 数组的 CatVodTV/XMBOX 多源配置文件
+                // XMBOX 的处理方式是：将整个配置文件作为一个 JavaScript 配置
+                // 在实际使用时，根据用户选择的具体源（通过 key 或 name）来加载对应的内容
+                // 
+                // 这里我们返回一个 JavaScriptConfig，其中：
+                // - url: 原始配置文件的 URL（用于访问整个配置）
+                // - jsCode: 整个 JSON 配置（序列化为字符串），这样可以在运行时解析 sites 数组
+                // - name: 使用配置文件的名称，或者如果提供了 name 参数则使用它
+                
+                val configName = name.ifBlank { 
+                    // 尝试从配置中提取名称
+                    jsonElement["name"]?.jsonPrimitive?.content 
+                        ?: "多源配置"
+                }
+                
+                // 判断类型：检查 sites 数组中的类型
+                val siteType = firstSite["type"]?.jsonPrimitive?.intOrNull ?: 0
+                val sourceType = if (siteType == 2) SourceType.LIVE else SourceType.VOD
+                
+                // 返回 JavaScriptConfig，其中 jsCode 包含整个 JSON 配置
+                // 这样在运行时可以解析并选择不同的源
+                return XmboxConfig.JavaScriptConfig(
+                    url = "", // URL 会在上层调用时设置
+                    name = configName,
+                    jsCode = jsonString, // 存储整个 JSON 配置
+                    type = sourceType,
+                    timeout = 30
+                )
+            }
+            
+            // 单源配置格式（标准的 XMBOX 格式）
             val url = jsonElement["url"]?.jsonPrimitive?.content
                 ?: return null
             
@@ -117,7 +160,11 @@ object XmboxConfigParser {
         return when (config) {
             is XmboxConfig.VodConfig -> config.url.isNotBlank()
             is XmboxConfig.LiveConfig -> config.url.isNotBlank()
-            is XmboxConfig.JavaScriptConfig -> config.url.isNotBlank() && config.jsCode.isNotBlank()
+            is XmboxConfig.JavaScriptConfig -> {
+                // JavaScriptConfig 只需要 jsCode 不为空即可
+                // url 可以为空，因为可能在后续设置（例如从 sites 数组中解析时）
+                config.jsCode.isNotBlank()
+            }
         }
     }
 }

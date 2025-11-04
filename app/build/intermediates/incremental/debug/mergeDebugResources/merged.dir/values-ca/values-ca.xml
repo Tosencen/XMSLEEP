@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normal</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Avança ràpidament %d segon</item>
+    <item quantity="other">Avança ràpidament %d segons</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Rebobina %d segon</item>
+    <item quantity="other">Rebobina %d segons</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Navega fins a la pàgina d\'inici"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Navega cap amunt"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Més opcions"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Fet"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Mostra-ho tot"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Selecciona una aplicació"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"DESACTIVA"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ACTIVA"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"Supr"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Retorn"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Funció+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Maj+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"Espai"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menú+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Cerca…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Esborra la consulta"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Consulta de cerca"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Cerca"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Envia la consulta"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Cerca per veu"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Comparteix amb"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Comparteix amb <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Replega"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Respon"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Vídeo"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Rebutja"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"L\'entrada no és vàlida"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Finestra emergent"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Menú desplegable"</string>
+    <string name="exo_controls_cc_disabled_description">Activa els subtítols</string>
+    <string name="exo_controls_cc_enabled_description">Desactiva els subtítols</string>
+    <string name="exo_controls_fastforward_description">Avança ràpidament</string>
+    <string name="exo_controls_fullscreen_enter_description">Entra a la pantalla completa</string>
+    <string name="exo_controls_fullscreen_exit_description">Surt de la pantalla completa</string>
+    <string name="exo_controls_hide">Amaga els controls del reproductor</string>
+    <string name="exo_controls_next_description">Següent</string>
+    <string name="exo_controls_overflow_hide_description">Amaga les opcions de configuració addicionals</string>
+    <string name="exo_controls_overflow_show_description">Mostra opcions de configuració addicionals</string>
+    <string name="exo_controls_pause_description">Posa en pausa</string>
+    <string name="exo_controls_play_description">Reprodueix</string>
+    <string name="exo_controls_playback_speed">Velocitat</string>
+    <string name="exo_controls_previous_description">Anterior</string>
+    <string name="exo_controls_repeat_all_description">Actual: repeteix tot. Commuta mode repetició.</string>
+    <string name="exo_controls_repeat_off_description">Actual: no repeteixis. Commuta mode repetició.</string>
+    <string name="exo_controls_repeat_one_description">Actual: repeteix un. Commuta mode repetició.</string>
+    <string name="exo_controls_rewind_description">Rebobina</string>
+    <string name="exo_controls_seek_bar_description">Progrés de la reproducció</string>
+    <string name="exo_controls_settings_description">Configuració</string>
+    <string name="exo_controls_show">Mostra els controls del reproductor</string>
+    <string name="exo_controls_shuffle_off_description">Activa el mode aleatori</string>
+    <string name="exo_controls_shuffle_on_description">Desactiva el mode aleatori</string>
+    <string name="exo_controls_stop_description">Atura</string>
+    <string name="exo_controls_vr_description">Mode RV</string>
+    <string name="exo_download_completed">S\'ha completat la baixada</string>
+    <string name="exo_download_description">Baixa</string>
+    <string name="exo_download_downloading">S\'està baixant</string>
+    <string name="exo_download_failed">No s\'ha pogut baixar</string>
+    <string name="exo_download_notification_channel_name">Baixades</string>
+    <string name="exo_download_paused">Les baixades estan en pausa</string>
+    <string name="exo_download_paused_for_network">Les baixades estan esperant una xarxa</string>
+    <string name="exo_download_paused_for_wifi">Les baixades estan esperant una Wi‑Fi</string>
+    <string name="exo_download_removing">S\'estan suprimint les baixades</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Alternativa</string>
+    <string name="exo_track_role_closed_captions">Subtítols</string>
+    <string name="exo_track_role_commentary">Comentaris</string>
+    <string name="exo_track_role_supplementary">Complementària</string>
+    <string name="exo_track_selection_auto">Automàtica</string>
+    <string name="exo_track_selection_none">Cap</string>
+    <string name="exo_track_selection_title_audio">Àudio</string>
+    <string name="exo_track_selection_title_text">Text</string>
+    <string name="exo_track_selection_title_video">Vídeo</string>
+    <string name="exo_track_stereo">Estèreo</string>
+    <string name="exo_track_surround">So envoltant</string>
+    <string name="exo_track_surround_5_point_1">So envoltant 5.1</string>
+    <string name="exo_track_surround_7_point_1">So envoltant 7.1</string>
+    <string name="exo_track_unknown">Desconegut</string>
     <string msgid="6827826412747255547" name="in_progress">"En curs"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Marcat parcialment"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Replega el full inferior"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"No seleccionat"</string>
     <string msgid="5941395253238309765" name="range_end">"Fi de l\'interval"</string>
     <string msgid="7097486360902471446" name="range_start">"Inici de l\'interval"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Cerca"</string>
     <string msgid="6043586758067023" name="selected">"Seleccionat"</string>
     <string msgid="4139871816613051306" name="state_empty">"Buit"</string>
     <string msgid="5834637030682409883" name="state_off">"Desactivat"</string>

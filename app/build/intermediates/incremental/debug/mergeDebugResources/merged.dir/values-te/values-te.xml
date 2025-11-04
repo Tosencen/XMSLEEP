@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>సాధారణం</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d సెకండ్ వేగంగా ఫార్వర్డ్ చేయండి</item>
+    <item quantity="other">%d సెకన్లు వేగంగా ఫార్వర్డ్ చేయండి</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d సెకండ్ రివైండ్ చేయండి</item>
+    <item quantity="other">%d సెకన్లు రివైండ్ చేయండి</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"హోమ్‌కు నావిగేట్ చేస్తుంది"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"పైకి నావిగేట్ చేస్తుంది"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"మరిన్ని ఆప్షన్‌లు"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"పూర్తయింది"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"అన్నీ చూడండి"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"యాప్‌ను ఎంచుకోండి"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"ఆఫ్"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ఆన్"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"స్పేస్"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"సెర్చ్ చేయండి…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"ప్రశ్నను తీసివేస్తుంది"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"సెర్చ్ క్వెరీ"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"సెర్చ్"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"ప్రశ్నని సమర్పిస్తుంది"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"వాయిస్ సెర్చ్"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"వీరితో షేర్ చేస్తుంది"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g>తో షేర్ చేస్తుంది"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"కుదిస్తుంది"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"పికప్ చేయండి"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"వీడియో కాల్"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"కట్ చేయండి"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"ఇన్‌పుట్ చెల్లదు"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"పాప్-అప్ విండో"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"డ్రాప్‌డౌన్ మెనూ"</string>
+    <string name="exo_controls_cc_disabled_description">ఉప శీర్షికలను ఎనేబుల్ చేయి</string>
+    <string name="exo_controls_cc_enabled_description">ఉప శీర్షికలను డిజేబుల్ చేయి</string>
+    <string name="exo_controls_fastforward_description">వేగంగా ఫార్వర్డ్ చేయండి</string>
+    <string name="exo_controls_fullscreen_enter_description">ఫుల్ స్క్రీన్‌లోకి ప్రవేశించు</string>
+    <string name="exo_controls_fullscreen_exit_description">ఫుల్ స్క్రీన్ నుండి నిష్క్రమించండి</string>
+    <string name="exo_controls_hide">ప్లేయర్ నియంత్రణలను దాచిపెట్టు</string>
+    <string name="exo_controls_next_description">తర్వాత</string>
+    <string name="exo_controls_overflow_hide_description">అదనపు సెట్టింగ్‌లను దాచు</string>
+    <string name="exo_controls_overflow_show_description">అదనపు సెట్టింగ్‌లను చూపు</string>
+    <string name="exo_controls_pause_description">పాజ్ చేయండి</string>
+    <string name="exo_controls_play_description">ప్లే చేయండి</string>
+    <string name="exo_controls_playback_speed">వేగం</string>
+    <string name="exo_controls_previous_description">మునుపటి</string>
+    <string name="exo_controls_repeat_all_description">ప్రస్తుత మోడ్: అన్నింటిని రిపీట్‌ చేయండి. రిపీట్‌ మోడ్‌ను టోగుల్ చేయండి.</string>
+    <string name="exo_controls_repeat_off_description">ప్రస్తుత మోడ్: ఏదీ రిపీట్‌ చేయవద్దు. రిపీట్‌ మోడ్‌ను టోగుల్ చేయండి.</string>
+    <string name="exo_controls_repeat_one_description">ప్రస్తుత మోడ్: ఒకదానిని రిపీట్‌ చేయండి. రిపీట్‌ మోడ్‌ను టోగుల్ చేయండి.</string>
+    <string name="exo_controls_rewind_description">రివైండ్ చేయండి</string>
+    <string name="exo_controls_seek_bar_description">ప్లేబ్యాక్ ప్రోగ్రెస్</string>
+    <string name="exo_controls_settings_description">సెట్టింగ్‌లు</string>
+    <string name="exo_controls_show">ప్లేయర్ నియంత్రణలను చూపు</string>
+    <string name="exo_controls_shuffle_off_description">షఫుల్ మోడ్‌ను ఎనేబుల్ చేయండి</string>
+    <string name="exo_controls_shuffle_on_description">షఫుల్ మోడ్‌ను డిజేబుల్ చేయండి</string>
+    <string name="exo_controls_stop_description">ఆపండి</string>
+    <string name="exo_controls_vr_description">వర్చువల్ రియాలిటీ మోడ్</string>
+    <string name="exo_download_completed">డౌన్‌లోడ్ పూర్తయింది</string>
+    <string name="exo_download_description">డౌన్‌లోడ్ చేయి</string>
+    <string name="exo_download_downloading">డౌన్‌లోడ్ చేస్తోంది</string>
+    <string name="exo_download_failed">డౌన్‌లోడ్ విఫలమైంది</string>
+    <string name="exo_download_notification_channel_name">డౌన్‌లోడ్‌లు</string>
+    <string name="exo_download_paused">డౌన్‌లోడ్‌లు పాజ్ చేయబడ్డాయి</string>
+    <string name="exo_download_paused_for_network">డౌన్‌లోడ్స్ నెట్‌వర్క్ కోసం చూస్తున్నాయి</string>
+    <string name="exo_download_paused_for_wifi">డౌన్‌లోడ్‌లు WiFi కోసం చూస్తున్నాయి</string>
+    <string name="exo_download_removing">డౌన్‌లోడ్‌లను తీసివేస్తోంది</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">మోనో</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">ప్రత్యామ్నాయం</string>
+    <string name="exo_track_role_closed_captions">CC</string>
+    <string name="exo_track_role_commentary">వ్యాఖ్యానం</string>
+    <string name="exo_track_role_supplementary">అనుబంధితం</string>
+    <string name="exo_track_selection_auto">స్వీయ</string>
+    <string name="exo_track_selection_none">ఏదీ కాదు</string>
+    <string name="exo_track_selection_title_audio">ఆడియో</string>
+    <string name="exo_track_selection_title_text">వచనం</string>
+    <string name="exo_track_selection_title_video">వీడియో</string>
+    <string name="exo_track_stereo">స్టీరియో</string>
+    <string name="exo_track_surround">సరౌండ్ ధ్వని</string>
+    <string name="exo_track_surround_5_point_1">5.1 సరౌండ్ ధ్వని</string>
+    <string name="exo_track_surround_7_point_1">7.1 సరౌండ్ ధ్వని</string>
+    <string name="exo_track_unknown">తెలియదు</string>
     <string msgid="6827826412747255547" name="in_progress">"ప్రోగ్రెస్‌లో ఉంది"</string>
     <string msgid="7933458017204019916" name="indeterminate">"పాక్షికంగా ఎంచుకోబడింది"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"దిగువున ఉన్న షీట్‌ను కుదిస్తుంది"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"ఎంచుకోబడలేదు"</string>
     <string msgid="5941395253238309765" name="range_end">"పరిధి ముగిసింది"</string>
     <string msgid="7097486360902471446" name="range_start">"పరిధి ప్రారంభమయింది"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"సెర్చ్"</string>
     <string msgid="6043586758067023" name="selected">"ఎంచుకోబడింది"</string>
     <string msgid="4139871816613051306" name="state_empty">"ఖాళీగా ఉంది"</string>
     <string msgid="5834637030682409883" name="state_off">"ఆఫ్‌లో ఉంది"</string>

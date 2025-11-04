@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normal</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Spol %d sekund fremover</item>
+    <item quantity="other">Spol %d sekunder fremover</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Spol %d sekund bakover</item>
+    <item quantity="other">Spol %d sekunder bakover</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Naviger hjem"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Gå opp"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Flere alternativer"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Ferdig"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Se alle"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Velg en app"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"AV"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"PÅ"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"slett"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Funksjon+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"mellomrom"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Meny+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Søk"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Slett søket"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Søkeord"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Søk"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Utfør søket"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Talesøk"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Del med"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Del med <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Skjul"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Svar"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Avvis"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"Ugyldige inndata"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Forgrunnsvindu"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Rullegardinmeny"</string>
+    <string name="exo_controls_cc_disabled_description">Slå på undertekstene</string>
+    <string name="exo_controls_cc_enabled_description">Slå av undertekstene</string>
+    <string name="exo_controls_fastforward_description">Spol forover</string>
+    <string name="exo_controls_fullscreen_enter_description">Se i fullskjerm</string>
+    <string name="exo_controls_fullscreen_exit_description">Avslutt fullskjerm</string>
+    <string name="exo_controls_hide">Skjul avspillingskontrollene</string>
+    <string name="exo_controls_next_description">Neste</string>
+    <string name="exo_controls_overflow_hide_description">Skjul flere innstillinger</string>
+    <string name="exo_controls_overflow_show_description">Vis flere innstillinger</string>
+    <string name="exo_controls_pause_description">Sett på pause</string>
+    <string name="exo_controls_play_description">Spill av</string>
+    <string name="exo_controls_playback_speed">Hastighet</string>
+    <string name="exo_controls_previous_description">Forrige</string>
+    <string name="exo_controls_repeat_all_description">Modus: gjenta alle. Endre gjentakelsesmodus.</string>
+    <string name="exo_controls_repeat_off_description">Modus: gjenta ingen. Endre gjentakelsesmodus.</string>
+    <string name="exo_controls_repeat_one_description">Modus: gjenta én. Endre gjentakelsesmodus.</string>
+    <string name="exo_controls_rewind_description">Spol tilbake</string>
+    <string name="exo_controls_seek_bar_description">Avspillingsfremdrift</string>
+    <string name="exo_controls_settings_description">Innstillinger</string>
+    <string name="exo_controls_show">Vis avspillingskontrollene</string>
+    <string name="exo_controls_shuffle_off_description">Slå på modus for tilfeldig rekkefølge</string>
+    <string name="exo_controls_shuffle_on_description">Slå av modus for tilfeldig rekkefølge</string>
+    <string name="exo_controls_stop_description">Stopp</string>
+    <string name="exo_controls_vr_description">VR-modus</string>
+    <string name="exo_download_completed">Nedlastingen er fullført</string>
+    <string name="exo_download_description">Last ned</string>
+    <string name="exo_download_downloading">Laster ned</string>
+    <string name="exo_download_failed">Nedlastingen mislyktes</string>
+    <string name="exo_download_notification_channel_name">Nedlastinger</string>
+    <string name="exo_download_paused">Nedlastinger er satt på pause</string>
+    <string name="exo_download_paused_for_network">Nedlastinger venter på nettverket</string>
+    <string name="exo_download_paused_for_wifi">Nedlastinger venter på Wi-FI-tilkobling</string>
+    <string name="exo_download_removing">Fjerner nedlastinger</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Alternativt spor</string>
+    <string name="exo_track_role_closed_captions">Teksting</string>
+    <string name="exo_track_role_commentary">Kommentarer</string>
+    <string name="exo_track_role_supplementary">Tilleggsspor</string>
+    <string name="exo_track_selection_auto">Automatisk</string>
+    <string name="exo_track_selection_none">Ingen</string>
+    <string name="exo_track_selection_title_audio">Lyd</string>
+    <string name="exo_track_selection_title_text">Tekst</string>
+    <string name="exo_track_selection_title_video">Video</string>
+    <string name="exo_track_stereo">Stereo</string>
+    <string name="exo_track_surround">Surround-lyd</string>
+    <string name="exo_track_surround_5_point_1">5.1 surround-lyd</string>
+    <string name="exo_track_surround_7_point_1">7.1 surround-lyd</string>
+    <string name="exo_track_unknown">Ukjent</string>
     <string msgid="6827826412747255547" name="in_progress">"Pågår"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Delvis avmerket"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Skjul feltet nederst"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"Ikke valgt"</string>
     <string msgid="5941395253238309765" name="range_end">"Områdeslutt"</string>
     <string msgid="7097486360902471446" name="range_start">"Områdestart"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Søk"</string>
     <string msgid="6043586758067023" name="selected">"Valgt"</string>
     <string msgid="4139871816613051306" name="state_empty">"Tom"</string>
     <string msgid="5834637030682409883" name="state_off">"Av"</string>

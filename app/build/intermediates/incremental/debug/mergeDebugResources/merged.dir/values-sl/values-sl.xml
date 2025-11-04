@@ -1,5 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25-kratna</item>
+    <item>0,5-kratna</item>
+    <item>0,75-kratna</item>
+    <item>Običajna</item>
+    <item>1,25-kratna</item>
+    <item>1,5-kratna</item>
+    <item>2-kratna</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Premik naprej za %d sekundo</item>
+    <item quantity="two">Premik naprej za %d sekundi</item>
+    <item quantity="few">Premik naprej za %d sekunde</item>
+    <item quantity="other">Premik naprej za %d sekund</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Premik nazaj za %d sekundo</item>
+    <item quantity="two">Premik nazaj za %d sekundi</item>
+    <item quantity="few">Premik nazaj za %d sekunde</item>
+    <item quantity="other">Premik nazaj za %d sekund</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Krmarjenje na začetek"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Pomik navzgor"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Več možnosti"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Končano"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Pokaži vse"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Izbira aplikacije"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"IZKLOP"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"VKLOP"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt +"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl +"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Fn +"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta +"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift +"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"preslednica"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym +"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Meni +"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Iskanje …"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Izbris poizvedbe"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Iskalna poizvedba"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Iskanje"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Pošiljanje poizvedbe"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Glasovno iskanje"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Deljenje z:"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Deljenje z drugimi prek aplikacije <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Strnitev"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Sprejmi"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Zavrni"</string>
@@ -12,6 +60,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"Neveljaven vnos"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Pojavno okno"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Spustni meni"</string>
+    <string name="exo_controls_cc_disabled_description">Omogočanje podnapisov</string>
+    <string name="exo_controls_cc_enabled_description">Onemogočanje podnapisov</string>
+    <string name="exo_controls_fastforward_description">Previjanje naprej</string>
+    <string name="exo_controls_fullscreen_enter_description">Vstop v celozaslonski način</string>
+    <string name="exo_controls_fullscreen_exit_description">Izhod iz celozaslonskega načina</string>
+    <string name="exo_controls_hide">Skrivanje kontrolnikov predvajalnika</string>
+    <string name="exo_controls_next_description">Naprej</string>
+    <string name="exo_controls_overflow_hide_description">Skrivanje dodatnih nastavitev</string>
+    <string name="exo_controls_overflow_show_description">Prikaz dodatnih nastavitev</string>
+    <string name="exo_controls_pause_description">Zaustavitev</string>
+    <string name="exo_controls_play_description">Predvajanje</string>
+    <string name="exo_controls_playback_speed">Hitrost</string>
+    <string name="exo_controls_previous_description">Nazaj</string>
+    <string name="exo_controls_repeat_all_description">Trenutni način: Ponovi vse. Preklopite način ponavljanja.</string>
+    <string name="exo_controls_repeat_off_description">Trenutni način: Brez ponavljanja. Preklopite način ponavljanja.</string>
+    <string name="exo_controls_repeat_one_description">Trenutni način: Ponovi eno. Preklopite način ponavljanja.</string>
+    <string name="exo_controls_rewind_description">Previjanje nazaj</string>
+    <string name="exo_controls_seek_bar_description">Potek predvajanja</string>
+    <string name="exo_controls_settings_description">Nastavitve</string>
+    <string name="exo_controls_show">Prikaz kontrolnikov predvajalnika</string>
+    <string name="exo_controls_shuffle_off_description">Omogočanje načina naključnega predvajanja</string>
+    <string name="exo_controls_shuffle_on_description">Onemogočanje načina naključnega predvajanja</string>
+    <string name="exo_controls_stop_description">Ustavitev</string>
+    <string name="exo_controls_vr_description">Način VR</string>
+    <string name="exo_download_completed">Prenos je končan</string>
+    <string name="exo_download_description">Prenos</string>
+    <string name="exo_download_downloading">Prenašanje</string>
+    <string name="exo_download_failed">Prenos ni uspel</string>
+    <string name="exo_download_notification_channel_name">Prenosi</string>
+    <string name="exo_download_paused">Prenosi so začasno zaustavljeni.</string>
+    <string name="exo_download_paused_for_network">Prenosi čakajo na povezavo z omrežjem.</string>
+    <string name="exo_download_paused_for_wifi">Prenosi čakajo na povezavo Wi-Fi.</string>
+    <string name="exo_download_removing">Odstranjevanje prenosov</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mb/s</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Dodatni posnetek</string>
+    <string name="exo_track_role_closed_captions">Podnapisi</string>
+    <string name="exo_track_role_commentary">Komentar</string>
+    <string name="exo_track_role_supplementary">Dodatek</string>
+    <string name="exo_track_selection_auto">Samodejno</string>
+    <string name="exo_track_selection_none">Nič</string>
+    <string name="exo_track_selection_title_audio">Zvočni posnetki</string>
+    <string name="exo_track_selection_title_text">Podnapisi</string>
+    <string name="exo_track_selection_title_video">Videoposnetki</string>
+    <string name="exo_track_stereo">Stereo</string>
+    <string name="exo_track_surround">Prostorski zvok</string>
+    <string name="exo_track_surround_5_point_1">Prostorski zvok 5.1</string>
+    <string name="exo_track_surround_7_point_1">Prostorski zvok 7.1</string>
+    <string name="exo_track_unknown">Neznano</string>
     <string msgid="6827826412747255547" name="in_progress">"Poteka"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Delno potrjeno"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Strnitev razdelka na dnu zaslona"</string>
@@ -75,6 +174,7 @@
     <string msgid="6610465462668679431" name="not_selected">"Ni izbrano"</string>
     <string msgid="5941395253238309765" name="range_end">"Konec razpona"</string>
     <string msgid="7097486360902471446" name="range_start">"Začetek razpona"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Iskanje"</string>
     <string msgid="6043586758067023" name="selected">"Izbrano"</string>
     <string msgid="4139871816613051306" name="state_empty">"Prazno"</string>
     <string msgid="5834637030682409883" name="state_off">"Izklopljeno"</string>

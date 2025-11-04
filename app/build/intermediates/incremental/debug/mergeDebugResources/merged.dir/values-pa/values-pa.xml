@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0.25x</item>
+    <item>0.5x</item>
+    <item>0.75x</item>
+    <item>ਸਧਾਰਨ</item>
+    <item>1.25x</item>
+    <item>1.5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">ਤੇਜ਼ੀ ਨਾਲ %d ਸਕਿੰਟ ਅੱਗੇ ਕਰੋ</item>
+    <item quantity="other">ਤੇਜ਼ੀ ਨਾਲ %d ਸਕਿੰਟ ਅੱਗੇ ਕਰੋ</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d ਸਕਿੰਟ ਪਿੱਛੇ ਕਰੋ</item>
+    <item quantity="other">%d ਸਕਿੰਟ ਪਿੱਛੇ ਕਰੋ</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"ਹੋਮ \'ਤੇ ਜਾਓ"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"ਉੱਪਰ ਜਾਓ"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"ਹੋਰ ਵਿਕਲਪ"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"ਹੋ ਗਿਆ"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"ਸਭ ਦੇਖੋ"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"ਇੱਕ ਐਪ ਚੁਣੋ"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"ਬੰਦ"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ਚਾਲੂ"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"ਮਿਟਾਓ"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"space"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"ਖੋਜ…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"ਪੁੱਛਗਿੱਛ ਕਲੀਅਰ ਕਰੋ"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"ਖੋਜ ਪੁੱਛਗਿੱਛ"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"ਖੋਜ"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"ਪੁੱਛਗਿੱਛ ਸਪੁਰਦ ਕਰੋ"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"ਅਵਾਜ਼ੀ ਖੋਜ"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"ਇਸ ਨਾਲ ਸਾਂਝਾ ਕਰੋ"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g> ਨਾਲ ਸਾਂਝਾ ਕਰੋ"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"ਸਮੇਟੋ"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"ਜਵਾਬ ਦਿਓ"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"ਵੀਡੀਓ"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"ਕਾਲ ਕੱਟੋ"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"ਅਵੈਧ ਇਨਪੁੱਟ"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"ਪੌਪ-ਅੱਪ ਵਿੰਡੋ"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"ਡ੍ਰੌਪ-ਡਾਊਨ ਮੀਨੂ"</string>
+    <string name="exo_controls_cc_disabled_description">ਉਪਸਿਰਲੇਖਾਂ ਨੂੰ ਚਾਲੂ ਕਰੋ</string>
+    <string name="exo_controls_cc_enabled_description">ਉਪਸਿਰਲੇਖਾਂ ਨੂੰ ਬੰਦ ਕਰੋ</string>
+    <string name="exo_controls_fastforward_description">ਤੇਜ਼ੀ ਨਾਲ ਅੱਗੇ ਕਰੋ</string>
+    <string name="exo_controls_fullscreen_enter_description">ਪੂਰੀ ਸਕ੍ਰੀਨ ਦਾਖਲ ਕਰੋ</string>
+    <string name="exo_controls_fullscreen_exit_description">ਪੂਰੀ-ਸਕ੍ਰੀਨ ਤੋਂ ਬਾਹਰ ਜਾਓ</string>
+    <string name="exo_controls_hide">ਪਲੇਅਰ ਕੰਟਰੋਲਾਂ ਨੂੰ ਲੁਕਾਓ</string>
+    <string name="exo_controls_next_description">ਅੱਗੇ</string>
+    <string name="exo_controls_overflow_hide_description">ਵਧੀਕ ਸੈਟਿੰਗਾਂ ਨੂੰ ਲੁਕਾਓ</string>
+    <string name="exo_controls_overflow_show_description">ਵਧੀਕ ਸੈਟਿੰਗਾਂ ਨੂੰ ਦਿਖਾਓ</string>
+    <string name="exo_controls_pause_description">ਰੋਕੋ</string>
+    <string name="exo_controls_play_description">ਚਲਾਓ</string>
+    <string name="exo_controls_playback_speed">ਗਤੀ</string>
+    <string name="exo_controls_previous_description">ਪਿੱਛੇ</string>
+    <string name="exo_controls_repeat_all_description">ਮੌਜੂਦਾ ਮੋਡ: ਸਭ ਦੁਹਰਾਓ। ਦੁਹਰਾਓ ਮੋਡ ਟੌਗਲ ਕਰੋ।</string>
+    <string name="exo_controls_repeat_off_description">ਮੌਜੂਦਾ ਮੋਡ: ਕਿਸੇ ਨੂੰ ਨਾ ਦੁਹਰਾਓ। ਦੁਹਰਾਓ ਮੋਡ ਟੌਗਲ ਕਰੋ।</string>
+    <string name="exo_controls_repeat_one_description">ਮੌਜੂਦਾ ਮੋਡ: ਇੱਕ ਨੂੰ ਦੁਹਰਾਓ। ਦੁਹਰਾਓ ਮੋਡ ਟੌਗਲ ਕਰੋ।</string>
+    <string name="exo_controls_rewind_description">ਪਿੱਛੇ ਕਰੋ</string>
+    <string name="exo_controls_seek_bar_description">ਪਲੇਬੈਕ ਪ੍ਰਗਤੀ</string>
+    <string name="exo_controls_settings_description">ਸੈਟਿੰਗਾਂ</string>
+    <string name="exo_controls_show">ਪਲੇਅਰ ਕੰਟਰੋਲਾਂ ਨੂੰ ਦਿਖਾਓ</string>
+    <string name="exo_controls_shuffle_off_description">ਬੇਤਰਤੀਬ ਮੋਡ ਚਾਲੂ ਕਰੋ</string>
+    <string name="exo_controls_shuffle_on_description">ਬੇਤਰਤੀਬ ਮੋਡ ਬੰਦ ਕਰੋ</string>
+    <string name="exo_controls_stop_description">ਬੰਦ ਕਰੋ</string>
+    <string name="exo_controls_vr_description">VR ਮੋਡ</string>
+    <string name="exo_download_completed">ਡਾਊਨਲੋਡ ਮੁਕੰਮਲ ਹੋਇਆ</string>
+    <string name="exo_download_description">ਡਾਊਨਲੋਡ ਕਰੋ</string>
+    <string name="exo_download_downloading">ਡਾਊਨਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ</string>
+    <string name="exo_download_failed">ਡਾਊਨਲੋਡ ਅਸਫਲ ਰਿਹਾ</string>
+    <string name="exo_download_notification_channel_name">ਡਾਊਨਲੋਡ</string>
+    <string name="exo_download_paused">ਡਾਊਨਲੋਡ ਰੁਕ ਗਏ ਹਨ</string>
+    <string name="exo_download_paused_for_network">ਡਾਊਨਲੋਡਾਂ ਲਈ ਨੈੱਟਵਰਕ ਦੀ ਉਡੀਕ ਹੋ ਰਹੀ ਹੈ</string>
+    <string name="exo_download_paused_for_wifi">ਡਾਊਨਲੋਡਾਂ ਲਈ ਵਾਈ-ਫਾਈ ਦੀ ਉਡੀਕ ਹੋ ਰਹੀ ਹੈ</string>
+    <string name="exo_download_removing">ਡਾਊਨਲੋਡ ਕੀਤੀ ਸਮੱਗਰੀ ਹਟਾਈ ਜਾ ਰਹੀ ਹੈ</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">ਮੋਨੋ</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">ਵਟਾਵਾਂ</string>
+    <string name="exo_track_role_closed_captions">ਬੰਦ ਸੁੁਰਖੀਆਂ</string>
+    <string name="exo_track_role_commentary">ਕਮੈਂਟਰੀ</string>
+    <string name="exo_track_role_supplementary">ਪੂਰਕ</string>
+    <string name="exo_track_selection_auto">ਸਵੈਚਲਿਤ</string>
+    <string name="exo_track_selection_none">ਕੋਈ ਨਹੀਂ</string>
+    <string name="exo_track_selection_title_audio">ਆਡੀਓ</string>
+    <string name="exo_track_selection_title_text">ਲਿਖਤ</string>
+    <string name="exo_track_selection_title_video">ਵੀਡੀਓ</string>
+    <string name="exo_track_stereo">ਸਟੀਰਿਓ</string>
+    <string name="exo_track_surround">ਸਰਾਊਂਡ ਸਾਊਂਡ</string>
+    <string name="exo_track_surround_5_point_1">5.1 ਸਰਾਊਂਡ ਸਾਊਂਡ</string>
+    <string name="exo_track_surround_7_point_1">7.1 ਸਰਾਊਂਡ ਸਾਊਂਡ</string>
+    <string name="exo_track_unknown">ਅਗਿਆਤ</string>
     <string msgid="6827826412747255547" name="in_progress">"ਜਾਰੀ ਹੈ"</string>
     <string msgid="7933458017204019916" name="indeterminate">"ਅੰਸ਼ਕ ਤੌਰ ਤੇ ਜਾਂਚ ਕੀਤੀ ਗਈ"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"ਹੇਠਲੀ ਸ਼ੀਟ ਨੂੰ ਸਮੇਟੋ"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"ਚੁਣੀ ਨਹੀਂ ਗਈ"</string>
     <string msgid="5941395253238309765" name="range_end">"ਰੇਂਜ ਸਮਾਪਤ"</string>
     <string msgid="7097486360902471446" name="range_start">"ਰੇਂਜ ਸ਼ੁਰੂ"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"ਖੋਜ"</string>
     <string msgid="6043586758067023" name="selected">"ਚੁਣੀ ਗਈ"</string>
     <string msgid="4139871816613051306" name="state_empty">"ਖਾਲੀ"</string>
     <string msgid="5834637030682409883" name="state_off">"ਬੰਦ ਹੈ"</string>
