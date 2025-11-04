@@ -1,6 +1,7 @@
 package org.streambox.app.ui
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -38,6 +39,8 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.runtime.*
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.ui.Alignment
@@ -56,6 +59,7 @@ import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 import org.streambox.app.R
 import org.streambox.app.audio.AudioManager
@@ -129,7 +133,7 @@ fun SoundsScreen(
             ),
             SoundItem(
                 AudioManager.Sound.CAT_PURRING,
-                "猫咪呼噜",
+                "猫呼噜",
                 R.raw.cat,
                 colorScheme.tertiary
             ),
@@ -372,6 +376,8 @@ fun SoundsScreen(
                                     val currentSet = pinnedSounds.value.toMutableSet()
                                     if (isPinned) {
                                         currentSet.add(sound)
+                                        // 如果声音正在播放，立即同步播放状态
+                                        playingStates[sound] = audioManager.isPlayingSound(sound)
                                     } else {
                                         currentSet.remove(sound)
                                     }
@@ -452,7 +458,36 @@ fun SoundsScreen(
                 }
                 1 -> {
                     // 收藏页面
-                    FavoriteSoundsContent()
+                    FavoriteSoundsContent(
+                        soundItems = soundItems,
+                        playingStates = playingStates,
+                        audioManager = audioManager,
+                        context = context,
+                        hideAnimation = hideAnimation,
+                        columnsCount = columnsCount,
+                        pinnedSounds = pinnedSounds,
+                        favoriteSounds = favoriteSounds,
+                        onPinnedChange = { sound, isPinned ->
+                            val currentSet = pinnedSounds.value.toMutableSet()
+                            if (isPinned) {
+                                currentSet.add(sound)
+                                // 如果声音正在播放，立即同步播放状态
+                                playingStates[sound] = audioManager.isPlayingSound(sound)
+                            } else {
+                                currentSet.remove(sound)
+                            }
+                            pinnedSounds.value = currentSet
+                        },
+                        onFavoriteChange = { sound, isFavorite ->
+                            val currentSet = favoriteSounds.value.toMutableSet()
+                            if (isFavorite) {
+                                currentSet.add(sound)
+                            } else {
+                                currentSet.remove(sound)
+                            }
+                            favoriteSounds.value = currentSet
+                        }
+                    )
                 }
                 2 -> {
                     // 线上页面
@@ -603,7 +638,6 @@ private fun DefaultArea(
                                     playingStates[sound] = true
                                 }
                             },
-                            onVolumeClick = { showVolumeDialog = true },
                             onRemove = {
                                 val currentSet = pinnedSounds.value.toMutableSet()
                                 currentSet.remove(item.sound)
@@ -613,6 +647,8 @@ private fun DefaultArea(
                                 val currentSet = pinnedSounds.value.toMutableSet()
                                 if (isPinned) {
                                     currentSet.add(item.sound)
+                                    // 如果声音正在播放，立即同步播放状态
+                                    playingStates[item.sound] = audioManager.isPlayingSound(item.sound)
                                 } else {
                                     currentSet.remove(item.sound)
                                 }
@@ -659,7 +695,6 @@ private fun DefaultCard(
     isFavorite: Boolean,
     isEditMode: Boolean = false,
     onToggle: (AudioManager.Sound) -> Unit,
-    onVolumeClick: () -> Unit = {},
     onRemove: () -> Unit = {},
     onPinnedChange: (Boolean) -> Unit = {},
     onFavoriteChange: (Boolean) -> Unit = {},
@@ -734,33 +769,15 @@ private fun DefaultCard(
                 }
             }
             
-            // 声音图标（左下角）
-            Icon(
-                imageVector = Icons.Default.GraphicEq,
-                contentDescription = null,
+            // 音频可视化器（左下角，三条竖线动画）
+            AudioVisualizer(
+                isPlaying = isPlaying,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .size(24.dp)
+                    .size(24.dp, 16.dp)
                     .alpha(alpha),
-                tint = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary
             )
-            
-            // 音量图标（右下角，只在播放时显示）
-            if (isPlaying) {
-                IconButton(
-                    onClick = onVolumeClick,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.VolumeUp,
-                        contentDescription = "调节音量",
-                        modifier = Modifier.size(18.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                }
-            }
         }
     }
 }
@@ -823,6 +840,8 @@ private fun BuiltInSoundsContent(
                             val currentSet = pinnedSounds.value.toMutableSet()
                             if (isPinned) {
                                 currentSet.add(item.sound)
+                                // 如果声音正在播放，立即同步播放状态
+                                playingStates[item.sound] = audioManager.isPlayingSound(item.sound)
                             } else {
                                 currentSet.remove(item.sound)
                             }
@@ -862,31 +881,118 @@ private fun BuiltInSoundsContent(
  * 收藏声音内容
  */
 @Composable
-private fun FavoriteSoundsContent() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+private fun FavoriteSoundsContent(
+    soundItems: List<SoundItem>,
+    playingStates: MutableMap<AudioManager.Sound, Boolean>,
+    audioManager: AudioManager,
+    context: android.content.Context,
+    hideAnimation: Boolean = false,
+    columnsCount: Int = 2,
+    pinnedSounds: MutableState<MutableSet<AudioManager.Sound>>,
+    favoriteSounds: MutableState<MutableSet<AudioManager.Sound>>,
+    onPinnedChange: (AudioManager.Sound, Boolean) -> Unit,
+    onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit
+) {
+    // 过滤出收藏的声音
+    val favoriteItems = remember(favoriteSounds.value) {
+        soundItems.filter { favoriteSounds.value.contains(it.sound) }
+    }
+    
+    if (favoriteItems.isEmpty()) {
+        // 没有收藏时显示占位符
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            Icon(
-                Icons.Default.Star,
-                contentDescription = null,
-                modifier = Modifier.size(64.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                "暂无收藏",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Text(
-                "收藏的声音将显示在这里",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Icon(
+                    Icons.Default.Star,
+                    contentDescription = null,
+                    modifier = Modifier.size(64.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "暂无收藏",
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "收藏的声音将显示在这里",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+    } else {
+        // 有收藏时显示卡片列表
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(columnsCount),
+            contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(favoriteItems) { item ->
+                var showVolumeDialog by remember { mutableStateOf(false) }
+                
+                SoundCard(
+                    item = item,
+                    isPlaying = playingStates[item.sound] ?: false,
+                    hideAnimation = hideAnimation,
+                    columnsCount = columnsCount,
+                    isPinned = pinnedSounds.value.contains(item.sound),
+                    isFavorite = favoriteSounds.value.contains(item.sound),
+                    onToggle = { sound ->
+                        val wasPlaying = audioManager.isPlayingSound(sound)
+                        if (wasPlaying) {
+                            audioManager.pauseSound(sound)
+                            playingStates[sound] = false
+                        } else {
+                            audioManager.playSound(context, sound)
+                            playingStates[sound] = true
+                        }
+                    },
+                    onVolumeClick = { showVolumeDialog = true },
+                    onTitleClick = { },
+                    onPinnedChange = { isPinned ->
+                        val currentSet = pinnedSounds.value.toMutableSet()
+                        if (isPinned) {
+                            currentSet.add(item.sound)
+                            // 如果声音正在播放，立即同步播放状态
+                            playingStates[item.sound] = audioManager.isPlayingSound(item.sound)
+                        } else {
+                            currentSet.remove(item.sound)
+                        }
+                        pinnedSounds.value = currentSet
+                        onPinnedChange(item.sound, isPinned)
+                    },
+                    onFavoriteChange = { isFavorite ->
+                        val currentSet = favoriteSounds.value.toMutableSet()
+                        if (isFavorite) {
+                            currentSet.add(item.sound)
+                        } else {
+                            currentSet.remove(item.sound)
+                        }
+                        favoriteSounds.value = currentSet
+                        onFavoriteChange(item.sound, isFavorite)
+                    }
+                )
+                
+                // 音量调节对话框
+                if (showVolumeDialog) {
+                    VolumeDialog(
+                        sound = item.sound,
+                        currentVolume = audioManager.getVolume(item.sound),
+                        onDismiss = { showVolumeDialog = false },
+                        onVolumeChange = { volume ->
+                            audioManager.setVolume(item.sound, volume)
+                        }
+                    )
+                }
+            }
         }
     }
 }
@@ -1661,5 +1767,90 @@ fun TimerDialog(
             }
         }
     )
+}
+
+/**
+ * 音频可视化器组件（三条竖线动画）
+ * 参考OpenTune项目的实现风格，符合MD3规范
+ */
+@Composable
+fun AudioVisualizer(
+    isPlaying: Boolean,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.primary,
+    barCount: Int = 3
+) {
+    // 使用Animatable来更好地控制动画状态
+    val bar1Height = remember { Animatable(0.25f) }
+    val bar2Height = remember { Animatable(0.25f) }
+    val bar3Height = remember { Animatable(0.25f) }
+    
+    // 当isPlaying变化时，启动或停止动画
+    LaunchedEffect(isPlaying) {
+        if (isPlaying) {
+            // 启动三个独立的动画，使用不同的延迟和持续时间
+            launch {
+                bar1Height.animateTo(
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(400, easing = EaseInOut),
+                        repeatMode = RepeatMode.Reverse
+                    )
+                )
+            }
+            launch {
+                delay(75)
+                bar2Height.animateTo(
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(450, easing = EaseInOut),
+                        repeatMode = RepeatMode.Reverse
+                    )
+                )
+            }
+            launch {
+                delay(150)
+                bar3Height.animateTo(
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(500, easing = EaseInOut),
+                        repeatMode = RepeatMode.Reverse
+                    )
+                )
+            }
+        } else {
+            // 停止时重置
+            bar1Height.animateTo(0.25f, animationSpec = tween(200, easing = EaseInOut))
+            bar2Height.animateTo(0.25f, animationSpec = tween(200, easing = EaseInOut))
+            bar3Height.animateTo(0.25f, animationSpec = tween(200, easing = EaseInOut))
+        }
+    }
+    
+    Canvas(modifier = modifier) {
+        val totalBars = barCount
+        val barSpacing = 3.dp.toPx() // 竖线之间的间距
+        val barWidth = (size.width - barSpacing * (totalBars - 1)) / totalBars
+        val minHeight = size.height * 0.25f
+        val maxHeight = size.height
+        
+        // 绘制三根竖线，使用圆角矩形
+        val heights = listOf(bar1Height.value, bar2Height.value, bar3Height.value)
+        val cornerRadius = barWidth / 2 // 完全圆角
+        
+        for (i in 0 until barCount) {
+            val x = i * (barWidth + barSpacing) + barWidth / 2
+            val heightRatio = heights[i].coerceIn(0.25f, 1f)
+            val barHeight = minHeight + (maxHeight - minHeight) * heightRatio
+            val topY = size.height - barHeight
+            
+            // 绘制圆角矩形
+            drawRoundRect(
+                color = color,
+                topLeft = Offset(x - barWidth / 2, topY),
+                size = Size(barWidth, barHeight),
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(cornerRadius, cornerRadius)
+            )
+        }
+    }
 }
 
