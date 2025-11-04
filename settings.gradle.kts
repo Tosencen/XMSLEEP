@@ -18,4 +18,3 @@ dependencyResolutionManagement {
 
 // MVP 版本 - 只包含 Android 应用
 include(":app")
-include(":datasource:xmbox")
