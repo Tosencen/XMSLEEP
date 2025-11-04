@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0.25배속</item>
+    <item>0.5배속</item>
+    <item>0.75배속</item>
+    <item>보통</item>
+    <item>1.25배속</item>
+    <item>1.5배속</item>
+    <item>2배속</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">%d초 빨리 감기</item>
+    <item quantity="other">%d초 빨리 감기</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">%d초 되감기</item>
+    <item quantity="other">%d초 되감기</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"홈으로 이동"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"위로 이동"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"추가 옵션"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"완료"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"전체 보기"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"앱 선택"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"사용 중지"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"사용"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"Delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"스페이스바"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"검색..."</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"검색어 삭제"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"검색어"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"검색"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"검색어 보내기"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"음성 검색"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"공유 대상:"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"<ns1:g id="APPLICATION_NAME">%s</ns1:g>과(와) 공유"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"접기"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"통화"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"동영상"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"거절"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"입력이 잘못됨"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"팝업 창"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"드롭다운 메뉴"</string>
+    <string name="exo_controls_cc_disabled_description">자막 사용 설정</string>
+    <string name="exo_controls_cc_enabled_description">자막 사용 중지</string>
+    <string name="exo_controls_fastforward_description">빨리 감기</string>
+    <string name="exo_controls_fullscreen_enter_description">전체 화면으로 전환</string>
+    <string name="exo_controls_fullscreen_exit_description">전체 화면 종료</string>
+    <string name="exo_controls_hide">플레이어 컨트롤 숨기기</string>
+    <string name="exo_controls_next_description">다음</string>
+    <string name="exo_controls_overflow_hide_description">추가 설정 숨기기</string>
+    <string name="exo_controls_overflow_show_description">추가 설정 표시</string>
+    <string name="exo_controls_pause_description">일시중지</string>
+    <string name="exo_controls_play_description">재생</string>
+    <string name="exo_controls_playback_speed">속도</string>
+    <string name="exo_controls_previous_description">이전</string>
+    <string name="exo_controls_repeat_all_description">현재 모드: 모두 반복. 반목 모드 전환.</string>
+    <string name="exo_controls_repeat_off_description">현재 모드: 반복 안함. 반목 모드 전환.</string>
+    <string name="exo_controls_repeat_one_description">현재 모드: 한 개 반복. 반목 모드 전환.</string>
+    <string name="exo_controls_rewind_description">되감기</string>
+    <string name="exo_controls_seek_bar_description">재생 진행률</string>
+    <string name="exo_controls_settings_description">설정</string>
+    <string name="exo_controls_show">플레이어 컨트롤 표시</string>
+    <string name="exo_controls_shuffle_off_description">셔플 모드 사용 설정</string>
+    <string name="exo_controls_shuffle_on_description">셔플 모드 사용 중지</string>
+    <string name="exo_controls_stop_description">중지</string>
+    <string name="exo_controls_vr_description">가상 현실 모드</string>
+    <string name="exo_download_completed">다운로드 완료</string>
+    <string name="exo_download_description">다운로드</string>
+    <string name="exo_download_downloading">다운로드 중</string>
+    <string name="exo_download_failed">다운로드 실패</string>
+    <string name="exo_download_notification_channel_name">다운로드</string>
+    <string name="exo_download_paused">다운로드 일시중지됨</string>
+    <string name="exo_download_paused_for_network">다운로드를 위해 네트워크 연결 대기 중</string>
+    <string name="exo_download_paused_for_wifi">다운로드를 위해 Wi-Fi 연결 대기 중</string>
+    <string name="exo_download_removing">다운로드 항목 삭제 중</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2fMbps</string>
+    <string name="exo_track_mono">모노</string>
+    <string name="exo_track_resolution">%1$d×%2$d</string>
+    <string name="exo_track_role_alternate">대체</string>
+    <string name="exo_track_role_closed_captions">자막</string>
+    <string name="exo_track_role_commentary">논평</string>
+    <string name="exo_track_role_supplementary">추가</string>
+    <string name="exo_track_selection_auto">자동</string>
+    <string name="exo_track_selection_none">없음</string>
+    <string name="exo_track_selection_title_audio">오디오</string>
+    <string name="exo_track_selection_title_text">텍스트</string>
+    <string name="exo_track_selection_title_video">동영상</string>
+    <string name="exo_track_stereo">스테레오</string>
+    <string name="exo_track_surround">서라운드 사운드</string>
+    <string name="exo_track_surround_5_point_1">5.1 서라운드 사운드</string>
+    <string name="exo_track_surround_7_point_1">7.1 서라운드 사운드</string>
+    <string name="exo_track_unknown">알 수 없음</string>
     <string msgid="6827826412747255547" name="in_progress">"진행 중"</string>
     <string msgid="7933458017204019916" name="indeterminate">"일부 선택됨"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"하단 시트 접기"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"선택되지 않음"</string>
     <string msgid="5941395253238309765" name="range_end">"범위 끝"</string>
     <string msgid="7097486360902471446" name="range_start">"범위 시작"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"검색"</string>
     <string msgid="6043586758067023" name="selected">"선택됨"</string>
     <string msgid="4139871816613051306" name="state_empty">"비어 있음"</string>
     <string msgid="5834637030682409883" name="state_off">"사용 안함"</string>

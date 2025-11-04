@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0.25 倍</item>
+    <item>0.5 倍</item>
+    <item>0.75 倍</item>
+    <item>正常</item>
+    <item>1.25 倍</item>
+    <item>1.5 倍</item>
+    <item>2 倍</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">快轉 %d 秒</item>
+    <item quantity="other">快轉 %d 秒</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">倒轉 %d 秒</item>
+    <item quantity="other">倒轉 %d 秒</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"瀏覽首頁"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"向上瀏覽"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"更多選項"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"完成"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"查看全部"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"選擇應用程式"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"關閉"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"開啟"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt +"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl +"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"Delete 鍵"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter 鍵"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Fn +"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta +"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift +"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"空格鍵"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym +"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu +"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"搜尋…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"清除查詢"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"搜尋查詢"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"搜尋"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"提交查詢"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"語音搜尋"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"分享對象"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"與「<ns1:g id="APPLICATION_NAME">%s</ns1:g>」分享"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"收合"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"接聽"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"視訊"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"拒接"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"輸入內容無效"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"彈出式視窗"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"下拉式選單"</string>
+    <string name="exo_controls_cc_disabled_description">啟用字幕 (Subtitle)</string>
+    <string name="exo_controls_cc_enabled_description">停用字幕 (Subtitle)</string>
+    <string name="exo_controls_fastforward_description">快轉</string>
+    <string name="exo_controls_fullscreen_enter_description">進入全螢幕模式</string>
+    <string name="exo_controls_fullscreen_exit_description">結束全螢幕模式</string>
+    <string name="exo_controls_hide">隱藏播放器控制選項</string>
+    <string name="exo_controls_next_description">繼續</string>
+    <string name="exo_controls_overflow_hide_description">隱藏其他設定</string>
+    <string name="exo_controls_overflow_show_description">顯示其他設定</string>
+    <string name="exo_controls_pause_description">暫停</string>
+    <string name="exo_controls_play_description">播放</string>
+    <string name="exo_controls_playback_speed">速度</string>
+    <string name="exo_controls_previous_description">返回</string>
+    <string name="exo_controls_repeat_all_description">目前模式：重複播放所有項目。切換重複播放模式。</string>
+    <string name="exo_controls_repeat_off_description">目前模式：不重複播放。切換重複播放模式。</string>
+    <string name="exo_controls_repeat_one_description">目前模式：重複播放單一項目。切換重複播放模式。</string>
+    <string name="exo_controls_rewind_description">倒轉</string>
+    <string name="exo_controls_seek_bar_description">播放進度</string>
+    <string name="exo_controls_settings_description">設定</string>
+    <string name="exo_controls_show">顯示播放器控制選項</string>
+    <string name="exo_controls_shuffle_off_description">啟用隨機播放模式</string>
+    <string name="exo_controls_shuffle_on_description">停用隨機播放模式</string>
+    <string name="exo_controls_stop_description">停止</string>
+    <string name="exo_controls_vr_description">虛擬實境模式</string>
+    <string name="exo_download_completed">下載完成</string>
+    <string name="exo_download_description">下載</string>
+    <string name="exo_download_downloading">下載中</string>
+    <string name="exo_download_failed">無法下載</string>
+    <string name="exo_download_notification_channel_name">下載</string>
+    <string name="exo_download_paused">已暫停下載</string>
+    <string name="exo_download_paused_for_network">系統會等到連上網路後再開始下載</string>
+    <string name="exo_download_paused_for_wifi">系統會等到連上 Wi-Fi 後再開始下載</string>
+    <string name="exo_download_removing">正在移除下載內容</string>
+    <string name="exo_item_list">%1$s、%2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">單聲道</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">替用軌</string>
+    <string name="exo_track_role_closed_captions">CC</string>
+    <string name="exo_track_role_commentary">旁白</string>
+    <string name="exo_track_role_supplementary">補充軌</string>
+    <string name="exo_track_selection_auto">自動</string>
+    <string name="exo_track_selection_none">無</string>
+    <string name="exo_track_selection_title_audio">音訊</string>
+    <string name="exo_track_selection_title_text">文字</string>
+    <string name="exo_track_selection_title_video">影片</string>
+    <string name="exo_track_stereo">立體聲</string>
+    <string name="exo_track_surround">環繞音效</string>
+    <string name="exo_track_surround_5_point_1">5.1 環繞音效</string>
+    <string name="exo_track_surround_7_point_1">7.1 環繞音效</string>
+    <string name="exo_track_unknown">不明</string>
     <string msgid="6827826412747255547" name="in_progress">"處理中"</string>
     <string msgid="7933458017204019916" name="indeterminate">"部分檢查"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"收合底部功能表"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"未選取"</string>
     <string msgid="5941395253238309765" name="range_end">"範圍終點"</string>
     <string msgid="7097486360902471446" name="range_start">"範圍起點"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"搜尋"</string>
     <string msgid="6043586758067023" name="selected">"已選取"</string>
     <string msgid="4139871816613051306" name="state_empty">"空白"</string>
     <string msgid="5834637030682409883" name="state_off">"已關閉"</string>

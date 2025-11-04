@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normal</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Maju cepat %d detik</item>
+    <item quantity="other">Maju cepat %d detik</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Mundur %d detik</item>
+    <item quantity="other">Mundur %d detik</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Tunjukkan jalan ke rumah"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Kembali ke atas"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Opsi lain"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Selesai"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Lihat semua"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Pilih aplikasi"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"NONAKTIF"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"AKTIF"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"spasi"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Telusuri..."</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Hapus kueri"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Telusuri kueri"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Telusuri"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Kirim kueri"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Penelusuran suara"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Bagikan dengan"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Bagikan dengan <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Ciutkan"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Jawab"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Video"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Tolak"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"Input tidak valid"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Jendela Pop-Up"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Menu dropdown"</string>
+    <string name="exo_controls_cc_disabled_description">Aktifkan subtitel</string>
+    <string name="exo_controls_cc_enabled_description">Nonaktifkan subtitel</string>
+    <string name="exo_controls_fastforward_description">Maju cepat</string>
+    <string name="exo_controls_fullscreen_enter_description">Masuk layar penuh</string>
+    <string name="exo_controls_fullscreen_exit_description">Keluar dari layar penuh</string>
+    <string name="exo_controls_hide">Menyembunyikan kontrol pemutar</string>
+    <string name="exo_controls_next_description">Berikutnya</string>
+    <string name="exo_controls_overflow_hide_description">Sembunyikan setelan tambahan</string>
+    <string name="exo_controls_overflow_show_description">Tampilkan setelan tambahan</string>
+    <string name="exo_controls_pause_description">Jeda</string>
+    <string name="exo_controls_play_description">Putar</string>
+    <string name="exo_controls_playback_speed">Kecepatan</string>
+    <string name="exo_controls_previous_description">Sebelumnya</string>
+    <string name="exo_controls_repeat_all_description">Mode saat ini: Ulang semua. Alihkan mode berulang.</string>
+    <string name="exo_controls_repeat_off_description">Mode saat ini: Tidak berulang. Alihkan mode berulang.</string>
+    <string name="exo_controls_repeat_one_description">Mode saat ini: Ulang sekali. Alihkan mode berulang.</string>
+    <string name="exo_controls_rewind_description">Putar Ulang</string>
+    <string name="exo_controls_seek_bar_description">Progres pemutaran</string>
+    <string name="exo_controls_settings_description">Setelan</string>
+    <string name="exo_controls_show">Menampilkan kontrol pemutar</string>
+    <string name="exo_controls_shuffle_off_description">Aktifkan mode acak</string>
+    <string name="exo_controls_shuffle_on_description">Nonaktifkan mode acak</string>
+    <string name="exo_controls_stop_description">Berhenti</string>
+    <string name="exo_controls_vr_description">Mode VR</string>
+    <string name="exo_download_completed">Download selesai</string>
+    <string name="exo_download_description">Download</string>
+    <string name="exo_download_downloading">Mendownload</string>
+    <string name="exo_download_failed">Download gagal</string>
+    <string name="exo_download_notification_channel_name">Download</string>
+    <string name="exo_download_paused">Download dijeda</string>
+    <string name="exo_download_paused_for_network">Download menunggu konektivitas jaringan</string>
+    <string name="exo_download_paused_for_wifi">Download menunggu konektivitas Wi-Fi</string>
+    <string name="exo_download_removing">Menghapus download</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mbps</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Alternatif</string>
+    <string name="exo_track_role_closed_captions">CC</string>
+    <string name="exo_track_role_commentary">Komentar</string>
+    <string name="exo_track_role_supplementary">Tambahan</string>
+    <string name="exo_track_selection_auto">Otomatis</string>
+    <string name="exo_track_selection_none">Tidak ada</string>
+    <string name="exo_track_selection_title_audio">Audio</string>
+    <string name="exo_track_selection_title_text">Teks</string>
+    <string name="exo_track_selection_title_video">Video</string>
+    <string name="exo_track_stereo">Stereo</string>
+    <string name="exo_track_surround">Suara surround</string>
+    <string name="exo_track_surround_5_point_1">5.1 surround sound</string>
+    <string name="exo_track_surround_7_point_1">7.1 surround sound</string>
+    <string name="exo_track_unknown">Tidak diketahui</string>
     <string msgid="6827826412747255547" name="in_progress">"Dalam proses"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Diperiksa sebagian"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Menciutkan sheet bawah"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"Tidak dipilih"</string>
     <string msgid="5941395253238309765" name="range_end">"Rentang akhir"</string>
     <string msgid="7097486360902471446" name="range_start">"Rentang awal"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Telusuri"</string>
     <string msgid="6043586758067023" name="selected">"Dipilih"</string>
     <string msgid="4139871816613051306" name="state_empty">"Kosong"</string>
     <string msgid="5834637030682409883" name="state_off">"Nonaktif"</string>

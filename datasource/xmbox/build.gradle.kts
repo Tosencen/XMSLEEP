@@ -41,5 +41,8 @@ dependencies {
     implementation("io.ktor:ktor-client-core:2.3.12")
     implementation("io.ktor:ktor-client-content-negotiation:2.3.12")
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.12")
+    
+    // HTML解析
+    implementation("org.jsoup:jsoup:1.17.2")
 }
 

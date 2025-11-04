@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "org.streambox.app-mergeDebugResources-51:/values-v30/values-v30.xml",
+            "outputFile": "org.streambox.app-mergeDebugResources-63:/values-v30/values-v30.xml",
             "map": [
                 {
                     "source": "/Users/chen/.gradle/caches/8.12/transforms/cb0b54eb1c1624090484bcc0b491283c/transformed/material3-release/res/values-v30/values-v30.xml",

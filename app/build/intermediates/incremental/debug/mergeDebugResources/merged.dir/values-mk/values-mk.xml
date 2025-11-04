@@ -1,5 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25 пати</item>
+    <item>0,5 пати</item>
+    <item>0,75 пати</item>
+    <item>Нормално</item>
+    <item>1,25 пати</item>
+    <item>1,5 пати</item>
+    <item>2 пати</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Премотајте напред %d секунда</item>
+    <item quantity="other">Премотајте напред %d секунди</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Премотајте %d секунда</item>
+    <item quantity="other">Премотајте %d секунди</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Движи се кон дома"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Движи се нагоре"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Повеќе опции"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Готово"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Прикажи ги сите"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Избери апликација"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"ИСКЛУЧЕНО"</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"ВКЛУЧЕНО"</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"избриши"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Function+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"вселена"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Пребарување…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Исчисти барање"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Пребарај барање"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Пребарај"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Испрати барање"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Гласовно пребарување"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Сподели со"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Сподели со <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Собери"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Одговори"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Видео"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Одбиј"</string>
@@ -12,6 +56,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"Неважечки запис"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Скокачки прозорец"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Паѓачко мени"</string>
+    <string name="exo_controls_cc_disabled_description">Овозможете ги титловите</string>
+    <string name="exo_controls_cc_enabled_description">Оневозможете ги титловите</string>
+    <string name="exo_controls_fastforward_description">Премотај напред</string>
+    <string name="exo_controls_fullscreen_enter_description">Приказ на цел екран</string>
+    <string name="exo_controls_fullscreen_exit_description">Излезете од цел екран</string>
+    <string name="exo_controls_hide">Скриј ги контролите на плеерот</string>
+    <string name="exo_controls_next_description">Следна</string>
+    <string name="exo_controls_overflow_hide_description">Сокријте ги дополнителните поставки</string>
+    <string name="exo_controls_overflow_show_description">Погледнете ги дополнителните поставки</string>
+    <string name="exo_controls_pause_description">Пауза</string>
+    <string name="exo_controls_play_description">Пушти</string>
+    <string name="exo_controls_playback_speed">Брзина</string>
+    <string name="exo_controls_previous_description">Претходна</string>
+    <string name="exo_controls_repeat_all_description">Тековно: повтори ги сите. Вклучи/исклучи повторување.</string>
+    <string name="exo_controls_repeat_off_description">Тековно: не повторувај. Вклучи/исклучи повторување.</string>
+    <string name="exo_controls_repeat_one_description">Тековно: повтори една. Вклучи/исклучи повторување.</string>
+    <string name="exo_controls_rewind_description">Премотај наназад</string>
+    <string name="exo_controls_seek_bar_description">Напредок на репродукцијата</string>
+    <string name="exo_controls_settings_description">Поставки</string>
+    <string name="exo_controls_show">Прикажи ги контролите на плеерот</string>
+    <string name="exo_controls_shuffle_off_description">Овозможи режим на мешање</string>
+    <string name="exo_controls_shuffle_on_description">Оневозможи режим на мешање</string>
+    <string name="exo_controls_stop_description">Сопри</string>
+    <string name="exo_controls_vr_description">Режим на VR</string>
+    <string name="exo_download_completed">Преземањето заврши</string>
+    <string name="exo_download_description">Преземи</string>
+    <string name="exo_download_downloading">Се презема</string>
+    <string name="exo_download_failed">Неуспешно преземање</string>
+    <string name="exo_download_notification_channel_name">Преземања</string>
+    <string name="exo_download_paused">Преземањата се паузирани</string>
+    <string name="exo_download_paused_for_network">Се чека мрежа за преземањата</string>
+    <string name="exo_download_paused_for_wifi">Се чека WiFi за преземањата</string>
+    <string name="exo_download_removing">Се отстрануваат преземањата</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mб/с</string>
+    <string name="exo_track_mono">Моно</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Алтернативна</string>
+    <string name="exo_track_role_closed_captions">Титлови</string>
+    <string name="exo_track_role_commentary">Коментар</string>
+    <string name="exo_track_role_supplementary">Дополнителна</string>
+    <string name="exo_track_selection_auto">Автоматскa</string>
+    <string name="exo_track_selection_none">Нема</string>
+    <string name="exo_track_selection_title_audio">Аудио</string>
+    <string name="exo_track_selection_title_text">Текст</string>
+    <string name="exo_track_selection_title_video">Видео</string>
+    <string name="exo_track_stereo">Стерео</string>
+    <string name="exo_track_surround">Опкружувачки звук</string>
+    <string name="exo_track_surround_5_point_1">5.1 опкружувачки звук</string>
+    <string name="exo_track_surround_7_point_1">7.1 опкружувачки звук</string>
+    <string name="exo_track_unknown">Непозната</string>
     <string msgid="6827826412747255547" name="in_progress">"Во тек"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Делумно проверено"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Собери го долниот лист"</string>
@@ -75,6 +170,7 @@
     <string msgid="6610465462668679431" name="not_selected">"Не е избрано"</string>
     <string msgid="5941395253238309765" name="range_end">"Крај на опсегот"</string>
     <string msgid="7097486360902471446" name="range_start">"Почеток на опсегот"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Пребарај"</string>
     <string msgid="6043586758067023" name="selected">"Избрано"</string>
     <string msgid="4139871816613051306" name="state_empty">"Празно"</string>
     <string msgid="5834637030682409883" name="state_off">"Исклучено"</string>

@@ -1,5 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:ns1="urn:oasis:names:tc:xliff:document:1.2">
+    <string-array name="exo_controls_playback_speeds">
+    <item>0,25x</item>
+    <item>0,5x</item>
+    <item>0,75x</item>
+    <item>Normalna</item>
+    <item>1,25x</item>
+    <item>1,5x</item>
+    <item>2x</item>
+  </string-array>
+    <plurals name="exo_controls_fastforward_by_amount_description">
+    <item quantity="one">Przewiń do przodu o %d sekundę</item>
+    <item quantity="few">Przewiń do przodu o %d sekundy</item>
+    <item quantity="many">Przewiń do przodu o %d sekund</item>
+    <item quantity="other">Przewiń do przodu o %d sekundy</item>
+  </plurals>
+    <plurals name="exo_controls_rewind_by_amount_description">
+    <item quantity="one">Przewiń do tyłu o %d sekundę</item>
+    <item quantity="few">Przewiń do tyłu o %d sekundy</item>
+    <item quantity="many">Przewiń do tyłu o %d sekund</item>
+    <item quantity="other">Przewiń do tyłu o %d sekundy</item>
+  </plurals>
+    <string msgid="5976598919945601918" name="abc_action_bar_home_description">"Przejdź na stronę główną"</string>
+    <string msgid="8388173803310557296" name="abc_action_bar_up_description">"Przejdź wyżej"</string>
+    <string msgid="3937310113216875497" name="abc_action_menu_overflow_description">"Więcej opcji"</string>
+    <string msgid="4692188335987374352" name="abc_action_mode_done">"Gotowe"</string>
+    <string msgid="1189761859438369441" name="abc_activity_chooser_view_see_all">"Pokaż wszystko"</string>
+    <string msgid="2165779757652331008" name="abc_activitychooserview_choose_application">"Wybierz aplikację"</string>
+    <string msgid="4215997306490295099" name="abc_capital_off">"WYŁ."</string>
+    <string msgid="884982626291842264" name="abc_capital_on">"WŁ."</string>
+    <string msgid="8833365367933412986" name="abc_menu_alt_shortcut_label">"Alt+"</string>
+    <string msgid="2223301931652355242" name="abc_menu_ctrl_shortcut_label">"Ctrl+"</string>
+    <string msgid="838001238306846836" name="abc_menu_delete_shortcut_label">"Delete"</string>
+    <string msgid="7986526966204849475" name="abc_menu_enter_shortcut_label">"Enter"</string>
+    <string msgid="375214403600139847" name="abc_menu_function_shortcut_label">"Funkcyjny+"</string>
+    <string msgid="4192209724446364286" name="abc_menu_meta_shortcut_label">"Meta+"</string>
+    <string msgid="4741552369836443843" name="abc_menu_shift_shortcut_label">"Shift+"</string>
+    <string msgid="5473865519181928982" name="abc_menu_space_shortcut_label">"spacja"</string>
+    <string msgid="6180552449598693998" name="abc_menu_sym_shortcut_label">"Sym+"</string>
+    <string msgid="5520303668377388990" name="abc_prepend_shortcut_label">"Menu+"</string>
+    <string msgid="7208076849092622260" name="abc_search_hint">"Szukaj…"</string>
+    <string msgid="3741173234950517107" name="abc_searchview_description_clear">"Wyczyść zapytanie"</string>
+    <string msgid="693312494995508443" name="abc_searchview_description_query">"Zapytanie"</string>
+    <string msgid="3417662926640357176" name="abc_searchview_description_search">"Szukaj"</string>
+    <string msgid="1486535517437947103" name="abc_searchview_description_submit">"Wyślij zapytanie"</string>
+    <string msgid="2293578557972875415" name="abc_searchview_description_voice">"Wyszukiwanie głosowe"</string>
+    <string msgid="8875138169939072951" name="abc_shareactionprovider_share_with">"Udostępnij przez:"</string>
+    <string msgid="9055268688411532828" name="abc_shareactionprovider_share_with_application">"Udostępnij przez: <ns1:g id="APPLICATION_NAME">%s</ns1:g>"</string>
+    <string msgid="1656852541809559762" name="abc_toolbar_collapse_description">"Zwiń"</string>
     <string msgid="881409763997275156" name="call_notification_answer_action">"Odbierz"</string>
     <string msgid="8793775615905189152" name="call_notification_answer_video_action">"Wideo"</string>
     <string msgid="3229508546291798546" name="call_notification_decline_action">"Odrzuć"</string>
@@ -12,6 +60,57 @@
     <string msgid="8038256446254964252" name="default_error_message">"Nieprawidłowe dane wejściowe"</string>
     <string msgid="6312721426453364202" name="default_popup_window_title">"Wyskakujące okienko"</string>
     <string msgid="1890207353314751437" name="dropdown_menu">"Menu"</string>
+    <string name="exo_controls_cc_disabled_description">Włącz napisy</string>
+    <string name="exo_controls_cc_enabled_description">Wyłącz napisy</string>
+    <string name="exo_controls_fastforward_description">Przewiń do przodu</string>
+    <string name="exo_controls_fullscreen_enter_description">Otwórz pełny ekran</string>
+    <string name="exo_controls_fullscreen_exit_description">Zamknij pełny ekran</string>
+    <string name="exo_controls_hide">Ukryj elementy sterujące odtwarzacza</string>
+    <string name="exo_controls_next_description">Następny</string>
+    <string name="exo_controls_overflow_hide_description">Ukryj ustawienia dodatkowe</string>
+    <string name="exo_controls_overflow_show_description">Pokaż ustawienia dodatkowe</string>
+    <string name="exo_controls_pause_description">Wstrzymaj</string>
+    <string name="exo_controls_play_description">Odtwórz</string>
+    <string name="exo_controls_playback_speed">Szybkość</string>
+    <string name="exo_controls_previous_description">Poprzedni</string>
+    <string name="exo_controls_repeat_all_description">Bieżący tryb: Powtórz wszystkie. Przełącz na tryb powtarzania.</string>
+    <string name="exo_controls_repeat_off_description">Bieżący tryb: Nie powtarzaj. Przełącz na tryb powtarzania.</string>
+    <string name="exo_controls_repeat_one_description">Bieżący tryb: Powtórz jeden. Przełącz na tryb powtarzania.</string>
+    <string name="exo_controls_rewind_description">Przewiń do tyłu</string>
+    <string name="exo_controls_seek_bar_description">Postęp odtwarzania</string>
+    <string name="exo_controls_settings_description">Ustawienia</string>
+    <string name="exo_controls_show">Pokaż elementy sterujące odtwarzacza</string>
+    <string name="exo_controls_shuffle_off_description">Włącz tryb odtwarzania losowego</string>
+    <string name="exo_controls_shuffle_on_description">Wyłącz tryb odtwarzania losowego</string>
+    <string name="exo_controls_stop_description">Zatrzymaj</string>
+    <string name="exo_controls_vr_description">Tryb VR</string>
+    <string name="exo_download_completed">Zakończono pobieranie</string>
+    <string name="exo_download_description">Pobierz</string>
+    <string name="exo_download_downloading">Pobieram</string>
+    <string name="exo_download_failed">Nie udało się pobrać</string>
+    <string name="exo_download_notification_channel_name">Pobieranie</string>
+    <string name="exo_download_paused">Wstrzymano pobieranie</string>
+    <string name="exo_download_paused_for_network">Pobierane pliki oczekują na sieć</string>
+    <string name="exo_download_paused_for_wifi">Pobierane pliki oczekują na Wi-Fi</string>
+    <string name="exo_download_removing">Usuwam pobrane</string>
+    <string name="exo_item_list">%1$s, %2$s</string>
+    <string name="exo_track_bitrate">%1$.2f Mb/s</string>
+    <string name="exo_track_mono">Mono</string>
+    <string name="exo_track_resolution">%1$d × %2$d</string>
+    <string name="exo_track_role_alternate">Wersja alternatywna</string>
+    <string name="exo_track_role_closed_captions">Napisy</string>
+    <string name="exo_track_role_commentary">Komentarz</string>
+    <string name="exo_track_role_supplementary">Materiały dodatkowe</string>
+    <string name="exo_track_selection_auto">Automatycznie</string>
+    <string name="exo_track_selection_none">Brak</string>
+    <string name="exo_track_selection_title_audio">Dźwięk</string>
+    <string name="exo_track_selection_title_text">Tekst</string>
+    <string name="exo_track_selection_title_video">Film</string>
+    <string name="exo_track_stereo">Stereo</string>
+    <string name="exo_track_surround">Dźwięk przestrzenny</string>
+    <string name="exo_track_surround_5_point_1">System dźwięku przestrzennego 5.1</string>
+    <string name="exo_track_surround_7_point_1">System dźwięku przestrzennego 7.1</string>
+    <string name="exo_track_unknown">Nieznany</string>
     <string msgid="6827826412747255547" name="in_progress">"W toku"</string>
     <string msgid="7933458017204019916" name="indeterminate">"Częściowo zaznaczone"</string>
     <string msgid="2988463736136100848" name="m3c_bottom_sheet_collapse_description">"Zwiń planszę dolną"</string>
@@ -75,6 +174,7 @@
     <string msgid="6610465462668679431" name="not_selected">"Nie wybrano"</string>
     <string msgid="5941395253238309765" name="range_end">"Koniec zakresu"</string>
     <string msgid="7097486360902471446" name="range_start">"Początek zakresu"</string>
+    <string msgid="6264217191555673260" name="search_menu_title">"Szukaj"</string>
     <string msgid="6043586758067023" name="selected">"Wybrano"</string>
     <string msgid="4139871816613051306" name="state_empty">"Puste"</string>
     <string msgid="5834637030682409883" name="state_off">"Wyłączono"</string>
