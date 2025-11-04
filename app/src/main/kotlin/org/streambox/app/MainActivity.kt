@@ -385,6 +385,42 @@ fun MainScreen(
 ) {
     val mainNavController = rememberNavController()
     var selectedItem by remember { mutableIntStateOf(1) } // 默认显示白噪音页面
+    val context = androidx.compose.ui.platform.LocalContext.current
+    
+    // 自动更新检查（全局共享）
+    val updateViewModel = remember { org.streambox.app.update.UpdateViewModel(context) }
+    val updateState by updateViewModel.updateState.collectAsState()
+    var showAutoUpdateDialog by remember { mutableStateOf(false) }
+    
+    // 获取当前版本号
+    val currentVersion = remember {
+        try {
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, 0)
+            }
+            packageInfo?.versionName ?: "1.0.3"
+        } catch (e: Exception) {
+            "1.0.3"
+        }
+    }
+    
+    // 每次进入主页时自动检查更新
+    androidx.compose.runtime.SideEffect {
+        updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
+    }
+    
+    // 当检测到有新版本时，自动显示更新弹窗
+    LaunchedEffect(updateState) {
+        if (updateState is org.streambox.app.update.UpdateState.HasUpdate) {
+            showAutoUpdateDialog = true
+        }
+    }
     
     // 置顶和收藏状态管理（提升到MainScreen级别，确保切换tab时状态不丢失）
     val pinnedSounds = remember { mutableStateOf(mutableSetOf<org.streambox.app.audio.AudioManager.Sound>()) }
@@ -571,6 +607,7 @@ fun MainScreen(
                                     .padding(paddingValues),
                                 hideAnimation = hideAnimation,
                                 onHideAnimationChange = onHideAnimationChange,
+                                updateViewModel = updateViewModel,
                                 onNavigateToTheme = { 
                                     mainNavController.navigate("theme") 
                                 },
@@ -683,6 +720,15 @@ fun MainScreen(
             }
         }
     }
+    
+    // 自动更新弹窗（检测到新版本时自动显示）
+    if (showAutoUpdateDialog) {
+        UpdateDialog(
+            onDismiss = { showAutoUpdateDialog = false },
+            updateViewModel = updateViewModel,
+            context = context
+        )
+    }
 }
 
 @Composable
@@ -774,6 +820,7 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     hideAnimation: Boolean = false,
     onHideAnimationChange: (Boolean) -> Unit = {},
+    updateViewModel: org.streambox.app.update.UpdateViewModel,
     onNavigateToTheme: () -> Unit,
     onNavigateToSourceManagement: () -> Unit,
     onNavigateToSounds: () -> Unit = {}
@@ -787,6 +834,8 @@ fun SettingsScreen(
     var isCalculatingCache by remember { mutableStateOf(false) }
     var showVolumeDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    val updateState by updateViewModel.updateState.collectAsState()
     
     // 定期更新缓存大小
     LaunchedEffect(Unit) {
@@ -823,25 +872,25 @@ fun SettingsScreen(
         modifier = modifier
             .fillMaxSize()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
         // 外观设置
         Text("外观", style = MaterialTheme.typography.titleLarge)
-        Card(
+            Card(
             onClick = onNavigateToTheme,
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceContainer
             )
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -856,10 +905,10 @@ fun SettingsScreen(
                     )
                     Column {
                         Text("主题与色彩", style = MaterialTheme.typography.titleMedium)
-                        Text(
+                    Text(
                             "外观模式、主题色",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -884,7 +933,7 @@ fun SettingsScreen(
         )
         
         // 一键调整音量
-        Card(
+            Card(
             onClick = { showVolumeDialog = true },
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -892,9 +941,9 @@ fun SettingsScreen(
             )
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -909,10 +958,10 @@ fun SettingsScreen(
                     )
                     Column {
                         Text("一键调整音量", style = MaterialTheme.typography.titleMedium)
-                        Text(
+                    Text(
                             "统一调整所有声音音量",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -923,7 +972,7 @@ fun SettingsScreen(
             }
         }
         
-        Card(
+            Card(
             onClick = { showClearCacheDialog = true },
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -931,9 +980,9 @@ fun SettingsScreen(
             )
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -948,10 +997,10 @@ fun SettingsScreen(
                     )
                     Column {
                         Text("缓存清理", style = MaterialTheme.typography.titleMedium)
-                        Text(
+                    Text(
                             "清理应用缓存数据",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -985,10 +1034,6 @@ fun SettingsScreen(
         Text("其他", style = MaterialTheme.typography.titleLarge)
         
         // 软件更新
-        var showUpdateDialog by remember { mutableStateOf(false) }
-        val updateViewModel = remember { org.streambox.app.update.UpdateViewModel(context) }
-        val updateState by updateViewModel.updateState.collectAsState()
-        
         Card(
             onClick = { showUpdateDialog = true },
             modifier = Modifier.fillMaxWidth(),
@@ -1083,11 +1128,11 @@ fun SettingsScreen(
                 onDismiss = { showAboutDialog = false },
                 context = context
             )
-        }
-        
-        // 缓存清理对话框
-        if (showClearCacheDialog) {
-            ClearCacheDialog(
+    }
+    
+    // 缓存清理对话框
+    if (showClearCacheDialog) {
+        ClearCacheDialog(
             onDismiss = { 
                 if (!isClearingCache) {
                     showClearCacheDialog = false
@@ -1112,8 +1157,8 @@ fun SettingsScreen(
                 }
             },
             isClearing = isClearingCache
-            )
-        }
+        )
+    }
         
         // 一键调整音量对话框
         if (showVolumeDialog) {

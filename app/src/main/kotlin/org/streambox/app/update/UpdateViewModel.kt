@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.IOException
 
 /**
  * 更新状态管理 ViewModel
@@ -32,7 +33,23 @@ class UpdateViewModel(private val context: Context) {
     val downloadProgress = fileDownloader.progress
     val downloadState = fileDownloader.state
     
-    private var latestVersion: NewVersion? = null
+    private var _latestVersion: NewVersion? = null
+    val latestVersion: NewVersion?
+        get() = _latestVersion
+    
+    private var lastCheckTime: Long = 0L
+    
+    /**
+     * 自动检查更新（带时间间隔限制，1小时内只检查一次）
+     */
+    fun startAutomaticCheckLatestVersion(currentVersion: String) {
+        val currentTime = System.currentTimeMillis()
+        // 1小时内只检查一次
+        if (currentTime - lastCheckTime < 1000 * 60 * 60 * 1) {
+            return
+        }
+        checkUpdate(currentVersion)
+    }
     
     /**
      * 检查更新
@@ -41,17 +58,22 @@ class UpdateViewModel(private val context: Context) {
     fun checkUpdate(currentVersion: String) {
         scope.launch {
             _updateState.value = UpdateState.Checking
+            lastCheckTime = System.currentTimeMillis()
             try {
                 val newVersion = withContext(Dispatchers.IO) {
                     updateChecker.checkLatestVersion(currentVersion)
                 }
                 
                 if (newVersion != null) {
-                    latestVersion = newVersion
+                    _latestVersion = newVersion
                     _updateState.value = UpdateState.HasUpdate(newVersion)
                 } else {
                     _updateState.value = UpdateState.UpToDate
                 }
+            } catch (e: IOException) {
+                // 网络错误或 rate limit 错误
+                val errorMsg = e.message ?: "网络连接失败，请检查网络后重试"
+                _updateState.value = UpdateState.CheckFailed(errorMsg)
             } catch (e: Exception) {
                 _updateState.value = UpdateState.CheckFailed(e.message ?: "检查更新失败")
             }
@@ -62,7 +84,7 @@ class UpdateViewModel(private val context: Context) {
      * 开始下载更新
      */
     fun startDownload() {
-        val version = latestVersion ?: return
+        val version = _latestVersion ?: return
         
         scope.launch {
             _updateState.value = UpdateState.Downloading(0f)
@@ -148,7 +170,7 @@ class UpdateViewModel(private val context: Context) {
      */
     fun reset() {
         fileDownloader.reset()
-        latestVersion = null
+        _latestVersion = null
         _updateState.value = UpdateState.Idle
     }
 }
