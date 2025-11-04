@@ -13,8 +13,8 @@ android {
         applicationId = "org.streambox.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 7
-        versionName = "1.0.6"
+        versionCode = 9
+        versionName = "1.0.8"
         
         // 从 gradle.properties 读取 GitHub Token（如果存在）
         val githubToken = project.findProperty("GITHUB_TOKEN") as String? ?: ""
@@ -80,9 +80,6 @@ dependencies {
     
     // MaterialKolor - 动态主题色生成（和 Animeko 一样）
     implementation("com.materialkolor:material-kolor:2.0.2")
-    
-    // XMBOX 视频源识别模块
-    implementation(project(":datasource:xmbox"))
     
            // Coil - 图片加载
            implementation("io.coil-kt:coil-compose:2.5.0")

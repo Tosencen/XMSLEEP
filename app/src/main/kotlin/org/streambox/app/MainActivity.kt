@@ -41,6 +41,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.ErrorOutline
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.foundation.layout.heightIn
 import android.content.ClipboardManager
@@ -68,7 +69,11 @@ import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import android.content.Context
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -84,9 +89,6 @@ import kotlinx.serialization.json.*
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.navigation.compose.NavHost
 import kotlinx.coroutines.launch
-import org.streambox.datasource.xmbox.XmboxVideoSource
-import org.streambox.datasource.xmbox.config.XmboxConfig
-import org.streambox.datasource.xmbox.model.VideoItem
 import androidx.navigation.compose.composable
 import org.streambox.app.update.UpdateDialog
 import androidx.compose.runtime.collectAsState
@@ -145,51 +147,6 @@ object BottomRightDiagonalShape : Shape {
     }
 }
 
-// ========== 源管理数据模型 ==========
-enum class SourceType {
-    VOD,  // 点播
-    LIVE  // 直播
-}
-
-data class VideoSource(
-    val id: String = java.util.UUID.randomUUID().toString(),
-    val name: String,
-    val url: String,
-    val type: SourceType = SourceType.VOD,
-    val searchable: Boolean = true,
-    val changeable: Boolean = true,
-    val quickSearch: Boolean = true,
-    val timeout: Int = 15,
-    val jsCode: String = "" // 保存 JavaScript 代码（如果有）
-)
-
-// 全局视频源列表状态管理
-object VideoSourceManager {
-    val sources = mutableStateListOf<VideoSource>()
-    
-    fun addSource(source: VideoSource) {
-        // 检查是否已存在（根据 ID）
-        if (!sources.any { it.id == source.id }) {
-            sources.add(source)
-        }
-    }
-    
-    fun removeSource(source: VideoSource) {
-        sources.remove(source)
-    }
-    
-    fun updateSource(updatedSource: VideoSource) {
-        val index = sources.indexOfFirst { it.id == updatedSource.id }
-        if (index >= 0) {
-            sources[index] = updatedSource
-        }
-    }
-    
-    fun getSourceById(id: String): VideoSource? {
-        return sources.firstOrNull { it.id == id }
-    }
-}
-
 @Composable
 fun XMSLEEPApp() {
     val context = androidx.compose.ui.platform.LocalContext.current
@@ -245,7 +202,7 @@ fun XMSLEEPApp() {
     var selectedColor by remember { mutableStateOf(paletteColors.first()) }  // 默认使用调色板第一个颜色
     var useDynamicColor by remember { mutableStateOf(false) }
     var useBlackBackground by remember { mutableStateOf(false) }
-    var hideAnimation by remember { mutableStateOf(false) }  // 隐藏动画文件
+    var hideAnimation by remember { mutableStateOf(true) }  // 隐藏动画文件（默认开启）
     var soundCardsColumnsCount by remember { mutableIntStateOf(2) }  // 声音卡片列数（2或3），不受hideAnimation影响
     
     // 计算是否使用深色主题
@@ -460,6 +417,21 @@ fun MainScreen(
         }
     }
     
+    // 监听生命周期，当用户从设置页面返回时自动重试安装
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                android.util.Log.d("UpdateCheck", "Activity resumed, 检查是否需要重试安装")
+                updateViewModel.retryInstallIfPermissionGranted()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
+    
     // 置顶和收藏状态管理（提升到MainScreen级别，确保切换tab时状态不丢失）
     val pinnedSounds = remember { mutableStateOf(mutableSetOf<org.streambox.app.audio.AudioManager.Sound>()) }
     val favoriteSounds = remember { mutableStateOf(mutableSetOf<org.streambox.app.audio.AudioManager.Sound>()) }
@@ -467,103 +439,15 @@ fun MainScreen(
     // 监听当前路由，判断是否在二级页面
     val currentBackStackEntry by mainNavController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    val isInSecondaryPage = currentRoute in listOf("theme", "sourceManagement")
+    val isInSecondaryPage = currentRoute in listOf("theme")
     val isMainRoute = !isInSecondaryPage  // 主页面 = 不在二级页面
-    
-    // 视频源页面的搜索状态
-    var showSourceSearch by remember { mutableStateOf(false) }
-    var searchQuery by remember { mutableStateOf("") }
-    
-    // 切换页面时自动关闭搜索框
-    LaunchedEffect(selectedItem) {
-        showSourceSearch = false
-        searchQuery = ""
-    }
-    
-    var showAddSourceDialog by remember { mutableStateOf(false) }
-    var showSourceSelectorDialog by remember { mutableStateOf(false) }
-    var selectedSourceId by remember { mutableStateOf<String?>(null) }
-    // 当前选中的子源（sub-source），用于多源配置中的 sites 选择
-    var selectedSubSourceKey by remember { mutableStateOf<String?>(null) }
     
     Scaffold(
         topBar = {
-            // 只在视频源页面显示 TopBar
-            if (false) { // 首页tab已删除
-                TopAppBar(
-                    title = { 
-                        if (false) { // 首页tab已删除
-                            // 视频源页面显示搜索框
-                            TextField(
-                                value = searchQuery,
-                                onValueChange = { searchQuery = it },
-                                modifier = Modifier.fillMaxWidth(),
-                                placeholder = { Text("搜索视频源") },
-                                singleLine = true,
-                                trailingIcon = {
-                                    IconButton(onClick = { showSourceSearch = false }) {
-                                        Icon(Icons.Default.Close, "关闭")
-                                    }
-                                },
-                                colors = TextFieldDefaults.colors(
-                                    focusedContainerColor = Color.Transparent,
-                                    unfocusedContainerColor = Color.Transparent
-                                )
-                            )
-                        } else {
-                            // 视频源标题 + 圆形图标按钮
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(12.dp)
-                            ) {
-                                // 圆形图标按钮（使用外部状态）
-                                IconButton(
-                                    onClick = { showSourceSelectorDialog = true },
-                                    modifier = Modifier.size(40.dp)
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(32.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.primaryContainer),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            Icons.Default.VideoLibrary,
-                                            contentDescription = "选择视频源",
-                                            modifier = Modifier.size(20.dp),
-                                            tint = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
-                                    }
-                                }
-                                Text("视频源")
-                            }
-                        }
-                    },
-                    actions = {
-                        // 只在视频源页面显示操作按钮
-                        if (false) { // 首页tab已删除
-                            IconButton(onClick = { showSourceSearch = true }) {
-                                Icon(Icons.Default.Search, "搜索")
-                            }
-                            IconButton(onClick = { /* TODO: 显示收藏 */ }) {
-                                Icon(Icons.Default.Star, "收藏")
-                            }
-                            IconButton(onClick = { /* TODO: 显示历史 */ }) {
-                                Icon(Icons.Default.History, "历史")
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
-                    )
-                )
-            }
+            // TopBar已移除（视频源功能已删除）
         },
         floatingActionButton = {
-            // 只在视频源页面显示添加按钮
-            // 首页FAB已删除
+            // FloatingActionButton已移除（视频源功能已删除）
         },
         bottomBar = {
             // 只在主页面显示底部导航栏
@@ -649,9 +533,6 @@ fun MainScreen(
                                 onNavigateToTheme = { 
                                     mainNavController.navigate("theme") 
                                 },
-                                onNavigateToSourceManagement = {
-                                    mainNavController.navigate("sourceManagement")
-                                },
                                 onNavigateToSounds = {
                                     // 不再需要导航到声音页面，因为已经是独立tab
                                 }
@@ -659,81 +540,6 @@ fun MainScreen(
                         }
                         else -> { /* 不应该到达这里 */ }
                     }
-                }
-                
-                // 视频源页面的添加源对话框
-                // 首页相关对话框已删除
-                if (false) {
-                    AddSourceDialog(
-                        onDismiss = { showAddSourceDialog = false },
-                        onConfirm = { newSource: VideoSource ->
-                            VideoSourceManager.addSource(newSource)
-                            showAddSourceDialog = false
-                            
-                            // 自动选中新添加的源
-                            selectedSourceId = newSource.id
-                            selectedSubSourceKey = null // 清空子源选择，让SourcesScreen自动选择第一个
-                            android.util.Log.d("MainScreen", "自动选中新添加的源: id=${newSource.id}, name=${newSource.name}")
-                            
-                            // 如果是多源配置，记录日志
-                            if (newSource.jsCode.isNotBlank()) {
-                                try {
-                                    val json = Json {
-                                        ignoreUnknownKeys = true
-                                        coerceInputValues = true
-                                    }
-                                    val jsonElement: JsonElement = json.parseToJsonElement(newSource.jsCode)
-                                    if (jsonElement is JsonObject) {
-                                        val sitesArray = jsonElement["sites"]?.jsonArray
-                                        if (sitesArray != null && sitesArray.isNotEmpty()) {
-                                            sitesArray.firstOrNull()?.let { firstSite ->
-                                                if (firstSite is JsonObject) {
-                                                    val firstKey = firstSite["key"]?.jsonPrimitive?.content
-                                                        ?: firstSite["name"]?.jsonPrimitive?.content
-                                                    if (firstKey != null) {
-                                                        selectedSubSourceKey = firstKey
-                                                        android.util.Log.d("MainScreen", "自动选择第一个子源: key=$firstKey")
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                } catch (e: Exception) {
-                                    android.util.Log.e("MainScreen", "解析子源失败", e)
-                                }
-                            }
-                        }
-                    )
-                }
-                
-                // 分源选择对话框
-                // 首页相关对话框已删除
-                if (false) {
-                    val currentSource = selectedSourceId?.let { id ->
-                        VideoSourceManager.sources.firstOrNull { it.id == id }
-                    } ?: VideoSourceManager.sources.firstOrNull()
-                    
-                    android.util.Log.d("MainScreen", "打开 SourceSelectorDialog - selectedSourceId=$selectedSourceId, currentSource=${currentSource?.name}, sources.size=${VideoSourceManager.sources.size}")
-                    if (currentSource != null) {
-                        android.util.Log.d("MainScreen", "currentSource - id=${currentSource.id}, name=${currentSource.name}, url=${currentSource.url}, jsCode.length=${currentSource.jsCode.length}")
-                    }
-                    
-                    SourceSelectorDialog(
-                        currentSource = currentSource,
-                        allSources = VideoSourceManager.sources.toList(),
-                        currentSourceId = selectedSourceId,
-                        currentSubSourceKey = selectedSubSourceKey,
-                        onDismiss = { showSourceSelectorDialog = false },
-                        onSelectSource = { source ->
-                            selectedSourceId = source.id
-                            selectedSubSourceKey = null // 切换到新源时，清空子源选择
-                            showSourceSelectorDialog = false
-                        },
-                        onSelectSubSource = { subSourceKey ->
-                            selectedSubSourceKey = subSourceKey
-                            showSourceSelectorDialog = false
-                        }
-                    )
                 }
             }
             
@@ -751,11 +557,6 @@ fun MainScreen(
                     onBack = { mainNavController.popBackStack() }
                 )
             }
-            composable("sourceManagement") {
-                SourceManagementScreen(
-                    onBack = { mainNavController.popBackStack() }
-                )
-            }
         }
     }
     
@@ -763,130 +564,84 @@ fun MainScreen(
     // 注意：只在HasUpdate状态时显示自动弹窗，避免在Idle状态时重复检查
     val currentUpdateState by updateViewModel.updateState.collectAsState()
     
-    // 当状态为HasUpdate时，显示自动更新弹窗
-    if (showAutoUpdateDialog && currentUpdateState is org.streambox.app.update.UpdateState.HasUpdate) {
+    // 判断是否应该显示更新弹窗
+    // 在以下状态时显示：HasUpdate、Downloading、Downloaded、DownloadFailed、Installing、InstallFailed
+    val shouldShowUpdateDialog = when (currentUpdateState) {
+        is org.streambox.app.update.UpdateState.HasUpdate -> {
+            android.util.Log.d("UpdateDialog", "状态: HasUpdate, 应该显示弹窗")
+            true
+        }
+        is org.streambox.app.update.UpdateState.Downloading -> {
+            val downloadingState = currentUpdateState as org.streambox.app.update.UpdateState.Downloading
+            android.util.Log.d("UpdateDialog", "状态: Downloading, 应该显示弹窗, 进度: ${downloadingState.progress}")
+            true
+        }
+        is org.streambox.app.update.UpdateState.Downloaded -> {
+            android.util.Log.d("UpdateDialog", "状态: Downloaded, 应该显示弹窗")
+            true
+        }
+        is org.streambox.app.update.UpdateState.DownloadFailed -> {
+            android.util.Log.d("UpdateDialog", "状态: DownloadFailed, 应该显示弹窗")
+            true
+        }
+        is org.streambox.app.update.UpdateState.Installing -> {
+            android.util.Log.d("UpdateDialog", "状态: Installing, 应该显示弹窗")
+            true
+        }
+        is org.streambox.app.update.UpdateState.InstallFailed -> {
+            android.util.Log.d("UpdateDialog", "状态: InstallFailed, 应该显示弹窗")
+            true
+        }
+        is org.streambox.app.update.UpdateState.CheckFailed -> {
+            // 只在rate limit错误时显示
+            val errorState = currentUpdateState as org.streambox.app.update.UpdateState.CheckFailed
+            val shouldShow = errorState.error.contains("rate limit", ignoreCase = true) || 
+                           errorState.error.contains("请求次数", ignoreCase = true)
+            android.util.Log.d("UpdateDialog", "状态: CheckFailed, 应该显示弹窗: $shouldShow")
+            shouldShow
+        }
+        else -> {
+            android.util.Log.d("UpdateDialog", "状态: ${currentUpdateState::class.simpleName}, 不显示弹窗")
+            false
+        }
+    }
+    
+    // 显示更新弹窗
+    android.util.Log.d("UpdateDialog", "showAutoUpdateDialog: $showAutoUpdateDialog, shouldShowUpdateDialog: $shouldShowUpdateDialog")
+    if (showAutoUpdateDialog && shouldShowUpdateDialog) {
         UpdateDialog(
-            onDismiss = { 
-                showAutoUpdateDialog = false
-                android.util.Log.d("UpdateCheck", "用户关闭了自动更新弹窗")
+            onDismiss = {
+                // 只有在非下载/安装状态时才允许关闭弹窗
+                val state = updateViewModel.updateState.value
+                when (state) {
+                    is org.streambox.app.update.UpdateState.Downloading -> {
+                        // 下载中不允许关闭，由UpdateDialog内部处理
+                        android.util.Log.d("UpdateCheck", "下载中，不允许关闭弹窗")
+                    }
+                    is org.streambox.app.update.UpdateState.Installing -> {
+                        // 安装中不允许关闭
+                        android.util.Log.d("UpdateCheck", "安装中，不允许关闭弹窗")
+                    }
+                    else -> {
+                        showAutoUpdateDialog = false
+                        android.util.Log.d("UpdateCheck", "用户关闭了更新弹窗")
+                    }
+                }
             },
             updateViewModel = updateViewModel,
             context = context
         )
     }
-    
-    // 当检查失败时，如果错误信息包含rate limit，也显示弹窗提示用户
-    if (showAutoUpdateDialog && currentUpdateState is org.streambox.app.update.UpdateState.CheckFailed) {
-        val errorState = currentUpdateState as org.streambox.app.update.UpdateState.CheckFailed
-        if (errorState.error.contains("rate limit", ignoreCase = true) || 
-            errorState.error.contains("请求次数", ignoreCase = true)) {
-            UpdateDialog(
-                onDismiss = { 
-                    showAutoUpdateDialog = false
-                    android.util.Log.d("UpdateCheck", "用户关闭了更新检查失败弹窗")
-                },
-                updateViewModel = updateViewModel,
-                context = context
-            )
-        } else {
-            // 其他错误不显示弹窗，静默失败
-            showAutoUpdateDialog = false
-        }
-    }
 }
-
-@Composable
-fun SourcesScreen(
-    modifier: Modifier = Modifier,
-    onShowAddDialog: () -> Unit = {},
-    currentSourceId: String? = null,
-    currentSubSourceKey: String? = null,
-    onSubSourceKeyChange: ((String?) -> Unit)? = null
-) {
-    // 空状态页面
-    Box(
-        modifier = modifier.fillMaxSize()
-    )
-}
-
-@Composable
-fun VideoItemCard(
-    video: VideoItem,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        Column {
-            // 封面图片
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(0.75f) // 4:3 比例
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
-            ) {
-                if (video.pic.isNotBlank()) {
-                    // 使用ImageUrlUtil处理图片URL（支持@Headers、@Cookie等自定义格式）
-                    val (imageUrl, _) = org.streambox.datasource.xmbox.utils.ImageUrlUtil.getImageUrlWithHeaders(video.pic)
-                    AsyncImage(
-                        model = imageUrl.ifBlank { video.pic },
-                        contentDescription = null,
-                        modifier = Modifier.fillMaxSize(),
-                        contentScale = ContentScale.Crop,
-                        error = androidx.compose.ui.graphics.painter.ColorPainter(MaterialTheme.colorScheme.surfaceVariant)
-                    )
-                } else {
-                    Icon(
-                        Icons.Default.VideoLibrary,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(32.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-            
-            // 视频信息
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = video.name.ifBlank { "未知" },
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                if (video.note.isNotBlank()) {
-                    Text(
-                        text = video.note,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-            }
-        }
-    }
-}
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     modifier: Modifier = Modifier,
-    hideAnimation: Boolean = false,
+    hideAnimation: Boolean = true,
     onHideAnimationChange: (Boolean) -> Unit = {},
     updateViewModel: org.streambox.app.update.UpdateViewModel,
     onNavigateToTheme: () -> Unit,
-    onNavigateToSourceManagement: () -> Unit,
     onNavigateToSounds: () -> Unit = {}
 ) {
     val context = LocalContext.current
@@ -900,6 +655,24 @@ fun SettingsScreen(
     var showAboutDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
     val updateState by updateViewModel.updateState.collectAsState()
+    
+    // 获取当前版本号
+    val currentVersion = remember {
+        try {
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, 0)
+            }
+            packageInfo?.versionName ?: "1.0.0"
+        } catch (e: Exception) {
+            "1.0.0"
+        }
+    }
     
     // 定期更新缓存大小
     LaunchedEffect(Unit) {
@@ -1130,10 +903,20 @@ fun SettingsScreen(
                         )
                     }
                 }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "v$currentVersion",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 Icon(
                     Icons.Default.ChevronRight,
                     contentDescription = null
                 )
+                }
             }
         }
         
@@ -1179,6 +962,14 @@ fun SettingsScreen(
         
         // 软件更新对话框
         if (showUpdateDialog) {
+            // 如果状态是Installing，检查是否有已下载的文件，如果有则重置为Downloaded状态
+            LaunchedEffect(showUpdateDialog, updateState) {
+                if (showUpdateDialog && updateState is org.streambox.app.update.UpdateState.Installing) {
+                    kotlinx.coroutines.delay(100) // 短暂延迟确保UpdateDialog已初始化
+                    updateViewModel.resetInstallingStateIfFileExists()
+                }
+            }
+            
             UpdateDialog(
                 onDismiss = { showUpdateDialog = false },
                 updateViewModel = updateViewModel,
@@ -1922,1151 +1713,6 @@ fun ColorOption(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SourceManagementScreen(
-    onBack: () -> Unit
-) {
-    // 使用全局视频源管理器
-    val sources = VideoSourceManager.sources
-    var showAddDialog by remember { mutableStateOf(false) }
-    var editingSource by remember { mutableStateOf<VideoSource?>(null) }
-    
-    // 标签页状态
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabs = listOf("添加源", "视频", "记录")
-    
-    Scaffold(
-        topBar = {
-            Column {
-                TopAppBar(
-                    title = {
-                        Text(
-                            "源管理",
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = onBack,
-                            modifier = Modifier.offset(x = (-4).dp)
-                        ) {
-                            Box(Modifier.size(24.dp)) {
-                                Icon(
-                                    Icons.AutoMirrored.Outlined.ArrowBack,
-                                    contentDescription = null,
-                                )
-                            }
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.background,
-                        titleContentColor = MaterialTheme.colorScheme.onBackground
-                    ),
-                    windowInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout)
-                        .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-                )
-                // 标签页
-                TabRow(
-                    selectedTabIndex = selectedTabIndex,
-                    containerColor = MaterialTheme.colorScheme.background
-                ) {
-                    tabs.forEachIndexed { index, title ->
-                        Tab(
-                            selected = selectedTabIndex == index,
-                            onClick = { 
-                                if (index == 0) {
-                                    // 点击"添加源"直接弹出对话框
-                                    showAddDialog = true
-                                } else {
-                                    selectedTabIndex = index
-                                }
-                            },
-                            text = { Text(title) }
-                        )
-                    }
-                }
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.background
-    ) { paddingValues ->
-        // 根据选中的标签页显示不同内容
-        when (selectedTabIndex) {
-            0 -> {
-                // 添加源标签页（点击后会弹窗，这里显示说明）
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .consumeWindowInsets(
-                            WindowInsets.systemBars.union(WindowInsets.displayCutout)
-                                .only(WindowInsetsSides.Top)
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.Add,
-                            contentDescription = null,
-                            modifier = Modifier.size(64.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            "添加新的视频源",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Button(onClick = { showAddDialog = true }) {
-                            Text("点击添加")
-                        }
-                    }
-                }
-            }
-            1 -> {
-                // 视频源列表
-                if (sources.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
-                            .consumeWindowInsets(
-                                WindowInsets.systemBars.union(WindowInsets.displayCutout)
-                                    .only(WindowInsetsSides.Top)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.VideoLibrary,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                "暂无视频源",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                "请先添加视频源",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .consumeWindowInsets(
-                                WindowInsets.systemBars.union(WindowInsets.displayCutout)
-                                    .only(WindowInsetsSides.Top)
-                            ),
-                        contentPadding = paddingValues
-                    ) {
-                        items(sources.toList()) { source ->
-                            SourceItem(
-                                source = source,
-                                onEdit = { editingSource = source },
-                                onDelete = { VideoSourceManager.removeSource(source) }
-                            )
-                        }
-                    }
-                }
-            }
-            2 -> {
-                // 添加历史记录（显示所有已添加的视频源）
-                if (sources.isEmpty()) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(paddingValues)
-                            .consumeWindowInsets(
-                                WindowInsets.systemBars.union(WindowInsets.displayCutout)
-                                    .only(WindowInsetsSides.Top)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Icon(
-                                Icons.Default.History,
-                                contentDescription = null,
-                                modifier = Modifier.size(64.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                "暂无添加记录",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
-                } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .consumeWindowInsets(
-                                WindowInsets.systemBars.union(WindowInsets.displayCutout)
-                                    .only(WindowInsetsSides.Top)
-                            ),
-                        contentPadding = paddingValues
-                    ) {
-                        items(sources.toList()) { source ->
-                            HistoryItem(
-                                source = source,
-                                onRestore = { 
-                                    // 如果源不在列表中，则添加（实际上已经在列表中）
-                                    selectedTabIndex = 1
-                                }
-                            )
-                        }
-                    }
-                }
-            }
-        }
-    }
-    
-    // 添加源对话框
-    if (showAddDialog) {
-        AddSourceDialog(
-            onDismiss = { 
-                showAddDialog = false
-                // 切换回视频标签页
-                if (selectedTabIndex == 0) {
-                    selectedTabIndex = 1
-                }
-            },
-            onConfirm = { newSource: VideoSource ->
-                VideoSourceManager.addSource(newSource)
-                showAddDialog = false
-                selectedTabIndex = 1  // 切换到视频列表
-            }
-        )
-    }
-    
-    // 编辑源对话框
-    editingSource?.let { source ->
-        EditSourceDialog(
-            source = source,
-            onDismiss = { editingSource = null },
-            onConfirm = { updatedSource: VideoSource ->
-                // 更新全局列表中的源
-                VideoSourceManager.updateSource(updatedSource)
-                editingSource = null
-            }
-        )
-    }
-}
-
-@Composable
-fun HistoryItem(
-    source: VideoSource,
-    onRestore: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = source.name,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = source.url,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    AssistChip(
-                        onClick = { },
-                        label = { Text(if (source.type == SourceType.VOD) "点播" else "直播") }
-                    )
-                }
-                Button(onClick = onRestore) {
-                    Text("恢复")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun SourceItem(
-    source: VideoSource,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = source.name,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = source.url,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        AssistChip(
-                            onClick = { },
-                            label = { Text(if (source.type == SourceType.VOD) "点播" else "直播") }
-                        )
-                        if (source.searchable) {
-                            AssistChip(
-                                onClick = { },
-                                label = { Text("可搜索") }
-                            )
-                        }
-                    }
-                }
-                Row {
-                    IconButton(onClick = onEdit) {
-                        Icon(Icons.Outlined.Edit, "编辑")
-                    }
-                    IconButton(onClick = onDelete) {
-                        Icon(Icons.Outlined.Delete, "删除", tint = MaterialTheme.colorScheme.error)
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AddSourceDialog(
-    onDismiss: () -> Unit,
-    onConfirm: (VideoSource) -> Unit
-) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val videoSource = remember { XmboxVideoSource.create(context) }
-    val clipboardManager = remember { context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager }
-    
-    var inputText by remember { mutableStateOf("") }
-    
-    // 粘贴功能
-    val onPasteClick: () -> Unit = {
-        clipboardManager?.primaryClip?.getItemAt(0)?.text?.toString()?.let { clipText ->
-            inputText = clipText
-        }
-    }
-    
-    // 识别状态
-    var isIdentifying by remember { mutableStateOf(false) }
-    var identifyError by remember { mutableStateOf<String?>(null) }
-    
-    // 确定按钮点击处理 - 识别并保存
-    val onConfirmClick: () -> Unit = {
-        if (inputText.isNotBlank()) {
-            scope.launch {
-                isIdentifying = true
-                identifyError = null
-                
-                try {
-                    android.util.Log.d("AddSourceDialog", "开始识别视频源，输入: ${inputText.take(100)}")
-                    
-                    // 识别配置
-                    val config = videoSource.identify(inputText, "")
-                    
-                    android.util.Log.d("AddSourceDialog", "识别结果: ${config?.let { it::class.simpleName } ?: "null"}")
-                    if (config is XmboxConfig.JavaScriptConfig) {
-                        android.util.Log.d("AddSourceDialog", "JavaScriptConfig - url=${config.url}, name=${config.name}, jsCode.length=${config.jsCode.length}")
-                        android.util.Log.d("AddSourceDialog", "jsCode 前200字符: ${config.jsCode.take(200)}")
-                    }
-                    
-                    if (config == null) {
-                        // 识别失败，显示错误提示
-                        identifyError = "无法识别视频源格式，请检查输入内容是否正确"
-                        Toast.makeText(context, "无法识别视频源格式，请检查输入内容是否正确", Toast.LENGTH_LONG).show()
-                        isIdentifying = false
-                        return@launch
-                    }
-                    
-                    val source = when (config) {
-                        is XmboxConfig.VodConfig -> {
-                            android.util.Log.d("AddSourceDialog", "创建 VodConfig")
-                            VideoSource(
-                                name = config.name.ifBlank { "点播源" },
-                                url = config.url,
-                                type = SourceType.VOD,
-                                searchable = config.searchable,
-                                changeable = config.changeable,
-                                quickSearch = config.quickSearch,
-                                timeout = config.timeout,
-                                jsCode = "" // VodConfig 没有 jsCode
-                            )
-                        }
-                        is XmboxConfig.LiveConfig -> {
-                            android.util.Log.d("AddSourceDialog", "创建 LiveConfig")
-                            VideoSource(
-                                name = config.name.ifBlank { "直播源" },
-                                url = config.url,
-                                type = SourceType.LIVE,
-                                timeout = config.timeout,
-                                jsCode = "" // LiveConfig 没有 jsCode
-                            )
-                        }
-                        is XmboxConfig.JavaScriptConfig -> {
-                            android.util.Log.d("AddSourceDialog", "创建 JavaScriptConfig，保存 jsCode.length=${config.jsCode.length}")
-                            VideoSource(
-                                name = config.name.ifBlank { "JavaScript源" },
-                                url = config.url,
-                                type = if (config.type == org.streambox.datasource.xmbox.config.SourceType.VOD) {
-                                    SourceType.VOD
-                                } else {
-                                    SourceType.LIVE
-                                },
-                                searchable = true, // JavaScript源默认可搜索
-                                changeable = true, // JavaScript源默认可换源
-                                quickSearch = true, // JavaScript源默认快速搜索
-                                timeout = config.timeout,
-                                jsCode = config.jsCode // 保存 JavaScript 代码（整个 JSON 配置）
-                            )
-                        }
-                    }
-                    
-                    android.util.Log.d("AddSourceDialog", "创建 VideoSource 成功，id=${source.id}, name=${source.name}, jsCode.length=${source.jsCode.length}")
-                    
-                    // 识别成功，保存并关闭对话框
-                    onConfirm(source)
-                    android.util.Log.d("AddSourceDialog", "已调用 onConfirm，VideoSourceManager.sources.size=${VideoSourceManager.sources.size}")
-                    Toast.makeText(context, "视频源添加成功", Toast.LENGTH_SHORT).show()
-                } catch (e: Exception) {
-                    // 识别过程中发生异常
-                    identifyError = "识别失败: ${e.localizedMessage ?: e.message}"
-                    Toast.makeText(context, "识别失败: ${e.localizedMessage ?: e.message}", Toast.LENGTH_LONG).show()
-                } finally {
-                    isIdentifying = false
-                }
-            }
-        } else {
-            Toast.makeText(context, "请输入视频源内容", Toast.LENGTH_SHORT).show()
-        }
-    }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("视频") },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // 错误提示
-                identifyError?.let { error ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            Icons.Outlined.ErrorOutline,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Text(
-                            text = error,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
-                }
-                
-                // 输入框（使用与编辑视频源弹窗相同的样式）
-                val density = LocalDensity.current
-                var inputFieldHeight by remember { mutableStateOf(0.dp) }
-                OutlinedTextField(
-                    value = inputText,
-                    onValueChange = { inputText = it },
-                    label = { Text("源地址") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .onGloballyPositioned { coordinates ->
-                            inputFieldHeight = with(density) {
-                                coordinates.size.height.toDp()
-                            }
-                        },
-                    singleLine = false,
-                    maxLines = 5,
-                    trailingIcon = {
-                        Icon(
-                            Icons.Default.FolderOpen,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                )
-                
-                // 点我粘贴按钮（高度与输入框同步）
-                OutlinedButton(
-                    onClick = onPasteClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(if (inputFieldHeight > 0.dp) inputFieldHeight else 56.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(
-                        Icons.Default.ContentCopy,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("点我粘贴")
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirmClick,
-                enabled = inputText.isNotBlank() && !isIdentifying
-            ) {
-                if (isIdentifying) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                }
-                Text("确定")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("取消")
-            }
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun EditSourceDialog(
-    source: VideoSource,
-    onDismiss: () -> Unit,
-    onConfirm: (VideoSource) -> Unit
-) {
-    var name by remember { mutableStateOf(source.name) }
-    var url by remember { mutableStateOf(source.url) }
-    var type by remember { mutableStateOf(source.type) }
-    var searchable by remember { mutableStateOf(source.searchable) }
-    var changeable by remember { mutableStateOf(source.changeable) }
-    var quickSearch by remember { mutableStateOf(source.quickSearch) }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("编辑视频源") },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("源名称") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
-                OutlinedTextField(
-                    value = url,
-                    onValueChange = { url = it },
-                    label = { Text("源地址") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                
-                Text("类型", style = MaterialTheme.typography.labelLarge)
-                Row(
-                    modifier = Modifier.selectableGroup(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.selectable(
-                            selected = type == SourceType.VOD,
-                            onClick = { type = SourceType.VOD }
-                        )
-                    ) {
-                        RadioButton(
-                            selected = type == SourceType.VOD,
-                            onClick = { type = SourceType.VOD }
-                        )
-                        Text("点播")
-                    }
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.selectable(
-                            selected = type == SourceType.LIVE,
-                            onClick = { type = SourceType.LIVE }
-                        )
-                    ) {
-                        RadioButton(
-                            selected = type == SourceType.LIVE,
-                            onClick = { type = SourceType.LIVE }
-                        )
-                        Text("直播")
-                    }
-                }
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("支持搜索")
-                    Switch(
-                        checked = searchable,
-                        onCheckedChange = { searchable = it }
-                    )
-                }
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("支持换源")
-                    Switch(
-                        checked = changeable,
-                        onCheckedChange = { changeable = it }
-                    )
-                }
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text("快速搜索")
-                    Switch(
-                        checked = quickSearch,
-                        onCheckedChange = { quickSearch = it }
-                    )
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    if (name.isNotBlank() && url.isNotBlank()) {
-                        onConfirm(
-                            source.copy(
-                                name = name,
-                                url = url,
-                                type = type,
-                                searchable = searchable,
-                                changeable = changeable,
-                                quickSearch = quickSearch
-                            )
-                        )
-                    }
-                },
-                enabled = name.isNotBlank() && url.isNotBlank()
-            ) {
-                Text("保存")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("取消")
-            }
-        }
-    )
-}
-
-
-/**
- * 子源数据（从多源配置的 sites 数组中解析）
- */
-data class SubSource(
-    val key: String,
-    val name: String,
-    val type: Int, // 0=点播, 2=直播, 3=其他
-    val api: String? = null,
-    val jar: String? = null // Spider JAR URL
-)
-
-/**
- * 分源选择对话框 - 优先显示当前视频源的子源，如果没有子源则显示所有视频源
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SourceSelectorDialog(
-    currentSource: VideoSource?,
-    allSources: List<VideoSource>,
-    currentSourceId: String?,
-    currentSubSourceKey: String?,
-    onDismiss: () -> Unit,
-    onSelectSource: (VideoSource) -> Unit,
-    onSelectSubSource: (String) -> Unit
-) {
-    // 解析当前源中的子源（如果是多源配置）
-    val subSources: List<SubSource> = remember(currentSource?.id, currentSource?.jsCode) {
-        val result = (currentSource?.let { source ->
-            android.util.Log.d("SourceSelector", "开始解析子源，source.name=${source.name}, jsCode.length=${source.jsCode.length}")
-            
-            if (source.jsCode.isNotBlank()) {
-                try {
-                    // 尝试解析 JSON 配置中的 sites 数组
-                    val json = Json {
-                        ignoreUnknownKeys = true
-                        coerceInputValues = true
-                    }
-                    
-                    android.util.Log.d("SourceSelector", "jsCode 前200字符: ${source.jsCode.take(200)}")
-                    
-                    val jsonElement: JsonElement = json.parseToJsonElement(source.jsCode)
-                    android.util.Log.d("SourceSelector", "解析 JSON 成功，类型: ${jsonElement::class.simpleName}")
-                    
-                    if (jsonElement is JsonObject) {
-                        val sitesArray = jsonElement["sites"]?.jsonArray
-                        android.util.Log.d("SourceSelector", "sites 数组: ${if (sitesArray != null) "存在，长度=${sitesArray.size}" else "不存在"}")
-                        
-                        val parsedSubSources = sitesArray?.mapNotNull { siteJson ->
-                            if (siteJson is JsonObject) {
-                                // 优先使用 key，如果没有 key 则使用 name
-                                val key = siteJson["key"]?.jsonPrimitive?.content
-                                val name = siteJson["name"]?.jsonPrimitive?.content
-                                
-                                android.util.Log.d("SourceSelector", "解析子源项: key=$key, name=$name")
-                                
-                                // key 是必需的，如果没有 key 也没有 name，则跳过
-                                val finalKey = key ?: name ?: return@mapNotNull null
-                                val finalName = name ?: key ?: ""
-                                
-                                val type = siteJson["type"]?.jsonPrimitive?.intOrNull ?: 0
-                                val api = siteJson["api"]?.jsonPrimitive?.content
-                                
-                                SubSource(
-                                    key = finalKey,
-                                    name = finalName,
-                                    type = type,
-                                    api = api,
-                                    jar = null
-                                )
-                            } else {
-                                null
-                            }
-                        } ?: emptyList()
-                        
-                        // 调试输出
-                        android.util.Log.d("SourceSelector", "解析完成，共 ${parsedSubSources.size} 个子源: ${parsedSubSources.take(3).map { "${it.key}(${it.name})" }}")
-                        
-                        parsedSubSources
-                    } else {
-                        android.util.Log.w("SourceSelector", "JSON 元素不是 JsonObject，而是: ${jsonElement::class.simpleName}")
-                        emptyList()
-                    }
-                } catch (e: Exception) {
-                    // 解析失败，打印错误信息
-                    android.util.Log.e("SourceSelector", "解析子源失败: ${e.message}", e)
-                    e.printStackTrace()
-                    emptyList<SubSource>()
-                }
-            } else {
-                android.util.Log.w("SourceSelector", "jsCode 为空")
-                emptyList<SubSource>()
-            }
-        }) ?: run {
-            android.util.Log.w("SourceSelector", "currentSource 为 null")
-            emptyList<SubSource>()
-        }
-        
-        android.util.Log.d("SourceSelector", "最终结果: ${result.size} 个子源")
-        result
-    }
-    
-    val hasSubSources = subSources.isNotEmpty()
-    
-    // 调试：如果没有子源但 jsCode 不为空，输出警告
-    LaunchedEffect(hasSubSources, currentSource?.jsCode) {
-        if (!hasSubSources && currentSource != null && currentSource.jsCode.isNotBlank()) {
-            android.util.Log.w("SourceSelector", "警告：未能解析子源，jsCode 长度: ${currentSource.jsCode.length}, 前100字符: ${currentSource.jsCode.take(100)}")
-        }
-    }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(if (hasSubSources) "选择分源" else "选择视频源") },
-        text = {
-            // 优先显示子源列表（如果当前源有多源配置）
-            if (hasSubSources) {
-                // 显示子源列表（分源）
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 500.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(subSources.size) { index ->
-                        val subSource = subSources[index]
-                        val isSelected = subSource.key == currentSubSourceKey
-                        
-                        SubSourceSelectorItem(
-                            subSource = subSource,
-                            isSelected = isSelected,
-                            onClick = {
-                                onSelectSubSource(subSource.key)
-                            },
-                            currentSource = currentSource
-                        )
-                    }
-                }
-            } else if (currentSource != null && currentSource.jsCode.isNotBlank()) {
-                // 如果有 jsCode 但没有解析出子源，显示错误提示
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Icon(
-                            Icons.Outlined.ErrorOutline,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.error
-                        )
-                        Text(
-                            "无法解析子源列表",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                        Text(
-                            "请检查视频源配置是否正确",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            } else if (allSources.isEmpty()) {
-                // 没有源也没有子源
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Icon(
-                            Icons.Default.VideoLibrary,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            "暂无视频源",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            "请先添加视频源",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            } else {
-                // 显示所有视频源列表
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(max = 400.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(allSources.size) { index ->
-                        val source = allSources[index]
-                        val isSelected = source.id == currentSourceId
-                        
-                        SourceSelectorItem(
-                            source = source,
-                            isSelected = isSelected,
-                            onClick = {
-                                onSelectSource(source)
-                            }
-                        )
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("取消")
-            }
-        }
-    )
-}
-
-/**
- * 子源选择列表项
- */
-@Composable
-fun SubSourceSelectorItem(
-    subSource: SubSource,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    currentSource: VideoSource? = null,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = subSource.name.ifBlank { subSource.key },
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
-                // 显示子源的 key（如果和 name 不同）
-                if (subSource.key != subSource.name && subSource.key.isNotBlank()) {
-                    Text(
-                        text = subSource.key,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        },
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    AssistChip(
-                        onClick = { },
-                        label = {
-                            Text(
-                                if (subSource.type == 2) "直播" else "点播",
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                        },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = if (isSelected) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.secondaryContainer
-                            }
-                        )
-                    )
-                    if (subSource.api != null) {
-                        AssistChip(
-                            onClick = { },
-                            label = {
-                                Text(
-                                    subSource.api,
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            },
-                            colors = AssistChipDefaults.assistChipColors(
-                                containerColor = if (isSelected) {
-                                    MaterialTheme.colorScheme.secondary
-                                } else {
-                                    MaterialTheme.colorScheme.tertiaryContainer
-                                }
-                            )
-                        )
-                    }
-                }
-            }
-            
-            // 选中状态指示
-            if (isSelected) {
-                Icon(
-                    Icons.Outlined.Check,
-                    contentDescription = "已选中",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-    }
-}
-
-/**
- * 分源选择列表项
- */
-@Composable
-fun SourceSelectorItem(
-    source: VideoSource,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Card(
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = source.name.ifBlank { source.url },
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimaryContainer
-                    } else {
-                        MaterialTheme.colorScheme.onSurfaceVariant
-                    }
-                )
-                if (source.url != source.name && source.url.isNotBlank()) {
-                    Text(
-                        text = source.url,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (isSelected) {
-                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        },
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    AssistChip(
-                        onClick = { },
-                        label = {
-                            Text(
-                                if (source.type == SourceType.VOD) "点播" else "直播",
-                                style = MaterialTheme.typography.labelSmall
-                            )
-                        },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = if (isSelected) {
-                                MaterialTheme.colorScheme.primary
-                            } else {
-                                MaterialTheme.colorScheme.secondaryContainer
-                            }
-                        )
-                    )
-                    if (source.jsCode.isNotBlank()) {
-                        AssistChip(
-                            onClick = { },
-                            label = {
-                                Text(
-                                    "JavaScript",
-                                    style = MaterialTheme.typography.labelSmall
-                                )
-                            },
-                            colors = AssistChipDefaults.assistChipColors(
-                                containerColor = if (isSelected) {
-                                    MaterialTheme.colorScheme.tertiary
-                                } else {
-                                    MaterialTheme.colorScheme.tertiaryContainer
-                                }
-                            )
-                        )
-                    }
-                }
-            }
-            
-            // 选中状态指示
-            if (isSelected) {
-                Icon(
-                    Icons.Outlined.Check,
-                    contentDescription = "已选中",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-    }
-}
-
 /**
  * 计算应用缓存大小
  */
@@ -3148,17 +1794,6 @@ suspend fun clearApplicationCache(context: Context) {
                 deleteRecursive(externalCacheDir)
                 externalCacheDir.mkdirs()
             }
-            
-            // 清理 WebView 缓存
-            try {
-                android.webkit.WebView(context).apply {
-                    clearCache(true)
-                    clearHistory()
-                    destroy()
-                }
-            } catch (e: Exception) {
-                // WebView 清理失败不影响整体清理
-            }
         } catch (e: Exception) {
             throw e
         }
@@ -3191,19 +1826,19 @@ fun ClearCacheDialog(
         onDismissRequest = { if (!isClearing) onDismiss() },
         title = { Text("缓存清理") },
         text = {
-            Column(
+        Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
+        ) {
                 Text("确定要清理所有缓存数据吗？")
                 if (isClearing) {
-                    Row(
+            Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                         CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                        Text(
+                    Text(
                             "正在清理...",
-                            style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -3247,17 +1882,17 @@ fun AboutDialog(
     val packageInfo = try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             context.packageManager.getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
-        } else {
+                                } else {
             @Suppress("DEPRECATION")
             context.packageManager.getPackageInfo(context.packageName, 0)
         }
-    } catch (e: Exception) {
+                } catch (e: Exception) {
         null
     }
     val versionName = packageInfo?.versionName ?: "1.0.0"
     val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         packageInfo?.longVersionCode?.toString() ?: "1"
-    } else {
+        } else {
         @Suppress("DEPRECATION")
         (packageInfo?.versionCode ?: 1).toString()
     }
@@ -3280,8 +1915,8 @@ fun AboutDialog(
                         "XMSLEEP",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
-                    )
-                    Text(
+                        )
+                        Text(
                         "版本: $versionName (Build $versionCode)",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -3329,8 +1964,10 @@ fun AboutDialog(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "• 使用 Jetpack Compose 构建界面\n" +
-                        "• 采用 Material Design 3 设计规范",
+                        "• Kotlin + Jetpack Compose\n" +
+                        "• Material Design 3\n" +
+                        "• ExoPlayer/Media3\n" +
+                        "• Lottie 动画",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -3338,21 +1975,14 @@ fun AboutDialog(
                 
                 HorizontalDivider()
                 
-                // 版权说明
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        "版权说明",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "© 2024 XMSLEEP. All rights reserved.\n\n" +
-                        "本应用提供的音频内容仅供个人学习和娱乐使用。\n" +
-                        "请尊重相关音频资源的版权，不得用于商业用途。",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
+                // 版权信息
+                Text(
+                    "© 2025 XMSLEEP. All rights reserved.\n\n" +
+                    "本应用提供的音频内容仅供个人学习和娱乐使用。\n" +
+                    "请尊重相关音频资源的版权，不得用于商业用途。",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         },
         confirmButton = {
@@ -3361,119 +1991,4 @@ fun AboutDialog(
             }
         }
     )
-}
-
-/**
- * 记录对话框 - 显示视频源列表
- */
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun HistoryDialog(
-    sources: List<VideoSource>,
-    onDismiss: () -> Unit,
-    onDelete: (VideoSource) -> Unit
-) {
-    val context = LocalContext.current
-    val clipboardManager = remember { context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager }
-    
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("视频源记录") },
-        text = {
-            if (sources.isEmpty()) {
-                Box(modifier = Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                        Icon(Icons.Default.History, contentDescription = null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("暂无记录", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                }
-            } else {
-                LazyColumn(modifier = Modifier.fillMaxWidth().heightIn(max = 400.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(sources.size) { index ->
-                        val source = sources[index]
-                        HistoryListItem(source = source, isFirst = index == 0, onCopy = { clipboardManager?.let { cm -> val clip = android.content.ClipData.newPlainText("视频源", source.url); cm.setPrimaryClip(clip) } }, onDelete = { onDelete(source) })
-                    }
-                }
-            }
-        },
-        confirmButton = { TextButton(onClick = onDismiss) { Text("关闭") } }
-    )
-}
-
-/**
- * 记录列表项
- */
-@Composable
-fun HistoryListItem(
-    source: VideoSource,
-    isFirst: Boolean,
-    onCopy: () -> Unit,
-    onDelete: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        // 左边的框 - 显示视频源名称或URL
-        Card(
-            modifier = Modifier
-                .weight(1f)
-                .height(48.dp),
-            shape = RoundedCornerShape(8.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-            )
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                Text(
-                    text = source.url,
-                    style = MaterialTheme.typography.bodyMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-        
-        // 右边的复制和删除按钮
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
-        ) {
-            // 复制按钮
-            IconButton(
-                onClick = onCopy,
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    Icons.Default.ContentCopy,
-                    contentDescription = "复制",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
-            }
-            
-            // 删除按钮（第一个不可删除）
-            IconButton(
-                onClick = onDelete,
-                enabled = !isFirst,
-                modifier = Modifier.size(48.dp)
-            ) {
-                Icon(
-                    Icons.Default.Delete,
-                    contentDescription = "删除",
-                    tint = if (isFirst) {
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
-                    } else {
-                        MaterialTheme.colorScheme.error
-                    }
-                )
-            }
-        }
-    }
 }
