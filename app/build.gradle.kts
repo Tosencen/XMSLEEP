@@ -13,8 +13,12 @@ android {
         applicationId = "org.streambox.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 6
-        versionName = "1.0.5"
+        versionCode = 7
+        versionName = "1.0.6"
+        
+        // 从 gradle.properties 读取 GitHub Token（如果存在）
+        val githubToken = project.findProperty("GITHUB_TOKEN") as String? ?: ""
+        buildConfigField("String", "GITHUB_TOKEN", if (githubToken.isNotBlank()) "\"$githubToken\"" else "null")
     }
     
     signingConfigs {
@@ -39,6 +43,7 @@ android {
     
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     
     compileOptions {
