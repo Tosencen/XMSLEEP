@@ -100,3 +100,7 @@ Desktop.ini
 *.keystore
 *.jks
 release.keystore
+
+# GitHub Token (敏感信息，不应该提交)
+# 注意: gradle.properties需要提交，但请确保GITHUB_TOKEN=后面为空或使用环境变量
+gradle.properties

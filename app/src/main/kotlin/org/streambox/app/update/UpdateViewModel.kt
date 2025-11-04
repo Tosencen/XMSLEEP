@@ -23,7 +23,18 @@ import java.io.IOException
 class UpdateViewModel(private val context: Context) {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     
-    private val updateChecker = UpdateChecker()
+    // 从 BuildConfig 读取 GitHub Token（如果配置了）
+    private val githubToken: String? = try {
+        val buildConfigClass = Class.forName("org.streambox.app.BuildConfig")
+        val tokenField = buildConfigClass.getField("GITHUB_TOKEN")
+        val token = tokenField.get(null) as? String
+        if (token.isNullOrBlank()) null else token
+    } catch (e: Exception) {
+        android.util.Log.d("UpdateCheck", "无法读取GITHUB_TOKEN，使用未认证请求")
+        null
+    }
+    
+    private val updateChecker = UpdateChecker(githubToken = githubToken)
     private val fileDownloader = FileDownloader()
     private val updateInstaller = UpdateInstaller(context)
     

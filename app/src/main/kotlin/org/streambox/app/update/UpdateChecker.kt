@@ -12,10 +12,14 @@ import java.util.concurrent.TimeUnit
 
 /**
  * GitHub Releases API 更新检查器
+ * @param repositoryOwner 仓库所有者
+ * @param repositoryName 仓库名称
+ * @param githubToken 可选的GitHub Personal Access Token，如果提供则使用认证请求（5000次/小时），否则使用未认证请求（60次/小时）
  */
 class UpdateChecker(
     private val repositoryOwner: String = "Tosencen",
-    private val repositoryName: String = "XMSLEEP"
+    private val repositoryName: String = "XMSLEEP",
+    private val githubToken: String? = null
 ) {
     private val client = OkHttpClient.Builder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -38,11 +42,19 @@ class UpdateChecker(
             android.util.Log.d("UpdateChecker", "请求URL: $url")
             android.util.Log.d("UpdateChecker", "当前版本: $currentVersion")
             
-            val request = Request.Builder()
+            val requestBuilder = Request.Builder()
                 .url(url)
                 .header("Accept", "application/vnd.github.v3+json")
-                .get()
-                .build()
+            
+            // 如果提供了Token，添加Authorization header
+            if (!githubToken.isNullOrBlank()) {
+                requestBuilder.header("Authorization", "Bearer $githubToken")
+                android.util.Log.d("UpdateChecker", "使用GitHub Token进行认证请求")
+            } else {
+                android.util.Log.d("UpdateChecker", "使用未认证请求（限制60次/小时）")
+            }
+            
+            val request = requestBuilder.get().build()
             
             val response = client.newCall(request).execute()
             
