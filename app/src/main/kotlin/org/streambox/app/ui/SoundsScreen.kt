@@ -13,6 +13,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.GraphicEq
 import androidx.compose.material.icons.filled.Timer
@@ -23,8 +26,15 @@ import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.GridView
 import androidx.compose.material.icons.filled.ViewAgenda
+import androidx.compose.material.icons.outlined.ViewAgenda
+import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material.icons.filled.StarOutline
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.ui.draw.clip
@@ -36,6 +46,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
@@ -69,7 +80,11 @@ fun SoundsScreen(
     modifier: Modifier = Modifier,
     hideAnimation: Boolean = false,
     darkMode: org.streambox.app.DarkModeOption = org.streambox.app.DarkModeOption.AUTO,
-    onDarkModeChange: (org.streambox.app.DarkModeOption) -> Unit = {}
+    onDarkModeChange: (org.streambox.app.DarkModeOption) -> Unit = {},
+    columnsCount: Int = 2,
+    onColumnsCountChange: (Int) -> Unit = {},
+    pinnedSounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
+    favoriteSounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>
 ) {
     val context = LocalContext.current
     val audioManager = remember { AudioManager.getInstance() }
@@ -183,6 +198,14 @@ fun SoundsScreen(
     // Tab状态
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val tabs = listOf("内置", "收藏", "网络")
+    
+    // 默认区域编辑模式状态（提升到SoundsScreen级别，以便在切换tab时自动复位）
+    var isDefaultAreaEditMode by remember { mutableStateOf(false) }
+    
+    // 切换tab时自动退出编辑模式
+    LaunchedEffect(selectedTabIndex) {
+        isDefaultAreaEditMode = false
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
         // 顶部标题和深色模式切换按钮（都在左边）
@@ -219,7 +242,7 @@ fun SoundsScreen(
                     onDarkModeChange(newMode)
                 },
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.surfaceContainer,
+                color = MaterialTheme.colorScheme.surfaceVariant,
                 modifier = Modifier.size(38.dp)
             ) {
                 Box(
@@ -254,7 +277,11 @@ fun SoundsScreen(
                 }
                 
                 FilledTonalButton(
-                    onClick = { selectedTabIndex = index },
+                    onClick = { 
+                        // 切换tab时自动退出编辑模式（LaunchedEffect已经处理，这里确保立即生效）
+                        isDefaultAreaEditMode = false
+                        selectedTabIndex = index 
+                    },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.filledTonalButtonColors(
                         containerColor = if (isSelected) {
@@ -315,8 +342,53 @@ fun SoundsScreen(
             when (selectedTabIndex) {
                 0 -> {
                     // 内置页面（现有的声音列表）
-                    var columnsCount by remember { mutableIntStateOf(2) } // 2列或3列
+                    // 实时获取默认卡片列表（用于判断是否显示默认区域）
+                    val defaultItems = remember {
+                        derivedStateOf {
+                            soundItems.filter { pinnedSounds.value.contains(it.sound) }
+                        }
+                    }.value
+                    
+                    // 当默认区域没有内容时，自动退出编辑模式
+                    LaunchedEffect(defaultItems.isEmpty()) {
+                        if (defaultItems.isEmpty()) {
+                            isDefaultAreaEditMode = false
+                        }
+                    }
+                    
                     Column(modifier = Modifier.fillMaxSize()) {
+                        // 默认区域（位于顶部tab和白噪音卡片标题之间，只在有内容时显示）
+                        if (defaultItems.isNotEmpty()) {
+                            DefaultArea(
+                                soundItems = soundItems,
+                                pinnedSounds = pinnedSounds,
+                                favoriteSounds = favoriteSounds,
+                                playingStates = playingStates,
+                                audioManager = audioManager,
+                                context = context,
+                                isEditMode = isDefaultAreaEditMode,
+                                onEditModeChange = { isDefaultAreaEditMode = it },
+                                onPinnedChange = { sound, isPinned ->
+                                    val currentSet = pinnedSounds.value.toMutableSet()
+                                    if (isPinned) {
+                                        currentSet.add(sound)
+                                    } else {
+                                        currentSet.remove(sound)
+                                    }
+                                    pinnedSounds.value = currentSet
+                                },
+                                onFavoriteChange = { sound, isFavorite ->
+                                    val currentSet = favoriteSounds.value.toMutableSet()
+                                    if (isFavorite) {
+                                        currentSet.add(sound)
+                                    } else {
+                                        currentSet.remove(sound)
+                                    }
+                                    favoriteSounds.value = currentSet
+                                }
+                            )
+                        }
+                        
                         // 标题和布局切换按钮（独立一行）
                         Row(
                             modifier = Modifier
@@ -332,11 +404,15 @@ fun SoundsScreen(
                             )
                             IconButton(
                                 onClick = { 
-                                    columnsCount = if (columnsCount == 2) 3 else 2
+                                    // 点击布局切换按钮时退出编辑模式
+                                    isDefaultAreaEditMode = false
+                                    val newCount = if (columnsCount == 2) 3 else 2
+                                    onColumnsCountChange(newCount)
                                 }
                             ) {
                                 Icon(
-                                    imageVector = if (columnsCount == 2) Icons.Default.GridView else Icons.Default.ViewAgenda,
+                                    // 3列时使用线性图标ViewAgenda，2列时使用填充图标GridView
+                                    imageVector = if (columnsCount == 2) Icons.Default.GridView else Icons.Outlined.ViewAgenda,
                                     contentDescription = if (columnsCount == 2) "切换为3列" else "切换为2列",
                                     tint = MaterialTheme.colorScheme.primary
                                 )
@@ -349,7 +425,28 @@ fun SoundsScreen(
                             audioManager = audioManager,
                             context = context,
                             hideAnimation = hideAnimation,
-                            columnsCount = columnsCount
+                            columnsCount = columnsCount,
+                            pinnedSounds = pinnedSounds,
+                            favoriteSounds = favoriteSounds,
+                            onEditModeReset = { isDefaultAreaEditMode = false },
+                            onPinnedChange = { sound, isPinned ->
+                                val currentSet = pinnedSounds.value.toMutableSet()
+                                if (isPinned) {
+                                    currentSet.add(sound)
+                                } else {
+                                    currentSet.remove(sound)
+                                }
+                                pinnedSounds.value = currentSet
+                            },
+                            onFavoriteChange = { sound, isFavorite ->
+                                val currentSet = favoriteSounds.value.toMutableSet()
+                                if (isFavorite) {
+                                    currentSet.add(sound)
+                                } else {
+                                    currentSet.remove(sound)
+                                }
+                                favoriteSounds.value = currentSet
+                            }
                         )
                     }
                 }
@@ -405,6 +502,270 @@ fun SoundsScreen(
 }
 
 /**
+ * 默认区域组件
+ */
+@Composable
+private fun DefaultArea(
+    soundItems: List<SoundItem>,
+    pinnedSounds: MutableState<MutableSet<AudioManager.Sound>>,
+    favoriteSounds: MutableState<MutableSet<AudioManager.Sound>>,
+    playingStates: MutableMap<AudioManager.Sound, Boolean>,
+    audioManager: AudioManager,
+    context: android.content.Context,
+    isEditMode: Boolean,
+    onEditModeChange: (Boolean) -> Unit,
+    onPinnedChange: (AudioManager.Sound, Boolean) -> Unit,
+    onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit
+) {
+    // 实时获取默认卡片列表（使用derivedStateOf确保状态变化时触发重组）
+    val defaultItems = remember {
+        derivedStateOf {
+            soundItems.filter { pinnedSounds.value.contains(it.sound) }
+        }
+    }.value
+    
+    Column(modifier = Modifier.fillMaxWidth()) {
+        // 标题和编辑按钮（一行）
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "默认播放区域",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f)
+            )
+            
+            // 编辑按钮（即使没有内容也可以点击，用于未来功能扩展）
+            IconButton(
+                onClick = { onEditModeChange(!isEditMode) },
+                modifier = Modifier.size(40.dp),
+                enabled = true  // 确保按钮始终可点击
+            ) {
+                Icon(
+                    imageVector = if (isEditMode) Icons.Default.Done else Icons.Default.Edit,
+                    contentDescription = if (isEditMode) "完成编辑" else "编辑",
+                    tint = if (isEditMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.primary
+                )
+            }
+        }
+        
+        // 默认区域容器
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 0.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            if (defaultItems.isEmpty()) {
+                // 没有默认卡片时，显示占位区域
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "默认区域",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                // 有默认卡片时，显示卡片（固定3列，只显示标题和声音图标）
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    contentPadding = PaddingValues(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(defaultItems) { item ->
+                        var showVolumeDialog by remember { mutableStateOf(false) }
+                        
+                        DefaultCard(
+                            item = item,
+                            isPlaying = playingStates[item.sound] ?: false,
+                            isFavorite = favoriteSounds.value.contains(item.sound),
+                            isEditMode = isEditMode,
+                            onToggle = { sound ->
+                                val wasPlaying = audioManager.isPlayingSound(sound)
+                                if (wasPlaying) {
+                                    audioManager.pauseSound(sound)
+                                    playingStates[sound] = false
+                                } else {
+                                    audioManager.playSound(context, sound)
+                                    playingStates[sound] = true
+                                }
+                            },
+                            onVolumeClick = { showVolumeDialog = true },
+                            onRemove = {
+                                val currentSet = pinnedSounds.value.toMutableSet()
+                                currentSet.remove(item.sound)
+                                pinnedSounds.value = currentSet
+                            },
+                            onPinnedChange = { isPinned ->
+                                val currentSet = pinnedSounds.value.toMutableSet()
+                                if (isPinned) {
+                                    currentSet.add(item.sound)
+                                } else {
+                                    currentSet.remove(item.sound)
+                                }
+                                pinnedSounds.value = currentSet
+                                onPinnedChange(item.sound, isPinned)
+                            },
+                            onFavoriteChange = { isFavorite ->
+                                val currentSet = favoriteSounds.value.toMutableSet()
+                                if (isFavorite) {
+                                    currentSet.add(item.sound)
+                                } else {
+                                    currentSet.remove(item.sound)
+                                }
+                                favoriteSounds.value = currentSet
+                                onFavoriteChange(item.sound, isFavorite)
+                            }
+                        )
+                        
+                        // 音量调节对话框
+                        if (showVolumeDialog) {
+                            VolumeDialog(
+                                sound = item.sound,
+                                currentVolume = audioManager.getVolume(item.sound),
+                                onDismiss = { showVolumeDialog = false },
+                                onVolumeChange = { volume ->
+                                    audioManager.setVolume(item.sound, volume)
+                                }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 默认卡片组件（简化版，只显示标题和声音图标）
+ */
+@Composable
+private fun DefaultCard(
+    item: SoundItem,
+    isPlaying: Boolean,
+    isFavorite: Boolean,
+    isEditMode: Boolean = false,
+    onToggle: (AudioManager.Sound) -> Unit,
+    onVolumeClick: () -> Unit = {},
+    onRemove: () -> Unit = {},
+    onPinnedChange: (Boolean) -> Unit = {},
+    onFavoriteChange: (Boolean) -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    var showTitleMenu by remember { mutableStateOf(false) }
+    val alpha by animateFloatAsState(
+        targetValue = if (isPlaying) 1f else 0.6f,
+        label = "alpha"
+    )
+    
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(80.dp)
+            .clickable(enabled = !isEditMode) { onToggle(item.sound) },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
+        ) {
+            // 关闭按钮（右下角，只在编辑模式下显示，水平对齐声音图标）
+            if (isEditMode) {
+                IconButton(
+                    onClick = onRemove,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "移除",
+                        modifier = Modifier.size(20.dp),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                }
+            }
+            
+            // 标题（左上角，可点击）
+            Box(modifier = Modifier.align(Alignment.TopStart)) {
+                Text(
+                    text = item.name,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .clickable(enabled = !isEditMode) { showTitleMenu = true }
+                        .alpha(alpha),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                // 标题弹窗（编辑模式下禁用）
+                if (!isEditMode) {
+                    TitleMenu(
+                        showMenu = showTitleMenu,
+                        onDismiss = { showTitleMenu = false },
+                        isPinned = true,
+                        isFavorite = isFavorite,
+                        onPinnedClick = {
+                            onPinnedChange(false)
+                            showTitleMenu = false
+                        },
+                        onFavoriteClick = {
+                            onFavoriteChange(!isFavorite)
+                            showTitleMenu = false
+                        }
+                    )
+                }
+            }
+            
+            // 声音图标（左下角）
+            Icon(
+                imageVector = Icons.Default.GraphicEq,
+                contentDescription = null,
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .size(24.dp)
+                    .alpha(alpha),
+                tint = MaterialTheme.colorScheme.primary
+            )
+            
+            // 音量图标（右下角，只在播放时显示）
+            if (isPlaying) {
+                IconButton(
+                    onClick = onVolumeClick,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(32.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.VolumeUp,
+                        contentDescription = "调节音量",
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
  * 内置声音内容
  */
 @Composable
@@ -414,45 +775,84 @@ private fun BuiltInSoundsContent(
     audioManager: AudioManager,
     context: android.content.Context,
     hideAnimation: Boolean = false,
-    columnsCount: Int = 2
+    columnsCount: Int = 2,
+    pinnedSounds: MutableState<MutableSet<AudioManager.Sound>>,
+    favoriteSounds: MutableState<MutableSet<AudioManager.Sound>>,
+    onEditModeReset: () -> Unit,
+    onPinnedChange: (AudioManager.Sound, Boolean) -> Unit,
+    onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit
 ) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(columnsCount),
-        contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-        modifier = Modifier.fillMaxSize()
-    ) {
-        items(soundItems) { item ->
-            var showVolumeDialog by remember { mutableStateOf(false) }
-            
-            SoundCard(
-                item = item,
-                isPlaying = playingStates[item.sound] ?: false,
-                hideAnimation = hideAnimation,
-                onToggle = { sound ->
-                    val wasPlaying = audioManager.isPlayingSound(sound)
-                    if (wasPlaying) {
-                        audioManager.pauseSound(sound)
-                        playingStates[sound] = false
-                    } else {
-                        audioManager.playSound(context, sound)
-                        playingStates[sound] = true
+    Column(modifier = Modifier.fillMaxSize()) {
+        // 显示所有卡片（不过滤默认卡片，因为默认是复制而不是移动）
+        val normalItems = soundItems
+        
+        // 白噪音卡片区域
+        if (normalItems.isNotEmpty()) {
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(columnsCount),
+                contentPadding = PaddingValues(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(normalItems) { item ->
+                    var showVolumeDialog by remember { mutableStateOf(false) }
+                    
+                    SoundCard(
+                        item = item,
+                        isPlaying = playingStates[item.sound] ?: false,
+                        hideAnimation = hideAnimation,
+                        columnsCount = columnsCount,
+                        isPinned = pinnedSounds.value.contains(item.sound),
+                        isFavorite = favoriteSounds.value.contains(item.sound),
+                        onToggle = { sound ->
+                            // 点击卡片时退出编辑模式
+                            onEditModeReset()
+                            val wasPlaying = audioManager.isPlayingSound(sound)
+                            if (wasPlaying) {
+                                audioManager.pauseSound(sound)
+                                playingStates[sound] = false
+                            } else {
+                                audioManager.playSound(context, sound)
+                                playingStates[sound] = true
+                            }
+                        },
+                        onVolumeClick = { showVolumeDialog = true },
+                        onTitleClick = { },
+                        onPinnedChange = { isPinned ->
+                            val currentSet = pinnedSounds.value.toMutableSet()
+                            if (isPinned) {
+                                currentSet.add(item.sound)
+                            } else {
+                                currentSet.remove(item.sound)
+                            }
+                            pinnedSounds.value = currentSet
+                            onPinnedChange(item.sound, isPinned)
+                        },
+                        onFavoriteChange = { isFavorite ->
+                            val currentSet = favoriteSounds.value.toMutableSet()
+                            if (isFavorite) {
+                                currentSet.add(item.sound)
+                            } else {
+                                currentSet.remove(item.sound)
+                            }
+                            favoriteSounds.value = currentSet
+                            onFavoriteChange(item.sound, isFavorite)
+                        }
+                    )
+                    
+                    // 音量调节对话框
+                    if (showVolumeDialog) {
+                        VolumeDialog(
+                            sound = item.sound,
+                            currentVolume = audioManager.getVolume(item.sound),
+                            onDismiss = { showVolumeDialog = false },
+                            onVolumeChange = { volume ->
+                                audioManager.setVolume(item.sound, volume)
+                            }
+                        )
                     }
-                },
-                onVolumeClick = { showVolumeDialog = true }
-            )
-            
-            // 音量调节对话框
-            if (showVolumeDialog) {
-                VolumeDialog(
-                    sound = item.sound,
-                    currentVolume = audioManager.getVolume(item.sound),
-                    onDismiss = { showVolumeDialog = false },
-                    onVolumeChange = { volume ->
-                        audioManager.setVolume(item.sound, volume)
-                    }
-                )
+                }
             }
         }
     }
@@ -532,10 +932,18 @@ fun SoundCard(
     item: SoundItem,
     isPlaying: Boolean,
     hideAnimation: Boolean = false,
+    columnsCount: Int = 2,
+    isPinned: Boolean = false,
+    isFavorite: Boolean = false,
     onToggle: (AudioManager.Sound) -> Unit,
     onVolumeClick: () -> Unit = {},
+    onTitleClick: () -> Unit = {},
+    onPinnedChange: (Boolean) -> Unit = {},
+    onFavoriteChange: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    // 标题弹窗状态
+    var showTitleMenu by remember { mutableStateOf(false) }
     val alpha by animateFloatAsState(
         targetValue = if (isPlaying) 1f else 0.6f,
         label = "alpha"
@@ -558,34 +966,199 @@ fun SoundCard(
             modifier = Modifier.fillMaxSize()
         ) {
             if (hideAnimation) {
-                // 隐藏动画时的布局：标题和音量图标水平排列在中间
-                Row(
+                // 隐藏动画时的布局
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                        .padding(16.dp)
                 ) {
-                    // 标题（左侧）
-                    Text(
-                        text = item.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.alpha(alpha)
-                    )
-                    
-                    // 音量图标（右侧，只在播放时显示）
-                    if (isPlaying) {
-                        IconButton(
-                            onClick = onVolumeClick,
-                            modifier = Modifier.size(40.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.VolumeUp,
-                                contentDescription = "调节音量",
-                                modifier = Modifier.size(24.dp),
-                                tint = MaterialTheme.colorScheme.primary
+                    if (columnsCount == 3) {
+                        // 3列时：标题在左上角，音量图标在右下角
+                        // 标题（左上角，可点击）
+                        Box(modifier = Modifier.align(Alignment.TopStart)) {
+                            var expanded by remember { mutableStateOf(false) }
+                            
+                            Text(
+                                text = item.name,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .clickable { expanded = true }
+                                    .alpha(alpha)
                             )
+                            
+                            // 标题弹窗
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false },
+                                modifier = Modifier.width(120.dp)
+                            ) {
+                                // 默认选项
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp),
+                                                tint = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                text = if (isPinned) "取消默认" else "默认",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        onPinnedChange(!isPinned)
+                                        expanded = false
+                                    }
+                                )
+                                
+                                // 收藏选项
+                                DropdownMenuItem(
+                                    text = {
+                                        Row(
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarOutline,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(20.dp),
+                                                tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                            )
+                                            Text(
+                                                text = if (isFavorite) "取消收藏" else "收藏",
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                color = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                            )
+                                        }
+                                    },
+                                    onClick = {
+                                        onFavoriteChange(!isFavorite)
+                                        expanded = false
+                                    }
+                                )
+                            }
+                        }
+                        
+                        // 音量图标（右下角，只在播放时显示）
+                        if (isPlaying) {
+                            IconButton(
+                                onClick = onVolumeClick,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .size(40.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.VolumeUp,
+                                    contentDescription = "调节音量",
+                                    modifier = Modifier.size(24.dp),
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    } else {
+                        // 2列时：标题和音量图标水平居中排列
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .align(Alignment.Center),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            // 标题（左侧，可点击）
+                            Box {
+                                var expanded by remember { mutableStateOf(false) }
+                                
+                                Text(
+                                    text = item.name,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .clickable { expanded = true }
+                                        .alpha(alpha)
+                                )
+                                
+                                // 标题弹窗
+                                DropdownMenu(
+                                    expanded = expanded,
+                                    onDismissRequest = { expanded = false },
+                                    modifier = Modifier.width(120.dp)
+                                ) {
+                                    // 默认选项
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp),
+                                                    tint = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                                Text(
+                                                    text = if (isPinned) "取消默认" else "默认",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                        },
+                                        onClick = {
+                                            onPinnedChange(!isPinned)
+                                            expanded = false
+                                        }
+                                    )
+                                    
+                                    // 收藏选项
+                                    DropdownMenuItem(
+                                        text = {
+                                            Row(
+                                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarOutline,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(20.dp),
+                                                    tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                                Text(
+                                                    text = if (isFavorite) "取消收藏" else "收藏",
+                                                    style = MaterialTheme.typography.bodyMedium,
+                                                    color = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                                )
+                                            }
+                                        },
+                                        onClick = {
+                                            onFavoriteChange(!isFavorite)
+                                            expanded = false
+                                        }
+                                    )
+                                }
+                            }
+                            
+                            // 音量图标（右侧，只在播放时显示）
+                            if (isPlaying) {
+                                IconButton(
+                                    onClick = onVolumeClick,
+                                    modifier = Modifier.size(40.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.VolumeUp,
+                                        contentDescription = "调节音量",
+                                        modifier = Modifier.size(24.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
                         }
                     }
                 }
@@ -597,15 +1170,78 @@ fun SoundCard(
                         .padding(16.dp)
                 ) {
                     
-                    // 标题（左上角）
-                    Text(
-                        text = item.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .align(Alignment.TopStart)
-                            .alpha(alpha)
-                    )
+                    // 标题（左上角，可点击）
+                    Box(modifier = Modifier.align(Alignment.TopStart)) {
+                        var expanded by remember { mutableStateOf(false) }
+                        
+                        Text(
+                            text = item.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .clickable { expanded = true }
+                                .alpha(alpha)
+                        )
+                        
+                        // 标题弹窗
+                        DropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false },
+                            modifier = Modifier.width(120.dp)
+                        ) {
+                            // 默认选项
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp),
+                                            tint = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = if (isPinned) "取消默认" else "默认",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    onPinnedChange(!isPinned)
+                                    expanded = false
+                                }
+                            )
+                            
+                            // 收藏选项
+                            DropdownMenuItem(
+                                text = {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(
+                                            imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarOutline,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(20.dp),
+                                            tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = if (isFavorite) "取消收藏" else "收藏",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            color = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    onFavoriteChange(!isFavorite)
+                                    expanded = false
+                                }
+                            )
+                        }
+                    }
                     
                     // Lottie动画（左下角）
                     AndroidView(
@@ -687,6 +1323,74 @@ fun SoundCard(
                     }
                 }
             }
+        }
+    }
+}
+
+/**
+ * 标题弹窗菜单
+ */
+@Composable
+private fun TitleMenu(
+    showMenu: Boolean,
+    onDismiss: () -> Unit,
+    isPinned: Boolean,
+    isFavorite: Boolean,
+    onPinnedClick: () -> Unit,
+    onFavoriteClick: () -> Unit
+) {
+    if (showMenu) {
+        // 使用 DropdownMenu 来显示弹窗
+        DropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = onDismiss,
+            modifier = Modifier.width(120.dp)
+        ) {
+            // 置顶选项
+            DropdownMenuItem(
+                text = {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                    Icon(
+                        imageVector = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = if (isPinned) "取消默认" else "默认",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    )
+                    }
+                },
+                onClick = onPinnedClick
+            )
+            
+            // 收藏选项
+            DropdownMenuItem(
+                text = {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = if (isFavorite) Icons.Default.Star else Icons.Default.StarOutline,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp),
+                            tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = if (isFavorite) "取消收藏" else "收藏",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                },
+                onClick = onFavoriteClick
+            )
         }
     }
 }
