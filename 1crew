@@ -1,0 +1,32 @@
+e: file:///Users/chen/Desktop/StreamBox/app/src/main/kotlin/org/streambox/app/MainActivity.kt:289:33 Unresolved reference 'showAddSourceDialog'.
+e: file:///Users/chen/Desktop/StreamBox/app/src/main/kotlin/org/streambox/app/MainActivity.kt:289:33 Unresolved reference 'showAddSourceDialog'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+
+Execution failed for task ':app:compileDebugKotlin'.Execution failed for task ':app:compileDebugKotlin'.
+
+> > A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+      > > Compilation error. See log for more details
+Compilation error. See log for more details
+
+
+* Try:* Try:
+
+> > Run with Run with --stacktrace--stacktrace option to get the stack trace.
+ option to get the stack trace.
+> > Run with Run with --info--info or  or --debug--debug option to get more log output.
+ option to get more log output.
+> > Run with Run with --scan--scan to get full insights.
+ to get full insights.
+> > Get more help at Get more help at https://help.gradle.orghttps://help.gradle.org..
+
+
+
+BUILD FAILED in 2sBUILD FAILED in 2s
+
