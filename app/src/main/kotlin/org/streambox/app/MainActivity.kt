@@ -380,7 +380,7 @@ fun MainScreen(
             android.util.Log.d("UpdateCheck", "初始状态已是HasUpdate，显示弹窗")
             kotlinx.coroutines.delay(500)
             showAutoUpdateDialog = true
-        } else {
+                        } else {
             // 否则开始检查更新
             updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
         }
@@ -437,6 +437,21 @@ fun MainScreen(
     val pinnedSounds = remember { mutableStateOf(mutableSetOf<org.streambox.app.audio.AudioManager.Sound>()) }
     val favoriteSounds = remember { mutableStateOf(mutableSetOf<org.streambox.app.audio.AudioManager.Sound>()) }
     
+    // AudioManager实例（用于播放/暂停默认播放区域的声音）
+    val audioManager = remember { org.streambox.app.audio.AudioManager.getInstance() }
+    
+    // 检查默认播放区域是否有声音
+    val defaultAreaHasSounds = pinnedSounds.value.isNotEmpty()
+    
+    // 实时检测默认播放区域的播放状态（使用LaunchedEffect定期更新）
+    var defaultAreaSoundsPlaying by remember { mutableStateOf(false) }
+    LaunchedEffect(pinnedSounds.value, Unit) {
+        while (true) {
+            defaultAreaSoundsPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
+            kotlinx.coroutines.delay(300) // 每300ms检查一次
+        }
+    }
+    
     // 监听当前路由，判断是否在二级页面
     val currentBackStackEntry by mainNavController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
@@ -453,19 +468,74 @@ fun MainScreen(
         bottomBar = {
             // 只在主页面显示底部导航栏
             if (isMainRoute) {
+                Box(modifier = Modifier.fillMaxWidth()) {
                 NavigationBar {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ) {
                     NavigationBarItem(
-                        icon = { Icon(Icons.Default.GraphicEq, null) },
-                        label = { Text("白噪音") },
-                        selected = selectedItem == 1,
-                        onClick = { selectedItem = 1 }
-                    )
+                                icon = { Icon(Icons.Default.GraphicEq, null) },
+                                label = { Text("白噪音") },
+                                selected = selectedItem == 1,
+                                onClick = { selectedItem = 1 }
+                            )
+                            // 中间留空，用于放置播放按钮
+                            Spacer(modifier = Modifier.weight(1f))
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.Settings, null) },
                         label = { Text("设置") },
-                        selected = selectedItem == 2,
-                        onClick = { selectedItem = 2 }
-                    )
+                                selected = selectedItem == 2,
+                                onClick = { selectedItem = 2 }
+                            )
+                        }
+                    }
+                    
+                    // 中间的播放按钮（一半在导航栏背景上，一半在外面）
+                    FloatingActionButton(
+                        onClick = {
+                            if (defaultAreaHasSounds) {
+                                if (defaultAreaSoundsPlaying) {
+                                    // 暂停所有默认播放区域的声音
+                                    pinnedSounds.value.forEach { sound ->
+                                        if (audioManager.isPlayingSound(sound)) {
+                                            audioManager.pauseSound(sound)
+                                        }
+                                    }
+                                } else {
+                                    // 播放所有默认播放区域的声音
+                                    pinnedSounds.value.forEach { sound ->
+                                        if (!audioManager.isPlayingSound(sound)) {
+                                            audioManager.playSound(context, sound)
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .offset(y = (-55).dp) // 继续向上移动更多
+                            .size(73.dp), // 放大30%（56dp * 1.3 ≈ 73dp）
+                        containerColor = MaterialTheme.colorScheme.surface, // 和底部导航栏背景一致
+                        contentColor = MaterialTheme.colorScheme.primary, // 图标使用主题色
+                        shape = CircleShape, // 确保圆形背景
+                        elevation = FloatingActionButtonDefaults.elevation(
+                            defaultElevation = 0.dp,
+                            pressedElevation = 0.dp,
+                            hoveredElevation = 0.dp,
+                            focusedElevation = 0.dp
+                        ) // 移除所有状态的投影
+                    ) {
+                        Icon(
+                            imageVector = if (defaultAreaSoundsPlaying) {
+                                Icons.Default.Pause
+                            } else {
+                                Icons.Filled.PlayArrow
+                            },
+                            contentDescription = if (defaultAreaSoundsPlaying) "暂停" else "播放",
+                            modifier = Modifier.size(31.dp) // 图标也放大30%（24dp * 1.3 ≈ 31dp）
+                        )
+                    }
                 }
             }
         }
@@ -536,7 +606,9 @@ fun MainScreen(
                                 },
                                 onNavigateToSounds = {
                                     // 不再需要导航到声音页面，因为已经是独立tab
-                                }
+                                },
+                                pinnedSounds = pinnedSounds,
+                                favoriteSounds = favoriteSounds
                             )
                         }
                         else -> { /* 不应该到达这里 */ }
@@ -643,7 +715,9 @@ fun SettingsScreen(
     onHideAnimationChange: (Boolean) -> Unit = {},
     updateViewModel: org.streambox.app.update.UpdateViewModel,
     onNavigateToTheme: () -> Unit,
-    onNavigateToSounds: () -> Unit = {}
+    onNavigateToSounds: () -> Unit = {},
+    pinnedSounds: MutableState<MutableSet<org.streambox.app.audio.AudioManager.Sound>>,
+    favoriteSounds: MutableState<MutableSet<org.streambox.app.audio.AudioManager.Sound>>
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -983,7 +1057,9 @@ fun SettingsScreen(
         if (showAboutDialog) {
             AboutDialog(
                 onDismiss = { showAboutDialog = false },
-                context = context
+                context = context,
+                pinnedSoundsCount = pinnedSounds.value.size,
+                favoriteSoundsCount = favoriteSounds.value.size
             )
     }
     
@@ -1732,8 +1808,8 @@ suspend fun calculateCacheSize(context: Context): Long {
             val externalCacheDir = context.externalCacheDir
             if (externalCacheDir != null && externalCacheDir.exists()) {
                 totalSize += getDirectorySize(externalCacheDir)
-            }
-        } catch (e: Exception) {
+                    }
+                } catch (e: Exception) {
             // 计算失败返回0
         }
         totalSize
@@ -1750,7 +1826,7 @@ private fun getDirectorySize(directory: File): Long {
             directory.listFiles()?.forEach { file ->
                 size += if (file.isDirectory) {
                     getDirectorySize(file)
-                } else {
+            } else {
                     file.length()
                 }
             }
@@ -1828,19 +1904,19 @@ fun ClearCacheDialog(
         onDismissRequest = { if (!isClearing) onDismiss() },
         title = { Text("缓存清理") },
         text = {
-        Column(
+            Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
+            ) {
                 Text("确定要清理所有缓存数据吗？")
                 if (isClearing) {
-            Row(
+                    Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
                         CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                    Text(
+                        Text(
                             "正在清理...",
-                        style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
@@ -1878,7 +1954,9 @@ fun ClearCacheDialog(
 @Composable
 fun AboutDialog(
     onDismiss: () -> Unit,
-    context: Context
+    context: Context,
+    pinnedSoundsCount: Int = 0,
+    favoriteSoundsCount: Int = 0
 ) {
     // 获取应用版本信息
     val packageInfo = try {
@@ -1894,7 +1972,7 @@ fun AboutDialog(
     val versionName = packageInfo?.versionName ?: "1.0.0"
     val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         packageInfo?.longVersionCode?.toString() ?: "1"
-        } else {
+            } else {
         @Suppress("DEPRECATION")
         (packageInfo?.versionCode ?: 1).toString()
     }
@@ -1906,8 +1984,8 @@ fun AboutDialog(
         },
         text = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -1918,9 +1996,9 @@ fun AboutDialog(
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold
                         )
-                        Text(
+                Text(
                         "版本: $versionName (Build $versionCode)",
-                        style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
@@ -1953,6 +2031,23 @@ fun AboutDialog(
                         "• 使用倒计时功能可以设置自动停止播放的时间\n" +
                         "• 在设置中可以调整主题、隐藏动画等",
                         style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                
+                HorizontalDivider()
+                
+                // 实时统计信息
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        "使用统计",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        "• 默认播放区域: $pinnedSoundsCount 个声音\n" +
+                        "• 收藏的声音: $favoriteSoundsCount 个",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 

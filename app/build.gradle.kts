@@ -14,7 +14,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 9
-        versionName = "1.0.8"
+        versionName = "1.0.9"
         
         // 从 gradle.properties 读取 GitHub Token（如果存在）
         val githubToken = project.findProperty("GITHUB_TOKEN") as String? ?: ""
