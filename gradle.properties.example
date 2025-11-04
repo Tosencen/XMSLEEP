@@ -1,0 +1,18 @@
+org.gradle.jvmargs=-Xmx4096m -Dfile.encoding=UTF-8
+android.useAndroidX=true
+android.nonTransitiveRClass=true
+kotlin.code.style=official
+
+# Release signing config
+RELEASE_STORE_FILE=release.keystore
+RELEASE_STORE_PASSWORD=xmsleep2025
+RELEASE_KEY_ALIAS=xmsleep
+RELEASE_KEY_PASSWORD=xmsleep2025
+
+# GitHub Personal Access Token (可选)
+# 如果设置了此Token，API限制将从60次/小时提升到5000次/小时
+# 创建Token: https://github.com/settings/tokens
+# 权限: 至少需要 public_repo (读取公开仓库)
+# 注意: 请复制此文件为gradle.properties并填入您的Token，不要提交包含Token的文件
+GITHUB_TOKEN=
+
