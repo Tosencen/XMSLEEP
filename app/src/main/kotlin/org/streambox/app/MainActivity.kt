@@ -68,12 +68,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import android.content.Context
 import java.io.File
 import kotlinx.coroutines.Dispatchers
@@ -98,8 +101,13 @@ import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
 import com.materialkolor.hct.Hct
 import com.materialkolor.ktx.toHct
+import org.streambox.app.i18n.LanguageManager
+import org.streambox.app.R
 
 class MainActivity : ComponentActivity() {
+    override fun attachBaseContext(newBase: Context?) {
+        super.attachBaseContext(newBase?.let { LanguageManager.updateAppLanguage(it) })
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -151,6 +159,12 @@ object BottomRightDiagonalShape : Shape {
 fun XMSLEEPApp() {
     val context = androidx.compose.ui.platform.LocalContext.current
     
+    // 语言状态管理
+    var currentLanguage by remember { mutableStateOf(LanguageManager.getCurrentLanguage(context)) }
+    val localizedContext = remember(currentLanguage) {
+        LanguageManager.createLocalizedContext(context, currentLanguage)
+    }
+    
     // 请求存储权限
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
@@ -197,13 +211,25 @@ fun XMSLEEPApp() {
         )
     }
     
-    // 主题状态管理
-    var darkMode by remember { mutableStateOf<DarkModeOption>(DarkModeOption.AUTO) }
-    var selectedColor by remember { mutableStateOf(paletteColors.first()) }  // 默认使用调色板第一个颜色
-    var useDynamicColor by remember { mutableStateOf(false) }
-    var useBlackBackground by remember { mutableStateOf(false) }
-    var hideAnimation by remember { mutableStateOf(true) }  // 隐藏动画文件（默认开启）
-    var soundCardsColumnsCount by remember { mutableIntStateOf(2) }  // 声音卡片列数（2或3），不受hideAnimation影响
+    // 主题状态管理（从SharedPreferences加载保存的设置）
+    var darkMode by remember { 
+        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getDarkMode(context))
+    }
+    var selectedColor by remember { 
+        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors.first()))
+    }
+    var useDynamicColor by remember { 
+        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getUseDynamicColor(context))
+    }
+    var useBlackBackground by remember { 
+        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getUseBlackBackground(context))
+    }
+    var hideAnimation by remember { 
+        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getHideAnimation(context))
+    }
+    var soundCardsColumnsCount by remember { 
+        mutableIntStateOf(org.streambox.app.preferences.PreferencesManager.getSoundCardsColumnsCount(context))
+    }
     
     // 计算是否使用深色主题
     val isDark = when (darkMode) {
@@ -219,24 +245,49 @@ fun XMSLEEPApp() {
         useDynamicColor = useDynamicColor,
         useBlackBackground = useBlackBackground
     ) {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.background
+        // 使用CompositionLocalProvider提供语言化的Context
+        CompositionLocalProvider(
+            LocalContext provides localizedContext
         ) {
-            MainScreen(
-                darkMode = darkMode,
-                selectedColor = selectedColor,
-                useDynamicColor = useDynamicColor,
-                useBlackBackground = useBlackBackground,
-                hideAnimation = hideAnimation,
-                soundCardsColumnsCount = soundCardsColumnsCount,
-                onDarkModeChange = { darkMode = it },
-                onColorChange = { selectedColor = it },
-                onDynamicColorChange = { useDynamicColor = it },
-                onBlackBackgroundChange = { useBlackBackground = it },
-                onHideAnimationChange = { hideAnimation = it },
-                onSoundCardsColumnsCountChange = { soundCardsColumnsCount = it }
-            )
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                MainScreen(
+                    darkMode = darkMode,
+                    selectedColor = selectedColor,
+                    useDynamicColor = useDynamicColor,
+                    useBlackBackground = useBlackBackground,
+                    hideAnimation = hideAnimation,
+                    soundCardsColumnsCount = soundCardsColumnsCount,
+                    currentLanguage = currentLanguage,
+                    onLanguageChange = { currentLanguage = it },
+                    onDarkModeChange = { 
+                        darkMode = it
+                        org.streambox.app.preferences.PreferencesManager.saveDarkMode(context, it)
+                    },
+                    onColorChange = { 
+                        selectedColor = it
+                        org.streambox.app.preferences.PreferencesManager.saveSelectedColor(context, it)
+                    },
+                    onDynamicColorChange = { 
+                        useDynamicColor = it
+                        org.streambox.app.preferences.PreferencesManager.saveUseDynamicColor(context, it)
+                    },
+                    onBlackBackgroundChange = { 
+                        useBlackBackground = it
+                        org.streambox.app.preferences.PreferencesManager.saveUseBlackBackground(context, it)
+                    },
+                    onHideAnimationChange = { 
+                        hideAnimation = it
+                        org.streambox.app.preferences.PreferencesManager.saveHideAnimation(context, it)
+                    },
+                    onSoundCardsColumnsCountChange = { 
+                        soundCardsColumnsCount = it
+                        org.streambox.app.preferences.PreferencesManager.saveSoundCardsColumnsCount(context, it)
+                    }
+                )
+            }
         }
     }
 }
@@ -333,6 +384,8 @@ fun MainScreen(
     useBlackBackground: Boolean,
     hideAnimation: Boolean,
     soundCardsColumnsCount: Int,
+    currentLanguage: LanguageManager.Language,
+    onLanguageChange: (LanguageManager.Language) -> Unit,
     onDarkModeChange: (DarkModeOption) -> Unit,
     onColorChange: (Color) -> Unit,
     onDynamicColorChange: (Boolean) -> Unit,
@@ -417,21 +470,21 @@ fun MainScreen(
         }
     }
     
-    // 监听生命周期，当用户从设置页面返回时自动重试安装
-    // 注意：retryInstallIfPermissionGranted方法已移除，如需可以重新实现
-    // val lifecycleOwner = LocalLifecycleOwner.current
-    // DisposableEffect(lifecycleOwner) {
-    //     val observer = LifecycleEventObserver { _, event ->
-    //         if (event == Lifecycle.Event.ON_RESUME) {
-    //             android.util.Log.d("UpdateCheck", "Activity resumed, 检查是否需要重试安装")
-    //             updateViewModel.retryInstallIfPermissionGranted()
-    //         }
-    //     }
-    //     lifecycleOwner.lifecycle.addObserver(observer)
-    //     onDispose {
-    //         lifecycleOwner.lifecycle.removeObserver(observer)
-    //     }
-    // }
+    // 监听生命周期，当应用恢复时检查更新
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                android.util.Log.d("UpdateCheck", "Activity resumed, 检查更新")
+                // 应用恢复时也检查更新（会受1小时间隔限制）
+                updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     
     // 置顶和收藏状态管理（提升到MainScreen级别，确保切换tab时状态不丢失）
     val pinnedSounds = remember { mutableStateOf(mutableSetOf<org.streambox.app.audio.AudioManager.Sound>()) }
@@ -455,7 +508,7 @@ fun MainScreen(
     // 监听当前路由，判断是否在二级页面
     val currentBackStackEntry by mainNavController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    val isInSecondaryPage = currentRoute in listOf("theme")
+    val isInSecondaryPage = currentRoute in listOf("theme", "favorite")
     val isMainRoute = !isInSecondaryPage  // 主页面 = 不在二级页面
     
     Scaffold(
@@ -469,24 +522,24 @@ fun MainScreen(
             // 只在主页面显示底部导航栏
             if (isMainRoute) {
                 NavigationBar {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        NavigationBarItem(
-                            icon = { Icon(Icons.Default.GraphicEq, null) },
-                            label = { Text("白噪音") },
-                            selected = selectedItem == 1,
-                            onClick = { selectedItem = 1 }
-                        )
-                        Spacer(modifier = Modifier.width(32.dp)) // 两个tab之间的间距
-                        NavigationBarItem(
-                            icon = { Icon(Icons.Default.Settings, null) },
-                            label = { Text("设置") },
-                            selected = selectedItem == 2,
-                            onClick = { selectedItem = 2 }
-                        )
-                    }
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.LocalFlorist, null) },
+                        label = { Text(context.getString(R.string.white_noise)) },
+                        selected = selectedItem == 1,
+                        onClick = { selectedItem = 1 }
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Satellite, null) },
+                        label = { Text(context.getString(R.string.star_sky)) },
+                        selected = selectedItem == 2,
+                        onClick = { selectedItem = 2 }
+                    )
+                    NavigationBarItem(
+                        icon = { Icon(Icons.Default.Settings, null) },
+                        label = { Text(context.getString(R.string.settings)) },
+                        selected = selectedItem == 3,
+                        onClick = { selectedItem = 3 }
+                    )
                 }
             }
         }
@@ -511,13 +564,19 @@ fun MainScreen(
                                     // 手势结束时判断是否切换页面
                                     val threshold = size.width * 0.25f
                                     when {
-                                        // 向右滑动（从设置页面回到白噪音页面）
-                                        accumulatedDrag > threshold && selectedItem == 2 -> {
-                                            selectedItem = 1
+                                        // 向右滑动
+                                        accumulatedDrag > threshold -> {
+                                            when (selectedItem) {
+                                                2 -> selectedItem = 1  // 从星空到白噪音
+                                                3 -> selectedItem = 2  // 从设置到星空
+                                            }
                                         }
-                                        // 向左滑动（从白噪音页面到设置页面）
-                                        accumulatedDrag < -threshold && selectedItem == 1 -> {
-                                            selectedItem = 2
+                                        // 向左滑动
+                                        accumulatedDrag < -threshold -> {
+                                            when (selectedItem) {
+                                                1 -> selectedItem = 2  // 从白噪音到星空
+                                                2 -> selectedItem = 3  // 从星空到设置
+                                            }
                                         }
                                     }
                                     accumulatedDrag = 0f
@@ -541,10 +600,21 @@ fun MainScreen(
                                 columnsCount = soundCardsColumnsCount,
                                 onColumnsCountChange = onSoundCardsColumnsCountChange,
                                 pinnedSounds = pinnedSounds,
-                                favoriteSounds = favoriteSounds
+                                favoriteSounds = favoriteSounds,
+                                onNavigateToFavorite = {
+                                    mainNavController.navigate("favorite")
+                                }
                             )
                         }
                         2 -> {
+                            // 星空页面
+                            StarSkyScreen(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(paddingValues)
+                            )
+                        }
+                        3 -> {
                             SettingsScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
@@ -552,6 +622,8 @@ fun MainScreen(
                                 hideAnimation = hideAnimation,
                                 onHideAnimationChange = onHideAnimationChange,
                                 updateViewModel = updateViewModel,
+                                currentLanguage = currentLanguage,
+                                onLanguageChange = onLanguageChange,
                                 onNavigateToTheme = { 
                                     mainNavController.navigate("theme") 
                                 },
@@ -579,6 +651,47 @@ fun MainScreen(
                     onDynamicColorChange = onDynamicColorChange,
                     onBlackBackgroundChange = onBlackBackgroundChange,
                     onBack = { mainNavController.popBackStack() }
+                )
+            }
+            
+            composable("favorite") {
+                org.streambox.app.ui.FavoriteScreen(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    hideAnimation = hideAnimation,
+                    columnsCount = soundCardsColumnsCount,
+                    pinnedSounds = pinnedSounds,
+                    favoriteSounds = favoriteSounds,
+                    onBack = { mainNavController.popBackStack() },
+                    onPinnedChange = { sound, isPinned ->
+                        val currentSet = pinnedSounds.value.toMutableSet()
+                        if (isPinned) {
+                            // 检查是否已达到最大数量（3个）
+                            if (currentSet.size >= 3) {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    context.getString(R.string.max_3_sounds_limit),
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                currentSet.add(sound)
+                                pinnedSounds.value = currentSet
+                            }
+                        } else {
+                            currentSet.remove(sound)
+                            pinnedSounds.value = currentSet
+                        }
+                    },
+                    onFavoriteChange = { sound, isFavorite ->
+                        val currentSet = favoriteSounds.value.toMutableSet()
+                        if (isFavorite) {
+                            currentSet.add(sound)
+                        } else {
+                            currentSet.remove(sound)
+                        }
+                        favoriteSounds.value = currentSet
+                    }
                 )
             }
         }
@@ -653,7 +766,7 @@ fun MainScreen(
                 }
             },
             updateViewModel = updateViewModel,
-            context = context
+            currentLanguage = currentLanguage
         )
     }
 }
@@ -665,6 +778,8 @@ fun SettingsScreen(
     hideAnimation: Boolean = true,
     onHideAnimationChange: (Boolean) -> Unit = {},
     updateViewModel: org.streambox.app.update.UpdateViewModel,
+    currentLanguage: LanguageManager.Language,
+    onLanguageChange: (LanguageManager.Language) -> Unit,
     onNavigateToTheme: () -> Unit,
     onNavigateToSounds: () -> Unit = {},
     pinnedSounds: MutableState<MutableSet<org.streambox.app.audio.AudioManager.Sound>>,
@@ -680,8 +795,8 @@ fun SettingsScreen(
     var showVolumeDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
+    var showLanguageDialog by remember { mutableStateOf(false) }
     val updateState by updateViewModel.updateState.collectAsState()
-    
     // 获取当前版本号
     val currentVersion = remember {
         try {
@@ -700,12 +815,23 @@ fun SettingsScreen(
         }
     }
     
-    // 定期更新缓存大小
+    // 实时音量状态（用于显示当前音量）
+    var currentVolumeDisplay by remember { mutableStateOf(0f) }
+    
+    // 定期更新缓存大小和音量显示
     LaunchedEffect(Unit) {
         while (true) {
             isCalculatingCache = true
             cacheSize = calculateCacheSize(context)
             isCalculatingCache = false
+            
+            // 更新音量显示：获取第一个正在播放的声音的音量，如果没有则显示0
+            val playingSounds = audioManager.getPlayingSounds()
+            currentVolumeDisplay = if (playingSounds.isNotEmpty()) {
+                audioManager.getVolume(playingSounds.first())
+            } else {
+                0f
+            }
             
             // 检查缓存是否超过200M (200 * 1024 * 1024 字节)
             val thresholdBytes = 200L * 1024 * 1024
@@ -716,9 +842,9 @@ fun SettingsScreen(
                     try {
                         clearApplicationCache(context)
                         cacheSize = 0L
-                        Toast.makeText(context, "缓存已超过200M，自动清理完成", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.cache_auto_cleared), Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
-                        Toast.makeText(context, "自动清理失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.auto_clear_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
                     } finally {
                         isClearingCache = false
                         // 清理完成后重新计算缓存大小
@@ -727,32 +853,49 @@ fun SettingsScreen(
                 }
             }
             
-            // 每5秒更新一次缓存大小
+            // 每5秒更新一次缓存大小和音量
             kotlinx.coroutines.delay(5000)
+        }
+    }
+    
+    // 实时监听音量变化（更频繁的更新）
+    LaunchedEffect(Unit) {
+        while (true) {
+            val playingSounds = audioManager.getPlayingSounds()
+            currentVolumeDisplay = if (playingSounds.isNotEmpty()) {
+                audioManager.getVolume(playingSounds.first())
+            } else {
+                0f
+            }
+            kotlinx.coroutines.delay(300) // 每300ms更新一次音量显示
         }
     }
     Column(
         modifier = modifier
             .fillMaxSize()
     ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // 设置标题
+        // 固定标题
         Text(
-            "设置",
+            context.getString(R.string.settings),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         )
         
+        // 可滚动内容区域
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
         // 外观设置
         Text(
-            "外观",
+            context.getString(R.string.appearance),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -779,11 +922,11 @@ fun SettingsScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Column {
-                        Text("主题与色彩", style = MaterialTheme.typography.titleMedium)
+                        Text(context.getString(R.string.theme_and_colors), style = MaterialTheme.typography.titleMedium)
                     Text(
-                            "外观模式、主题色",
+                            context.getString(R.string.appearance_mode_theme_color),
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -798,17 +941,63 @@ fun SettingsScreen(
         
         // 系统设置
         Text(
-            "系统",
+            context.getString(R.string.system),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
+        
+        // 语言切换
+        Card(
+            onClick = { showLanguageDialog = true },
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.Translate,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Column {
+                        Text(context.getString(R.string.language), style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            context.getString(R.string.language_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        currentLanguage.displayName,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+        }
         
         // 隐藏动画文件
         SwitchItem(
             checked = hideAnimation,
             onCheckedChange = onHideAnimationChange,
-            title = "隐藏动画文件",
-            description = "隐藏声音卡片中的Lottie动画"
+            title = context.getString(R.string.hide_animation),
+            description = context.getString(R.string.hide_lottie_animation_in_sound_cards)
         )
         
         // 一键调整音量
@@ -836,18 +1025,24 @@ fun SettingsScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Column {
-                        Text("一键调整音量", style = MaterialTheme.typography.titleMedium)
+                        Text(context.getString(R.string.adjust_all_volume), style = MaterialTheme.typography.titleMedium)
                     Text(
-                            "统一调整所有声音音量",
+                            context.getString(R.string.unified_adjust_all_sound_volume),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
-                Icon(
-                    Icons.Default.ChevronRight,
-                    contentDescription = null
-                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "${(currentVolumeDisplay * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
         
@@ -875,9 +1070,9 @@ fun SettingsScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Column {
-                        Text("缓存清理", style = MaterialTheme.typography.titleMedium)
+                        Text(context.getString(R.string.clear_cache), style = MaterialTheme.typography.titleMedium)
                     Text(
-                            "清理应用缓存数据",
+                            context.getString(R.string.clear_app_cache_data),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -899,10 +1094,6 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-                    Icon(
-                        Icons.Default.ChevronRight,
-                        contentDescription = null
-                    )
                 }
             }
         }
@@ -911,7 +1102,7 @@ fun SettingsScreen(
         
         // 其他
         Text(
-            "其他",
+            context.getString(R.string.other),
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
@@ -941,9 +1132,9 @@ fun SettingsScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Column {
-                        Text("软件更新", style = MaterialTheme.typography.titleMedium)
+                        Text(context.getString(R.string.software_update), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "检查并更新到最新版本",
+                            context.getString(R.string.check_and_update_to_latest_version),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -958,10 +1149,6 @@ fun SettingsScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.primary
                     )
-                Icon(
-                    Icons.Default.ChevronRight,
-                    contentDescription = null
-                )
                 }
             }
         }
@@ -991,19 +1178,16 @@ fun SettingsScreen(
                         modifier = Modifier.size(24.dp)
                     )
                     Column {
-                        Text("关于 XMSLEEP", style = MaterialTheme.typography.titleMedium)
+                        Text(context.getString(R.string.about_xmsleep), style = MaterialTheme.typography.titleMedium)
                         Text(
-                            "查看应用信息、版本和版权",
+                            context.getString(R.string.view_app_info_version_copyright),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
-                Icon(
-                    Icons.Default.ChevronRight,
-                    contentDescription = null
-                )
             }
+        }
         }
         
         // 软件更新对话框
@@ -1020,7 +1204,7 @@ fun SettingsScreen(
             UpdateDialog(
                 onDismiss = { showUpdateDialog = false },
                 updateViewModel = updateViewModel,
-                context = context
+                currentLanguage = currentLanguage
             )
         }
         
@@ -1028,44 +1212,43 @@ fun SettingsScreen(
         if (showAboutDialog) {
             AboutDialog(
                 onDismiss = { showAboutDialog = false },
-                context = context
+                currentLanguage = currentLanguage
             )
-    }
+        }
     
-    // 缓存清理对话框
-    if (showClearCacheDialog) {
-        ClearCacheDialog(
-            onDismiss = { 
-                if (!isClearingCache) {
-                    showClearCacheDialog = false
-                }
-            },
-            onConfirm = {
-                // 立即关闭对话框，避免重复显示
-                showClearCacheDialog = false
-                isClearingCache = true
-                scope.launch {
-                    try {
-                        clearApplicationCache(context)
-                        cacheSize = 0L  // 清理后重置缓存大小
-                        Toast.makeText(context, "缓存清理成功", Toast.LENGTH_SHORT).show()
-                    } catch (e: Exception) {
-                        Toast.makeText(context, "缓存清理失败: ${e.message}", Toast.LENGTH_SHORT).show()
-                    } finally {
-                        isClearingCache = false
-                        // 清理完成后重新计算缓存大小
-                        cacheSize = calculateCacheSize(context)
+        // 缓存清理对话框
+        if (showClearCacheDialog) {
+            ClearCacheDialog(
+                onDismiss = { 
+                    if (!isClearingCache) {
+                        showClearCacheDialog = false
                     }
-                }
-            },
-            isClearing = isClearingCache
-        )
-    }
+                },
+                onConfirm = {
+                    // 立即关闭对话框，避免重复显示
+                    showClearCacheDialog = false
+                    isClearingCache = true
+                    scope.launch {
+                        try {
+                            clearApplicationCache(context)
+                            cacheSize = 0L  // 清理后重置缓存大小
+                            Toast.makeText(context, context.getString(R.string.cache_cleared_success), Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, context.getString(R.string.cache_clear_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
+                        } finally {
+                            isClearingCache = false
+                            // 清理完成后重新计算缓存大小
+                            cacheSize = calculateCacheSize(context)
+                        }
+                    }
+                },
+                isClearing = isClearingCache
+            )
+        }
         
         // 一键调整音量对话框
-        if (showVolumeDialog) {
-            var volume by remember { 
-                mutableStateOf(
+        var volume by remember { 
+            mutableStateOf(
                 // 获取第一个正在播放的声音的音量作为默认值，如果没有则使用0.5
                 audioManager.getPlayingSounds().firstOrNull()?.let { 
                     audioManager.getVolume(it) 
@@ -1073,24 +1256,25 @@ fun SettingsScreen(
             )
         }
         
-        AlertDialog(
-            onDismissRequest = { showVolumeDialog = false },
-            title = { Text("一键调整音量") },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        "将应用到所有正在播放的声音",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    
-                    // 音量滑块
-                    Column(modifier = Modifier.fillMaxWidth()) {
+        if (showVolumeDialog) {
+            AlertDialog(
+                onDismissRequest = { showVolumeDialog = false },
+                title = { Text(context.getString(R.string.adjust_all_volume)) },
+                text = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Text(
+                            context.getString(R.string.apply_to_all_playing_sounds),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        
+                        // 音量滑块
+                        Column(modifier = Modifier.fillMaxWidth()) {
                         Slider(
                             value = volume,
                             onValueChange = { 
@@ -1099,60 +1283,76 @@ fun SettingsScreen(
                                 audioManager.getPlayingSounds().forEach { sound ->
                                     audioManager.setVolume(sound, volume)
                                 }
+                                // 实时更新显示的音量数值
+                                currentVolumeDisplay = volume
                             },
-                            modifier = Modifier.fillMaxWidth(),
-                            valueRange = 0f..1f,
-                            steps = 19  // 0到100，步长5%
-                        )
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = "0%",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                modifier = Modifier.fillMaxWidth(),
+                                valueRange = 0f..1f,
+                                steps = 19  // 0到100，步长5%
                             )
-                            Text(
-                                text = "${(volume * 100).toInt()}%",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                            Text(
-                                text = "100%",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = "0%",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = "${(volume * 100).toInt()}%",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                                Text(
+                                    text = "100%",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { 
-                    // 应用到所有声音（包括未播放的，以便下次播放时使用）
-                    listOf(
-                        org.streambox.app.audio.AudioManager.Sound.RAIN,
-                        org.streambox.app.audio.AudioManager.Sound.CAMPFIRE,
-                        org.streambox.app.audio.AudioManager.Sound.THUNDER,
-                        org.streambox.app.audio.AudioManager.Sound.CAT_PURRING,
-                        org.streambox.app.audio.AudioManager.Sound.BIRD_CHIRPING,
-                        org.streambox.app.audio.AudioManager.Sound.NIGHT_INSECTS
-                    ).forEach { sound ->
-                        audioManager.setVolume(sound, volume)
+                },
+                confirmButton = {
+                    TextButton(onClick = { 
+                        // 应用到所有声音（包括未播放的，以便下次播放时使用）
+                        listOf(
+                            org.streambox.app.audio.AudioManager.Sound.RAIN,
+                            org.streambox.app.audio.AudioManager.Sound.CAMPFIRE,
+                            org.streambox.app.audio.AudioManager.Sound.THUNDER,
+                            org.streambox.app.audio.AudioManager.Sound.CAT_PURRING,
+                            org.streambox.app.audio.AudioManager.Sound.BIRD_CHIRPING,
+                            org.streambox.app.audio.AudioManager.Sound.NIGHT_INSECTS
+                        ).forEach { sound ->
+                            audioManager.setVolume(sound, volume)
+                        }
+                        // 更新显示的音量数值
+                        currentVolumeDisplay = volume
+                        showVolumeDialog = false
+                        Toast.makeText(context, context.getString(R.string.volume_set_to, (volume * 100).toInt()), Toast.LENGTH_SHORT).show()
+                    }) {
+                        Text(context.getString(R.string.ok))
                     }
-                    showVolumeDialog = false
-                    Toast.makeText(context, "音量已设置为${(volume * 100).toInt()}%", Toast.LENGTH_SHORT).show()
-                }) {
-                    Text("确定")
+                },
+                dismissButton = {
+                    TextButton(onClick = { showVolumeDialog = false }) {
+                        Text(context.getString(R.string.cancel))
+                    }
                 }
-            },
-            dismissButton = {
-                TextButton(onClick = { showVolumeDialog = false }) {
-                    Text("取消")
-                }
-            }
-        )
+            )
         }
+        
+        // 语言选择弹窗
+        if (showLanguageDialog) {
+            LanguageSelectionDialog(
+                currentLanguage = currentLanguage,
+                onLanguageSelected = { language: LanguageManager.Language ->
+                    LanguageManager.setLanguage(context, language)
+                    onLanguageChange(language) // 更新语言状态，触发实时切换
+                    showLanguageDialog = false
+                },
+                onDismiss = { showLanguageDialog = false }
+            )
         }
     }
 }
@@ -1171,13 +1371,14 @@ fun ThemeSettingsScreen(
     onBlackBackgroundChange: (Boolean) -> Unit,
     onBack: () -> Unit
 ) {
+    val context = LocalContext.current
     // 固定 TopAppBar，不随滚动隐藏
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "主题与色彩",
+                        context.getString(R.string.theme_and_colors),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -1191,7 +1392,7 @@ fun ThemeSettingsScreen(
                         Box(Modifier.size(24.dp)) {
                             Icon(
                                 Icons.AutoMirrored.Outlined.ArrowBack,
-                                contentDescription = null,
+                                contentDescription = context.getString(R.string.go_back),
                             )
                         }
                     }
@@ -1231,8 +1432,8 @@ fun ThemeSettingsScreen(
                 SwitchItem(
                     checked = useDynamicColor,
                     onCheckedChange = onDynamicColorChange,
-                    title = "动态颜色",
-                    description = "使用壁纸颜色作为主题色"
+                    title = context.getString(R.string.dynamic_color),
+                    description = context.getString(R.string.use_wallpaper_color_as_theme)
                 )
             }
             
@@ -1240,8 +1441,8 @@ fun ThemeSettingsScreen(
             SwitchItem(
                 checked = useBlackBackground,
                 onCheckedChange = onBlackBackgroundChange,
-                title = "高对比度",
-                description = "在深色模式下使用纯黑背景"
+                title = context.getString(R.string.high_contrast),
+                description = context.getString(R.string.use_pure_black_background_in_dark_mode)
             )
             
             // 调色板选择
@@ -1249,7 +1450,7 @@ fun ThemeSettingsScreen(
                 modifier = Modifier.alpha(if (useDynamicColor) 0.5f else 1f)
             ) {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text("调色板", style = MaterialTheme.typography.titleMedium)
+                    Text(context.getString(R.string.color_palette), style = MaterialTheme.typography.titleMedium)
                     
                     @OptIn(ExperimentalLayoutApi::class)
                     FlowRow(
@@ -1300,6 +1501,7 @@ fun DarkModeSelectPanel(
     onModeSelected: (DarkModeOption) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val context = LocalContext.current
     val panelModifier = Modifier.size(96.dp, 146.dp)
     
     val themePanelItem: @Composable (DarkModeOption) -> Unit = { mode ->
@@ -1320,9 +1522,9 @@ fun DarkModeSelectPanel(
             text = {
                 Text(
                     when (mode) {
-                        DarkModeOption.LIGHT -> "浅色"
-                        DarkModeOption.DARK -> "深色"
-                        DarkModeOption.AUTO -> "自动"
+                        DarkModeOption.LIGHT -> context.getString(R.string.light_mode)
+                        DarkModeOption.DARK -> context.getString(R.string.dark_mode)
+                        DarkModeOption.AUTO -> context.getString(R.string.auto_mode)
                     }
                 )
             },
@@ -1629,6 +1831,7 @@ fun ThemeModeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     Column(
         modifier = modifier.clickable(onClick = onClick),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -1670,9 +1873,9 @@ fun ThemeModeCard(
             )
             Text(
                 when (option) {
-                    DarkModeOption.LIGHT -> "浅色"
-                    DarkModeOption.DARK -> "深色"
-                    DarkModeOption.AUTO -> "自动"
+                    DarkModeOption.LIGHT -> context.getString(R.string.light_mode)
+                    DarkModeOption.DARK -> context.getString(R.string.dark_mode)
+                    DarkModeOption.AUTO -> context.getString(R.string.auto_mode)
                 },
                 style = MaterialTheme.typography.bodySmall
             )
@@ -1687,6 +1890,7 @@ fun EnhancedColorButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
     val containerSize by animateDpAsState(targetValue = if (selected) 24.dp else 0.dp)
     val iconSize by animateDpAsState(targetValue = if (selected) 16.dp else 0.dp)
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
@@ -1722,7 +1926,7 @@ fun EnhancedColorButton(
                         ) {
                             Icon(
                                 Icons.Default.Check,
-                                contentDescription = "已选择",
+                                contentDescription = context.getString(R.string.selected),
                                 tint = onPrimaryContainer,
                                 modifier = Modifier.size(iconSize)
                             )
@@ -1740,6 +1944,7 @@ fun ColorOption(
     selected: Boolean,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .size(48.dp)
@@ -1751,7 +1956,7 @@ fun ColorOption(
         if (selected) {
             Icon(
                 Icons.Default.Check,
-                contentDescription = "已选择",
+                contentDescription = context.getString(R.string.selected),
                 tint = Color.White,
                 modifier = Modifier.size(24.dp)
             )
@@ -1777,8 +1982,8 @@ suspend fun calculateCacheSize(context: Context): Long {
             val externalCacheDir = context.externalCacheDir
             if (externalCacheDir != null && externalCacheDir.exists()) {
                 totalSize += getDirectorySize(externalCacheDir)
-                    }
-                } catch (e: Exception) {
+            }
+        } catch (e: Exception) {
             // 计算失败返回0
         }
         totalSize
@@ -1788,14 +1993,14 @@ suspend fun calculateCacheSize(context: Context): Long {
 /**
  * 递归计算目录大小
  */
-private fun getDirectorySize(directory: File): Long {
+fun getDirectorySize(directory: File): Long {
     var size = 0L
     try {
         if (directory.exists() && directory.isDirectory) {
             directory.listFiles()?.forEach { file ->
                 size += if (file.isDirectory) {
                     getDirectorySize(file)
-            } else {
+                } else {
                     file.length()
                 }
             }
@@ -1815,9 +2020,9 @@ fun formatBytes(bytes: Long): String {
     val gb = mb / 1024.0
     
     return when {
-        gb >= 1.0 -> String.format("%.2f GB", gb)
-        mb >= 1.0 -> String.format("%.2f MB", mb)
-        kb >= 1.0 -> String.format("%.2f KB", kb)
+        gb >= 1.0 -> String.format(java.util.Locale.getDefault(), "%.2f GB", gb)
+        mb >= 1.0 -> String.format(java.util.Locale.getDefault(), "%.2f MB", mb)
+        kb >= 1.0 -> String.format(java.util.Locale.getDefault(), "%.2f KB", kb)
         else -> "$bytes B"
     }
 }
@@ -1869,14 +2074,15 @@ fun ClearCacheDialog(
     onConfirm: () -> Unit,
     isClearing: Boolean
 ) {
+    val context = LocalContext.current
     AlertDialog(
         onDismissRequest = { if (!isClearing) onDismiss() },
-        title = { Text("缓存清理") },
+        title = { Text(context.getString(R.string.clear_cache)) },
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Text("确定要清理所有缓存数据吗？")
+                Text(context.getString(R.string.confirm_clear_cache))
                 if (isClearing) {
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -1884,14 +2090,14 @@ fun ClearCacheDialog(
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                         Text(
-                            "正在清理...",
+                            context.getString(R.string.clearing),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 } else {
                     Text(
-                        "这将清理应用的所有缓存数据，包括图片、视频、临时文件等。",
+                        context.getString(R.string.this_will_clear_all_cache_data),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1903,7 +2109,7 @@ fun ClearCacheDialog(
                 onClick = onConfirm,
                 enabled = !isClearing
             ) {
-                Text("确定")
+                Text(context.getString(R.string.ok))
             }
         },
         dismissButton = {
@@ -1911,7 +2117,7 @@ fun ClearCacheDialog(
                 onClick = onDismiss,
                 enabled = !isClearing
             ) {
-                Text("取消")
+                Text(context.getString(R.string.cancel))
             }
         }
     )
@@ -1923,31 +2129,43 @@ fun ClearCacheDialog(
 @Composable
 fun AboutDialog(
     onDismiss: () -> Unit,
-    context: Context
+    currentLanguage: LanguageManager.Language
 ) {
-    // 获取应用版本信息
-    val packageInfo = try {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            context.packageManager.getPackageInfo(context.packageName, PackageManager.PackageInfoFlags.of(0))
-                                } else {
-            @Suppress("DEPRECATION")
-            context.packageManager.getPackageInfo(context.packageName, 0)
-        }
-                } catch (e: Exception) {
-        null
-    }
-    val versionName = packageInfo?.versionName ?: "1.0.0"
-    val versionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        packageInfo?.longVersionCode?.toString() ?: "1"
+    val composeContext = LocalContext.current
+    
+    // 使用LaunchedEffect安全地获取应用版本信息，当语言变化时重新获取
+    var versionName by remember { mutableStateOf("1.0.0") }
+    var versionCodeInt by remember { mutableIntStateOf(1) }
+    
+    LaunchedEffect(Unit) {
+        try {
+            val packageInfo: android.content.pm.PackageInfo? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                composeContext.packageManager.getPackageInfo(
+                    composeContext.packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
             } else {
-        @Suppress("DEPRECATION")
-        (packageInfo?.versionCode ?: 1).toString()
+                @Suppress("DEPRECATION")
+                composeContext.packageManager.getPackageInfo(composeContext.packageName, 0)
+            }
+            versionName = packageInfo?.versionName ?: "1.0.0"
+            versionCodeInt = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                packageInfo?.longVersionCode?.toInt() ?: 1
+            } else {
+                @Suppress("DEPRECATION")
+                (packageInfo?.versionCode ?: 1)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("AboutDialog", "Error getting package info", e)
+        }
     }
     
-    AlertDialog(
+    // 使用key确保语言变化时重新组合
+    key(currentLanguage) {
+        AlertDialog(
         onDismissRequest = onDismiss,
         title = { 
-            Text("关于 XMSLEEP", style = MaterialTheme.typography.headlineSmall)
+            Text(composeContext.getString(R.string.about_xmsleep), style = MaterialTheme.typography.headlineSmall)
         },
         text = {
             Column(
@@ -1964,7 +2182,7 @@ fun AboutDialog(
                         fontWeight = FontWeight.Bold
                         )
                 Text(
-                        "版本: $versionName (Build $versionCode)",
+                        composeContext.getString(R.string.version, versionName, versionCodeInt),
                     style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -1975,12 +2193,12 @@ fun AboutDialog(
                 // 应用说明
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "应用说明",
+                        composeContext.getString(R.string.app_description_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "XMSLEEP 是一款专注于白噪音播放的应用，提供多种自然声音帮助您放松、专注和入眠。",
+                        composeContext.getString(R.string.app_description),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -1988,17 +2206,12 @@ fun AboutDialog(
                 // 使用说明
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "使用说明",
+                        composeContext.getString(R.string.usage_instructions_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "• 点击声音卡片开始播放，再次点击停止\n" +
-                        "• 点击音量图标可以单独调节每个声音的音量\n" +
-                        "• 点击标题可以设置默认播放区域或收藏声音\n" +
-                        "• 点击图书钉图标可以批量选择声音添加到默认播放区域\n" +
-                        "• 使用倒计时功能可以设置自动停止播放的时间\n" +
-                        "• 在设置中可以调整主题、隐藏动画、切换布局等",
+                        composeContext.getString(R.string.usage_instructions),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
@@ -2008,7 +2221,7 @@ fun AboutDialog(
                 // 技术信息
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        "技术信息",
+                        composeContext.getString(R.string.technical_info_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -2016,7 +2229,7 @@ fun AboutDialog(
                         "• Kotlin + Jetpack Compose\n" +
                         "• Material Design 3\n" +
                         "• ExoPlayer/Media3\n" +
-                        "• Lottie 动画",
+                        "• ${composeContext.getString(R.string.lottie_animation)}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -2026,9 +2239,7 @@ fun AboutDialog(
                 
                 // 版权信息
                 Text(
-                    "© 2025 XMSLEEP. All rights reserved.\n\n" +
-                    "本应用提供的音频内容仅供个人学习和娱乐使用。\n" +
-                    "请尊重相关音频资源的版权，不得用于商业用途。",
+                    composeContext.getString(R.string.copyright),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -2036,8 +2247,110 @@ fun AboutDialog(
         },
         confirmButton = {
             TextButton(onClick = onDismiss) {
-                Text("确定")
+                Text(composeContext.getString(R.string.ok))
             }
-        }
+        },
+        dismissButton = null
+    )
+    }
+}
+
+/**
+ * 语言选择弹窗
+ */
+@Composable
+fun LanguageSelectionDialog(
+    currentLanguage: LanguageManager.Language,
+    onLanguageSelected: (LanguageManager.Language) -> Unit,
+    onDismiss: () -> Unit
+) {
+    val context = LocalContext.current
+    
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(context.getString(R.string.select_language))
+        },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                LanguageManager.Language.values().forEach { language ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = language == currentLanguage,
+                                onClick = { 
+                                    if (language != currentLanguage) {
+                                        onLanguageSelected(language)
+                                    } else {
+                                        onDismiss()
+                                    }
+                                },
+                                role = Role.RadioButton
+                            )
+                            .padding(vertical = 12.dp, horizontal = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = language == currentLanguage,
+                            onClick = null
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = language.displayName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(context.getString(R.string.ok))
+            }
+        },
+        dismissButton = null
     )
 }
+
+/**
+ * 星空页面
+ */
+@Composable
+fun StarSkyScreen(
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.Satellite,
+            contentDescription = null,
+            modifier = Modifier.size(64.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = context.getString(R.string.star_sky),
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = context.getString(R.string.star_sky_more_sounds_hint),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        )
+    }
+}
+

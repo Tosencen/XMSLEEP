@@ -10,6 +10,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ClippingMediaSource
@@ -220,6 +221,7 @@ class AudioManager private constructor() {
     /**
      * 准备声音音频源
      */
+    @UnstableApi
     private fun prepareSoundAudio(
         context: Context,
         sound: Sound,

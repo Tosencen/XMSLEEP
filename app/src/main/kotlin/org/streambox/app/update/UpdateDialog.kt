@@ -1,6 +1,5 @@
 package org.streambox.app.update
 
-import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.foundation.layout.*
@@ -12,12 +11,15 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import org.streambox.app.R
+import org.streambox.app.i18n.LanguageManager
 
 /**
  * 软件更新对话框
@@ -27,74 +29,77 @@ import androidx.compose.ui.unit.dp
 fun UpdateDialog(
     onDismiss: () -> Unit,
     updateViewModel: UpdateViewModel,
-    context: Context
+    currentLanguage: LanguageManager.Language
 ) {
+    val context = LocalContext.current
     val updateState by updateViewModel.updateState.collectAsState()
     val downloadProgress by updateViewModel.downloadProgress.collectAsState()
     val downloadState by updateViewModel.downloadState.collectAsState()
     
     // 获取当前版本
-            val currentVersion = remember {
-                try {
-                    val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        context.packageManager.getPackageInfo(
-                            context.packageName,
-                            PackageManager.PackageInfoFlags.of(0)
-                        )
-                    } else {
-                        @Suppress("DEPRECATION")
-                        context.packageManager.getPackageInfo(context.packageName, 0)
-                    }
-                    packageInfo?.versionName ?: "1.0.0"
-                } catch (e: Exception) {
-                    "1.0.0"
-                }
+    val currentVersion = remember {
+        try {
+            val packageInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                context.packageManager.getPackageInfo(
+                    context.packageName,
+                    PackageManager.PackageInfoFlags.of(0)
+                )
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, 0)
             }
+            packageInfo?.versionName ?: "1.0.0"
+        } catch (e: Exception) {
+            "1.0.0"
+        }
+    }
     
-    // 根据状态显示不同的内容
-    when (val state = updateState) {
+    // 使用key确保语言切换时重新组合
+    key(currentLanguage) {
+        // 根据状态显示不同的内容
+        when (val state = updateState) {
         is UpdateState.Idle -> {
             // 初始状态，检查更新
             LaunchedEffect(Unit) {
                 updateViewModel.checkUpdate(currentVersion)
             }
             
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text("软件更新") },
-                text = {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                        Text("正在检查更新...")
+                AlertDialog(
+                    onDismissRequest = onDismiss,
+                    title = { Text(context.getString(R.string.software_update)) },
+                    text = {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                            Text(context.getString(R.string.checking_update))
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = onDismiss) {
+                            Text(context.getString(R.string.cancel))
+                        }
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text("取消")
-                    }
-                }
-            )
-        }
+                )
+            }
         
         is UpdateState.Checking -> {
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text("软件更新") },
+                title = { Text(context.getString(R.string.software_update)) },
                 text = {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                        Text("正在检查更新...")
+                        Text(context.getString(R.string.checking_update))
                     }
                 },
                 confirmButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("取消")
+                        Text(context.getString(R.string.cancel))
                     }
                 }
             )
@@ -103,7 +108,7 @@ fun UpdateDialog(
         is UpdateState.UpToDate -> {
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text("软件更新") },
+                title = { Text(context.getString(R.string.software_update)) },
                 text = {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -118,13 +123,13 @@ fun UpdateDialog(
                                 tint = MaterialTheme.colorScheme.primary
                             )
                             Text(
-                                "已是最新版本",
+                                context.getString(R.string.up_to_date),
                                 style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold
                             )
                         }
                         Text(
-                            "当前版本：$currentVersion",
+                            context.getString(R.string.current_version, currentVersion),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -132,7 +137,7 @@ fun UpdateDialog(
                 },
                 confirmButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("确定")
+                        Text(context.getString(R.string.ok))
                     }
                 }
             )
@@ -142,7 +147,7 @@ fun UpdateDialog(
             val version = state.version
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text("发现新版本") },
+                title = { Text(context.getString(R.string.new_version_found)) },
                 text = {
                     Column(
                         modifier = Modifier
@@ -161,12 +166,12 @@ fun UpdateDialog(
                             )
                             Column {
                                 Text(
-                                    "版本 ${version.version}",
+                                    context.getString(R.string.version_name, version.version),
                                     style = MaterialTheme.typography.titleMedium,
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    "当前版本：$currentVersion",
+                                    context.getString(R.string.current_version, currentVersion),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -178,7 +183,7 @@ fun UpdateDialog(
                         if (version.changelog.isNotBlank()) {
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                 Text(
-                                    "更新内容",
+                                    context.getString(R.string.update_content),
                                     style = MaterialTheme.typography.labelLarge,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -196,12 +201,12 @@ fun UpdateDialog(
                             updateViewModel.startDownload()
                         }
                     ) {
-                        Text("立即更新")
+                        Text(context.getString(R.string.update_now))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("稍后")
+                        Text(context.getString(R.string.later))
                     }
                 }
             )
@@ -210,7 +215,7 @@ fun UpdateDialog(
         is UpdateState.CheckFailed -> {
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text("检查更新失败") },
+                title = { Text(context.getString(R.string.check_update_failed)) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(
@@ -228,12 +233,12 @@ fun UpdateDialog(
                             updateViewModel.checkUpdate(currentVersion)
                         }
                     ) {
-                        Text("重试")
+                        Text(context.getString(R.string.retry))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("取消")
+                        Text(context.getString(R.string.cancel))
                     }
                 }
             )
@@ -244,7 +249,7 @@ fun UpdateDialog(
                 onDismissRequest = {
                     // 下载中不允许关闭
                 },
-                title = { Text("下载更新") },
+                title = { Text(context.getString(R.string.downloading_update)) },
                 text = {
                     Column(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -254,7 +259,7 @@ fun UpdateDialog(
                             modifier = Modifier.fillMaxWidth()
                         )
                         Text(
-                            "已下载 ${(state.progress * 100).toInt()}%",
+                            context.getString(R.string.downloaded_percent, (state.progress * 100).toInt()),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
@@ -266,7 +271,7 @@ fun UpdateDialog(
                             onDismiss()
                         }
                     ) {
-                        Text("取消")
+                        Text(context.getString(R.string.cancel))
                     }
                 }
             )
@@ -275,7 +280,7 @@ fun UpdateDialog(
         is UpdateState.Downloaded -> {
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text("下载完成") },
+                title = { Text(context.getString(R.string.download_complete)) },
                 text = {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
@@ -287,7 +292,7 @@ fun UpdateDialog(
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(48.dp)
                         )
-                        Text("更新包已下载完成，是否立即安装？")
+                        Text(context.getString(R.string.download_complete_message))
                     }
                 },
                 confirmButton = {
@@ -297,12 +302,12 @@ fun UpdateDialog(
                             onDismiss()
                         }
                     ) {
-                        Text("立即安装")
+                        Text(context.getString(R.string.install_now))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("稍后")
+                        Text(context.getString(R.string.later))
                     }
                 }
             )
@@ -311,7 +316,7 @@ fun UpdateDialog(
         is UpdateState.DownloadFailed -> {
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text("下载失败") },
+                title = { Text(context.getString(R.string.download_failed)) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(
@@ -332,12 +337,12 @@ fun UpdateDialog(
                             }
                         }
                     ) {
-                        Text("重试")
+                        Text(context.getString(R.string.retry))
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("取消")
+                        Text(context.getString(R.string.cancel))
                     }
                 }
             )
@@ -346,19 +351,19 @@ fun UpdateDialog(
         is UpdateState.Installing -> {
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text("正在安装") },
+                title = { Text(context.getString(R.string.installing)) },
                 text = {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                        Text("正在启动安装程序...")
+                        Text(context.getString(R.string.starting_installer))
                     }
                 },
                 confirmButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("确定")
+                        Text(context.getString(R.string.ok))
                     }
                 }
             )
@@ -367,7 +372,7 @@ fun UpdateDialog(
         is UpdateState.InstallFailed -> {
             AlertDialog(
                 onDismissRequest = onDismiss,
-                title = { Text("安装失败") },
+                title = { Text(context.getString(R.string.install_failed)) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(
@@ -381,10 +386,11 @@ fun UpdateDialog(
                 },
                 confirmButton = {
                     TextButton(onClick = onDismiss) {
-                        Text("确定")
+                        Text(context.getString(R.string.ok))
                     }
                 }
             )
+        }
         }
     }
 }
