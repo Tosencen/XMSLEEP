@@ -13,8 +13,8 @@ android {
         applicationId = "org.streambox.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 11
-        versionName = "1.1.1"
+        versionCode = 13
+        versionName = "1.1.3"
         
         // 从 gradle.properties 读取 GitHub Token（如果存在）
         val githubToken = project.findProperty("GITHUB_TOKEN") as String? ?: ""
@@ -57,6 +57,10 @@ android {
             "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api"
         )
     }
+    
+    lint {
+        disable.add("NullSafeMutableLiveData")
+    }
 }
 
 dependencies {
@@ -71,29 +75,29 @@ dependencies {
     
     // AndroidX
     implementation("androidx.core:core-ktx:1.15.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.activity:activity-compose:1.9.3")
-    implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation("androidx.navigation:navigation-compose:2.9.5")
     
     // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     
-    // MaterialKolor - 动态主题色生成（和 Animeko 一样）
+    // MaterialKolor - 动态主题色生成
     implementation("com.materialkolor:material-kolor:2.0.2")
     
-           // Coil - 图片加载
-           implementation("io.coil-kt:coil-compose:2.5.0")
-           
-           // Kotlin Serialization
-           implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    // Coil - 图片加载
+    implementation("io.coil-kt:coil-compose:2.6.0")
+    
+    // Kotlin Serialization
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     
     // Lottie - 用于显示JSON动画（声音模块需要）
-    implementation("com.airbnb.android:lottie:6.1.0")
+    implementation("com.airbnb.android:lottie:6.3.0")
     
     // ExoPlayer/Media3 - 用于无缝循环播放音频（声音模块需要）
-    implementation("androidx.media3:media3-exoplayer:1.2.1")
-    implementation("androidx.media3:media3-ui:1.2.1")
-    implementation("androidx.media3:media3-common:1.2.1")
+    implementation("androidx.media3:media3-exoplayer:1.8.0")
+    implementation("androidx.media3:media3-ui:1.8.0")
+    implementation("androidx.media3:media3-common:1.8.0")
     
     // OkHttp - 用于网络请求和文件下载
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
