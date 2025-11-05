@@ -12,7 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 
 /**
@@ -179,7 +183,7 @@ fun UpdateDialog(
                                     fontWeight = FontWeight.Bold
                                 )
                                 Text(
-                                    version.changelog,
+                                    text = parseMarkdown(version.changelog),
                                     style = MaterialTheme.typography.bodyMedium
                                 )
                             }
@@ -382,5 +386,100 @@ fun UpdateDialog(
                 }
             )
         }
+    }
+}
+
+/**
+ * 解析 Markdown 文本为 AnnotatedString，支持常见的 Markdown 格式
+ */
+private fun parseMarkdown(markdown: String): AnnotatedString {
+    return buildAnnotatedString {
+        val lines = markdown.lines()
+        var i = 0
+        while (i < lines.size) {
+            val line = lines[i]
+            
+            when {
+                // 分隔线
+                line.trim().startsWith("---") -> {
+                    append("\n")
+                    i++
+                    continue
+                }
+                
+                // 一级标题
+                line.startsWith("# ") -> {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(line.removePrefix("# ").trim())
+                    }
+                    append("\n\n")
+                    i++
+                }
+                
+                // 二级标题
+                line.startsWith("## ") -> {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(line.removePrefix("## ").trim())
+                    }
+                    append("\n\n")
+                    i++
+                }
+                
+                // 三级标题
+                line.startsWith("### ") -> {
+                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                        append(line.removePrefix("### ").trim())
+                    }
+                    append("\n\n")
+                    i++
+                }
+                
+                // 无序列表
+                line.trim().startsWith("- ") -> {
+                    append("  • ")
+                    appendMarkdownLine(line.removePrefix("- ").trim())
+                    append("\n")
+                    i++
+                }
+                
+                // 空行
+                line.isBlank() -> {
+                    append("\n")
+                    i++
+                }
+                
+                // 普通文本
+                else -> {
+                    appendMarkdownLine(line)
+                    append("\n")
+                    i++
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 解析单行 Markdown，处理加粗等格式
+ */
+private fun AnnotatedString.Builder.appendMarkdownLine(text: String) {
+    val boldRegex = Regex("\\*\\*(.+?)\\*\\*")
+    var lastIndex = 0
+    
+    boldRegex.findAll(text).forEach { match ->
+        // 添加加粗前的文本
+        append(text.substring(lastIndex, match.range.first))
+        
+        // 添加加粗文本
+        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+            append(match.groupValues[1])
+        }
+        
+        lastIndex = match.range.last + 1
+    }
+    
+    // 添加剩余的文本
+    if (lastIndex < text.length) {
+        append(text.substring(lastIndex))
     }
 }
