@@ -13,8 +13,8 @@ android {
         applicationId = "org.streambox.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 10
-        versionName = "1.1.0"
+        versionCode = 11
+        versionName = "1.1.1"
         
         // 从 gradle.properties 读取 GitHub Token（如果存在）
         val githubToken = project.findProperty("GITHUB_TOKEN") as String? ?: ""

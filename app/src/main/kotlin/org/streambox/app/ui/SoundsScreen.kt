@@ -445,11 +445,18 @@ fun SoundsScreen(
                                             tint = MaterialTheme.colorScheme.primary
                                         )
                                     }
-                                    Text(
-                                        text = "已选择（${selectedSoundsForBatch.size} 个）",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold
-                                    )
+                                    Column {
+                                        Text(
+                                            text = "已选择（${selectedSoundsForBatch.size} 个）",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(
+                                            text = "最多可选3个到默认区域",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        )
+                                    }
                                 } else {
                                     Text(
                                         text = "白噪音卡片",
@@ -832,10 +839,13 @@ private fun DefaultArea(
                 Surface(
                     onClick = { onEditModeChange(!isEditMode) },
                     shape = RoundedCornerShape(8.dp),
-                    color = MaterialTheme.colorScheme.primaryContainer
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.height(40.dp) // 固定高度与IconButton一致
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                        modifier = Modifier
+                            .padding(horizontal = 12.dp, vertical = 8.dp)
+                            .fillMaxHeight(),
                         horizontalArrangement = Arrangement.spacedBy(4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -993,12 +1003,13 @@ private fun DefaultCard(
                 .fillMaxSize()
                 .padding(12.dp)
         ) {
-            // 删除按钮（右下角，只在编辑模式下显示，距离底部12dp）
+            // 删除按钮（右下角，只在编辑模式下显示，距离底部20dp）
             if (isEditMode) {
                 IconButton(
                     onClick = onRemove,
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
+                        .offset(y = 8.dp) // 向下偏移8dp，距离底部20dp
                         .size(32.dp)
                 ) {
                     Icon(
@@ -1440,7 +1451,7 @@ fun SoundCard(
                                 onClick = onVolumeClick,
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
-                                    .offset(y = 16.dp) // 向下偏移16dp
+                                    .offset(y = 12.dp) // 向下偏移12dp，距离底部28dp
                                     .size(40.dp)
                             ) {
                                 Icon(
@@ -1544,7 +1555,7 @@ fun SoundCard(
                                 onClick = onVolumeClick,
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
-                                    .offset(y = 16.dp) // 向下偏移16dp
+                                    .offset(y = 12.dp) // 向下偏移12dp，距离底部28dp
                                     .size(40.dp)
                             ) {
                                 Icon(
