@@ -6,56 +6,64 @@
       "name": "自然",
       "nameEn": "Nature",
       "icon": "🌲",
-      "order": 1
+      "order": 1,
+      "nameZhTW": "自然"
     },
     {
       "id": "rain",
       "name": "雨声",
       "nameEn": "Rain",
       "icon": "🌧️",
-      "order": 2
+      "order": 2,
+      "nameZhTW": "雨聲"
     },
     {
       "id": "animals",
       "name": "动物",
       "nameEn": "Animals",
       "icon": "🐾",
-      "order": 3
+      "order": 3,
+      "nameZhTW": "動物"
     },
     {
       "id": "urban",
       "name": "城市",
       "nameEn": "Urban",
       "icon": "🏙️",
-      "order": 4
+      "order": 4,
+      "nameZhTW": "城市"
     },
     {
       "id": "places",
       "name": "场所",
       "nameEn": "Places",
       "icon": "📍",
-      "order": 5
+      "order": 5,
+      "nameZhTW": "場所"
     },
     {
       "id": "transport",
       "name": "交通",
       "nameEn": "Transport",
       "icon": "🚗",
-      "order": 6
+      "order": 6,
+      "nameZhTW": "交通"
     },
     {
       "id": "things",
       "name": "物品",
       "nameEn": "Things",
       "icon": "🔧",
-      "order": 7
+      "order": 7,
+      "nameZhTW": "物品"
     },
     {
       "id": "noise",
       "name": "噪音",
       "nameEn": "Noise",
       "icon": "🔊",
-      "order": 8
+      "order": 8,
+      "nameZhTW": "噪音"
     }
   ],
   "sounds": [
@@ -71,7 +79,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 1
+      "order": 1,
+      "nameZhTW": "河流"
     },
     {
       "id": "waves",
@@ -85,7 +94,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 2
+      "order": 2,
+      "nameZhTW": "海浪"
     },
     {
       "id": "campfire",
@@ -99,7 +109,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 3
+      "order": 3,
+      "nameZhTW": "篝火"
     },
     {
       "id": "wind",
@@ -113,7 +124,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 4
+      "order": 4,
+      "nameZhTW": "風聲"
     },
     {
       "id": "howling-wind",
@@ -127,7 +139,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 5
+      "order": 5,
+      "nameZhTW": "呼嘯的風"
     },
     {
       "id": "wind-in-trees",
@@ -141,7 +154,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 6
+      "order": 6,
+      "nameZhTW": "樹間風聲"
     },
     {
       "id": "waterfall",
@@ -155,7 +169,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 7
+      "order": 7,
+      "nameZhTW": "瀑布"
     },
     {
       "id": "walk-in-snow",
@@ -169,7 +184,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 8
+      "order": 8,
+      "nameZhTW": "雪中行走"
     },
     {
       "id": "walk-on-leaves",
@@ -183,7 +199,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 9
+      "order": 9,
+      "nameZhTW": "踩踏樹葉"
     },
     {
       "id": "walk-on-gravel",
@@ -197,7 +214,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 10
+      "order": 10,
+      "nameZhTW": "踩踏碎石"
     },
     {
       "id": "droplets",
@@ -211,7 +229,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 11
+      "order": 11,
+      "nameZhTW": "水滴"
     },
     {
       "id": "jungle",
@@ -225,7 +244,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 12
+      "order": 12,
+      "nameZhTW": "丛林"
     },
     {
       "id": "light-rain",
@@ -239,7 +259,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 1
+      "order": 1,
+      "nameZhTW": "小雨"
     },
     {
       "id": "heavy-rain",
@@ -253,7 +274,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 2
+      "order": 2,
+      "nameZhTW": "大雨"
     },
     {
       "id": "thunder",
@@ -267,7 +289,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 3
+      "order": 3,
+      "nameZhTW": "雷聲"
     },
     {
       "id": "rain-on-window",
@@ -281,7 +304,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 4
+      "order": 4,
+      "nameZhTW": "窗上雨聲"
     },
     {
       "id": "rain-on-car-roof",
@@ -295,7 +319,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 5
+      "order": 5,
+      "nameZhTW": "車頂雨聲"
     },
     {
       "id": "rain-on-umbrella",
@@ -309,7 +334,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 6
+      "order": 6,
+      "nameZhTW": "傘上雨聲"
     },
     {
       "id": "rain-on-tent",
@@ -323,7 +349,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 7
+      "order": 7,
+      "nameZhTW": "帳篷雨聲"
     },
     {
       "id": "rain-on-leaves",
@@ -337,7 +364,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 8
+      "order": 8,
+      "nameZhTW": "葉上雨聲"
     },
     {
       "id": "birds",
@@ -351,7 +379,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 1
+      "order": 1,
+      "nameZhTW": "鳥鳴"
     },
     {
       "id": "seagulls",
@@ -365,7 +394,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 2
+      "order": 2,
+      "nameZhTW": "海鷗"
     },
     {
       "id": "crickets",
@@ -379,7 +409,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 3
+      "order": 3,
+      "nameZhTW": "蟋蟀"
     },
     {
       "id": "wolf",
@@ -393,7 +424,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 4
+      "order": 4,
+      "nameZhTW": "狼嚎"
     },
     {
       "id": "owl",
@@ -407,7 +439,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 5
+      "order": 5,
+      "nameZhTW": "貓頭鷹"
     },
     {
       "id": "frog",
@@ -421,7 +454,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 6
+      "order": 6,
+      "nameZhTW": "青蛙"
     },
     {
       "id": "dog-barking",
@@ -435,7 +469,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 7
+      "order": 7,
+      "nameZhTW": "狗叫"
     },
     {
       "id": "horse-gallop",
@@ -449,7 +484,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 8
+      "order": 8,
+      "nameZhTW": "馬奔騰"
     },
     {
       "id": "cat-purring",
@@ -463,7 +499,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 9
+      "order": 9,
+      "nameZhTW": "貓咪呼嚕"
     },
     {
       "id": "crows",
@@ -477,7 +514,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 10
+      "order": 10,
+      "nameZhTW": "烏鴉"
     },
     {
       "id": "whale",
@@ -491,7 +529,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 11
+      "order": 11,
+      "nameZhTW": "鯨魚"
     },
     {
       "id": "beehive",
@@ -505,7 +544,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 12
+      "order": 12,
+      "nameZhTW": "蜂巢"
     },
     {
       "id": "woodpecker",
@@ -519,7 +559,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 13
+      "order": 13,
+      "nameZhTW": "啄木鳥"
     },
     {
       "id": "chickens",
@@ -533,7 +574,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 14
+      "order": 14,
+      "nameZhTW": "雞"
     },
     {
       "id": "cows",
@@ -547,7 +589,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 15
+      "order": 15,
+      "nameZhTW": "牛"
     },
     {
       "id": "sheep",
@@ -561,7 +604,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 16
+      "order": 16,
+      "nameZhTW": "羊"
     },
     {
       "id": "highway",
@@ -575,7 +619,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 1
+      "order": 1,
+      "nameZhTW": "高速公路"
     },
     {
       "id": "road",
@@ -589,7 +634,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 2
+      "order": 2,
+      "nameZhTW": "道路"
     },
     {
       "id": "ambulance-siren",
@@ -603,7 +649,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 3
+      "order": 3,
+      "nameZhTW": "救護車警笛"
     },
     {
       "id": "busy-street",
@@ -617,7 +664,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 4
+      "order": 4,
+      "nameZhTW": "繁忙街道"
     },
     {
       "id": "crowd",
@@ -631,7 +679,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 5
+      "order": 5,
+      "nameZhTW": "人群"
     },
     {
       "id": "traffic",
@@ -645,7 +694,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 6
+      "order": 6,
+      "nameZhTW": "交通"
     },
     {
       "id": "fireworks",
@@ -659,7 +709,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 7
+      "order": 7,
+      "nameZhTW": "煙花"
     },
     {
       "id": "cafe",
@@ -673,7 +724,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 1
+      "order": 1,
+      "nameZhTW": "咖啡廳"
     },
     {
       "id": "airport",
@@ -687,7 +739,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 2
+      "order": 2,
+      "nameZhTW": "機場"
     },
     {
       "id": "church",
@@ -701,7 +754,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 3
+      "order": 3,
+      "nameZhTW": "教堂"
     },
     {
       "id": "temple",
@@ -715,7 +769,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 4
+      "order": 4,
+      "nameZhTW": "寺廟"
     },
     {
       "id": "construction-site",
@@ -729,7 +784,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 5
+      "order": 5,
+      "nameZhTW": "建築工地"
     },
     {
       "id": "underwater",
@@ -743,7 +799,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 6
+      "order": 6,
+      "nameZhTW": "水下"
     },
     {
       "id": "crowded-bar",
@@ -757,7 +814,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 7
+      "order": 7,
+      "nameZhTW": "擁擠酒吧"
     },
     {
       "id": "night-village",
@@ -771,7 +829,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 8
+      "order": 8,
+      "nameZhTW": "夜晚村莊"
     },
     {
       "id": "subway-station",
@@ -785,7 +844,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 9
+      "order": 9,
+      "nameZhTW": "地鐵站"
     },
     {
       "id": "office",
@@ -799,7 +859,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 10
+      "order": 10,
+      "nameZhTW": "辦公室"
     },
     {
       "id": "supermarket",
@@ -813,7 +874,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 11
+      "order": 11,
+      "nameZhTW": "超市"
     },
     {
       "id": "carousel",
@@ -827,7 +889,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 12
+      "order": 12,
+      "nameZhTW": "旋轉木馬"
     },
     {
       "id": "laboratory",
@@ -841,7 +904,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 13
+      "order": 13,
+      "nameZhTW": "實驗室"
     },
     {
       "id": "laundry-room",
@@ -855,7 +919,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 14
+      "order": 14,
+      "nameZhTW": "洗衣房"
     },
     {
       "id": "restaurant",
@@ -869,7 +934,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 15
+      "order": 15,
+      "nameZhTW": "餐廳"
     },
     {
       "id": "library",
@@ -883,7 +949,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 16
+      "order": 16,
+      "nameZhTW": "圖書館"
     },
     {
       "id": "train",
@@ -897,7 +964,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 1
+      "order": 1,
+      "nameZhTW": "火車"
     },
     {
       "id": "inside-a-train",
@@ -911,7 +979,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 2
+      "order": 2,
+      "nameZhTW": "火車內"
     },
     {
       "id": "airplane",
@@ -925,7 +994,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 3
+      "order": 3,
+      "nameZhTW": "飛機"
     },
     {
       "id": "submarine",
@@ -939,7 +1009,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 4
+      "order": 4,
+      "nameZhTW": "潛艇"
     },
     {
       "id": "sailboat",
@@ -953,7 +1024,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 5
+      "order": 5,
+      "nameZhTW": "帆船"
     },
     {
       "id": "rowing-boat",
@@ -967,7 +1039,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 6
+      "order": 6,
+      "nameZhTW": "划船"
     },
     {
       "id": "keyboard",
@@ -981,7 +1054,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 1
+      "order": 1,
+      "nameZhTW": "鍵盤"
     },
     {
       "id": "typewriter",
@@ -995,7 +1069,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 2
+      "order": 2,
+      "nameZhTW": "打字機"
     },
     {
       "id": "paper",
@@ -1009,7 +1084,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 3
+      "order": 3,
+      "nameZhTW": "紙張"
     },
     {
       "id": "clock",
@@ -1023,7 +1099,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 4
+      "order": 4,
+      "nameZhTW": "時鐘"
     },
     {
       "id": "wind-chimes",
@@ -1037,7 +1114,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 5
+      "order": 5,
+      "nameZhTW": "風鈴"
     },
     {
       "id": "singing-bowl",
@@ -1051,7 +1129,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 6
+      "order": 6,
+      "nameZhTW": "頌缽"
     },
     {
       "id": "ceiling-fan",
@@ -1065,7 +1144,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 7
+      "order": 7,
+      "nameZhTW": "吊扇"
     },
     {
       "id": "dryer",
@@ -1079,7 +1159,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 8
+      "order": 8,
+      "nameZhTW": "烘乾機"
     },
     {
       "id": "slide-projector",
@@ -1093,7 +1174,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 9
+      "order": 9,
+      "nameZhTW": "幻燈機"
     },
     {
       "id": "boiling-water",
@@ -1107,7 +1189,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 10
+      "order": 10,
+      "nameZhTW": "沸水"
     },
     {
       "id": "bubbles",
@@ -1121,7 +1204,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 11
+      "order": 11,
+      "nameZhTW": "氣泡"
     },
     {
       "id": "tuning-radio",
@@ -1135,7 +1219,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 12
+      "order": 12,
+      "nameZhTW": "調頻收音機"
     },
     {
       "id": "morse-code",
@@ -1149,7 +1234,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 13
+      "order": 13,
+      "nameZhTW": "摩爾斯電碼"
     },
     {
       "id": "washing-machine",
@@ -1163,7 +1249,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 14
+      "order": 14,
+      "nameZhTW": "洗衣機"
     },
     {
       "id": "vinyl-effect",
@@ -1177,7 +1264,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 15
+      "order": 15,
+      "nameZhTW": "黑膠效果"
     },
     {
       "id": "windshield-wipers",
@@ -1191,7 +1279,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "mp3",
-      "order": 16
+      "order": 16,
+      "nameZhTW": "雨刷"
     },
     {
       "id": "white-noise",
@@ -1205,7 +1294,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "wav",
-      "order": 1
+      "order": 1,
+      "nameZhTW": "白噪音"
     },
     {
       "id": "pink-noise",
@@ -1219,7 +1309,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "wav",
-      "order": 2
+      "order": 2,
+      "nameZhTW": "粉紅噪音"
     },
     {
       "id": "brown-noise",
@@ -1233,7 +1324,8 @@
       "loopEnd": 60000,
       "isSeamless": true,
       "format": "wav",
-      "order": 3
+      "order": 3,
+      "nameZhTW": "棕噪音"
     }
   ]
 }
