@@ -102,6 +102,9 @@ dependencies {
     // OkHttp - 用于网络请求和文件下载
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     
+    // Gson - 用于JSON解析
+    implementation("com.google.code.gson:gson:2.10.1")
+    
     // Debug
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

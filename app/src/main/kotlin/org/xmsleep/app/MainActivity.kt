@@ -55,6 +55,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.items as lazyItems
 import androidx.compose.ui.layout.ContentScale
 import coil.compose.AsyncImage
 import androidx.compose.ui.Alignment
@@ -97,6 +98,7 @@ import kotlinx.serialization.json.*
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.navigation.compose.NavHost
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import androidx.navigation.compose.composable
 import org.xmsleep.app.update.UpdateDialog
 import androidx.compose.runtime.collectAsState
@@ -115,6 +117,10 @@ class MainActivity : ComponentActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // 在应用启动时迁移旧版本的数据（如果存在）
+        org.xmsleep.app.preferences.PreferencesManager.migrateFromOldVersion(this)
+        
         setContent {
             XMSLEEPApp()
         }
@@ -2381,32 +2387,353 @@ fun StarSkyScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    
+    // 音频资源管理器
+    val resourceManager = remember { 
+        org.xmsleep.app.audio.AudioResourceManager.getInstance(context) 
+    }
+    val audioManager = remember { 
+        org.xmsleep.app.audio.AudioManager.getInstance() 
+    }
+    val cacheManager = remember { 
+        org.xmsleep.app.audio.AudioCacheManager.getInstance(context) 
+    }
+    
+    // 状态
+    var remoteSounds by remember { mutableStateOf<List<org.xmsleep.app.audio.model.SoundMetadata>>(emptyList()) }
+    var isLoading by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+    var downloadingSounds by remember { mutableStateOf<Map<String, Float>>(emptyMap()) }
+    var playingSounds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    
+    // 监听播放状态变化
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(500) // 每500ms检查一次播放状态
+            val currentlyPlaying = remoteSounds.filter { sound ->
+                audioManager.isPlayingRemoteSound(sound.id)
+            }.map { it.id }.toSet()
+            playingSounds = currentlyPlaying
+        }
+    }
+    
+    // 加载音频清单
+    LaunchedEffect(Unit) {
+        isLoading = true
+        errorMessage = null
+        try {
+            val sounds = resourceManager.getRemoteSounds()
+            remoteSounds = sounds
+        } catch (e: Exception) {
+            errorMessage = e.message
+            android.util.Log.e("StarSkyScreen", "加载音频清单失败: ${e.message}")
+        } finally {
+            isLoading = false
+        }
+    }
+    
+    // 按分类分组
+    val soundsByCategory = remember(remoteSounds) {
+        remoteSounds.groupBy { it.category }
+    }
+    
+    // 获取分类列表
+    val categories = remember(remoteSounds) {
+        remoteSounds.map { it.category }.distinct().sorted()
+    }
     
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+            .padding(16.dp)
     ) {
-        Icon(
-            imageVector = Icons.Default.Satellite,
-            contentDescription = null,
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-        Spacer(modifier = Modifier.height(16.dp))
+        // 标题
         Text(
             text = context.getString(R.string.star_sky),
             style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = context.getString(R.string.star_sky_more_sounds_hint),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+        
+        // 加载状态
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        }
+        // 错误状态
+        else if (errorMessage != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        text = "加载失败: $errorMessage",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                    Button(
+                        onClick = {
+                            scope.launch {
+                                isLoading = true
+                                errorMessage = null
+                                try {
+                                    val sounds = resourceManager.refreshRemoteManifest()
+                                        .getOrNull()?.sounds ?: emptyList()
+                                    remoteSounds = sounds
+                                } catch (e: Exception) {
+                                    errorMessage = e.message
+                                } finally {
+                                    isLoading = false
+                                }
+                            }
+                        }
+                    ) {
+                        Text("重试")
+                    }
+                }
+            }
+        }
+        // 音频列表
+        else if (remoteSounds.isNotEmpty()) {
+            // 分类筛选
+            if (categories.isNotEmpty()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                        .padding(bottom = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    // 全部
+                    FilterChip(
+                        selected = selectedCategory == null,
+                        onClick = { selectedCategory = null },
+                        label = { Text("全部") }
+                    )
+                    // 各分类
+                    categories.forEach { category ->
+                        FilterChip(
+                            selected = selectedCategory == category,
+                            onClick = { selectedCategory = category },
+                            label = { Text(category) }
+                        )
+                    }
+                }
+            }
+            
+            // 音频列表
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                val filteredSounds = if (selectedCategory != null) {
+                    remoteSounds.filter { it.category == selectedCategory }
+                } else {
+                    remoteSounds
+                }
+                
+                items(filteredSounds.size) { index ->
+                    val sound = filteredSounds[index]
+                    RemoteSoundCard(
+                        sound = sound,
+                        isPlaying = playingSounds.contains(sound.id),
+                        downloadProgress = downloadingSounds[sound.id],
+                        onPlayClick = {
+                            scope.launch {
+                                try {
+                                    // 获取音频URI
+                                    val uri = resourceManager.getSoundUri(sound)
+                                    if (uri != null) {
+                                        // 播放音频
+                                        audioManager.playRemoteSound(context, sound, uri)
+                                        playingSounds = playingSounds + sound.id
+                                        
+                                        // 后台下载（如果未缓存）
+                                        if (cacheManager.getCachedFile(sound.id) == null) {
+                                            scope.launch {
+                                                resourceManager.ensureSoundDownloaded(sound)
+                                            }
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    android.util.Log.e("StarSkyScreen", "播放失败: ${e.message}")
+                                }
+                            }
+                        },
+                        onPauseClick = {
+                            audioManager.pauseRemoteSound(sound.id)
+                            playingSounds = playingSounds - sound.id
+                        },
+                        onDownloadClick = {
+                            scope.launch {
+                                try {
+                                    val downloadFlow = cacheManager.downloadAudioWithProgress(
+                                        sound.remoteUrl ?: return@launch,
+                                        sound.id
+                                    )
+                                    downloadFlow.collect { progress ->
+                                        when (progress) {
+                                            is org.xmsleep.app.audio.DownloadProgress.Progress -> {
+                                                val percent = progress.bytesRead.toFloat() / progress.contentLength
+                                                downloadingSounds = downloadingSounds + (sound.id to percent)
+                                            }
+                                            is org.xmsleep.app.audio.DownloadProgress.Success -> {
+                                                downloadingSounds = downloadingSounds - sound.id
+                                            }
+                                            is org.xmsleep.app.audio.DownloadProgress.Error -> {
+                                                downloadingSounds = downloadingSounds - sound.id
+                                                android.util.Log.e("StarSkyScreen", "下载失败: ${progress.exception.message}")
+                                            }
+                                        }
+                                    }
+                                } catch (e: Exception) {
+                                    android.util.Log.e("StarSkyScreen", "下载失败: ${e.message}")
+                                }
+                            }
+                        }
+                    )
+                }
+            }
+        }
+        // 空状态
+        else {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Satellite,
+                        contentDescription = null,
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.6f)
+                    )
+                    Text(
+                        text = context.getString(R.string.star_sky_more_sounds_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 网络音频卡片
+ */
+@Composable
+fun RemoteSoundCard(
+    sound: org.xmsleep.app.audio.model.SoundMetadata,
+    isPlaying: Boolean,
+    downloadProgress: Float?,
+    onPlayClick: () -> Unit,
+    onPauseClick: () -> Unit,
+    onDownloadClick: () -> Unit
+) {
+    val context = LocalContext.current
+    val cacheManager = remember { 
+        org.xmsleep.app.audio.AudioCacheManager.getInstance(context) 
+    }
+    var isCached by remember { mutableStateOf(cacheManager.getCachedFile(sound.id) != null) }
+    
+    // 监听下载完成，更新缓存状态
+    LaunchedEffect(downloadProgress) {
+        if (downloadProgress == null) {
+            isCached = cacheManager.getCachedFile(sound.id) != null
+        }
+    }
+    
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 图标和名称
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 图标
+                Text(
+                    text = sound.icon ?: "🎵",
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                // 名称
+                Column {
+                    Text(
+                        text = sound.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        text = sound.category,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                }
+            }
+            
+            // 操作按钮
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 下载按钮
+                if (!isCached && downloadProgress == null) {
+                    IconButton(onClick = onDownloadClick) {
+                        Icon(
+                            imageVector = Icons.Default.CloudDownload,
+                            contentDescription = "下载"
+                        )
+                    }
+                }
+                // 下载进度
+                if (downloadProgress != null) {
+                    CircularProgressIndicator(
+                        progress = { downloadProgress },
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+                // 播放/暂停按钮
+                IconButton(
+                    onClick = if (isPlaying) onPauseClick else onPlayClick,
+                    enabled = isCached || downloadProgress == null
+                ) {
+                    Icon(
+                        imageVector = if (isPlaying) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        contentDescription = if (isPlaying) "暂停" else "播放"
+                    )
+                }
+            }
+        }
     }
 }
 

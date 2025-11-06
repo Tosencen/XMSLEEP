@@ -47,6 +47,15 @@ class AudioManager private constructor() {
         BIRD_CHIRPING,
         NIGHT_INSECTS
     }
+    
+    // 网络音频播放器（使用soundId作为key）
+    private val remotePlayers = java.util.concurrent.ConcurrentHashMap<String, ExoPlayer?>()
+    
+    // 网络音频的播放状态
+    private val remotePlayingStates = java.util.concurrent.ConcurrentHashMap<String, Boolean>()
+    
+    // 网络音频的音量设置
+    private val remoteVolumeSettings = mutableMapOf<String, Float>()
 
     private var applicationContext: Context? = null
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -478,6 +487,177 @@ class AudioManager private constructor() {
      */
     fun getPlayingSounds(): List<Sound> {
         return playingStates.filter { it.value }.keys.toList()
+    }
+    
+    /**
+     * 播放网络音频（使用元数据）
+     */
+    @UnstableApi
+    fun playRemoteSound(
+        context: Context,
+        metadata: org.xmsleep.app.audio.model.SoundMetadata,
+        uri: android.net.Uri
+    ) {
+        try {
+            if (applicationContext == null) {
+                applicationContext = context.applicationContext
+            }
+            
+            val soundId = metadata.id
+            
+            if (!hasAudioFocus && !requestAudioFocus(context)) {
+                Log.w(TAG, "无法获取音频焦点，取消播放")
+                return
+            }
+            
+            if (isPlayingRemoteSound(soundId)) {
+                Log.d(TAG, "$soundId 已经在播放中")
+                return
+            }
+            
+            // 初始化播放器
+            if (remotePlayers[soundId] == null) {
+                try {
+                    val player = ExoPlayer.Builder(context).build().apply {
+                        addListener(createRemotePlayerListener(soundId))
+                    }
+                    remotePlayers[soundId] = player
+                    remotePlayingStates[soundId] = false
+                    Log.d(TAG, "$soundId 播放器初始化成功")
+                } catch (e: Exception) {
+                    Log.e(TAG, "初始化 $soundId 播放器失败: ${e.message}")
+                }
+            }
+            
+            // 准备音频源
+            try {
+                val dataSourceFactory = DefaultDataSource.Factory(context)
+                val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                    .createMediaSource(MediaItem.fromUri(uri))
+                
+                val clippingMediaSource = ClippingMediaSource(
+                    mediaSource,
+                    metadata.loopStart * 1000,
+                    metadata.loopEnd * 1000
+                )
+                
+                remotePlayers[soundId]?.apply {
+                    setMediaSource(clippingMediaSource)
+                    repeatMode = Player.REPEAT_MODE_ONE
+                    volume = remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
+                    prepare()
+                    play()
+                }
+                remotePlayingStates[soundId] = true
+                Log.d(TAG, "$soundId 开始播放")
+            } catch (e: Exception) {
+                Log.e(TAG, "播放 $soundId 声音失败: ${e.message}")
+                e.printStackTrace()
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "播放网络音频失败: ${e.message}")
+            e.printStackTrace()
+        }
+    }
+    
+    /**
+     * 创建网络音频播放器监听器
+     */
+    private fun createRemotePlayerListener(soundId: String): Player.Listener {
+        return object : Player.Listener {
+            override fun onPlaybackStateChanged(state: Int) {
+                when (state) {
+                    Player.STATE_ENDED -> {
+                        remotePlayingStates[soundId] = false
+                        remotePlayers[soundId]?.prepare()
+                        remotePlayers[soundId]?.play()
+                        remotePlayingStates[soundId] = true
+                    }
+                    Player.STATE_READY -> {
+                        if (remotePlayers[soundId]?.playWhenReady == true) {
+                            remotePlayingStates[soundId] = true
+                        }
+                    }
+                }
+            }
+            
+            override fun onIsPlayingChanged(isPlaying: Boolean) {
+                remotePlayingStates[soundId] = isPlaying
+            }
+            
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                Log.e(TAG, "$soundId 播放错误: ${error.message}")
+                remotePlayingStates[soundId] = false
+            }
+        }
+    }
+    
+    /**
+     * 暂停网络音频
+     */
+    fun pauseRemoteSound(soundId: String) {
+        try {
+            remotePlayers[soundId]?.pause()
+            remotePlayingStates[soundId] = false
+            Log.d(TAG, "$soundId 已暂停")
+        } catch (e: Exception) {
+            Log.e(TAG, "暂停 $soundId 失败: ${e.message}")
+        }
+    }
+    
+    /**
+     * 检查网络音频是否正在播放
+     */
+    fun isPlayingRemoteSound(soundId: String): Boolean {
+        return remotePlayingStates[soundId] == true
+    }
+    
+    /**
+     * 设置网络音频音量
+     */
+    fun setRemoteVolume(soundId: String, volume: Float) {
+        remoteVolumeSettings[soundId] = volume.coerceIn(0f, 1f)
+        remotePlayers[soundId]?.volume = remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
+    }
+    
+    /**
+     * 获取网络音频音量
+     */
+    fun getRemoteVolume(soundId: String): Float {
+        return remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
+    }
+    
+    /**
+     * 释放网络音频播放器
+     */
+    fun releaseRemotePlayer(soundId: String) {
+        try {
+            remotePlayers[soundId]?.stop()
+            remotePlayers[soundId]?.release()
+            remotePlayers.remove(soundId)
+            remotePlayingStates.remove(soundId)
+            remoteVolumeSettings.remove(soundId)
+            Log.d(TAG, "成功释放 $soundId 播放器资源")
+        } catch (e: Exception) {
+            Log.e(TAG, "释放 $soundId 播放器资源失败: ${e.message}")
+            remotePlayers.remove(soundId)
+            remotePlayingStates.remove(soundId)
+            remoteVolumeSettings.remove(soundId)
+        }
+    }
+    
+    /**
+     * 释放所有网络音频播放器
+     */
+    fun releaseAllRemotePlayers() {
+        try {
+            remotePlayers.keys.forEach { soundId ->
+                releaseRemotePlayer(soundId)
+            }
+            Log.d(TAG, "已释放所有网络音频播放器资源")
+        } catch (e: Exception) {
+            Log.e(TAG, "释放所有网络音频播放器资源失败: ${e.message}")
+        }
     }
 }
 

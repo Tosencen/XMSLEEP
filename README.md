@@ -79,9 +79,12 @@ cd XMSLEEP
 
 本项目采用 [MIT License](LICENSE) 许可证。
 
-## 音频资源
+### ⚠️ Third-Party Assets
 
-应用内包含的所有白噪音音频资源均为免费商用资源，可自由使用。
+Some sounds used in this project are sourced from third-party providers and **are subject to different licenses**:
+
+- Sounds licensed under the **Pixabay Content License**: [Pixabay Content License](https://pixabay.com/service/license-summary/)
+- Sounds licensed under **CC0**: [Creative Commons Zero License](https://creativecommons.org/publicdomain/zero/1.0/)
 
 ## 贡献
 

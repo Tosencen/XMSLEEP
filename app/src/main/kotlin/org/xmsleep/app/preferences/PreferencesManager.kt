@@ -15,6 +15,74 @@ object PreferencesManager {
     private const val KEY_USE_BLACK_BACKGROUND = "use_black_background"
     private const val KEY_HIDE_ANIMATION = "hide_animation"
     private const val KEY_SOUND_CARDS_COLUMNS_COUNT = "sound_cards_columns_count"
+    private const val KEY_MIGRATION_DONE = "migration_done"
+    
+    /**
+     * 从旧版本迁移数据（如果存在）
+     */
+    fun migrateFromOldVersion(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        
+        // 检查是否已经迁移过
+        if (prefs.getBoolean(KEY_MIGRATION_DONE, false)) {
+            return
+        }
+        
+        try {
+            // 尝试创建旧版本的Context来访问其SharedPreferences
+            val oldContext = context.createPackageContext(
+                "org.streambox.app",
+                Context.CONTEXT_INCLUDE_CODE or Context.CONTEXT_IGNORE_SECURITY
+            )
+            
+            val oldPrefs = oldContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            
+            // 迁移数据
+            val editor = prefs.edit()
+            
+            // 迁移深色模式
+            val darkMode = oldPrefs.getString(KEY_DARK_MODE, null)
+            if (darkMode != null) {
+                editor.putString(KEY_DARK_MODE, darkMode)
+            }
+            
+            // 迁移主题色
+            val selectedColor = oldPrefs.getLong(KEY_SELECTED_COLOR, -1L)
+            if (selectedColor != -1L) {
+                editor.putLong(KEY_SELECTED_COLOR, selectedColor)
+            }
+            
+            // 迁移动态颜色
+            if (oldPrefs.contains(KEY_USE_DYNAMIC_COLOR)) {
+                editor.putBoolean(KEY_USE_DYNAMIC_COLOR, oldPrefs.getBoolean(KEY_USE_DYNAMIC_COLOR, false))
+            }
+            
+            // 迁移纯黑背景
+            if (oldPrefs.contains(KEY_USE_BLACK_BACKGROUND)) {
+                editor.putBoolean(KEY_USE_BLACK_BACKGROUND, oldPrefs.getBoolean(KEY_USE_BLACK_BACKGROUND, false))
+            }
+            
+            // 迁移隐藏动画
+            if (oldPrefs.contains(KEY_HIDE_ANIMATION)) {
+                editor.putBoolean(KEY_HIDE_ANIMATION, oldPrefs.getBoolean(KEY_HIDE_ANIMATION, true))
+            }
+            
+            // 迁移声音卡片列数
+            if (oldPrefs.contains(KEY_SOUND_CARDS_COLUMNS_COUNT)) {
+                editor.putInt(KEY_SOUND_CARDS_COLUMNS_COUNT, oldPrefs.getInt(KEY_SOUND_CARDS_COLUMNS_COUNT, 2))
+            }
+            
+            // 标记迁移完成
+            editor.putBoolean(KEY_MIGRATION_DONE, true)
+            editor.apply()
+            
+            android.util.Log.d("PreferencesManager", "成功从旧版本迁移数据")
+        } catch (e: Exception) {
+            // 如果无法访问旧版本（比如旧版本已卸载），标记迁移完成，避免重复尝试
+            prefs.edit().putBoolean(KEY_MIGRATION_DONE, true).apply()
+            android.util.Log.d("PreferencesManager", "无法访问旧版本数据（可能已卸载）: ${e.message}")
+        }
+    }
     
     /**
      * 保存深色模式设置
