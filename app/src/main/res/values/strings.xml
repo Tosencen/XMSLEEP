@@ -36,7 +36,7 @@
     <string name="app_description_title">应用说明</string>
     <string name="app_description">XMSLEEP 是一款专注于白噪音播放的应用，提供多种自然声音帮助您放松、专注和入眠。</string>
     <string name="usage_instructions_title">使用说明</string>
-    <string name="usage_instructions">• 点击声音卡片开始播放，再次点击停止\n• 点击音量图标可以单独调节每个声音的音量\n• 点击标题可以设置默认播放区域或收藏声音\n• 点击图书钉图标可以批量选择声音添加到默认播放区域\n• 使用倒计时功能可以设置自动停止播放的时间\n• 在设置中可以调整主题、隐藏动画、切换布局等</string>
+    <string name="usage_instructions">• 点击声音卡片开始播放，再次点击停止\n• 点击音量图标可以单独调节每个声音的音量\n• 点击标题可以设置快捷播放或收藏声音\n• 点击图书钉图标可以批量选择声音添加到快捷播放\n• 使用倒计时功能可以设置自动停止播放的时间\n• 在设置中可以调整主题、隐藏动画、切换布局等</string>
     <string name="technical_info_title">技术信息</string>
     <string name="copyright">© 2025 XMSLEEP. All rights reserved.\n\n本应用提供的音频内容仅供个人学习和娱乐使用。\n请尊重相关音频资源的版权，不得用于商业用途。</string>
     <string name="hide_animation">隐藏动画文件</string>
@@ -44,14 +44,14 @@
     <string name="white_noise_cards">白噪音卡片</string>
     <string name="builtin_sounds_offline_hint">内置声音无需联网直接听</string>
     <string name="selected_count">已选择（%1$d 个）</string>
-    <string name="max_select_hint">最多可选3个到默认区域</string>
+    <string name="max_select_hint">最多可选3个到快捷播放</string>
     <string name="batch_select_default">批量选择默认</string>
     <string name="cancel_batch_select">取消批量选择</string>
-    <string name="default_playback_area">默认播放区域</string>
-    <string name="click_play_button_to_play_all">点击播放按钮可一键播放</string>
+    <string name="default_playback_area">快捷播放</string>
+    <string name="click_play_button_to_play_all">便捷播放声音</string>
     <string name="done">完成</string>
-    <string name="max_3_sounds_limit">默认播放区域最多只能添加3个声音</string>
-    <string name="default_area_updated">已更新默认播放区域</string>
+    <string name="max_3_sounds_limit">快捷播放最多只能添加3个声音</string>
+    <string name="default_area_updated">已更新快捷播放</string>
     <string name="selected">已选中</string>
     <string name="unselected">未选中</string>
     <string name="switch_to_light_mode">切换到浅色模式</string>
@@ -127,4 +127,6 @@
     <string name="installing">正在安装</string>
     <string name="starting_installer">正在启动安装程序…</string>
     <string name="install_failed">安装失败</string>
+    <string name="join_group">加入Telegram群聊</string>
+    <string name="join_group_description">来表达你的想法</string>
 </resources>

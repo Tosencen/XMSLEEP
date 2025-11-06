@@ -6,15 +6,15 @@ plugins {
 }
 
 android {
-    namespace = "org.streambox.app"
+    namespace = "org.xmsleep.app"
     compileSdk = 35
     
     defaultConfig {
-        applicationId = "org.streambox.app"
+        applicationId = "org.xmsleep.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 13
-        versionName = "1.1.3"
+        versionCode = 14
+        versionName = "1.1.4"
         
         // 从 gradle.properties 读取 GitHub Token（如果存在）
         val githubToken = project.findProperty("GITHUB_TOKEN") as String? ?: ""

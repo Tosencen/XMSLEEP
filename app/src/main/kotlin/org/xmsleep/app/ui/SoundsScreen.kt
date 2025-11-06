@@ -1,6 +1,9 @@
-package org.streambox.app.ui
+package org.xmsleep.app.ui
 
 import androidx.compose.animation.core.*
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.border
@@ -17,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.geometry.Rect
@@ -48,6 +52,10 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
@@ -81,11 +89,123 @@ import com.airbnb.lottie.value.LottieValueCallback
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
-import org.streambox.app.R
-import org.streambox.app.audio.AudioManager
-import org.streambox.app.timer.TimerManager
-import org.streambox.app.i18n.LanguageManager
+import org.xmsleep.app.R
+import org.xmsleep.app.audio.AudioManager
+import org.xmsleep.app.timer.TimerManager
+import org.xmsleep.app.i18n.LanguageManager
 import androidx.compose.runtime.DisposableEffect
+import com.materialkolor.hct.Hct
+import com.materialkolor.ktx.toHct
+import com.airbnb.lottie.value.LottieFrameInfo
+
+/**
+ * 自定义颜色回调，根据原颜色的亮度和饱和度动态映射到主题色系或灰色系
+ */
+private class ThemeColorCallback(
+    private val darkColor: Int,
+    private val mediumColor: Int,
+    private val lightColor: Int,
+    private val secondaryColor: Int,
+    private val backgroundColor: Int,
+    private val darkGrayColor: Int,
+    private val mediumGrayColor: Int,
+    private val lightGrayColor: Int,
+    private val primaryHct: Hct,
+    private val isDarkMode: Boolean
+) : LottieValueCallback<Int>() {
+    override fun getValue(frameInfo: LottieFrameInfo<Int>): Int {
+        // LottieFrameInfo的value属性可能为null，使用startValue或endValue
+        val originalColor = frameInfo.startValue ?: frameInfo.endValue ?: return mediumColor
+        
+        // 计算原颜色的亮度（使用相对亮度公式）
+        val originalArgb = originalColor
+        val r = (originalArgb ushr 16) and 0xFF
+        val g = (originalArgb ushr 8) and 0xFF
+        val b = originalArgb and 0xFF
+        
+        // 计算相对亮度（0-1之间的值）
+        val luminance = (0.299 * r.toDouble() + 0.587 * g.toDouble() + 0.114 * b.toDouble()) / 255.0
+        
+        // 计算颜色的饱和度（用于识别背景）
+        val max = maxOf(r, g, b).toDouble()
+        val min = minOf(r, g, b).toDouble()
+        val saturation = if (max == 0.0) 0.0 else (max - min) / max
+        
+        // 识别灰色系颜色（低饱和度但不是极端亮/暗的颜色）
+        // 灰色系应该保持为灰色，而不是映射为彩色主题色
+        val isGrayColor = saturation < 0.15 && luminance > 0.15 && luminance < 0.85
+        
+        // 如果是灰色系，使用对应的灰色
+        if (isGrayColor) {
+            // 根据原始亮度映射到灰色系
+            return when {
+                luminance < 0.35 -> darkGrayColor
+                luminance < 0.65 -> mediumGrayColor
+                else -> lightGrayColor
+            }
+        }
+        
+        // 识别背景元素：
+        // 背景blob通常是浅色、低饱和度的填充色（没有描边的区域）
+        // 浅色模式：高亮度（>0.7）、低饱和度（<0.5）
+        // 深色模式：也要识别原本高亮度的背景（>0.6），通过饱和度和颜色特征判断
+        val isLikelyBackground = if (isDarkMode) {
+            // 深色模式：识别原本是浅色的背景blob
+            // 高亮度（>0.6）且低饱和度（<0.5），这是典型的浅色背景特征
+            // 即使原动画是浅色，在深色模式下也要映射为较暗的主题色背景
+            (luminance > 0.6 && saturation >= 0.15 && saturation < 0.5) || 
+            // 或者中等亮度但饱和度较低（可能是背景）
+            (luminance >= 0.4 && saturation >= 0.15 && saturation < 0.3)
+        } else {
+            // 浅色模式：背景通常是高亮度、低饱和度的填充色
+            luminance > 0.7 && saturation >= 0.15 && saturation < 0.5
+        }
+        
+        // 如果识别为背景，使用对应的主题色
+        if (isLikelyBackground) {
+            return backgroundColor
+        }
+        
+        // 根据亮度映射到不同的主题色深浅版本，形成清晰的分层
+        // 深色模式下，人物的主要部分（帽子、衣服、头发）应该使用相对一致的中间色
+        // 避免过亮导致的米黄色/beige感
+        return when {
+            // 非常暗的部分（亮度 < 0.25）- 使用深色（用于鞋子、阴影等）
+            luminance < 0.25 -> darkColor
+            // 暗到中等亮度（0.25 - 0.55）- 使用中间色（人物主要部分）
+            // 这样可以让人物的帽子、衣服、头发颜色更协调
+            luminance < 0.55 -> {
+                // 如果原颜色比较接近主色调（通过色相判断），使用中间色
+                // 否则使用secondary色作为变化
+                try {
+                    val originalHct = Color(originalArgb).toHct()
+                    val hueDiff = kotlin.math.abs(originalHct.hue - primaryHct.hue)
+                    if (hueDiff < 30 || hueDiff > 330) {
+                        // 色相接近主色，使用中间色（人物主要部分）
+                        mediumColor
+                    } else {
+                        // 色相差异较大，使用secondary色
+                        secondaryColor
+                    }
+                } catch (e: Exception) {
+                    // 如果转换失败，使用中间色
+                    mediumColor
+                }
+            }
+            // 较亮的中间亮度（0.55 - 0.75）- 仍然主要使用中间色，保持人物颜色协调
+            luminance < 0.75 -> {
+                // 对于原本较亮的颜色，在深色模式下稍微提亮，但不要太亮
+                if (isDarkMode) {
+                    mediumColor // 深色模式下保持中等亮度，避免过亮
+                } else {
+                    lightColor // 浅色模式下可以使用较亮的颜色
+                }
+            }
+            // 非常亮的部分（亮度 >= 0.75）- 使用浅色（用于高光、描边等）
+            else -> lightColor
+        }
+    }
+}
 
 /**
  * 声音模块数据类
@@ -104,8 +224,8 @@ data class SoundItem(
 fun SoundsScreen(
     modifier: Modifier = Modifier,
     hideAnimation: Boolean = false,
-    darkMode: org.streambox.app.DarkModeOption = org.streambox.app.DarkModeOption.AUTO,
-    onDarkModeChange: (org.streambox.app.DarkModeOption) -> Unit = {},
+    darkMode: org.xmsleep.app.DarkModeOption = org.xmsleep.app.DarkModeOption.AUTO,
+    onDarkModeChange: (org.xmsleep.app.DarkModeOption) -> Unit = {},
     columnsCount: Int = 2,
     onColumnsCountChange: (Int) -> Unit = {},
     pinnedSounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
@@ -261,18 +381,18 @@ fun SoundsScreen(
                 
                 // 深色/浅色模式切换按钮
                 val isDarkMode = when (darkMode) {
-                    org.streambox.app.DarkModeOption.LIGHT -> false
-                    org.streambox.app.DarkModeOption.DARK -> true
-                    org.streambox.app.DarkModeOption.AUTO -> isSystemInDarkTheme()
+                    org.xmsleep.app.DarkModeOption.LIGHT -> false
+                    org.xmsleep.app.DarkModeOption.DARK -> true
+                    org.xmsleep.app.DarkModeOption.AUTO -> isSystemInDarkTheme()
                 }
                 
                 Surface(
                     onClick = {
                         // 在浅色和深色之间切换（跳过AUTO）
                         val newMode = if (isDarkMode) {
-                            org.streambox.app.DarkModeOption.LIGHT
+                            org.xmsleep.app.DarkModeOption.LIGHT
                         } else {
-                            org.streambox.app.DarkModeOption.DARK
+                            org.xmsleep.app.DarkModeOption.DARK
                         }
                         onDarkModeChange(newMode)
                     },
@@ -306,6 +426,12 @@ fun SoundsScreen(
             }
         }
         
+        // 快捷播放展开/收缩状态（提前定义，以便在Column中使用）
+        var isQuickPlayExpanded by remember { mutableStateOf(true) }
+        
+        // 协程作用域（用于在pointerInput中更新状态）
+        val scope = rememberCoroutineScope()
+        
         // 内置页面内容（使用Box包装以支持FAB对齐和底部弹出区域）
         Box(modifier = Modifier.fillMaxSize()) {
             // 实时获取默认卡片列表（用于判断是否显示默认区域）
@@ -322,7 +448,24 @@ fun SoundsScreen(
                 }
             }
             
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .pointerInput(isQuickPlayExpanded) {
+                        // 当快捷播放模块展开时，点击内容区域的空白处自动收缩
+                        if (isQuickPlayExpanded) {
+                            detectTapGestures { tapOffset ->
+                                // 点击内容区域时，收缩快捷播放模块
+                                // 注意：这里不检查点击位置是否在快捷播放模块内，
+                                // 因为快捷播放模块在上层，会优先接收点击事件
+                                // 如果点击到了这里，说明点击的是内容区域
+                                scope.launch {
+                                    isQuickPlayExpanded = false
+                                }
+                            }
+                        }
+                    }
+            ) {
                 // 标题和布局切换按钮（独立一行）
                 Row(
                     modifier = Modifier
@@ -578,10 +721,10 @@ fun SoundsScreen(
             )
         }
         
-        // 默认播放区域是否有声音
+        // 快捷播放是否有声音
         val defaultAreaHasSounds = pinnedSounds.value.isNotEmpty()
         
-        // 实时检测默认播放区域的播放状态
+        // 实时检测快捷播放的播放状态
         var defaultAreaSoundsPlaying by remember { mutableStateOf(false) }
         LaunchedEffect(pinnedSounds.value, Unit) {
             while (true) {
@@ -601,12 +744,15 @@ fun SoundsScreen(
             } else {
                 300.dp
             },
-            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
+            animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
             label = "bottomSheetOffsetY"
         )
         
-        // 底部弹出的默认播放区域（悬浮在内容之上，位于底部导航栏上方）
+        // 底部弹出的快捷播放（悬浮在内容之上，位于底部导航栏上方）
         if (defaultItems.isNotEmpty()) {
+            val density = LocalDensity.current
+            val dragThreshold = with(density) { 20.dp.toPx() } // 滑动阈值20dp（降低阈值，更容易触发）
+            
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
@@ -616,8 +762,75 @@ fun SoundsScreen(
                         color = MaterialTheme.colorScheme.surfaceContainer,
                         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                     )
+                    .pointerInput(isQuickPlayExpanded) {
+                        var totalDragY = 0f
+                        
+                        detectVerticalDragGestures(
+                            onDragStart = {
+                                // 滑动开始时重置累计距离
+                                totalDragY = 0f
+                            },
+                            onDragEnd = {
+                                // 滑动结束时，根据总滑动距离判断是否切换状态
+                                val finalDragY = totalDragY
+                                totalDragY = 0f
+                                
+                                if (kotlin.math.abs(finalDragY) >= dragThreshold) {
+                                    // 向上滑（负值）表示收缩，向下滑（正值）表示展开
+                                    scope.launch {
+                                        // 在协程中实时获取当前状态
+                                        val currentExpanded = isQuickPlayExpanded
+                                        if (finalDragY < 0 && currentExpanded) {
+                                            // 向上滑动且当前展开，则收缩
+                                            isQuickPlayExpanded = false
+                                        } else if (finalDragY > 0 && !currentExpanded) {
+                                            // 向下滑动且当前收缩，则展开
+                                            isQuickPlayExpanded = true
+                                        }
+                                    }
+                                }
+                            }
+                        ) { change, dragAmount ->
+                            // 累计滑动距离（只累计垂直方向的滑动）
+                            totalDragY += dragAmount
+                        }
+                    }
             ) {
-                DefaultArea(
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    // 顶部指示栏 - 独立的拖拽栏，用于展开/收缩（在标题栏上方）
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp, bottom = 0.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Surface(
+                            onClick = { isQuickPlayExpanded = !isQuickPlayExpanded },
+                            shape = CircleShape,
+                            color = Color.Transparent,
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = if (isQuickPlayExpanded) 
+                                        Icons.Default.ExpandMore 
+                                    else 
+                                        Icons.Default.ExpandLess,
+                                    contentDescription = if (isQuickPlayExpanded) "收缩" else "展开",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                                    modifier = Modifier.size(32.dp)
+                                )
+                            }
+                        }
+                    }
+                    
+                    // 快捷播放内容区域（包含标题、按钮、卡片等）
+                    DefaultArea(
                     soundItems = soundItems,
                     pinnedSounds = pinnedSounds,
                     favoriteSounds = favoriteSounds,
@@ -628,6 +841,7 @@ fun SoundsScreen(
                     onEditModeChange = { isDefaultAreaEditMode = it },
                     defaultAreaHasSounds = defaultAreaHasSounds,
                     defaultAreaSoundsPlaying = defaultAreaSoundsPlaying,
+                    isExpanded = isQuickPlayExpanded,
                     onPinnedChange = { sound, isPinned ->
                         val currentSet = pinnedSounds.value.toMutableSet()
                         if (isPinned) {
@@ -667,6 +881,7 @@ fun SoundsScreen(
                         isDefaultAreaEditMode = false
                     }
                 )
+                }
             }
         }
         
@@ -677,13 +892,24 @@ fun SoundsScreen(
             label = "timerFABOffsetX"
         )
         
-        // 倒计时按钮的底部padding动画（与默认播放区域保持20dp间隔）
-        // DefaultArea的估算高度：标题行(约72dp) + 卡片区域(约104dp) = 约176dp
-        // 间距从FAB底部边缘到默认播放区域顶部边缘是20dp
-        val defaultAreaHeight = 176.dp // 默认播放区域的估算高度
+        // 倒计时按钮的底部padding动画（与快捷播放保持30dp间隔）
+        // 顶部箭头栏：44dp（12dp padding + 32dp图标）
+        // 标题栏：约72dp
+        // 卡片区域（展开时）：约104dp
+        // 收缩状态高度：44dp + 72dp = 116dp
+        // 展开状态高度：44dp + 72dp + 104dp = 220dp
+        // 动画配置与快捷播放模块的AnimatedVisibility保持一致（300ms）
+        val arrowBarHeight = 44.dp // 顶部箭头栏高度
+        val titleBarHeight = 72.dp // 标题栏高度
+        val cardAreaHeight = 104.dp // 卡片区域高度
+        val quickPlayHeight = if (isQuickPlayExpanded) {
+            arrowBarHeight + titleBarHeight + cardAreaHeight // 展开状态
+        } else {
+            arrowBarHeight + titleBarHeight // 收缩状态（只有标题栏）
+        }
         val timerFABBottomPadding by animateDpAsState(
             targetValue = if (defaultItems.isNotEmpty()) {
-                defaultAreaHeight + 20.dp // 默认播放区域高度 + 20dp间隔（从FAB底部到默认播放区域顶部）
+                quickPlayHeight + 30.dp // 快捷播放高度 + 30dp间隔（从FAB底部到快捷播放顶部）
             } else {
                 16.dp // 复位到原来的位置
             },
@@ -746,6 +972,7 @@ private fun DefaultArea(
     onEditModeChange: (Boolean) -> Unit,
     defaultAreaHasSounds: Boolean,
     defaultAreaSoundsPlaying: Boolean,
+    isExpanded: Boolean = true,
     onPinnedChange: (AudioManager.Sound, Boolean) -> Unit,
     onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit,
     onEnterBatchSelectMode: () -> Unit = {}
@@ -796,13 +1023,21 @@ private fun DefaultArea(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // 编辑按钮（在播放按钮左侧）
+                // 收缩状态下不可点击，只有展开状态下才能使用
+                val editButtonAlpha = if (isExpanded) 1f else 0.4f
                 if (isEditMode) {
                     // 编辑模式下显示"完成"文字+图标
                     Surface(
-                        onClick = { onEditModeChange(!isEditMode) },
+                        onClick = { 
+                            if (isExpanded) {
+                                onEditModeChange(!isEditMode)
+                            }
+                        },
                         shape = RoundedCornerShape(8.dp),
                         color = MaterialTheme.colorScheme.primaryContainer,
-                        modifier = Modifier.height(40.dp) // 固定高度与IconButton一致
+                        modifier = Modifier
+                            .height(40.dp) // 固定高度与IconButton一致
+                            .alpha(editButtonAlpha)
                     ) {
                         Row(
                             modifier = Modifier
@@ -827,13 +1062,23 @@ private fun DefaultArea(
                 } else {
                     // 默认状态只显示笔图标
                     IconButton(
-                        onClick = { onEditModeChange(!isEditMode) },
-                        modifier = Modifier.size(40.dp)
+                        onClick = { 
+                            if (isExpanded) {
+                                onEditModeChange(!isEditMode)
+                            }
+                        },
+                        enabled = isExpanded,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .alpha(editButtonAlpha)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Edit,
                             contentDescription = context.getString(R.string.edit),
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = if (isExpanded) 
+                                MaterialTheme.colorScheme.primary 
+                            else 
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
                         )
                     }
                 }
@@ -843,14 +1088,14 @@ private fun DefaultArea(
                     Surface(
                         onClick = {
                             if (defaultAreaSoundsPlaying) {
-                                // 暂停所有默认播放区域的声音
+                                // 暂停所有快捷播放的声音
                                 pinnedSounds.value.forEach { sound ->
                                     if (audioManager.isPlayingSound(sound)) {
                                         audioManager.pauseSound(sound)
                                     }
                                 }
                             } else {
-                                // 播放所有默认播放区域的声音
+                                // 播放所有快捷播放的声音
                                 pinnedSounds.value.forEach { sound ->
                                     if (!audioManager.isPlayingSound(sound)) {
                                         audioManager.playSound(context, sound)
@@ -883,11 +1128,17 @@ private fun DefaultArea(
         }
         
         // 默认区域容器（移除Surface，因为已经在外部Box中添加了背景）
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 0.dp)
+        // 使用 AnimatedVisibility 实现平滑的展开/收缩动画
+        androidx.compose.animation.AnimatedVisibility(
+            visible = isExpanded,
+            enter = androidx.compose.animation.expandVertically() + androidx.compose.animation.fadeIn(),
+            exit = androidx.compose.animation.shrinkVertically() + androidx.compose.animation.fadeOut()
         ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 0.dp)
+            ) {
             if (defaultItems.isEmpty()) {
                 // 没有默认卡片时，显示占位区域
                 Box(
@@ -896,7 +1147,7 @@ private fun DefaultArea(
                         .height(80.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    EmptyStateAnimation(size = 60.dp)
+                    EmptyStateAnimation(size = 72.dp)
                 }
             } else {
                 // 有默认卡片时，显示卡片（固定3列，只显示标题和声音图标）
@@ -980,6 +1231,7 @@ private fun DefaultArea(
                 }
             }
         }
+            }
     }
 }
 
@@ -1235,7 +1487,7 @@ private fun FavoriteSoundsContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                EmptyStateAnimation(size = 200.dp)
+                EmptyStateAnimation(size = 240.dp)
                 Text(
                     context.getString(R.string.no_favorites),
                     style = MaterialTheme.typography.titleLarge,
@@ -1529,7 +1781,7 @@ fun SoundCard(
                                 onClick = onVolumeClick,
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
-                                    .offset(y = 12.dp) // 向下偏移12dp，距离底部28dp
+                                    .offset(x = 10.dp, y = 12.dp) // 向右偏移10dp，向下偏移12dp
                                     .size(40.dp)
                             ) {
                                 Icon(
@@ -1629,7 +1881,7 @@ fun SoundCard(
                                 onClick = onVolumeClick,
                                 modifier = Modifier
                                     .align(Alignment.BottomEnd)
-                                    .offset(y = 12.dp) // 向下偏移12dp，距离底部28dp
+                                    .offset(x = 10.dp, y = 12.dp) // 向右偏移10dp，向下偏移12dp
                                     .size(40.dp)
                             ) {
                                 Icon(
@@ -1787,7 +2039,7 @@ fun SoundCard(
                         onClick = onVolumeClick,
                         modifier = Modifier
                             .align(Alignment.BottomEnd)
-                            .padding(8.dp)
+                            .offset(y = -4.dp) // 向上偏移4dp，距离底部有适当间距
                             .size(40.dp)
                     ) {
                         Icon(
@@ -2238,14 +2490,88 @@ fun AudioVisualizer(
 
 /**
  * 空状态动画组件
+ * 使用主题色系的多个深浅版本，保持动画的层次感和可识别性
  */
 @Composable
 fun EmptyStateAnimation(
     modifier: Modifier = Modifier,
-    size: androidx.compose.ui.unit.Dp = 200.dp
+    size: androidx.compose.ui.unit.Dp = 240.dp
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val outlineColor = colorScheme.outline
+    // 通过检查background颜色的亮度来判断是否是深色模式
+    // 这样可以确保与用户设置的主题一致
+    val backgroundHct = colorScheme.background.toHct()
+    val isDark = backgroundHct.tone < 50.0
+    
+    // 获取主色调的HCT值
+    val primaryHct = colorScheme.primary.toHct()
+    
+    // 基于主题色生成不同深浅的颜色，用于替换原动画的不同部分
+    // 深色模式下：前景元素需要相对协调，不要太亮（避免米黄色/beige感）
+    // 浅色模式下：前景元素使用中等亮度；背景使用非常浅的色调
+    
+    // 深色（Tone较低）- 用于较暗的前景元素（如鞋子、阴影等）
+    // 降低 Chroma 和缩小 Tone 差异，让颜色更柔和
+    val darkColor = Color(Hct.from(primaryHct.hue, primaryHct.chroma.coerceAtMost(35.0), if (isDark) 55.0 else 45.0).toInt())
+    
+    // 中间色（Tone中等）- 用于主要的前景元素（人物身体、衣服、帽子、头发）
+    val mediumColor = Color(Hct.from(primaryHct.hue, primaryHct.chroma.coerceAtMost(32.0), if (isDark) 62.0 else 65.0).toInt())
+    
+    // 浅色（Tone较高）- 用于高光或强调的前景元素
+    val lightColor = Color(Hct.from(primaryHct.hue, primaryHct.chroma.coerceAtMost(30.0), if (isDark) 68.0 else 75.0).toInt())
+    
+    // 背景色 - 深色模式下使用最暗的主题色（形成清晰分层），浅色模式下使用非常浅的主题色
+    val backgroundColor = if (isDark) {
+        // 深色模式：背景使用最暗的主题色，作为分层的基础
+        // Tone 25-30，比darkColor更暗，形成清晰的分层：background(25) < dark(55) < medium(70) < light(85)
+        Color(
+            Hct.from(
+                primaryHct.hue,
+                primaryHct.chroma.coerceAtMost(35.0), // 保持一定饱和度以显示主题色特征
+                28.0 // 较暗的亮度，作为分层的基础
+            ).toInt()
+        )
+    } else {
+        // 浅色模式：背景使用非常浅的主题色
+        Color(
+            Hct.from(
+                primaryHct.hue,
+                primaryHct.chroma.coerceAtMost(20.0), // 降低饱和度，使背景更柔和
+                96.0 // 非常高的亮度，确保背景很浅很浅
+            ).toInt()
+        )
+    }
+    
+    // 使用secondary作为辅助色（用于某些特定元素），降低饱和度让它更柔和
+    val secondaryHct = colorScheme.secondary.toHct()
+    val secondaryColor = Color(Hct.from(secondaryHct.hue, secondaryHct.chroma.coerceAtMost(28.0), secondaryHct.tone).toInt())
+    
+    // 灰色系颜色 - 用于原动画中的灰色元素，保持无饱和度
+    val darkGrayColor = if (isDark) {
+        colorScheme.onSurface.copy(alpha = 0.87f)
+    } else {
+        colorScheme.onSurface.copy(alpha = 0.6f)
+    }
+    
+    val mediumGrayColor = if (isDark) {
+        colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+    } else {
+        colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+    }
+    
+    val lightGrayColor = if (isDark) {
+        colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    } else {
+        colorScheme.surfaceVariant.copy(alpha = 0.3f)
+    }
+    
+    // 描边色 - 深色模式下使用更亮的颜色以确保可见性
+    val strokeColor = if (isDark) {
+        // 深色模式：使用onSurface或更亮的outline确保描边清晰可见
+        colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+    } else {
+        colorScheme.outline
+    }
     
     AndroidView(
         factory = { ctx ->
@@ -2256,12 +2582,38 @@ fun EmptyStateAnimation(
             }
         },
         update = { view ->
-            // 只设置描边色，使用原始动画文件的填充颜色
-            val outlineArgb = outlineColor.toArgb()
+            // 使用自定义的LottieValueCallback来根据原颜色的亮度动态映射到主题色
+            // 这样可以保持原动画的颜色层次感
+            view.addValueCallback(
+                KeyPath("**"),
+                LottieProperty.COLOR,
+                ThemeColorCallback(
+                    darkColor = darkColor.toArgb(),
+                    mediumColor = mediumColor.toArgb(),
+                    lightColor = lightColor.toArgb(),
+                    secondaryColor = secondaryColor.toArgb(),
+                    backgroundColor = backgroundColor.toArgb(),
+                    darkGrayColor = darkGrayColor.toArgb(),
+                    mediumGrayColor = mediumGrayColor.toArgb(),
+                    lightGrayColor = lightGrayColor.toArgb(),
+                    primaryHct = primaryHct,
+                    isDarkMode = isDark
+                )
+            )
+            
+            // 设置描边色（确保正确处理带alpha的颜色）
+            val strokeArgb = if (strokeColor.alpha < 1.0f) {
+                // 如果有alpha通道，需要手动组合
+                val alpha = (strokeColor.alpha * 255).toInt()
+                val rgb = strokeColor.toArgb() and 0xFFFFFF
+                (alpha shl 24) or rgb
+            } else {
+                strokeColor.toArgb()
+            }
             view.addValueCallback(
                 KeyPath("**"),
                 LottieProperty.STROKE_COLOR,
-                LottieValueCallback(outlineArgb)
+                LottieValueCallback(strokeArgb)
             )
             
             view.invalidate()

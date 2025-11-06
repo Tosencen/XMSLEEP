@@ -1,4 +1,4 @@
-package org.streambox.app.update
+package org.xmsleep.app.update
 
 import android.content.Context
 import android.content.Intent

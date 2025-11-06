@@ -1,4 +1,4 @@
-package org.streambox.app.update
+package org.xmsleep.app.update
 
 import android.content.pm.PackageManager
 import android.os.Build
@@ -18,8 +18,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import org.streambox.app.R
-import org.streambox.app.i18n.LanguageManager
+import org.xmsleep.app.R
+import org.xmsleep.app.i18n.LanguageManager
 
 /**
  * 软件更新对话框

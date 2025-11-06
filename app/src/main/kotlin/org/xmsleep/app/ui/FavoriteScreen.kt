@@ -1,4 +1,4 @@
-package org.streambox.app.ui
+package org.xmsleep.app.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -15,9 +15,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.streambox.app.*
-import org.streambox.app.R
-import org.streambox.app.audio.AudioManager
+import org.xmsleep.app.*
+import org.xmsleep.app.R
+import org.xmsleep.app.audio.AudioManager
 
 /**
  * 收藏页面
@@ -130,7 +130,7 @@ fun FavoriteScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                // 消费 TopAppBar 使用的 insets
+                // TopAppBar 使用的 insets
                 .consumeWindowInsets(
                     WindowInsets.systemBars.union(WindowInsets.displayCutout)
                         .only(WindowInsetsSides.Top)
@@ -148,7 +148,7 @@ fun FavoriteScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        EmptyStateAnimation(size = 200.dp)
+                        EmptyStateAnimation(size = 240.dp)
                         Text(
                             context.getString(R.string.no_favorites),
                             style = MaterialTheme.typography.titleLarge,

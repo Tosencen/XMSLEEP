@@ -36,7 +36,7 @@
     <string name="app_description_title">App Description</string>
     <string name="app_description">XMSLEEP is an app focused on white noise playback, providing various natural sounds to help you relax, focus, and sleep.</string>
     <string name="usage_instructions_title">Usage Instructions</string>
-    <string name="usage_instructions">• Click sound cards to start playback, click again to stop\n• Click volume icon to adjust volume for each sound individually\n• Click title to set default playback area or favorite sounds\n• Click pushpin icon to batch select sounds and add to default playback area\n• Use countdown feature to set auto-stop playback time\n• In settings, you can adjust theme, hide animations, switch layouts, etc.</string>
+    <string name="usage_instructions">• Click sound cards to start playback, click again to stop\n• Click volume icon to adjust volume for each sound individually\n• Click title to set quick play or favorite sounds\n• Click pushpin icon to batch select sounds and add to quick play\n• Use countdown feature to set auto-stop playback time\n• In settings, you can adjust theme, hide animations, switch layouts, etc.</string>
     <string name="technical_info_title">Technical Information</string>
     <string name="copyright">© 2025 XMSLEEP. All rights reserved.\n\nThe audio content provided by this app is for personal learning and entertainment purposes only.\nPlease respect the copyright of related audio resources and do not use them for commercial purposes.</string>
     <string name="hide_animation">Hide Animation</string>
@@ -44,14 +44,14 @@
     <string name="white_noise_cards">White Noise Cards</string>
     <string name="builtin_sounds_offline_hint">Built-in sounds can be played offline</string>
     <string name="selected_count">Selected (%1$d)</string>
-    <string name="max_select_hint">Maximum 3 can be selected to default area</string>
+    <string name="max_select_hint">Maximum 3 can be selected to quick play</string>
     <string name="batch_select_default">Batch Select Default</string>
     <string name="cancel_batch_select">Cancel Batch Select</string>
-    <string name="default_playback_area">Default Playback Area</string>
-    <string name="click_play_button_to_play_all">Click play button to play all</string>
+    <string name="default_playback_area">Quick Play</string>
+    <string name="click_play_button_to_play_all">Convenient Play</string>
     <string name="done">Done</string>
-    <string name="max_3_sounds_limit">Maximum 3 sounds can be added to default playback area</string>
-    <string name="default_area_updated">Default playback area updated</string>
+    <string name="max_3_sounds_limit">Maximum 3 sounds can be added to quick play</string>
+    <string name="default_area_updated">Quick play updated</string>
     <string name="selected">Selected</string>
     <string name="unselected">Unselected</string>
     <string name="switch_to_light_mode">Switch to light mode</string>
@@ -127,5 +127,7 @@
     <string name="installing">Installing</string>
     <string name="starting_installer">Starting installer…</string>
     <string name="install_failed">Installation failed</string>
+    <string name="join_group">Join Telegram Group</string>
+    <string name="join_group_description">Share your thoughts</string>
 </resources>
 

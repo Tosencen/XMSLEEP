@@ -1,4 +1,4 @@
-package org.streambox.app.audio
+package org.xmsleep.app.audio
 
 import android.content.Context
 import android.media.AudioFocusRequest
@@ -15,7 +15,7 @@ import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.ClippingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
-import org.streambox.app.R
+import org.xmsleep.app.R
 
 /**
  * 全局音频管理器

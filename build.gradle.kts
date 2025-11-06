@@ -8,7 +8,7 @@ plugins {
 }
 
 allprojects {
-    group = "org.streambox"
+    group = "org.xmsleep"
     version = "1.0.0"
 }
 

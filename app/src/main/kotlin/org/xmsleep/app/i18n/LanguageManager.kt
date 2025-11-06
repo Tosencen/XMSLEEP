@@ -1,4 +1,4 @@
-package org.streambox.app.i18n
+package org.xmsleep.app.i18n
 
 import android.content.Context
 import android.content.res.Configuration

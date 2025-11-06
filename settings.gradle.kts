@@ -1,4 +1,4 @@
-rootProject.name = "StreamBox"
+rootProject.name = "XMSLEEP"
 
 pluginManagement {
     repositories {

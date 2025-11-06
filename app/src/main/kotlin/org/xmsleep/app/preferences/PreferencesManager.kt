@@ -1,8 +1,8 @@
-package org.streambox.app.preferences
+package org.xmsleep.app.preferences
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
-import org.streambox.app.DarkModeOption
+import org.xmsleep.app.DarkModeOption
 
 /**
  * 应用偏好设置管理器

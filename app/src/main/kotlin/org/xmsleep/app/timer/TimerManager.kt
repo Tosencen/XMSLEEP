@@ -1,4 +1,4 @@
-package org.streambox.app.timer
+package org.xmsleep.app.timer
 
 import android.content.Context
 import android.util.Log

@@ -1,4 +1,4 @@
-package org.streambox.app
+package org.xmsleep.app
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -12,6 +12,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -33,6 +34,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Check
@@ -78,6 +80,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.ui.res.painterResource
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -93,7 +98,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.navigation.compose.NavHost
 import kotlinx.coroutines.launch
 import androidx.navigation.compose.composable
-import org.streambox.app.update.UpdateDialog
+import org.xmsleep.app.update.UpdateDialog
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -101,8 +106,8 @@ import com.materialkolor.PaletteStyle
 import com.materialkolor.dynamicColorScheme
 import com.materialkolor.hct.Hct
 import com.materialkolor.ktx.toHct
-import org.streambox.app.i18n.LanguageManager
-import org.streambox.app.R
+import org.xmsleep.app.i18n.LanguageManager
+import org.xmsleep.app.R
 
 class MainActivity : ComponentActivity() {
     override fun attachBaseContext(newBase: Context?) {
@@ -213,22 +218,22 @@ fun XMSLEEPApp() {
     
     // 主题状态管理（从SharedPreferences加载保存的设置）
     var darkMode by remember { 
-        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getDarkMode(context))
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getDarkMode(context))
     }
     var selectedColor by remember { 
-        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors.first()))
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors.first()))
     }
     var useDynamicColor by remember { 
-        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getUseDynamicColor(context))
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getUseDynamicColor(context))
     }
     var useBlackBackground by remember { 
-        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getUseBlackBackground(context))
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getUseBlackBackground(context))
     }
     var hideAnimation by remember { 
-        mutableStateOf(org.streambox.app.preferences.PreferencesManager.getHideAnimation(context))
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getHideAnimation(context))
     }
     var soundCardsColumnsCount by remember { 
-        mutableIntStateOf(org.streambox.app.preferences.PreferencesManager.getSoundCardsColumnsCount(context))
+        mutableIntStateOf(org.xmsleep.app.preferences.PreferencesManager.getSoundCardsColumnsCount(context))
     }
     
     // 计算是否使用深色主题
@@ -264,27 +269,27 @@ fun XMSLEEPApp() {
                     onLanguageChange = { currentLanguage = it },
                     onDarkModeChange = { 
                         darkMode = it
-                        org.streambox.app.preferences.PreferencesManager.saveDarkMode(context, it)
+                        org.xmsleep.app.preferences.PreferencesManager.saveDarkMode(context, it)
                     },
                     onColorChange = { 
                         selectedColor = it
-                        org.streambox.app.preferences.PreferencesManager.saveSelectedColor(context, it)
+                        org.xmsleep.app.preferences.PreferencesManager.saveSelectedColor(context, it)
                     },
                     onDynamicColorChange = { 
                         useDynamicColor = it
-                        org.streambox.app.preferences.PreferencesManager.saveUseDynamicColor(context, it)
+                        org.xmsleep.app.preferences.PreferencesManager.saveUseDynamicColor(context, it)
                     },
                     onBlackBackgroundChange = { 
                         useBlackBackground = it
-                        org.streambox.app.preferences.PreferencesManager.saveUseBlackBackground(context, it)
+                        org.xmsleep.app.preferences.PreferencesManager.saveUseBlackBackground(context, it)
                     },
                     onHideAnimationChange = { 
                         hideAnimation = it
-                        org.streambox.app.preferences.PreferencesManager.saveHideAnimation(context, it)
+                        org.xmsleep.app.preferences.PreferencesManager.saveHideAnimation(context, it)
                     },
                     onSoundCardsColumnsCountChange = { 
                         soundCardsColumnsCount = it
-                        org.streambox.app.preferences.PreferencesManager.saveSoundCardsColumnsCount(context, it)
+                        org.xmsleep.app.preferences.PreferencesManager.saveSoundCardsColumnsCount(context, it)
                     }
                 )
             }
@@ -398,7 +403,7 @@ fun MainScreen(
     val context = androidx.compose.ui.platform.LocalContext.current
     
     // 自动更新检查（全局共享）
-    val updateViewModel = remember { org.streambox.app.update.UpdateViewModel(context) }
+    val updateViewModel = remember { org.xmsleep.app.update.UpdateViewModel(context) }
     val updateState by updateViewModel.updateState.collectAsState()
     var showAutoUpdateDialog by remember { mutableStateOf(false) }
     
@@ -429,7 +434,7 @@ fun MainScreen(
         
         // 先检查初始状态，如果已经是HasUpdate状态，立即显示弹窗（处理从后台恢复的情况）
         val initialState = updateViewModel.updateState.value
-        if (initialState is org.streambox.app.update.UpdateState.HasUpdate) {
+        if (initialState is org.xmsleep.app.update.UpdateState.HasUpdate) {
             android.util.Log.d("UpdateCheck", "初始状态已是HasUpdate，显示弹窗")
             kotlinx.coroutines.delay(500)
             showAutoUpdateDialog = true
@@ -444,13 +449,13 @@ fun MainScreen(
     LaunchedEffect(updateState) {
         val state = updateState
         when (state) {
-            is org.streambox.app.update.UpdateState.HasUpdate -> {
+            is org.xmsleep.app.update.UpdateState.HasUpdate -> {
                 android.util.Log.d("UpdateCheck", "检测到新版本: ${state.version.version}")
                 // 延迟一小段时间确保UI已准备好
                 kotlinx.coroutines.delay(300)
                 showAutoUpdateDialog = true
             }
-            is org.streambox.app.update.UpdateState.CheckFailed -> {
+            is org.xmsleep.app.update.UpdateState.CheckFailed -> {
                 android.util.Log.e("UpdateCheck", "检查更新失败: ${state.error}")
                 // 如果是rate limit错误，也显示弹窗提示用户
                 if (state.error.contains("rate limit", ignoreCase = true) || 
@@ -460,10 +465,10 @@ fun MainScreen(
                     showAutoUpdateDialog = true
                 }
             }
-            is org.streambox.app.update.UpdateState.UpToDate -> {
+            is org.xmsleep.app.update.UpdateState.UpToDate -> {
                 android.util.Log.d("UpdateCheck", "当前已是最新版本")
             }
-            is org.streambox.app.update.UpdateState.Checking -> {
+            is org.xmsleep.app.update.UpdateState.Checking -> {
                 android.util.Log.d("UpdateCheck", "正在检查更新...")
             }
             else -> {}
@@ -487,16 +492,16 @@ fun MainScreen(
     }
     
     // 置顶和收藏状态管理（提升到MainScreen级别，确保切换tab时状态不丢失）
-    val pinnedSounds = remember { mutableStateOf(mutableSetOf<org.streambox.app.audio.AudioManager.Sound>()) }
-    val favoriteSounds = remember { mutableStateOf(mutableSetOf<org.streambox.app.audio.AudioManager.Sound>()) }
+    val pinnedSounds = remember { mutableStateOf(mutableSetOf<org.xmsleep.app.audio.AudioManager.Sound>()) }
+    val favoriteSounds = remember { mutableStateOf(mutableSetOf<org.xmsleep.app.audio.AudioManager.Sound>()) }
     
-    // AudioManager实例（用于播放/暂停默认播放区域的声音）
-    val audioManager = remember { org.streambox.app.audio.AudioManager.getInstance() }
+    // AudioManager实例（用于播放/暂停快捷播放的声音）
+    val audioManager = remember { org.xmsleep.app.audio.AudioManager.getInstance() }
     
-    // 检查默认播放区域是否有声音
+    // 检查快捷播放是否有声音
     val defaultAreaHasSounds = pinnedSounds.value.isNotEmpty()
     
-    // 实时检测默认播放区域的播放状态（使用LaunchedEffect定期更新）
+    // 实时检测快捷播放的播放状态（使用LaunchedEffect定期更新）
     var defaultAreaSoundsPlaying by remember { mutableStateOf(false) }
     LaunchedEffect(pinnedSounds.value, Unit) {
         while (true) {
@@ -520,7 +525,11 @@ fun MainScreen(
         },
         bottomBar = {
             // 只在主页面显示底部导航栏
-            if (isMainRoute) {
+            AnimatedVisibility(
+                visible = isMainRoute,
+                exit = fadeOut(animationSpec = tween(durationMillis = 200)),
+                enter = fadeIn(animationSpec = tween(durationMillis = 250, delayMillis = 50))
+            ) {
                 NavigationBar {
                     NavigationBarItem(
                         icon = { Icon(Icons.Default.LocalFlorist, null) },
@@ -590,7 +599,7 @@ fun MainScreen(
                     when (currentTab) {
                         1 -> {
                             // 白噪音页面
-                            org.streambox.app.ui.SoundsScreen(
+                            org.xmsleep.app.ui.SoundsScreen(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(paddingValues),
@@ -655,7 +664,7 @@ fun MainScreen(
             }
             
             composable("favorite") {
-                org.streambox.app.ui.FavoriteScreen(
+                org.xmsleep.app.ui.FavoriteScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
@@ -704,34 +713,34 @@ fun MainScreen(
     // 判断是否应该显示更新弹窗
     // 在以下状态时显示：HasUpdate、Downloading、Downloaded、DownloadFailed、Installing、InstallFailed
     val shouldShowUpdateDialog = when (currentUpdateState) {
-        is org.streambox.app.update.UpdateState.HasUpdate -> {
+        is org.xmsleep.app.update.UpdateState.HasUpdate -> {
             android.util.Log.d("UpdateDialog", "状态: HasUpdate, 应该显示弹窗")
             true
         }
-        is org.streambox.app.update.UpdateState.Downloading -> {
-            val downloadingState = currentUpdateState as org.streambox.app.update.UpdateState.Downloading
+        is org.xmsleep.app.update.UpdateState.Downloading -> {
+            val downloadingState = currentUpdateState as org.xmsleep.app.update.UpdateState.Downloading
             android.util.Log.d("UpdateDialog", "状态: Downloading, 应该显示弹窗, 进度: ${downloadingState.progress}")
             true
         }
-        is org.streambox.app.update.UpdateState.Downloaded -> {
+        is org.xmsleep.app.update.UpdateState.Downloaded -> {
             android.util.Log.d("UpdateDialog", "状态: Downloaded, 应该显示弹窗")
             true
         }
-        is org.streambox.app.update.UpdateState.DownloadFailed -> {
+        is org.xmsleep.app.update.UpdateState.DownloadFailed -> {
             android.util.Log.d("UpdateDialog", "状态: DownloadFailed, 应该显示弹窗")
             true
         }
-        is org.streambox.app.update.UpdateState.Installing -> {
+        is org.xmsleep.app.update.UpdateState.Installing -> {
             android.util.Log.d("UpdateDialog", "状态: Installing, 应该显示弹窗")
             true
         }
-        is org.streambox.app.update.UpdateState.InstallFailed -> {
+        is org.xmsleep.app.update.UpdateState.InstallFailed -> {
             android.util.Log.d("UpdateDialog", "状态: InstallFailed, 应该显示弹窗")
             true
         }
-        is org.streambox.app.update.UpdateState.CheckFailed -> {
+        is org.xmsleep.app.update.UpdateState.CheckFailed -> {
             // 只在rate limit错误时显示
-            val errorState = currentUpdateState as org.streambox.app.update.UpdateState.CheckFailed
+            val errorState = currentUpdateState as org.xmsleep.app.update.UpdateState.CheckFailed
             val shouldShow = errorState.error.contains("rate limit", ignoreCase = true) || 
                            errorState.error.contains("请求次数", ignoreCase = true)
             android.util.Log.d("UpdateDialog", "状态: CheckFailed, 应该显示弹窗: $shouldShow")
@@ -751,11 +760,11 @@ fun MainScreen(
                 // 只有在非下载/安装状态时才允许关闭弹窗
                 val state = updateViewModel.updateState.value
                 when (state) {
-                    is org.streambox.app.update.UpdateState.Downloading -> {
+                    is org.xmsleep.app.update.UpdateState.Downloading -> {
                         // 下载中不允许关闭，由UpdateDialog内部处理
                         android.util.Log.d("UpdateCheck", "下载中，不允许关闭弹窗")
                     }
-                    is org.streambox.app.update.UpdateState.Installing -> {
+                    is org.xmsleep.app.update.UpdateState.Installing -> {
                         // 安装中不允许关闭
                         android.util.Log.d("UpdateCheck", "安装中，不允许关闭弹窗")
                     }
@@ -777,17 +786,17 @@ fun SettingsScreen(
     modifier: Modifier = Modifier,
     hideAnimation: Boolean = true,
     onHideAnimationChange: (Boolean) -> Unit = {},
-    updateViewModel: org.streambox.app.update.UpdateViewModel,
+    updateViewModel: org.xmsleep.app.update.UpdateViewModel,
     currentLanguage: LanguageManager.Language,
     onLanguageChange: (LanguageManager.Language) -> Unit,
     onNavigateToTheme: () -> Unit,
     onNavigateToSounds: () -> Unit = {},
-    pinnedSounds: MutableState<MutableSet<org.streambox.app.audio.AudioManager.Sound>>,
-    favoriteSounds: MutableState<MutableSet<org.streambox.app.audio.AudioManager.Sound>>
+    pinnedSounds: MutableState<MutableSet<org.xmsleep.app.audio.AudioManager.Sound>>,
+    favoriteSounds: MutableState<MutableSet<org.xmsleep.app.audio.AudioManager.Sound>>
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val audioManager = remember { org.streambox.app.audio.AudioManager.getInstance() }
+    val audioManager = remember { org.xmsleep.app.audio.AudioManager.getInstance() }
     var showClearCacheDialog by remember { mutableStateOf(false) }
     var isClearingCache by remember { mutableStateOf(false) }
     var cacheSize by remember { mutableStateOf(0L) }
@@ -1020,7 +1029,7 @@ fun SettingsScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        Icons.Default.VolumeUp,
+                        Icons.AutoMirrored.Filled.VolumeUp,
                         contentDescription = null,
                         modifier = Modifier.size(24.dp)
                     )
@@ -1153,6 +1162,53 @@ fun SettingsScreen(
             }
         }
         
+        // 加入群聊
+        Card(
+            onClick = {
+                // 打开Telegram群聊链接
+                val telegramUrl = "https://t.me/xmsleep"
+                try {
+                    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(telegramUrl))
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                    context.startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(context, "无法打开链接，请检查是否安装了Telegram或浏览器", Toast.LENGTH_SHORT).show()
+                }
+            },
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_telegram),
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                    Column {
+                        Text(context.getString(R.string.join_group), style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            context.getString(R.string.join_group_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+        
         // 关于 XMSLEEP
         Card(
             onClick = { showAboutDialog = true },
@@ -1195,7 +1251,7 @@ fun SettingsScreen(
             // 如果状态是Installing，检查是否有已下载的文件，如果有则重置为Downloaded状态
             // 注意：resetInstallingStateIfFileExists方法已移除，如需可以重新实现
             // LaunchedEffect(showUpdateDialog, updateState) {
-            //     if (showUpdateDialog && updateState is org.streambox.app.update.UpdateState.Installing) {
+            //     if (showUpdateDialog && updateState is org.xmsleep.app.update.UpdateState.Installing) {
             //         kotlinx.coroutines.delay(100) // 短暂延迟确保UpdateDialog已初始化
             //         updateViewModel.resetInstallingStateIfFileExists()
             //     }
@@ -1317,12 +1373,12 @@ fun SettingsScreen(
                     TextButton(onClick = { 
                         // 应用到所有声音（包括未播放的，以便下次播放时使用）
                         listOf(
-                            org.streambox.app.audio.AudioManager.Sound.RAIN,
-                            org.streambox.app.audio.AudioManager.Sound.CAMPFIRE,
-                            org.streambox.app.audio.AudioManager.Sound.THUNDER,
-                            org.streambox.app.audio.AudioManager.Sound.CAT_PURRING,
-                            org.streambox.app.audio.AudioManager.Sound.BIRD_CHIRPING,
-                            org.streambox.app.audio.AudioManager.Sound.NIGHT_INSECTS
+                            org.xmsleep.app.audio.AudioManager.Sound.RAIN,
+                            org.xmsleep.app.audio.AudioManager.Sound.CAMPFIRE,
+                            org.xmsleep.app.audio.AudioManager.Sound.THUNDER,
+                            org.xmsleep.app.audio.AudioManager.Sound.CAT_PURRING,
+                            org.xmsleep.app.audio.AudioManager.Sound.BIRD_CHIRPING,
+                            org.xmsleep.app.audio.AudioManager.Sound.NIGHT_INSECTS
                         ).forEach { sound ->
                             audioManager.setVolume(sound, volume)
                         }

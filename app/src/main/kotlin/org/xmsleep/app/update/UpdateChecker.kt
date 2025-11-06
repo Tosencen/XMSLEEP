@@ -1,4 +1,4 @@
-package org.streambox.app.update
+package org.xmsleep.app.update
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

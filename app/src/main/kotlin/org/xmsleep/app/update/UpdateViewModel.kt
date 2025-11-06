@@ -1,4 +1,4 @@
-package org.streambox.app.update
+package org.xmsleep.app.update
 
 import android.content.Context
 import androidx.compose.runtime.getValue
@@ -25,7 +25,7 @@ class UpdateViewModel(private val context: Context) {
     
     // 从 BuildConfig 读取 GitHub Token（如果配置了）
     private val githubToken: String? = try {
-        val buildConfigClass = Class.forName("org.streambox.app.BuildConfig")
+        val buildConfigClass = Class.forName("org.xmsleep.app.BuildConfig")
         val tokenField = buildConfigClass.getField("GITHUB_TOKEN")
         val token = tokenField.get(null) as? String
         if (token.isNullOrBlank()) null else token
