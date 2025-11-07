@@ -2861,7 +2861,7 @@ fun StarSkyScreen(
                     selectedTabIndex = pagerState.currentPage,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 8.dp),
+                        .padding(bottom = 16.dp),
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.primary,
                     edgePadding = 0.dp,

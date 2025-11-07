@@ -14,6 +14,39 @@
 
 ---
 
+## 📱 屏幕截图
+
+<div align="center">
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="screenshots/1.jpg" alt="截图1" width="200"/>
+    </td>
+    <td align="center">
+      <img src="screenshots/2.jpg" alt="截图2" width="200"/>
+    </td>
+    <td align="center">
+      <img src="screenshots/3.jpg" alt="截图3" width="200"/>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="screenshots/4.jpg" alt="截图4" width="200"/>
+    </td>
+    <td align="center">
+      <img src="screenshots/5.jpg" alt="截图5" width="200"/>
+    </td>
+    <td align="center">
+      <img src="screenshots/6.jpg" alt="截图6" width="200"/>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+---
+
 ## 📱 关于
 
 XMSLEEP 是一个专注于白噪音播放的 Android 应用，提供多种自然声音帮助您放松、专注和入眠。应用采用 Material Design 3 设计规范，界面简洁美观，操作流畅。
