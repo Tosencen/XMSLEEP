@@ -12,17 +12,15 @@
 [下载应用](#下载) • [功能特性](#功能特性) • [使用说明](#使用说明) • [更新日志](#更新日志)
 
 </div>
+
 ## 📱 屏幕截图
 
 <div align="center">
 
 
-<div>
-<img src="![Screenshot_20251107_194902](https://github.com/user-attachments/assets/efa0add6-a2d7-455a-93ab-b611737e4e36)" width="30%" />
-<img src="![Screenshot_20251107_195130](https://github.com/user-attachments/assets/ef027e31-4882-4e8e-87d8-8a3803cfa352)" width="30%" />
-<img src="![Screenshot_20251107_194908](https://github.com/user-attachments/assets/618143ff-d637-40cb-9e17-ba84893f585a)" width="30%" />
 
-</div>
+
+
 </div>
 ---
 
