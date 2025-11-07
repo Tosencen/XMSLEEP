@@ -18,8 +18,9 @@ enum class AudioSource {
 data class SoundMetadata(
     // 基本信息
     val id: String,                    // 唯一标识符
-    val name: String,                  // 显示名称
+    val name: String,                  // 显示名称（简体中文）
     val nameEn: String? = null,        // 英文名称（可选）
+    val nameZhTW: String? = null,     // 繁体中文名称（可选）
     val category: String,              // 分类（如 "Nature", "Rain"）
     val icon: String? = null,          // 图标（emoji或资源ID）
     
@@ -48,8 +49,9 @@ data class SoundMetadata(
  */
 data class SoundCategory(
     val id: String,                    // 分类ID
-    val name: String,                  // 分类名称
+    val name: String,                  // 分类名称（简体中文）
     val nameEn: String? = null,        // 英文名称（可选）
+    val nameZhTW: String? = null,      // 繁体中文名称（可选）
     val icon: String? = null,         // 图标（emoji或资源ID）
     val order: Int = 0                 // 显示顺序
 )

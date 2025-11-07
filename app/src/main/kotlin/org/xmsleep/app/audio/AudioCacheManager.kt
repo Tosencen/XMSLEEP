@@ -5,6 +5,7 @@ import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -74,6 +75,11 @@ class AudioCacheManager private constructor(context: Context) {
     suspend fun downloadAudio(url: String, soundId: String): Result<File> {
         return withContext(Dispatchers.IO) {
             try {
+                // 确保缓存目录存在
+                if (!cacheDir.exists()) {
+                    cacheDir.mkdirs()
+                }
+                
                 // 检查缓存
                 getCachedFile(soundId)?.let { file ->
                     return@withContext Result.success(file)
@@ -122,62 +128,65 @@ class AudioCacheManager private constructor(context: Context) {
         url: String,
         soundId: String
     ): Flow<DownloadProgress> = flow {
-        withContext(Dispatchers.IO) {
-            try {
-                // 检查缓存
-                getCachedFile(soundId)?.let { file ->
-                    emit(DownloadProgress.Success(file))
-                    return@withContext
-                }
-                
-                // 检查缓存空间
-                ensureCacheSpace()
-                
-                // 获取文件扩展名
-                val extension = url.substringAfterLast('.', "mp3")
-                val file = File(cacheDir, "$soundId.$extension")
-                
-                // 下载文件
-                val request = Request.Builder()
-                    .url(url)
-                    .build()
-                
-                val response = okHttpClient.newCall(request).execute()
-                
-                if (!response.isSuccessful) {
-                    throw IOException("下载失败: ${response.code}")
-                }
-                
-                val body = response.body ?: throw IOException("响应体为空")
-                val contentLength = body.contentLength()
-                
-                // 保存到缓存
-                body.byteStream().use { input ->
-                    file.outputStream().use { output ->
-                        var totalBytesRead = 0L
-                        val buffer = ByteArray(8192)
-                        var bytesRead: Int
+        try {
+            // 确保缓存目录存在
+            if (!cacheDir.exists()) {
+                cacheDir.mkdirs()
+            }
+            
+            // 检查缓存
+            getCachedFile(soundId)?.let { file ->
+                emit(DownloadProgress.Success(file))
+                return@flow
+            }
+            
+            // 检查缓存空间
+            ensureCacheSpace()
+            
+            // 获取文件扩展名
+            val extension = url.substringAfterLast('.', "mp3")
+            val file = File(cacheDir, "$soundId.$extension")
+            
+            // 下载文件
+            val request = Request.Builder()
+                .url(url)
+                .build()
+            
+            val response = okHttpClient.newCall(request).execute()
+            
+            if (!response.isSuccessful) {
+                throw IOException("下载失败: ${response.code}")
+            }
+            
+            val body = response.body ?: throw IOException("响应体为空")
+            val contentLength = body.contentLength()
+            
+            // 保存到缓存
+            body.byteStream().use { input ->
+                file.outputStream().use { output ->
+                    var totalBytesRead = 0L
+                    val buffer = ByteArray(8192)
+                    var bytesRead: Int
+                    
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        totalBytesRead += bytesRead
                         
-                        while (input.read(buffer).also { bytesRead = it } != -1) {
-                            output.write(buffer, 0, bytesRead)
-                            totalBytesRead += bytesRead
-                            
-                            // 更新进度
-                            if (contentLength > 0) {
-                                emit(DownloadProgress.Progress(totalBytesRead, contentLength))
-                            }
+                        // 更新进度
+                        if (contentLength > 0) {
+                            emit(DownloadProgress.Progress(totalBytesRead, contentLength))
                         }
                     }
                 }
-                
-                Log.d(TAG, "音频下载成功: $soundId")
-                emit(DownloadProgress.Success(file))
-            } catch (e: Exception) {
-                Log.e(TAG, "下载音频失败: ${e.message}")
-                emit(DownloadProgress.Error(e))
             }
+            
+            Log.d(TAG, "音频下载成功: $soundId")
+            emit(DownloadProgress.Success(file))
+        } catch (e: Exception) {
+            Log.e(TAG, "下载音频失败: ${e.message}")
+            emit(DownloadProgress.Error(e))
         }
-    }
+    }.flowOn(Dispatchers.IO)
     
     /**
      * 确保缓存空间足够

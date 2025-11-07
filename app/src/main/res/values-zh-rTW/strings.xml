@@ -34,9 +34,13 @@
     <string name="this_will_clear_all_cache_data">這將清理應用的所有快取資料，包括圖片、影片、暫存檔案等。</string>
     <string name="version">版本: %1$s (Build %2$d)</string>
     <string name="app_description_title">應用說明</string>
-    <string name="app_description">XMSLEEP 是一款專注於白噪音播放的應用，提供多種自然聲音幫助您放鬆、專注和入眠。</string>
+    <string name="app_description">XMSLEEP 是一款專業的白噪音和自然聲音播放應用，致力於為您提供高品質的音訊體驗。應用內建多種精選的自然聲音，包括雨聲、雷聲、篝火聲、鳥鳴聲等，幫助您放鬆心情、提高專注力、改善睡眠品質。\n\n應用採用 Material Design 3 設計規範，介面簡潔美觀，操作流暢直觀。支援多語言切換、主題自訂、音量獨立調節、快捷播放、收藏功能等豐富特性，讓您享受個人化的聲音體驗。</string>
     <string name="usage_instructions_title">使用說明</string>
     <string name="usage_instructions">• 點擊聲音卡片開始播放，再次點擊停止\n• 點擊音量圖示可以單獨調節每個聲音的音量\n• 點擊標題可以設定快捷播放或收藏聲音\n• 點擊圖書釘圖示可以批次選擇聲音添加到快捷播放\n• 使用倒計時功能可以設定自動停止播放的時間\n• 在設定中可以調整主題、隱藏動畫、切換佈局等</string>
+    <string name="sound_usage_title">聲音使用說明</string>
+    <string name="sound_usage">• 內建聲音：無需連網，可直接播放使用\n• 網路聲音：首次使用需要下載，下載完成後可離線播放\n• 快捷播放：最多可添加3個聲音，支援本地和網路聲音混合使用\n• 收藏功能：可以將喜歡的聲音添加到收藏列表，方便快速訪問\n• 音量調節：每個聲音可獨立調節音量，支援0-100%精確控制\n• 倒計時功能：可設定播放時長，時間到後自動停止所有聲音</string>
+    <string name="sound_source_title">聲音來源說明</string>
+    <string name="sound_source">本應用提供的所有音訊內容均來自公開可用的音訊資源庫，包括但不限於：\n\n• 內建聲音：應用內建的聲音檔案來自開源音訊資源庫，經過精心篩選和優化，確保音質清晰、適合長時間播放。\n\n• 網路聲音：應用透過網路載入的聲音資源來自 moodist 專案（https://github.com/remvze/moodist），這是一個開源的氛圍聲音專案，所有資源均遵循 MIT 開源許可協議。\n\n• 版權聲明：本應用僅提供音訊播放功能，不擁有任何音訊內容的版權。所有音訊內容僅供個人學習和娛樂使用，請勿用於商業用途。如您發現任何音訊內容侵犯了您的版權，請聯繫我們，我們將及時處理。</string>
     <string name="technical_info_title">技術資訊</string>
     <string name="copyright">© 2025 XMSLEEP. All rights reserved.\n\n本應用提供的音訊內容僅供個人學習和娛樂使用。\n請尊重相關音訊資源的版權，不得用於商業用途。</string>
     <string name="hide_animation">隱藏動畫檔案</string>
@@ -60,6 +64,9 @@
     <string name="switch_to_2_columns">切換為2列</string>
     <string name="pause">暫停</string>
     <string name="play">播放</string>
+    <string name="now_playing">正在播放</string>
+    <string name="stop_all">一鍵關閉</string>
+    <string name="drag_to_stop_play">拖到此處停止播放</string>
     <string name="edit">編輯</string>
     <string name="remove">移除</string>
     <string name="adjust_volume">調節音量</string>
@@ -70,8 +77,8 @@
     <string name="adjust_volume_for">調節音量 - %1$s</string>
     <string name="cancel_countdown">取消倒計時</string>
     <string name="minutes">%1$d分鐘</string>
-    <string name="set_as_default">預設</string>
-    <string name="cancel_default">取消預設</string>
+    <string name="set_as_default">固定</string>
+    <string name="cancel_default">取消固定</string>
     <string name="favorite">收藏</string>
     <string name="cancel_favorite">取消收藏</string>
     <string name="current_countdown">當前倒計時: %1$s</string>
@@ -96,7 +103,9 @@
     <string name="lottie_animation">Lottie 動畫</string>
     <string name="cache_cleared_success">緩存清理成功</string>
     <string name="cache_clear_failed">緩存清理失敗: %1$s</string>
+    <string name="delete_cache">刪除緩存</string>
     <string name="cache_auto_cleared">緩存已超過200M，自動清理完成</string>
+    <string name="must_download_before_pin">請先下載音頻才能添加到快捷播放</string>
     <string name="auto_clear_failed">自動清理失敗: %1$s</string>
     <string name="light_mode">淺色</string>
     <string name="dark_mode">深色</string>
@@ -129,5 +138,7 @@
     <string name="install_failed">安裝失敗</string>
     <string name="join_group">加入Telegram群聊</string>
     <string name="join_group_description">來表達你的想法</string>
+    <string name="load_failed">載入失敗: %1$s</string>
+    <string name="all_categories">全部</string>
 </resources>
 

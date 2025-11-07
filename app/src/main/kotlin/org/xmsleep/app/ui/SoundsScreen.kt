@@ -6,6 +6,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -62,6 +64,9 @@ import androidx.compose.material3.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.foundation.background
 import androidx.compose.runtime.*
@@ -230,17 +235,76 @@ fun SoundsScreen(
     onColumnsCountChange: (Int) -> Unit = {},
     pinnedSounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
     favoriteSounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
-    onNavigateToFavorite: () -> Unit = {}
+    onNavigateToFavorite: () -> Unit = {},
+    onScrollDetected: () -> Unit = {} // 滚动检测回调
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
     val density = LocalDensity.current
     val audioManager = remember { AudioManager.getInstance() }
     val timerManager = remember { TimerManager.getInstance() }
+    val resourceManager = remember { org.xmsleep.app.audio.AudioResourceManager.getInstance(context) }
+    val cacheManager = remember { org.xmsleep.app.audio.AudioCacheManager.getInstance(context) }
+    val scope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
     
     // 各声音的播放状态
     val playingStates = remember { mutableStateMapOf<AudioManager.Sound, Boolean>() }
+    
+    // 远程音频相关状态
+    var remoteSounds by remember { mutableStateOf<List<org.xmsleep.app.audio.model.SoundMetadata>>(emptyList()) }
+    var remotePinned by remember { 
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getRemotePinned(context).toMutableSet()) 
+    }
+    var downloadingSounds by remember { mutableStateOf<Map<String, Float>>(emptyMap()) }
+    var playingRemoteSounds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    
+    // 获取当前语言
+    val currentLanguage = org.xmsleep.app.i18n.LanguageManager.getCurrentLanguage(context)
+    val isEnglish = currentLanguage == org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH
+    val isTraditionalChinese = currentLanguage == org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE
+    
+    // 获取音频显示名称的辅助函数
+    fun getSoundDisplayName(sound: org.xmsleep.app.audio.model.SoundMetadata): String {
+        return when {
+            isTraditionalChinese && !sound.nameZhTW.isNullOrEmpty() -> sound.nameZhTW
+            isEnglish && !sound.nameEn.isNullOrEmpty() -> sound.nameEn
+            else -> sound.name
+        }
+    }
+    
+    // 加载远程音频列表
+    LaunchedEffect(Unit) {
+        try {
+            val sounds = resourceManager.getRemoteSounds()
+            remoteSounds = sounds
+        } catch (e: Exception) {
+            android.util.Log.e("SoundsScreen", "加载远程音频失败: ${e.message}")
+        }
+    }
+    
+    // 监听远程音频置顶状态变化（从 PreferencesManager 读取）
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(500) // 每500ms检查一次
+            val savedPinned = org.xmsleep.app.preferences.PreferencesManager.getRemotePinned(context).toMutableSet()
+            // 比较内容是否相同（使用 toSet() 进行比较）
+            if (savedPinned.toSet() != remotePinned.toSet()) {
+                remotePinned = savedPinned
+            }
+        }
+    }
+    
+    // 监听远程音频播放状态
+    LaunchedEffect(Unit) {
+        while (true) {
+            kotlinx.coroutines.delay(500)
+            val currentlyPlaying = remoteSounds.filter { sound ->
+                remotePinned.contains(sound.id) && audioManager.isPlayingRemoteSound(sound.id)
+            }.map { it.id }.toSet()
+            playingRemoteSounds = currentlyPlaying
+        }
+    }
     
     // 倒计时相关状态
     val isTimerActive by timerManager.isTimerActive.collectAsState()
@@ -356,6 +420,13 @@ fun SoundsScreen(
     
     // 是否正在滚动
     val isScrolling = builtInScrollState.isScrollInProgress
+    
+    // 监听滚动状态，触发浮动按钮收缩
+    LaunchedEffect(isScrolling) {
+        if (isScrolling) {
+            onScrollDetected()
+        }
+    }
 
     Column(modifier = modifier.fillMaxSize()) {
         // 顶部标题、深色模式切换按钮和收藏按钮
@@ -427,7 +498,9 @@ fun SoundsScreen(
         }
         
         // 快捷播放展开/收缩状态（提前定义，以便在Column中使用）
-        var isQuickPlayExpanded by remember { mutableStateOf(true) }
+        var isQuickPlayExpanded by remember { 
+            mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getQuickPlayExpanded(context, true)) 
+        }
         
         // 协程作用域（用于在pointerInput中更新状态）
         val scope = rememberCoroutineScope()
@@ -440,6 +513,16 @@ fun SoundsScreen(
                     soundItems.filter { pinnedSounds.value.contains(it.sound) }
                 }
             }.value
+            
+            // 实时获取远程音频置顶列表
+            val defaultRemoteSounds = remember(remoteSounds, remotePinned) {
+                remoteSounds.filter { remotePinned.contains(it.id) }
+            }
+            
+            // 合并本地和远程音频置顶列表（用于判断是否显示默认区域）
+            val hasDefaultItems = remember(defaultItems, defaultRemoteSounds) {
+                defaultItems.isNotEmpty() || defaultRemoteSounds.isNotEmpty()
+            }
             
             // 当默认区域没有内容时，自动退出编辑模式
             LaunchedEffect(defaultItems.isEmpty()) {
@@ -460,7 +543,12 @@ fun SoundsScreen(
                                 // 因为快捷播放模块在上层，会优先接收点击事件
                                 // 如果点击到了这里，说明点击的是内容区域
                                 scope.launch {
+                                    // 如果当前是编辑模式，先退出编辑模式
+                                    if (isDefaultAreaEditMode) {
+                                        isDefaultAreaEditMode = false
+                                    }
                                     isQuickPlayExpanded = false
+                                    org.xmsleep.app.preferences.PreferencesManager.saveQuickPlayExpanded(context, false)
                                 }
                             }
                         }
@@ -569,8 +657,9 @@ fun SoundsScreen(
                                                 }
                                             }
                                             
-                                            // 检查是否超过最大数量（3个）
-                                            if (currentSet.size + addCount > 3) {
+                                            // 检查是否超过最大数量（3个，包括本地和远程）
+                                            val totalPinned = currentSet.size + remotePinned.size
+                                            if (totalPinned + addCount > 3) {
                                                 android.widget.Toast.makeText(
                                                     context,
                                                     context.getString(R.string.max_3_sounds_limit),
@@ -674,8 +763,13 @@ fun SoundsScreen(
                         newSet.remove(sound)
                         selectedSoundsForBatch = newSet
                     } else {
-                        // 尝试选择新卡片
-                        if (newSet.size >= 3) {
+                        // 尝试选择新卡片（检查本地和远程总数）
+                        val totalPinned = pinnedSounds.value.size + remotePinned.size
+                        val totalSelected = newSet.size
+                        // 计算当前已选择但未置顶的数量
+                        val newSelectedCount = newSet.count { !pinnedSounds.value.contains(it) }
+                        // 检查总数是否超过3个（包括已置顶的本地和远程音频）
+                        if (totalPinned + newSelectedCount >= 3) {
                             // 已经选择了3个，不允许再选择
                             android.widget.Toast.makeText(
                                 context,
@@ -693,8 +787,9 @@ fun SoundsScreen(
                 onPinnedChange = { sound, isPinned ->
                     val currentSet = pinnedSounds.value.toMutableSet()
                     if (isPinned) {
-                        // 检查是否已达到最大数量（3个）
-                        if (currentSet.size >= 3) {
+                        // 检查是否已达到最大数量（3个，包括本地和远程）
+                        val totalPinned = currentSet.size + remotePinned.size
+                        if (totalPinned >= 3) {
                             android.widget.Toast.makeText(
                                 context,
                                 context.getString(R.string.max_3_sounds_limit),
@@ -721,14 +816,16 @@ fun SoundsScreen(
             )
         }
         
-        // 快捷播放是否有声音
-        val defaultAreaHasSounds = pinnedSounds.value.isNotEmpty()
+        // 快捷播放是否有声音（包括本地和远程）
+        val defaultAreaHasSounds = pinnedSounds.value.isNotEmpty() || defaultRemoteSounds.isNotEmpty()
         
-        // 实时检测快捷播放的播放状态
+        // 实时检测快捷播放的播放状态（包括本地和远程）
         var defaultAreaSoundsPlaying by remember { mutableStateOf(false) }
-        LaunchedEffect(pinnedSounds.value, Unit) {
+        LaunchedEffect(pinnedSounds.value, defaultRemoteSounds, Unit) {
             while (true) {
-                defaultAreaSoundsPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
+                val localPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
+                val remotePlaying = defaultRemoteSounds.any { audioManager.isPlayingRemoteSound(it.id) }
+                defaultAreaSoundsPlaying = localPlaying || remotePlaying
                 kotlinx.coroutines.delay(300) // 每300ms检查一次
             }
         }
@@ -739,7 +836,7 @@ fun SoundsScreen(
         // 由于SoundsScreen的modifier已经应用了paddingValues，Box的底部对齐到这个padding后的容器
         // 所以需要向上偏移80dp来紧贴NavigationBar
         val bottomSheetOffsetY by animateDpAsState(
-            targetValue = if (defaultItems.isNotEmpty()) {
+            targetValue = if (hasDefaultItems) {
                 0.dp // 不偏移，紧贴底部导航栏
             } else {
                 300.dp
@@ -749,7 +846,7 @@ fun SoundsScreen(
         )
         
         // 底部弹出的快捷播放（悬浮在内容之上，位于底部导航栏上方）
-        if (defaultItems.isNotEmpty()) {
+        if (hasDefaultItems) {
             val density = LocalDensity.current
             val dragThreshold = with(density) { 20.dp.toPx() } // 滑动阈值20dp（降低阈值，更容易触发）
             
@@ -782,10 +879,16 @@ fun SoundsScreen(
                                         val currentExpanded = isQuickPlayExpanded
                                         if (finalDragY < 0 && currentExpanded) {
                                             // 向上滑动且当前展开，则收缩
+                                            // 如果当前是编辑模式，先退出编辑模式
+                                            if (isDefaultAreaEditMode) {
+                                                isDefaultAreaEditMode = false
+                                            }
                                             isQuickPlayExpanded = false
+                                            org.xmsleep.app.preferences.PreferencesManager.saveQuickPlayExpanded(context, false)
                                         } else if (finalDragY > 0 && !currentExpanded) {
                                             // 向下滑动且当前收缩，则展开
                                             isQuickPlayExpanded = true
+                                            org.xmsleep.app.preferences.PreferencesManager.saveQuickPlayExpanded(context, true)
                                         }
                                     }
                                 }
@@ -800,32 +903,35 @@ fun SoundsScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     // 顶部指示栏 - 独立的拖拽栏，用于展开/收缩（在标题栏上方）
+                    // 总高度：30dp（6dp padding + 24dp图标）
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 12.dp, bottom = 0.dp),
+                            .padding(top = 6.dp, bottom = 0.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Surface(
-                            onClick = { isQuickPlayExpanded = !isQuickPlayExpanded },
-                            shape = CircleShape,
-                            color = Color.Transparent,
-                            modifier = Modifier.size(48.dp)
+                        Box(
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clickable(
+                                    indication = null, // 移除波纹效果
+                                    interactionSource = remember { MutableInteractionSource() }
+                                ) { 
+                                    // 如果当前是编辑模式，先退出编辑模式
+                                    if (isDefaultAreaEditMode) {
+                                        isDefaultAreaEditMode = false
+                                    }
+                                    isQuickPlayExpanded = !isQuickPlayExpanded
+                                    org.xmsleep.app.preferences.PreferencesManager.saveQuickPlayExpanded(context, isQuickPlayExpanded)
+                                },
+                            contentAlignment = Alignment.Center
                         ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = if (isQuickPlayExpanded) 
-                                        Icons.Default.ExpandMore 
-                                    else 
-                                        Icons.Default.ExpandLess,
-                                    contentDescription = if (isQuickPlayExpanded) "收缩" else "展开",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
-                                    modifier = Modifier.size(32.dp)
-                                )
-                            }
+                            // 自定义箭头图标（粗的、角度小的V形箭头）
+                            CustomChevronIcon(
+                                isExpanded = isQuickPlayExpanded,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                modifier = Modifier.size(24.dp)
+                            )
                         }
                     }
                     
@@ -845,8 +951,9 @@ fun SoundsScreen(
                     onPinnedChange = { sound, isPinned ->
                         val currentSet = pinnedSounds.value.toMutableSet()
                         if (isPinned) {
-                            // 检查是否已达到最大数量（3个）
-                            if (currentSet.size >= 3) {
+                            // 检查是否已达到最大数量（3个，包括本地和远程）
+                            val totalPinned = currentSet.size + remotePinned.size
+                            if (totalPinned >= 3) {
                                 android.widget.Toast.makeText(
                                     context,
                                     context.getString(R.string.max_3_sounds_limit),
@@ -879,7 +986,81 @@ fun SoundsScreen(
                         selectedSoundsForBatch = pinnedSounds.value.toMutableSet()
                         // 清除编辑模式
                         isDefaultAreaEditMode = false
-                    }
+                    },
+                    // 远程音频相关参数
+                    remoteSounds = defaultRemoteSounds,
+                    remotePinned = remotePinned,
+                    downloadingSounds = downloadingSounds,
+                    playingRemoteSounds = playingRemoteSounds,
+                    onRemotePinnedChange = { soundId, isPinned ->
+                        val newSet = remotePinned.toMutableSet()
+                        if (isPinned) {
+                            // 检查是否已达到最大数量（3个，包括本地和远程）
+                            val totalPinned = pinnedSounds.value.size + newSet.size
+                            if (totalPinned >= 3) {
+                                android.widget.Toast.makeText(
+                                    context,
+                                    context.getString(R.string.max_3_sounds_limit),
+                                    android.widget.Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                newSet.add(soundId)
+                            }
+                        } else {
+                            newSet.remove(soundId)
+                        }
+                        remotePinned = newSet
+                        org.xmsleep.app.preferences.PreferencesManager.saveRemotePinned(context, newSet)
+                    },
+                    onRemoteCardClick = { sound ->
+                        scope.launch {
+                            try {
+                                val cachedFile = cacheManager.getCachedFile(sound.id)
+                                if (cachedFile == null && sound.remoteUrl != null) {
+                                    // 开始下载
+                                    val downloadFlow = cacheManager.downloadAudioWithProgress(
+                                        sound.remoteUrl,
+                                        sound.id
+                                    )
+                                    downloadFlow.collect { progress ->
+                                        when (progress) {
+                                            is org.xmsleep.app.audio.DownloadProgress.Progress -> {
+                                                val percent = progress.bytesRead.toFloat() / progress.contentLength
+                                                downloadingSounds = downloadingSounds + (sound.id to percent)
+                                            }
+                                            is org.xmsleep.app.audio.DownloadProgress.Success -> {
+                                                downloadingSounds = downloadingSounds - sound.id
+                                                // 下载完成后自动播放
+                                                val uri = resourceManager.getSoundUri(sound)
+                                                if (uri != null) {
+                                                    audioManager.playRemoteSound(context, sound, uri)
+                                                }
+                                            }
+                                            is org.xmsleep.app.audio.DownloadProgress.Error -> {
+                                                downloadingSounds = downloadingSounds - sound.id
+                                                android.widget.Toast.makeText(context, "下载失败: ${progress.exception.message}", android.widget.Toast.LENGTH_SHORT).show()
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    // 已缓存，直接播放
+                                    val uri = resourceManager.getSoundUri(sound)
+                                    if (uri != null) {
+                                        if (audioManager.isPlayingRemoteSound(sound.id)) {
+                                            audioManager.pauseRemoteSound(sound.id)
+                                        } else {
+                                            audioManager.playRemoteSound(context, sound, uri)
+                                        }
+                                    }
+                                }
+                            } catch (e: Exception) {
+                                android.widget.Toast.makeText(context, "播放失败: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    },
+                    getSoundDisplayName = { sound -> getSoundDisplayName(sound) },
+                    scope = scope,
+                    resourceManager = resourceManager
                 )
                 }
             }
@@ -893,13 +1074,13 @@ fun SoundsScreen(
         )
         
         // 倒计时按钮的底部padding动画（与快捷播放保持30dp间隔）
-        // 顶部箭头栏：44dp（12dp padding + 32dp图标）
+        // 顶部箭头栏：30dp（6dp padding + 24dp图标）
         // 标题栏：约72dp
         // 卡片区域（展开时）：约104dp
-        // 收缩状态高度：44dp + 72dp = 116dp
-        // 展开状态高度：44dp + 72dp + 104dp = 220dp
+        // 收缩状态高度：30dp + 72dp = 102dp
+        // 展开状态高度：30dp + 72dp + 104dp = 206dp
         // 动画配置与快捷播放模块的AnimatedVisibility保持一致（300ms）
-        val arrowBarHeight = 44.dp // 顶部箭头栏高度
+        val arrowBarHeight = 30.dp // 顶部箭头栏高度
         val titleBarHeight = 72.dp // 标题栏高度
         val cardAreaHeight = 104.dp // 卡片区域高度
         val quickPlayHeight = if (isQuickPlayExpanded) {
@@ -908,7 +1089,7 @@ fun SoundsScreen(
             arrowBarHeight + titleBarHeight // 收缩状态（只有标题栏）
         }
         val timerFABBottomPadding by animateDpAsState(
-            targetValue = if (defaultItems.isNotEmpty()) {
+            targetValue = if (hasDefaultItems) {
                 quickPlayHeight + 30.dp // 快捷播放高度 + 30dp间隔（从FAB底部到快捷播放顶部）
             } else {
                 16.dp // 复位到原来的位置
@@ -935,15 +1116,6 @@ fun SoundsScreen(
             onDismiss = { showTimerDialog = false },
             onTimerSet = { minutes ->
                 if (minutes > 0) {
-                    // 如果当前没有声音播放，自动播放第一个声音（雨声）
-                    if (!hasPlayingSound) {
-                        audioManager.playSound(context, AudioManager.Sound.RAIN)
-                        soundItems.forEach { item ->
-                            if (item.sound == AudioManager.Sound.RAIN) {
-                                playingStates[item.sound] = true
-                            }
-                        }
-                    }
                     timerManager.startTimer(minutes)
                     android.widget.Toast.makeText(context, context.getString(R.string.countdown_set_minutes, minutes), android.widget.Toast.LENGTH_SHORT).show()
                 } else {
@@ -975,7 +1147,17 @@ private fun DefaultArea(
     isExpanded: Boolean = true,
     onPinnedChange: (AudioManager.Sound, Boolean) -> Unit,
     onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit,
-    onEnterBatchSelectMode: () -> Unit = {}
+    onEnterBatchSelectMode: () -> Unit = {},
+    // 远程音频相关参数
+    remoteSounds: List<org.xmsleep.app.audio.model.SoundMetadata> = emptyList(),
+    remotePinned: MutableSet<String> = mutableSetOf(),
+    downloadingSounds: Map<String, Float> = emptyMap(),
+    playingRemoteSounds: Set<String> = emptySet(),
+    onRemotePinnedChange: (String, Boolean) -> Unit = { _, _ -> },
+    onRemoteCardClick: (org.xmsleep.app.audio.model.SoundMetadata) -> Unit = {},
+    getSoundDisplayName: (org.xmsleep.app.audio.model.SoundMetadata) -> String = { it.name },
+    scope: kotlinx.coroutines.CoroutineScope = rememberCoroutineScope(),
+    resourceManager: org.xmsleep.app.audio.AudioResourceManager = remember { org.xmsleep.app.audio.AudioResourceManager.getInstance(context) }
 ) {
     // 实时获取默认卡片列表（使用derivedStateOf确保状态变化时触发重组）
     val defaultItems = remember {
@@ -1088,17 +1270,33 @@ private fun DefaultArea(
                     Surface(
                         onClick = {
                             if (defaultAreaSoundsPlaying) {
-                                // 暂停所有快捷播放的声音
+                                // 暂停所有快捷播放的声音（本地和远程）
                                 pinnedSounds.value.forEach { sound ->
                                     if (audioManager.isPlayingSound(sound)) {
                                         audioManager.pauseSound(sound)
                                     }
                                 }
+                                remoteSounds.forEach { sound ->
+                                    if (audioManager.isPlayingRemoteSound(sound.id)) {
+                                        audioManager.pauseRemoteSound(sound.id)
+                                    }
+                                }
                             } else {
-                                // 播放所有快捷播放的声音
+                                // 播放所有快捷播放的声音（本地和远程）
                                 pinnedSounds.value.forEach { sound ->
                                     if (!audioManager.isPlayingSound(sound)) {
                                         audioManager.playSound(context, sound)
+                                    }
+                                }
+                                // 远程音频需要先下载，这里只播放已缓存的
+                                scope.launch {
+                                    remoteSounds.filter { remotePinned.contains(it.id) }.forEach { sound ->
+                                        if (!audioManager.isPlayingRemoteSound(sound.id)) {
+                                            val uri = resourceManager.getSoundUri(sound)
+                                            if (uri != null) {
+                                                audioManager.playRemoteSound(context, sound, uri)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -1139,7 +1337,14 @@ private fun DefaultArea(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 0.dp)
             ) {
-            if (defaultItems.isEmpty()) {
+            // 限制最多显示3个卡片（本地+远程总共最多3个）
+            val maxLocalItems = minOf(defaultItems.size, 3)
+            val maxRemoteItems = minOf(remoteSounds.size, 3 - maxLocalItems)
+            val displayedLocalItems = defaultItems.take(maxLocalItems)
+            val displayedRemoteSounds = remoteSounds.take(maxRemoteItems)
+            val allDefaultItems = displayedLocalItems.size + displayedRemoteSounds.size
+            
+            if (allDefaultItems == 0) {
                 // 没有默认卡片时，显示占位区域
                 Box(
                     modifier = Modifier
@@ -1152,7 +1357,7 @@ private fun DefaultArea(
             } else {
                 // 有默认卡片时，显示卡片（固定3列，只显示标题和声音图标）
                 // 计算需要显示的占位图数量（始终显示3个位置）
-                val placeholderCount = 3 - defaultItems.size
+                val placeholderCount = 3 - allDefaultItems
                 
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
@@ -1161,8 +1366,8 @@ private fun DefaultArea(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    // 显示实际卡片
-                    items(defaultItems) { item ->
+                    // 显示本地音频卡片（最多3个）
+                    items(displayedLocalItems) { item ->
                         var showVolumeDialog by remember { mutableStateOf(false) }
                         
                         DefaultCard(
@@ -1222,11 +1427,56 @@ private fun DefaultArea(
                         }
                     }
                     
-                    // 显示占位图（填充剩余位置）
-                    items(placeholderCount) {
-                        PlaceholderCard(
-                            onClick = onEnterBatchSelectMode
+                    // 显示远程音频卡片（补足到3个）
+                    items(displayedRemoteSounds) { sound ->
+                        val cacheManager = remember { org.xmsleep.app.audio.AudioCacheManager.getInstance(context) }
+                        var isCached by remember { mutableStateOf(cacheManager.getCachedFile(sound.id) != null) }
+                        val downloadProgress = downloadingSounds[sound.id]
+                        val isPlaying = playingRemoteSounds.contains(sound.id)
+                        
+                        // 监听下载完成，更新缓存状态
+                        LaunchedEffect(downloadProgress, sound.id) {
+                            if (downloadProgress == null) {
+                                isCached = cacheManager.getCachedFile(sound.id) != null
+                            }
+                            if (downloadProgress != null && downloadProgress >= 1.0f) {
+                                isCached = cacheManager.getCachedFile(sound.id) != null
+                            }
+                        }
+                        
+                        // 使用 MainActivity 中的 RemoteSoundCard，适配快捷播放模块的大小（80.dp）
+                        org.xmsleep.app.RemoteSoundCard(
+                            sound = sound,
+                            displayName = getSoundDisplayName(sound),
+                            isPlaying = isPlaying,
+                            downloadProgress = downloadProgress,
+                            columnsCount = 3,
+                            isPinned = remotePinned.contains(sound.id),
+                            isFavorite = false, // 快捷播放区域不显示收藏状态
+                            onPinnedChange = { isPinned ->
+                                onRemotePinnedChange(sound.id, isPinned)
+                            },
+                            onFavoriteChange = { }, // 快捷播放区域不支持收藏
+                            onCardClick = {
+                                onRemoteCardClick(sound)
+                            },
+                            onVolumeClick = { }, // 快捷播放区域不显示音量按钮
+                            cardHeight = 80.dp, // 快捷播放模块使用80.dp高度，与本地音频卡片一致
+                            isEditMode = isEditMode, // 编辑模式
+                            onRemove = {
+                                // 删除（取消置顶）
+                                onRemotePinnedChange(sound.id, false)
+                            }
                         )
+                    }
+                    
+                    // 显示占位图（填充剩余位置）
+                    if (placeholderCount > 0) {
+                        items(placeholderCount) {
+                            PlaceholderCard(
+                                onClick = onEnterBatchSelectMode
+                            )
+                        }
                     }
                 }
             }
@@ -1708,7 +1958,8 @@ fun SoundCard(
                         DropdownMenu(
                             expanded = showTitleMenu,
                             onDismissRequest = { showTitleMenu = false },
-                            modifier = Modifier.width(120.dp)
+                            modifier = Modifier.width(120.dp),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
                             // 默认选项
                             DropdownMenuItem(
@@ -1808,7 +2059,8 @@ fun SoundCard(
                         DropdownMenu(
                             expanded = showTitleMenu,
                             onDismissRequest = { showTitleMenu = false },
-                            modifier = Modifier.width(120.dp)
+                            modifier = Modifier.width(120.dp),
+                            shape = RoundedCornerShape(12.dp)
                         ) {
                             // 默认选项
                             DropdownMenuItem(
@@ -1916,7 +2168,8 @@ fun SoundCard(
                     DropdownMenu(
                         expanded = showTitleMenu,
                         onDismissRequest = { showTitleMenu = false },
-                        modifier = Modifier.width(120.dp)
+                        modifier = Modifier.width(120.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
                         // 默认选项
                         DropdownMenuItem(
@@ -2072,7 +2325,8 @@ private fun TitleMenu(
         DropdownMenu(
             expanded = showMenu,
             onDismissRequest = onDismiss,
-            modifier = Modifier.width(120.dp)
+            modifier = Modifier.width(120.dp),
+            shape = RoundedCornerShape(12.dp)
         ) {
             // 置顶选项
             DropdownMenuItem(
@@ -2210,7 +2464,7 @@ fun VolumeDialog(
     
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.adjust_volume_for, soundName)) },
+        title = { Text(soundName) },
         text = {
             Column(
                 modifier = Modifier
@@ -2218,28 +2472,44 @@ fun VolumeDialog(
                     .padding(vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
+                Text(
+                    context.getString(R.string.adjust_volume),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                
                 // 音量滑块
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                     Slider(
                         value = volume,
                         onValueChange = { 
                             volume = it
                             onVolumeChange(it)
                         },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.fillMaxWidth(),
                         valueRange = 0f..1f,
                         steps = 19  // 0到100，步长5%
                     )
-                    Text(
-                        text = "${(volume * 100).toInt()}%",
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.width(50.dp),
-                        color = MaterialTheme.colorScheme.primary
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "0%",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "${(volume * 100).toInt()}%",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                        Text(
+                            text = "100%",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
         },
@@ -2620,5 +2890,163 @@ fun EmptyStateAnimation(
         },
         modifier = modifier.size(size)
     )
+}
+
+/**
+ * 自定义箭头图标（使用 SVG 路径）
+ * 向上时：V形，开口向上
+ * 向下时：V形，开口向下（旋转180度）
+ */
+@Composable
+fun CustomChevronIcon(
+    isExpanded: Boolean,
+    color: Color,
+    modifier: Modifier = Modifier
+) {
+    Canvas(modifier = modifier) {
+        // SVG 原始路径数据（向上箭头）
+        // M223.598 6.42769C251.054 -2.14256 280.469 -2.14257 307.925 6.42769L502.378 67.1259C524.256 73.9555 536.456 97.2288 529.627 119.107C522.797 140.986 499.524 153.186 477.645 146.356L283.193 85.6572C271.842 82.114 259.681 82.114 248.33 85.6572L53.8777 146.356C31.9991 153.186 8.72577 140.986 1.89622 119.107C-4.93322 97.2288 7.26671 73.9555 29.1452 67.1259L223.598 6.42769Z
+        // SVG viewBox: 0 0 532 149
+        
+        val svgWidth = 532f
+        val svgHeight = 149f
+        val svgViewBoxLeft = 0f
+        val svgViewBoxTop = 0f
+        
+        // 计算缩放比例，使 SVG 适配 Canvas 大小
+        val scaleX = size.width / svgWidth
+        val scaleY = size.height / svgHeight
+        val scale = minOf(scaleX, scaleY) // 保持宽高比
+        
+        // 计算居中偏移
+        val offsetX = (size.width - svgWidth * scale) / 2
+        val offsetY = (size.height - svgHeight * scale) / 2
+        
+        // 创建路径并应用 SVG 路径数据
+        val path = Path().apply {
+            // 移动到起始点 (223.598, 6.42769)
+            moveTo(
+                x = ((223.598f - svgViewBoxLeft) * scale + offsetX),
+                y = ((6.42769f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 三次贝塞尔曲线到 (251.054, -2.14256) 控制点1, (280.469, -2.14257) 控制点2, (307.925, 6.42769) 终点
+            cubicTo(
+                x1 = ((251.054f - svgViewBoxLeft) * scale + offsetX),
+                y1 = ((-2.14256f - svgViewBoxTop) * scale + offsetY),
+                x2 = ((280.469f - svgViewBoxLeft) * scale + offsetX),
+                y2 = ((-2.14257f - svgViewBoxTop) * scale + offsetY),
+                x3 = ((307.925f - svgViewBoxLeft) * scale + offsetX),
+                y3 = ((6.42769f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 直线到 (502.378, 67.1259)
+            lineTo(
+                x = ((502.378f - svgViewBoxLeft) * scale + offsetX),
+                y = ((67.1259f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 三次贝塞尔曲线到 (524.256, 73.9555) 控制点1, (536.456, 97.2288) 控制点2, (529.627, 119.107) 终点
+            cubicTo(
+                x1 = ((524.256f - svgViewBoxLeft) * scale + offsetX),
+                y1 = ((73.9555f - svgViewBoxTop) * scale + offsetY),
+                x2 = ((536.456f - svgViewBoxLeft) * scale + offsetX),
+                y2 = ((97.2288f - svgViewBoxTop) * scale + offsetY),
+                x3 = ((529.627f - svgViewBoxLeft) * scale + offsetX),
+                y3 = ((119.107f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 三次贝塞尔曲线到 (522.797, 140.986) 控制点1, (499.524, 153.186) 控制点2, (477.645, 146.356) 终点
+            cubicTo(
+                x1 = ((522.797f - svgViewBoxLeft) * scale + offsetX),
+                y1 = ((140.986f - svgViewBoxTop) * scale + offsetY),
+                x2 = ((499.524f - svgViewBoxLeft) * scale + offsetX),
+                y2 = ((153.186f - svgViewBoxTop) * scale + offsetY),
+                x3 = ((477.645f - svgViewBoxLeft) * scale + offsetX),
+                y3 = ((146.356f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 直线到 (283.193, 85.6572)
+            lineTo(
+                x = ((283.193f - svgViewBoxLeft) * scale + offsetX),
+                y = ((85.6572f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 三次贝塞尔曲线到 (271.842, 82.114) 控制点1, (259.681, 82.114) 控制点2, (248.33, 85.6572) 终点
+            cubicTo(
+                x1 = ((271.842f - svgViewBoxLeft) * scale + offsetX),
+                y1 = ((82.114f - svgViewBoxTop) * scale + offsetY),
+                x2 = ((259.681f - svgViewBoxLeft) * scale + offsetX),
+                y2 = ((82.114f - svgViewBoxTop) * scale + offsetY),
+                x3 = ((248.33f - svgViewBoxLeft) * scale + offsetX),
+                y3 = ((85.6572f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 直线到 (53.8777, 146.356)
+            lineTo(
+                x = ((53.8777f - svgViewBoxLeft) * scale + offsetX),
+                y = ((146.356f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 三次贝塞尔曲线到 (31.9991, 153.186) 控制点1, (8.72577, 140.986) 控制点2, (1.89622, 119.107) 终点
+            cubicTo(
+                x1 = ((31.9991f - svgViewBoxLeft) * scale + offsetX),
+                y1 = ((153.186f - svgViewBoxTop) * scale + offsetY),
+                x2 = ((8.72577f - svgViewBoxLeft) * scale + offsetX),
+                y2 = ((140.986f - svgViewBoxTop) * scale + offsetY),
+                x3 = ((1.89622f - svgViewBoxLeft) * scale + offsetX),
+                y3 = ((119.107f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 三次贝塞尔曲线到 (-4.93322, 97.2288) 控制点1, (7.26671, 73.9555) 控制点2, (29.1452, 67.1259) 终点
+            cubicTo(
+                x1 = ((-4.93322f - svgViewBoxLeft) * scale + offsetX),
+                y1 = ((97.2288f - svgViewBoxTop) * scale + offsetY),
+                x2 = ((7.26671f - svgViewBoxLeft) * scale + offsetX),
+                y2 = ((73.9555f - svgViewBoxTop) * scale + offsetY),
+                x3 = ((29.1452f - svgViewBoxLeft) * scale + offsetX),
+                y3 = ((67.1259f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            // 直线到 (223.598, 6.42769) 闭合路径
+            lineTo(
+                x = ((223.598f - svgViewBoxLeft) * scale + offsetX),
+                y = ((6.42769f - svgViewBoxTop) * scale + offsetY)
+            )
+            
+            close()
+        }
+        
+        // 如果需要向下箭头，旋转180度
+        val centerX = size.width / 2
+        val centerY = size.height / 2
+        
+        // 绘制填充路径（适配颜色）
+        if (isExpanded) {
+            // 向下箭头：旋转180度（通过缩放-1实现）
+            // 使用 Matrix 进行旋转，变换操作是反向的
+            val matrix = androidx.compose.ui.graphics.Matrix().apply {
+                reset()
+                // 按相反顺序应用变换：先平移回中心，然后缩放-1，最后平移到原点
+                translate(centerX, centerY)
+                scale(-1f, -1f)
+                translate(-centerX, -centerY)
+            }
+            
+            val rotatedPath = Path()
+            rotatedPath.addPath(path, Offset.Zero)
+            rotatedPath.transform(matrix)
+            drawPath(
+                path = rotatedPath,
+                color = color
+            )
+        } else {
+            // 向上箭头：直接绘制
+            drawPath(
+                path = path,
+                color = color
+            )
+        }
+    }
 }
 

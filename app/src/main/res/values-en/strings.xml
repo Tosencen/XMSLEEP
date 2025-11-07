@@ -34,9 +34,13 @@
     <string name="this_will_clear_all_cache_data">This will clear all cache data of the app, including images, videos, temporary files, etc.</string>
     <string name="version">Version: %1$s (Build %2$d)</string>
     <string name="app_description_title">App Description</string>
-    <string name="app_description">XMSLEEP is an app focused on white noise playback, providing various natural sounds to help you relax, focus, and sleep.</string>
+    <string name="app_description">XMSLEEP is a professional white noise and natural sound playback app dedicated to providing you with high-quality audio experiences. The app includes a variety of carefully selected natural sounds, including rain, thunder, campfire, bird chirping, and more, to help you relax, improve focus, and enhance sleep quality.\n\nBuilt with Material Design 3 guidelines, the app features a clean and beautiful interface with smooth and intuitive operations. It supports multiple languages, customizable themes, independent volume control, quick play, favorites, and many other features to provide you with a personalized sound experience.</string>
     <string name="usage_instructions_title">Usage Instructions</string>
     <string name="usage_instructions">• Click sound cards to start playback, click again to stop\n• Click volume icon to adjust volume for each sound individually\n• Click title to set quick play or favorite sounds\n• Click pushpin icon to batch select sounds and add to quick play\n• Use countdown feature to set auto-stop playback time\n• In settings, you can adjust theme, hide animations, switch layouts, etc.</string>
+    <string name="sound_usage_title">Sound Usage Instructions</string>
+    <string name="sound_usage">• Built-in sounds: No internet required, can be played directly\n• Online sounds: First use requires download, can be played offline after download\n• Quick Play: Maximum 3 sounds can be added, supports mixing local and online sounds\n• Favorite feature: Add favorite sounds to favorites list for quick access\n• Volume adjustment: Each sound can be adjusted independently, supports 0-100% precise control\n• Countdown feature: Set playback duration, automatically stops all sounds when time is up</string>
+    <string name="sound_source_title">Sound Source Information</string>
+    <string name="sound_source">All audio content provided by this app comes from publicly available audio resource libraries, including but not limited to:\n\n• Built-in sounds: The built-in sound files come from open-source audio resource libraries, carefully selected and optimized to ensure clear sound quality suitable for long-term playback.\n\n• Online sounds: The sound resources loaded via the network come from the moodist project (https://github.com/remvze/moodist), an open-source ambient sounds project. All resources comply with the MIT open-source license.\n\n• Copyright Notice: This app only provides audio playback functionality and does not own the copyright of any audio content. All audio content is for personal learning and entertainment purposes only. Please do not use for commercial purposes. If you find any audio content that infringes your copyright, please contact us and we will handle it promptly.</string>
     <string name="technical_info_title">Technical Information</string>
     <string name="copyright">© 2025 XMSLEEP. All rights reserved.\n\nThe audio content provided by this app is for personal learning and entertainment purposes only.\nPlease respect the copyright of related audio resources and do not use them for commercial purposes.</string>
     <string name="hide_animation">Hide Animation</string>
@@ -60,6 +64,9 @@
     <string name="switch_to_2_columns">Switch to 2 columns</string>
     <string name="pause">Pause</string>
     <string name="play">Play</string>
+    <string name="now_playing">Now Playing</string>
+    <string name="stop_all">Stop All</string>
+    <string name="drag_to_stop_play">Drag here to stop playback</string>
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
     <string name="adjust_volume">Adjust Volume</string>
@@ -70,8 +77,8 @@
     <string name="adjust_volume_for">Adjust Volume - %1$s</string>
     <string name="cancel_countdown">Cancel Countdown</string>
     <string name="minutes">%1$d mins</string>
-    <string name="set_as_default">Default</string>
-    <string name="cancel_default">Cancel Default</string>
+    <string name="set_as_default">Pin</string>
+    <string name="cancel_default">Unpin</string>
     <string name="favorite">Favorite</string>
     <string name="cancel_favorite">Cancel Favorite</string>
     <string name="current_countdown">Current countdown: %1$s</string>
@@ -96,7 +103,9 @@
     <string name="lottie_animation">Lottie Animation</string>
     <string name="cache_cleared_success">Cache cleared successfully</string>
     <string name="cache_clear_failed">Cache clear failed: %1$s</string>
+    <string name="delete_cache">Delete Cache</string>
     <string name="cache_auto_cleared">Cache exceeded 200M, auto-cleared</string>
+    <string name="must_download_before_pin">Please download the audio first before adding to Quick Play</string>
     <string name="auto_clear_failed">Auto-clear failed: %1$s</string>
     <string name="light_mode">Light</string>
     <string name="dark_mode">Dark</string>
@@ -129,5 +138,7 @@
     <string name="install_failed">Installation failed</string>
     <string name="join_group">Join Telegram Group</string>
     <string name="join_group_description">Share your thoughts</string>
+    <string name="load_failed">Load failed: %1$s</string>
+    <string name="all_categories">All</string>
 </resources>
 

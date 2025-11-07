@@ -13,8 +13,8 @@ android {
         applicationId = "org.xmsleep.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 14
-        versionName = "1.1.4"
+        versionCode = 20
+        versionName = "2.0.0"
         
         // 从 gradle.properties 读取 GitHub Token（如果存在）
         val githubToken = project.findProperty("GITHUB_TOKEN") as String? ?: ""

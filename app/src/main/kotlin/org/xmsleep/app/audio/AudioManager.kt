@@ -26,6 +26,7 @@ class AudioManager private constructor() {
     companion object {
         private const val TAG = "AudioManager"
         private const val DEFAULT_VOLUME = 0.5f
+        private const val MAX_CONCURRENT_SOUNDS = 3
         
         @Volatile
         private var instance: AudioManager? = null
@@ -56,6 +57,13 @@ class AudioManager private constructor() {
     
     // 网络音频的音量设置
     private val remoteVolumeSettings = mutableMapOf<String, Float>()
+    
+    // 播放顺序队列，用于限制最多同时播放3个声音
+    private sealed class PlayingItem {
+        data class LocalSound(val sound: Sound) : PlayingItem()
+        data class RemoteSound(val soundId: String) : PlayingItem()
+    }
+    private val playingQueue = java.util.concurrent.ConcurrentLinkedQueue<PlayingItem>()
 
     private var applicationContext: Context? = null
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -347,6 +355,25 @@ class AudioManager private constructor() {
                 return
             }
 
+            // 检查是否已达到最大播放数量，如果是则停止最早播放的声音
+            if (playingQueue.size >= MAX_CONCURRENT_SOUNDS) {
+                val oldestItem = playingQueue.poll() // 移除最早播放的声音
+                when (oldestItem) {
+                    is PlayingItem.LocalSound -> {
+                        // 直接暂停，不调用pauseSound避免递归
+                        players[oldestItem.sound]?.pause()
+                        playingStates[oldestItem.sound] = false
+                        Log.d(TAG, "已达到最大播放数量，停止最早播放的本地声音: ${oldestItem.sound.name}")
+                    }
+                    is PlayingItem.RemoteSound -> {
+                        // 直接暂停，不调用pauseRemoteSound避免递归
+                        remotePlayers[oldestItem.soundId]?.pause()
+                        remotePlayingStates[oldestItem.soundId] = false
+                        Log.d(TAG, "已达到最大播放数量，停止最早播放的远程声音: ${oldestItem.soundId}")
+                    }
+                }
+            }
+
             initializePlayer(context, sound)
             
             when (sound) {
@@ -365,6 +392,8 @@ class AudioManager private constructor() {
                 play()
             }
             playingStates[sound] = true
+            // 添加到播放队列
+            playingQueue.offer(PlayingItem.LocalSound(sound))
             Log.d(TAG, "${sound.name} 开始播放")
         } catch (e: Exception) {
             Log.e(TAG, "播放 ${sound.name} 声音失败: ${e.message}")
@@ -384,6 +413,8 @@ class AudioManager private constructor() {
 
             players[sound]?.pause()
             playingStates[sound] = false
+            // 从播放队列中移除
+            playingQueue.remove(PlayingItem.LocalSound(sound))
             Log.d(TAG, "${sound.name} 已暂停")
         } catch (e: Exception) {
             Log.e(TAG, "暂停 ${sound.name} 失败: ${e.message}")
@@ -403,6 +434,8 @@ class AudioManager private constructor() {
                     Log.e(TAG, "暂停 ${sound.name} 失败: ${e.message}")
                 }
             }
+            // 清空播放队列
+            playingQueue.clear()
         } catch (e: Exception) {
             Log.e(TAG, "暂停所有声音时发生错误: ${e.message}")
         }
@@ -421,6 +454,8 @@ class AudioManager private constructor() {
                     Log.e(TAG, "停止 ${sound.name} 失败: ${e.message}")
                 }
             }
+            // 清空播放队列
+            playingQueue.clear()
         } catch (e: Exception) {
             Log.e(TAG, "停止所有声音时发生错误: ${e.message}")
         }
@@ -515,6 +550,28 @@ class AudioManager private constructor() {
                 return
             }
             
+            // 检查是否已达到最大播放数量，如果是则停止最早播放的声音
+            if (playingQueue.size >= MAX_CONCURRENT_SOUNDS) {
+                val oldestItem = playingQueue.poll() // 移除最早播放的声音
+                when (oldestItem) {
+                    is PlayingItem.LocalSound -> {
+                        // 直接暂停，不调用pauseSound避免递归
+                        players[oldestItem.sound]?.pause()
+                        playingStates[oldestItem.sound] = false
+                        Log.d(TAG, "已达到最大播放数量，停止最早播放的本地声音: ${oldestItem.sound.name}")
+                    }
+                    is PlayingItem.RemoteSound -> {
+                        // 停止播放器并确保不会自动重新播放
+                        remotePlayers[oldestItem.soundId]?.apply {
+                            pause()
+                            playWhenReady = false
+                        }
+                        remotePlayingStates[oldestItem.soundId] = false
+                        Log.d(TAG, "已达到最大播放数量，停止最早播放的远程声音: ${oldestItem.soundId}")
+                    }
+                }
+            }
+            
             // 初始化播放器
             if (remotePlayers[soundId] == null) {
                 try {
@@ -549,6 +606,8 @@ class AudioManager private constructor() {
                     play()
                 }
                 remotePlayingStates[soundId] = true
+                // 添加到播放队列
+                playingQueue.offer(PlayingItem.RemoteSound(soundId))
                 Log.d(TAG, "$soundId 开始播放")
             } catch (e: Exception) {
                 Log.e(TAG, "播放 $soundId 声音失败: ${e.message}")
@@ -568,13 +627,19 @@ class AudioManager private constructor() {
             override fun onPlaybackStateChanged(state: Int) {
                 when (state) {
                     Player.STATE_ENDED -> {
-                        remotePlayingStates[soundId] = false
-                        remotePlayers[soundId]?.prepare()
-                        remotePlayers[soundId]?.play()
-                        remotePlayingStates[soundId] = true
+                        // 检查播放器是否还在队列中，如果不在队列中，不应该自动重新播放
+                        val isInQueue = playingQueue.contains(PlayingItem.RemoteSound(soundId))
+                        if (isInQueue) {
+                            remotePlayingStates[soundId] = false
+                            remotePlayers[soundId]?.prepare()
+                            remotePlayers[soundId]?.play()
+                            remotePlayingStates[soundId] = true
+                        }
                     }
                     Player.STATE_READY -> {
-                        if (remotePlayers[soundId]?.playWhenReady == true) {
+                        // 检查播放器是否还在队列中，如果不在队列中，不应该更新状态
+                        val isInQueue = playingQueue.contains(PlayingItem.RemoteSound(soundId))
+                        if (isInQueue && remotePlayers[soundId]?.playWhenReady == true) {
                             remotePlayingStates[soundId] = true
                         }
                     }
@@ -582,7 +647,11 @@ class AudioManager private constructor() {
             }
             
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                remotePlayingStates[soundId] = isPlaying
+                // 检查播放器是否还在队列中，如果不在队列中，不应该更新状态
+                val isInQueue = playingQueue.contains(PlayingItem.RemoteSound(soundId))
+                if (isInQueue) {
+                    remotePlayingStates[soundId] = isPlaying
+                }
             }
             
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
@@ -599,6 +668,8 @@ class AudioManager private constructor() {
         try {
             remotePlayers[soundId]?.pause()
             remotePlayingStates[soundId] = false
+            // 从播放队列中移除
+            playingQueue.remove(PlayingItem.RemoteSound(soundId))
             Log.d(TAG, "$soundId 已暂停")
         } catch (e: Exception) {
             Log.e(TAG, "暂停 $soundId 失败: ${e.message}")
