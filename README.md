@@ -1,7 +1,7 @@
 # XMSLEEP
 
 <div align="center">
-# XMSLEEP
+
 一个专注于白噪音播放的 Android 应用，帮助您放松、专注和入眠。
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
