@@ -299,7 +299,7 @@ fun UpdateDialog(
                     Button(
                         onClick = {
                             updateViewModel.installApk(state.file)
-                            onDismiss()
+                            // 不立即关闭对话框，等待权限请求结果
                         }
                     ) {
                         Text(context.getString(R.string.install_now))
@@ -308,6 +308,33 @@ fun UpdateDialog(
                 dismissButton = {
                     TextButton(onClick = onDismiss) {
                         Text(context.getString(R.string.later))
+                    }
+                }
+            )
+        }
+        
+        is UpdateState.InstallPermissionRequested -> {
+            AlertDialog(
+                onDismissRequest = onDismiss,
+                title = { Text("需要安装权限") },
+                text = {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text("请在设置中允许安装来自此来源的应用，然后返回应用继续安装。")
+                    }
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            // 用户从设置返回后，重试安装
+                            updateViewModel.retryInstall()
+                        }
+                    ) {
+                        Text("我已允许，继续安装")
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = onDismiss) {
+                        Text("取消")
                     }
                 }
             )

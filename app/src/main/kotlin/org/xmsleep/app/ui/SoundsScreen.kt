@@ -91,8 +91,10 @@ import com.airbnb.lottie.LottieDrawable
 import com.airbnb.lottie.LottieProperty
 import com.airbnb.lottie.model.KeyPath
 import com.airbnb.lottie.value.LottieValueCallback
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 import java.util.concurrent.TimeUnit
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
@@ -184,7 +186,7 @@ private class ThemeColorCallback(
                 // 否则使用secondary色作为变化
                 try {
                     val originalHct = Color(originalArgb).toHct()
-                    val hueDiff = kotlin.math.abs(originalHct.hue - primaryHct.hue)
+                    val hueDiff = abs(originalHct.hue - primaryHct.hue)
                     if (hueDiff < 30 || hueDiff > 330) {
                         // 色相接近主色，使用中间色（人物主要部分）
                         mediumColor
@@ -286,7 +288,7 @@ fun SoundsScreen(
     // 监听远程音频置顶状态变化（从 PreferencesManager 读取）
     LaunchedEffect(Unit) {
         while (true) {
-            kotlinx.coroutines.delay(500) // 每500ms检查一次
+            delay(500) // 每500ms检查一次
             val savedPinned = org.xmsleep.app.preferences.PreferencesManager.getRemotePinned(context).toMutableSet()
             // 比较内容是否相同（使用 toSet() 进行比较）
             if (savedPinned.toSet() != remotePinned.toSet()) {
@@ -298,7 +300,7 @@ fun SoundsScreen(
     // 监听远程音频播放状态
     LaunchedEffect(Unit) {
         while (true) {
-            kotlinx.coroutines.delay(500)
+            delay(500)
             val currentlyPlaying = remoteSounds.filter { sound ->
                 remotePinned.contains(sound.id) && audioManager.isPlayingRemoteSound(sound.id)
             }.map { it.id }.toSet()
@@ -371,7 +373,7 @@ fun SoundsScreen(
     // 定期更新播放状态
     LaunchedEffect(Unit) {
         while (true) {
-            kotlinx.coroutines.delay(500)
+            delay(500)
             soundItems.forEach { item ->
                 playingStates[item.sound] = audioManager.isPlayingSound(item.sound)
             }
@@ -826,7 +828,7 @@ fun SoundsScreen(
                 val localPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
                 val remotePlaying = defaultRemoteSounds.any { audioManager.isPlayingRemoteSound(it.id) }
                 defaultAreaSoundsPlaying = localPlaying || remotePlaying
-                kotlinx.coroutines.delay(300) // 每300ms检查一次
+                delay(300) // 每300ms检查一次
             }
         }
         
@@ -872,7 +874,7 @@ fun SoundsScreen(
                                 val finalDragY = totalDragY
                                 totalDragY = 0f
                                 
-                                if (kotlin.math.abs(finalDragY) >= dragThreshold) {
+                                if (abs(finalDragY) >= dragThreshold) {
                                     // 向上滑（负值）表示收缩，向下滑（正值）表示展开
                                     scope.launch {
                                         // 在协程中实时获取当前状态
@@ -1156,7 +1158,7 @@ private fun DefaultArea(
     onRemotePinnedChange: (String, Boolean) -> Unit = { _, _ -> },
     onRemoteCardClick: (org.xmsleep.app.audio.model.SoundMetadata) -> Unit = {},
     getSoundDisplayName: (org.xmsleep.app.audio.model.SoundMetadata) -> String = { it.name },
-    scope: kotlinx.coroutines.CoroutineScope = rememberCoroutineScope(),
+    scope: CoroutineScope = rememberCoroutineScope(),
     resourceManager: org.xmsleep.app.audio.AudioResourceManager = remember { org.xmsleep.app.audio.AudioResourceManager.getInstance(context) }
 ) {
     // 实时获取默认卡片列表（使用derivedStateOf确保状态变化时触发重组）

@@ -25,6 +25,9 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
@@ -214,7 +217,7 @@ fun FloatingPlayButton(
             
             previousPlayingSounds = currentPlayingIds
             allPlayingSounds = currentPlaying
-            kotlinx.coroutines.delay(300) // 每300ms检查一次
+            delay(300) // 每300ms检查一次
         }
     }
     
@@ -315,7 +318,7 @@ fun FloatingPlayButton(
                                     isButtonInStopArea = false
                                     
                                     // 等待渐出动画完成后再重置按钮位置和状态
-                                    kotlinx.coroutines.delay(200) // 等待渐出动画完成
+                                    delay(200) // 等待渐出动画完成
                                     shouldFadeWithStopArea = false
                                     dragOffsetX.snapTo(0f)
                                     dragOffsetY.snapTo(0f)
