@@ -167,15 +167,76 @@ class UpdateViewModel(private val context: Context) {
         }
     }
     
+    // 保存待安装的 APK 文件
+    private var pendingInstallFile: File? = null
+    
+    /**
+     * 检查是否有待安装的文件且权限已授予
+     * 用于应用恢复时自动检测
+     */
+    fun checkPendingInstall(): Boolean {
+        val file = pendingInstallFile
+        if (file != null && file.exists()) {
+            // 如果有待安装的文件，检查权限
+            if (updateInstaller.hasInstallPermission()) {
+                // 权限已授予，可以安装
+                return true
+            }
+        }
+        return false
+    }
+    
+    /**
+     * 自动重试安装（用于应用恢复时）
+     */
+    fun autoRetryInstall() {
+        val file = pendingInstallFile
+        if (file != null && file.exists() && updateInstaller.hasInstallPermission()) {
+            // 有文件且权限已授予，自动安装
+            installApk(file)
+        }
+    }
+    
     /**
      * 安装 APK
      */
     fun installApk(apkFile: File) {
+        // 保存待安装的文件
+        pendingInstallFile = apkFile
+        
+        // 检查安装权限
+        if (!updateInstaller.hasInstallPermission()) {
+            // 没有权限，请求权限
+            updateInstaller.requestInstallPermission()
+            _updateState.value = UpdateState.InstallPermissionRequested
+            return
+        }
+        
         val success = updateInstaller.install(apkFile)
         if (success) {
             _updateState.value = UpdateState.Installing
+            pendingInstallFile = null
         } else {
-            _updateState.value = UpdateState.InstallFailed("无法启动安装程序")
+            _updateState.value = UpdateState.InstallFailed("无法启动安装程序，请检查文件是否完整")
+            pendingInstallFile = null
+        }
+    }
+    
+    /**
+     * 重试安装（在用户授予权限后调用）
+     */
+    fun retryInstall() {
+        val file = pendingInstallFile
+        if (file != null && file.exists()) {
+            installApk(file)
+        } else {
+            // 如果文件不存在，尝试从当前状态获取
+            val currentState = _updateState.value
+            if (currentState is UpdateState.Downloaded) {
+                installApk(currentState.file)
+            } else {
+                _updateState.value = UpdateState.InstallFailed("找不到 APK 文件")
+            }
         }
     }
     
@@ -206,6 +267,7 @@ sealed class UpdateState {
     data class Downloading(val progress: Float) : UpdateState()
     data class Downloaded(val file: File) : UpdateState()
     data class DownloadFailed(val error: String) : UpdateState()
+    object InstallPermissionRequested : UpdateState()
     object Installing : UpdateState()
     data class InstallFailed(val error: String) : UpdateState()
 }

@@ -77,6 +77,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.lerp
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.zIndex
@@ -105,6 +106,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.ui.res.painterResource
 import java.io.File
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.ui.semantics.Role
@@ -471,7 +473,7 @@ fun MainScreen(
         val initialState = updateViewModel.updateState.value
         if (initialState is org.xmsleep.app.update.UpdateState.HasUpdate) {
             android.util.Log.d("UpdateCheck", "初始状态已是HasUpdate，显示弹窗")
-            kotlinx.coroutines.delay(500)
+            delay(500)
             showAutoUpdateDialog = true
                         } else {
             // 否则开始检查更新
@@ -487,7 +489,7 @@ fun MainScreen(
             is org.xmsleep.app.update.UpdateState.HasUpdate -> {
                 android.util.Log.d("UpdateCheck", "检测到新版本: ${state.version.version}")
                 // 延迟一小段时间确保UI已准备好
-                kotlinx.coroutines.delay(300)
+                delay(300)
                 showAutoUpdateDialog = true
             }
             is org.xmsleep.app.update.UpdateState.CheckFailed -> {
@@ -496,7 +498,7 @@ fun MainScreen(
                 if (state.error.contains("rate limit", ignoreCase = true) || 
                     state.error.contains("请求次数", ignoreCase = true)) {
                     android.util.Log.d("UpdateCheck", "Rate limit错误，显示弹窗提示用户")
-                    kotlinx.coroutines.delay(300)
+                    delay(300)
                     showAutoUpdateDialog = true
                 }
             }
@@ -510,14 +512,31 @@ fun MainScreen(
         }
     }
     
-    // 监听生命周期，当应用恢复时检查更新
+    // 监听生命周期，当应用恢复时检查更新和待安装的文件
     val lifecycleOwner = LocalLifecycleOwner.current
+    val scope = rememberCoroutineScope()
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                android.util.Log.d("UpdateCheck", "Activity resumed, 检查更新")
-                // 应用恢复时也检查更新（会受1小时间隔限制）
-                updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
+                android.util.Log.d("UpdateCheck", "Activity resumed, 检查更新和待安装文件")
+                
+                // 先检查是否有待安装的文件且权限已授予
+                if (updateViewModel.checkPendingInstall()) {
+                    android.util.Log.d("UpdateCheck", "检测到待安装文件且权限已授予，自动弹出安装对话框")
+                    // 在协程中延迟一小段时间确保UI已准备好
+                    scope.launch {
+                        delay(500)
+                        // 自动重试安装
+                        updateViewModel.autoRetryInstall()
+                        // 显示更新对话框（如果还没有显示）
+                        if (!showAutoUpdateDialog) {
+                            showAutoUpdateDialog = true
+                        }
+                    }
+                } else {
+                    // 应用恢复时也检查更新（会受1小时间隔限制）
+                    updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -541,7 +560,7 @@ fun MainScreen(
     LaunchedEffect(pinnedSounds.value, Unit) {
         while (true) {
             defaultAreaSoundsPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
-            kotlinx.coroutines.delay(300) // 每300ms检查一次
+            delay(300) // 每300ms检查一次
         }
     }
     
@@ -649,7 +668,7 @@ fun MainScreen(
                     // tab 切换时，触发浮动按钮收缩
                     LaunchedEffect(currentTab) {
                         shouldCollapseFloatingButton = true
-                        kotlinx.coroutines.delay(100) // 短暂延迟后重置
+                        delay(100) // 短暂延迟后重置
                         shouldCollapseFloatingButton = false
                     }
                     when (currentTab) {
@@ -672,8 +691,8 @@ fun MainScreen(
                                 onScrollDetected = {
                                     // 滚动时，触发浮动按钮收缩
                                     shouldCollapseFloatingButton = true
-                                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
-                                        kotlinx.coroutines.delay(100) // 短暂延迟后重置
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        delay(100) // 短暂延迟后重置
                                         shouldCollapseFloatingButton = false
                                     }
                                 }
@@ -688,8 +707,8 @@ fun MainScreen(
                                 onScrollDetected = {
                                     // 滚动时，触发浮动按钮收缩
                                     shouldCollapseFloatingButton = true
-                                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
-                                        kotlinx.coroutines.delay(100) // 短暂延迟后重置
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        delay(100) // 短暂延迟后重置
                                         shouldCollapseFloatingButton = false
                                     }
                                 }
@@ -708,8 +727,8 @@ fun MainScreen(
                                 onScrollDetected = {
                                     // 滚动时，触发浮动按钮收缩
                                     shouldCollapseFloatingButton = true
-                                    kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
-                                        kotlinx.coroutines.delay(100) // 短暂延迟后重置
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        delay(100) // 短暂延迟后重置
                                         shouldCollapseFloatingButton = false
                                     }
                                 },
@@ -791,7 +810,7 @@ fun MainScreen(
             audioManager = audioManager,
             onSoundClick = { sound ->
                 // 点击卡片暂停播放
-                kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.Main).launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     if (audioManager.isPlayingRemoteSound(sound.id)) {
                         audioManager.pauseRemoteSound(sound.id)
                     }
@@ -961,7 +980,7 @@ fun SettingsScreen(
             }
             
             // 每5秒更新一次缓存大小和音量
-            kotlinx.coroutines.delay(5000)
+            delay(5000)
         }
     }
     
@@ -974,7 +993,7 @@ fun SettingsScreen(
             } else {
                 0f
             }
-            kotlinx.coroutines.delay(300) // 每300ms更新一次音量显示
+            delay(300) // 每300ms更新一次音量显示
         }
     }
     Column(
@@ -1361,7 +1380,7 @@ fun SettingsScreen(
             // 注意：resetInstallingStateIfFileExists方法已移除，如需可以重新实现
             // LaunchedEffect(showUpdateDialog, updateState) {
             //     if (showUpdateDialog && updateState is org.xmsleep.app.update.UpdateState.Installing) {
-            //         kotlinx.coroutines.delay(100) // 短暂延迟确保UpdateDialog已初始化
+            //         delay(100) // 短暂延迟确保UpdateDialog已初始化
             //         updateViewModel.resetInstallingStateIfFileExists()
             //     }
             // }

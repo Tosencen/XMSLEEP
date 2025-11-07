@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.xmsleep.app.*
 import org.xmsleep.app.R
@@ -147,7 +148,7 @@ fun FavoriteScreen(
     // 监听远程音频播放状态
     LaunchedEffect(remoteSounds, remoteFavorites) {
         while (true) {
-            kotlinx.coroutines.delay(500)
+            delay(500)
             val currentlyPlaying = remoteSounds.filter { sound ->
                 remoteFavorites.contains(sound.id) && audioManager.isPlayingRemoteSound(sound.id)
             }.map { it.id }.toSet()

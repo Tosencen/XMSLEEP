@@ -5,10 +5,12 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 
 /**
@@ -163,7 +165,7 @@ class TimerManager private constructor() {
                 break
             } else {
                 // 更新剩余时间（在主线程上更新StateFlow，确保触发Compose重组）
-                kotlinx.coroutines.withContext(Dispatchers.Main) {
+                withContext(Dispatchers.Main) {
                     _timeLeftMillis.value = timeLeft
                 }
 
@@ -173,7 +175,7 @@ class TimerManager private constructor() {
                 }
 
                 // 每秒更新一次
-                kotlinx.coroutines.delay(1000)
+                delay(1000)
             }
         }
     }

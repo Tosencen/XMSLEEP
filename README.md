@@ -1,6 +1,5 @@
 # XMSLEEP
 
-**刚开始弄，功能在慢慢增加，功能趋于稳定后再跟进丰富声音内容，所以更新会比较频繁**
 一个专注于白噪音播放的 Android 应用，帮助您放松、专注和入眠。
 ## 功能特性
 
@@ -27,8 +26,8 @@
 
 ## 当前版本
 
-- **版本号**: 1.0.4
-- **Version Code**: 5
+- **版本号**: 2.0.2
+- **Version Code**: 22
 
 ## 构建要求
 
@@ -63,6 +62,24 @@ cd XMSLEEP
 
 ## 更新日志
 
+### v2.0.2
+- ✨ **新功能**：从系统设置返回后自动检测安装权限并弹出安装对话框
+- 🐛 **修复**：修复安装权限处理逻辑，解决"无法启动安装程序"的问题
+- 🐛 **修复**：修复权限请求后的重试安装逻辑
+- 🔧 **改进**：优化代码规范，移除不必要的完整包名引用
+
+### v2.0.1
+- 🐛 **修复**：修复安装权限处理逻辑
+- 🐛 **修复**：修复权限请求后的重试安装逻辑
+- 🔧 **改进**：优化代码规范
+
+### v2.0.0
+- ✨ **新功能**：全局浮动播放按钮，支持展开/收缩，显示最多 3 个正在播放的卡片
+- ✨ **新功能**：长按拖动停止播放功能，拖动到红色区域停止所有播放
+- ✨ **新功能**：关于弹窗更新，新增声音来源说明
+- 🎨 **改进**：浮动按钮采用 Material Design 3 设计规范
+- 🔧 **改进**：优化状态管理，支持浮动按钮位置和展开状态的持久化
+
 ### v1.0.4
 - 优化更新检查逻辑
 - 修复版本号读取问题
@@ -79,12 +96,15 @@ cd XMSLEEP
 
 本项目采用 [MIT License](LICENSE) 许可证。
 
-### ⚠️ Third-Party Assets
+### ⚠️ 声音来源说明
 
-Some sounds used in this project are sourced from third-party providers and **are subject to different licenses**:
+本应用中的声音来源如下：
 
-- Sounds licensed under the **Pixabay Content License**: [Pixabay Content License](https://pixabay.com/service/license-summary/)
-- Sounds licensed under **CC0**: [Creative Commons Zero License](https://creativecommons.org/publicdomain/zero/1.0/)
+- **内置声音**：来自开源音频资源库
+- **网络声音**：来自 [moodist](https://github.com/remvze/moodist) 项目，遵循 MIT 开源许可协议
+- **第三方资源**：部分声音来自第三方提供商，遵循相应的许可协议
+  - 遵循 **Pixabay Content License** 的声音：[Pixabay Content License](https://pixabay.com/service/license-summary/)
+  - 遵循 **CC0** 的声音：[Creative Commons Zero License](https://creativecommons.org/publicdomain/zero/1.0/)
 
 ## 贡献
 
