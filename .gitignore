@@ -35,22 +35,13 @@ proguard/
 # Android Studio captures folder
 captures/
 
-# IntelliJ
+# IntelliJ IDEA
 *.iml
-.idea/workspace.xml
-.idea/tasks.xml
-.idea/gradle.xml
-.idea/assetWizardSettings.xml
-.idea/dictionaries
-.idea/libraries
-.idea/jarRepositories.xml
-.idea/caches
-.idea/modules.xml
-.idea/.name
-.idea/compiler.xml
-.idea/misc.xml
-.idea/vcs.xml
-.idea/deploymentTargetDropDown.xml
+.idea/
+!.idea/.gitignore
+!.idea/codeStyles/
+!.idea/inspectionProfiles/
+!.idea/runConfigurations.xml
 
 # Keystore files
 *.jks
@@ -86,6 +77,13 @@ lint/tmp/
 
 # Android Profiling
 *.hprof
+
+# IDE - VSCode
+.vscode/
+!.vscode/settings.json.template
+
+# IDE - Kotlin
+.kotlin/
 
 # macOS
 .DS_Store
