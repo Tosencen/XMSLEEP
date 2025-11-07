@@ -106,6 +106,13 @@ cd XMSLEEP
   - 遵循 **Pixabay Content License** 的声音：[Pixabay Content License](https://pixabay.com/service/license-summary/)
   - 遵循 **CC0** 的声音：[Creative Commons Zero License](https://creativecommons.org/publicdomain/zero/1.0/)
 
+## 文档
+
+更多技术文档请查看 [docs](./docs/) 目录：
+- [音频架构设计](./docs/AUDIO_ARCHITECTURE.md)
+- [音频资源管理](./docs/AUDIO_RESOURCES.md)
+- [声音模块资源清单](./docs/SOUND_MODULES_RESOURCES.md)
+
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
