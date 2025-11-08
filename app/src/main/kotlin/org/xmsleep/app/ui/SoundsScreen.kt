@@ -86,6 +86,37 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.res.painterResource
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import android.graphics.ImageDecoder
+import android.graphics.drawable.AnimatedImageDrawable
+import android.os.Build
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.drawscope.draw
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
 import com.airbnb.lottie.LottieProperty
@@ -320,45 +351,107 @@ fun SoundsScreen(
         }
     }.value
     
-    // 6个声音模块的数据（使用字符串资源以支持语言切换）
+    // 14个声音模块的数据（使用字符串资源以支持语言切换）
     // 使用 configuration.locales 作为依赖，确保语言切换时重新创建
     val soundItems = remember(colorScheme, configuration.locales) {
         listOf(
+            // 1. 伞上雨声
             SoundItem(
-                AudioManager.Sound.RAIN,
-                context.getString(R.string.sound_rain),
-                R.raw.rain_animation_optimized,
+                AudioManager.Sound.UMBRELLA_RAIN,
+                context.getString(R.string.sound_umbrella_rain),
+                R.drawable.umbrella_rain,
                 colorScheme.primary
             ),
+            // 2. 打字机
             SoundItem(
-                AudioManager.Sound.CAMPFIRE,
-                context.getString(R.string.sound_campfire),
-                R.raw.gouhuo_animation,
+                AudioManager.Sound.TYPEWRITER,
+                context.getString(R.string.sound_typewriter),
+                R.drawable.typewriter,
+                colorScheme.secondaryContainer
+            ),
+            // 3. 时钟
+            SoundItem(
+                AudioManager.Sound.CLOCK,
+                context.getString(R.string.sound_clock),
+                R.drawable.clock,
+                colorScheme.errorContainer
+            ),
+            // 4. 划船
+            SoundItem(
+                AudioManager.Sound.ROWING,
+                context.getString(R.string.sound_rowing),
+                R.drawable.rowing,
                 colorScheme.error
             ),
+            // 5. 森林鸟鸣
             SoundItem(
-                AudioManager.Sound.THUNDER,
-                context.getString(R.string.sound_thunder),
-                R.raw.dalei_animation,
+                AudioManager.Sound.FOREST_BIRDS,
+                context.getString(R.string.sound_forest_birds),
+                R.drawable.forest_birds,
+                colorScheme.primary
+            ),
+            // 6. 漂流
+            SoundItem(
+                AudioManager.Sound.DRIFTING,
+                context.getString(R.string.sound_drifting),
+                R.drawable.drifting,
+                colorScheme.error
+            ),
+            // 7. 打雷
+            SoundItem(
+                AudioManager.Sound.THUNDER_NEW,
+                context.getString(R.string.sound_thunder_new),
+                R.drawable.thunder_new,
+                colorScheme.tertiaryContainer
+            ),
+            // 8. 篝火
+            SoundItem(
+                AudioManager.Sound.CAMPFIRE_NEW,
+                context.getString(R.string.sound_campfire_new),
+                R.drawable.campfire_new,
                 colorScheme.secondary
             ),
+            // 9. 雪地徒步
             SoundItem(
-                AudioManager.Sound.CAT_PURRING,
-                context.getString(R.string.sound_cat_purring),
-                R.raw.cat,
+                AudioManager.Sound.SNOW_WALKING,
+                context.getString(R.string.sound_snow_walking),
+                R.drawable.snow_walking,
+                colorScheme.secondaryContainer
+            ),
+            // 10. 起风了
+            SoundItem(
+                AudioManager.Sound.WIND,
+                context.getString(R.string.sound_wind),
+                R.drawable.wind,
                 colorScheme.tertiary
             ),
+            // 11. 大雨
             SoundItem(
-                AudioManager.Sound.BIRD_CHIRPING,
-                context.getString(R.string.sound_bird_chirping),
-                R.raw.bird,
+                AudioManager.Sound.HEAVY_RAIN,
+                context.getString(R.string.sound_heavy_rain),
+                R.drawable.heavy_rain,
                 colorScheme.primaryContainer
             ),
+            // 12. 图书馆
             SoundItem(
-                AudioManager.Sound.NIGHT_INSECTS,
-                context.getString(R.string.sound_night_insects),
-                R.raw.xishuai,
-                colorScheme.secondaryContainer
+                AudioManager.Sound.LIBRARY,
+                context.getString(R.string.sound_library),
+                R.drawable.library,
+                colorScheme.tertiary
+            ),
+            // 13. 键盘
+            SoundItem(
+                AudioManager.Sound.KEYBOARD,
+                context.getString(R.string.sound_keyboard),
+                R.drawable.keyboard,
+                colorScheme.primaryContainer
+            ),
+            // 14. 办公室
+            SoundItem(
+                AudioManager.Sound.OFFICE,
+                context.getString(R.string.sound_office),
+                R.drawable.office,
+                colorScheme.secondary
             )
         )
     }
@@ -370,13 +463,38 @@ fun SoundsScreen(
         }
     }
     
-    // 定期更新播放状态
+    // 定期更新播放状态（立即启动，确保状态同步）
     LaunchedEffect(Unit) {
         while (true) {
-            delay(500)
+            delay(300) // 缩短检测间隔，提高响应速度
             soundItems.forEach { item ->
-                playingStates[item.sound] = audioManager.isPlayingSound(item.sound)
+                // 从AudioManager获取实际播放状态并同步
+                val actualPlaying = audioManager.isPlayingSound(item.sound)
+                // 只有当状态确实发生变化时才更新，避免不必要的重组
+                if (playingStates[item.sound] != actualPlaying) {
+                    playingStates[item.sound] = actualPlaying
+                }
             }
+        }
+    }
+    
+    // 检查是否有任何声音在播放（本地+远程）
+    var hasAnyPlayingSounds by remember { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        while (true) {
+            // 检查本地声音
+            val localPlaying = soundItems.any { audioManager.isPlayingSound(it.sound) }
+            // 检查远程声音
+            val remotePlaying = playingRemoteSounds.isNotEmpty() || 
+                remoteSounds.any { audioManager.isPlayingRemoteSound(it.id) }
+            hasAnyPlayingSounds = localPlaying || remotePlaying
+            
+            // 如果没有声音在播放且倒计时是激活状态，自动取消倒计时
+            if (!hasAnyPlayingSounds && isTimerActive) {
+                timerManager.cancelTimer()
+            }
+            
+            delay(500) // 每500ms检查一次
         }
     }
     
@@ -388,14 +506,21 @@ fun SoundsScreen(
             }
             
             override fun onTimerFinished() {
-                // 倒计时结束，立即停止所有声音播放
-                audioManager.stopAllSounds()
-                // 立即更新所有播放状态
-                soundItems.forEach { item ->
-                    playingStates[item.sound] = false
-                }
-                // 在主线程显示Toast
+                // 倒计时结束，立即停止所有声音播放（本地和远程）
+                // 在主线程执行停止操作，确保UI更新及时
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
+                    // 停止所有声音
+                    audioManager.stopAllSounds()
+                    
+                    // 立即更新所有本地声音播放状态
+                    soundItems.forEach { item ->
+                        playingStates[item.sound] = false
+                    }
+                    
+                    // 立即更新所有远程声音播放状态
+                    playingRemoteSounds = emptySet()
+                    
+                    // 显示Toast提示
                     android.widget.Toast.makeText(context, context.getString(R.string.countdown_ended_stopped), android.widget.Toast.LENGTH_SHORT).show()
                 }
             }
@@ -823,12 +948,21 @@ fun SoundsScreen(
         
         // 实时检测快捷播放的播放状态（包括本地和远程）
         var defaultAreaSoundsPlaying by remember { mutableStateOf(false) }
-        LaunchedEffect(pinnedSounds.value, defaultRemoteSounds, Unit) {
+        LaunchedEffect(pinnedSounds.value, defaultRemoteSounds, playingStates, playingRemoteSounds) {
+            // 立即检查一次状态
+            val localPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
+            val remotePlaying = defaultRemoteSounds.any { audioManager.isPlayingRemoteSound(it.id) }
+            defaultAreaSoundsPlaying = localPlaying || remotePlaying
+            
+            // 然后定期更新
             while (true) {
-                val localPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
-                val remotePlaying = defaultRemoteSounds.any { audioManager.isPlayingRemoteSound(it.id) }
-                defaultAreaSoundsPlaying = localPlaying || remotePlaying
                 delay(300) // 每300ms检查一次
+                val currentLocalPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
+                val currentRemotePlaying = defaultRemoteSounds.any { audioManager.isPlayingRemoteSound(it.id) }
+                val newState = currentLocalPlaying || currentRemotePlaying
+                if (defaultAreaSoundsPlaying != newState) {
+                    defaultAreaSoundsPlaying = newState
+                }
             }
         }
         
@@ -1104,6 +1238,7 @@ fun SoundsScreen(
             isTimerActive = isTimerActive,
             timeLeftMillis = timeLeftMillis,
             onClick = { showTimerDialog = true },
+            enabled = hasAnyPlayingSounds, // 只有在有声音播放时才可点击
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = timerFABBottomPadding, end = 16.dp)
@@ -1118,8 +1253,14 @@ fun SoundsScreen(
             onDismiss = { showTimerDialog = false },
             onTimerSet = { minutes ->
                 if (minutes > 0) {
-                    timerManager.startTimer(minutes)
-                    android.widget.Toast.makeText(context, context.getString(R.string.countdown_set_minutes, minutes), android.widget.Toast.LENGTH_SHORT).show()
+                    // 只有在有声音播放时才允许设置倒计时
+                    val hasPlaying = audioManager.hasAnyPlayingSounds()
+                    if (hasPlaying) {
+                        timerManager.startTimer(minutes)
+                        android.widget.Toast.makeText(context, context.getString(R.string.countdown_set_minutes, minutes), android.widget.Toast.LENGTH_SHORT).show()
+                    } else {
+                        android.widget.Toast.makeText(context, context.getString(R.string.please_play_sound_before_timer), android.widget.Toast.LENGTH_SHORT).show()
+                    }
                 } else {
                     timerManager.cancelTimer()
                     android.widget.Toast.makeText(context, context.getString(R.string.countdown_cancelled), android.widget.Toast.LENGTH_SHORT).show()
@@ -1276,6 +1417,7 @@ private fun DefaultArea(
                                 pinnedSounds.value.forEach { sound ->
                                     if (audioManager.isPlayingSound(sound)) {
                                         audioManager.pauseSound(sound)
+                                        playingStates[sound] = false
                                     }
                                 }
                                 remoteSounds.forEach { sound ->
@@ -1287,7 +1429,13 @@ private fun DefaultArea(
                                 // 播放所有快捷播放的声音（本地和远程）
                                 pinnedSounds.value.forEach { sound ->
                                     if (!audioManager.isPlayingSound(sound)) {
+                                        playingStates[sound] = true
                                         audioManager.playSound(context, sound)
+                                        // 延迟同步实际状态
+                                        scope.launch {
+                                            delay(200)
+                                            playingStates[sound] = audioManager.isPlayingSound(sound)
+                                        }
                                     }
                                 }
                                 // 远程音频需要先下载，这里只播放已缓存的
@@ -1378,13 +1526,23 @@ private fun DefaultArea(
                             isFavorite = favoriteSounds.value.contains(item.sound),
                             isEditMode = isEditMode,
                             onToggle = { sound ->
+                                android.util.Log.d("SoundsScreen", "DefaultCard onToggle 被调用: ${sound.name}")
                                 val wasPlaying = audioManager.isPlayingSound(sound)
+                                android.util.Log.d("SoundsScreen", "当前播放状态: $wasPlaying")
                                 if (wasPlaying) {
+                                    android.util.Log.d("SoundsScreen", "暂停播放: ${sound.name}")
                                     audioManager.pauseSound(sound)
                                     playingStates[sound] = false
                                 } else {
-                                    audioManager.playSound(context, sound)
+                                    android.util.Log.d("SoundsScreen", "开始播放: ${sound.name}")
+                                    // 先设置状态为true，表示正在启动播放
                                     playingStates[sound] = true
+                                    audioManager.playSound(context, sound)
+                                    // 延迟一小段时间后同步实际状态，确保状态正确
+                                    scope.launch {
+                                        delay(200)
+                                        playingStates[sound] = audioManager.isPlayingSound(sound)
+                                    }
                                 }
                             },
                             onRemove = {
@@ -1620,6 +1778,7 @@ private fun BuiltInSoundsContent(
     onPinnedChange: (AudioManager.Sound, Boolean) -> Unit,
     onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     Column(modifier = Modifier.fillMaxSize()) {
         // 显示所有卡片（不过滤默认卡片，因为默认是复制而不是移动）
         val normalItems = soundItems
@@ -1659,8 +1818,14 @@ private fun BuiltInSoundsContent(
                                     audioManager.pauseSound(sound)
                                     playingStates[sound] = false
                                 } else {
-                                    audioManager.playSound(context, sound)
+                                    // 先设置状态为true，表示正在启动播放
                                     playingStates[sound] = true
+                                    audioManager.playSound(context, sound)
+                                    // 延迟一小段时间后同步实际状态，确保状态正确
+                                    scope.launch {
+                                        delay(200)
+                                        playingStates[sound] = audioManager.isPlayingSound(sound)
+                                    }
                                 }
                             }
                         },
@@ -1724,6 +1889,7 @@ private fun FavoriteSoundsContent(
     onPinnedChange: (AudioManager.Sound, Boolean) -> Unit,
     onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit
 ) {
+    val scope = rememberCoroutineScope()
     // 过滤出收藏的声音
     val favoriteItems = remember(favoriteSounds.value) {
         soundItems.filter { favoriteSounds.value.contains(it.sound) }
@@ -1778,8 +1944,14 @@ private fun FavoriteSoundsContent(
                             audioManager.pauseSound(sound)
                             playingStates[sound] = false
                         } else {
-                            audioManager.playSound(context, sound)
+                            // 先设置状态为true，表示正在启动播放
                             playingStates[sound] = true
+                            audioManager.playSound(context, sound)
+                            // 延迟一小段时间后同步实际状态，确保状态正确
+                            scope.launch {
+                                delay(200)
+                                playingStates[sound] = audioManager.isPlayingSound(sound)
+                            }
                         }
                     },
                     onVolumeClick = { showVolumeDialog = true },
@@ -2226,65 +2398,15 @@ fun SoundCard(
                         )
                     }
                     
-                    // Lottie动画（左下角）
-                    AndroidView(
-                        factory = { ctx ->
-                            LottieAnimationView(ctx).apply {
-                                setAnimation(item.animationRes)
-                                repeatCount = LottieDrawable.INFINITE
-                            }
-                        },
-                        update = { view ->
-                            view.alpha = alpha
-                            
-                            // 应用填充主题色（使用主色调）
-                            val primaryArgb = currentPrimaryColor.toArgb()
-                            view.addValueCallback(
-                                KeyPath("**"),
-                                LottieProperty.COLOR,
-                                LottieValueCallback(primaryArgb)
-                            )
-                            
-                            // 应用描边主题色（使用outline颜色）
-                            val outlineArgb = currentOutlineColor.toArgb()
-                            view.addValueCallback(
-                                KeyPath("**"),
-                                LottieProperty.STROKE_COLOR,
-                                LottieValueCallback(outlineArgb)
-                            )
-                            
-                            // 根据播放状态控制动画
-                            if (isPlaying) {
-                                if (!view.isAnimating) {
-                                    view.resumeAnimation()
-                                }
-                            } else {
-                                // 未播放时，动画静止在第一帧
-                                view.pauseAnimation()
-                                view.progress = 0f
-                                // 强制刷新视图，确保颜色正确应用到第一帧
-                                view.invalidate()
-                                // 确保在静止状态下颜色回调仍然生效
-                                android.os.Handler(android.os.Looper.getMainLooper()).post {
-                                    val primaryArgb = currentPrimaryColor.toArgb()
-                                    val outlineArgb = currentOutlineColor.toArgb()
-                                    view.addValueCallback(
-                                        KeyPath("**"),
-                                        LottieProperty.COLOR,
-                                        LottieValueCallback(primaryArgb)
-                                    )
-                                    view.addValueCallback(
-                                        KeyPath("**"),
-                                        LottieProperty.STROKE_COLOR,
-                                        LottieValueCallback(outlineArgb)
-                                    )
-                                    view.invalidate()
-                                }
-                            }
-                        },
+                    // 动画WebP图片（左下角）
+                    AnimatedWebPImage(
+                        drawableResId = item.animationRes,
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .size(80.dp)
+                            .alpha(alpha),
+                        contentScale = ContentScale.Fit,
+                        isPlaying = isPlaying
                     )
                 }
                 
@@ -2308,6 +2430,156 @@ fun SoundCard(
             }
         }
     }
+}
+
+/**
+ * 动画WebP图片组件（支持动画WebP播放、主题色适配）
+ * 使用同色系的深色和浅色来区分动画层次，所有动画跟随用户选择的主题色
+ */
+@Composable
+private fun AnimatedWebPImage(
+    drawableResId: Int,
+    modifier: Modifier = Modifier,
+    contentScale: ContentScale = ContentScale.Fit,
+    isPlaying: Boolean = false
+) {
+    val context = LocalContext.current
+    val colorScheme = MaterialTheme.colorScheme
+    // 使用用户选择的主题色（primary），所有动画都跟随这个颜色
+    val themeColor = colorScheme.primary
+    
+    // 基于主题色生成深色和浅色版本（同色系）
+    val themeHct = remember(themeColor) { themeColor.toHct() }
+    val darkColor = remember(themeHct) {
+        Color(Hct.from(themeHct.hue, themeHct.chroma, minOf(themeHct.tone - 20, 40.0)).toInt())
+    }
+    val lightColor = remember(themeHct) {
+        Color(Hct.from(themeHct.hue, themeHct.chroma, maxOf(themeHct.tone + 20, 60.0)).toInt())
+    }
+    
+    // 记住drawable引用
+    var animatedDrawable by remember { mutableStateOf<AnimatedImageDrawable?>(null) }
+    
+    // 使用LaunchedEffect管理动画状态
+    LaunchedEffect(isPlaying, animatedDrawable) {
+        val drawable = animatedDrawable ?: return@LaunchedEffect
+        
+        if (isPlaying) {
+            // 播放时：启动动画循环播放
+            if (!drawable.isRunning) {
+                drawable.start()
+            }
+        } else {
+            // 未播放时：停止动画，显示第一帧
+            if (drawable.isRunning) {
+                drawable.stop()
+            }
+        }
+    }
+    
+    // 创建ColorMatrix来应用双色效果（基于亮度映射到深色和浅色）
+    val colorMatrix = remember(darkColor, lightColor) {
+        val darkArgb = darkColor.toArgb()
+        val lightArgb = lightColor.toArgb()
+        
+        // 提取RGB值（0-255范围）
+        val darkR = ((darkArgb shr 16) and 0xFF) / 255f
+        val darkG = ((darkArgb shr 8) and 0xFF) / 255f
+        val darkB = (darkArgb and 0xFF) / 255f
+        
+        val lightR = ((lightArgb shr 16) and 0xFF) / 255f
+        val lightG = ((lightArgb shr 8) and 0xFF) / 255f
+        val lightB = (lightArgb and 0xFF) / 255f
+        
+        // 计算RGB差值
+        val deltaR = lightR - darkR
+        val deltaG = lightG - darkG
+        val deltaB = lightB - darkB
+        
+        // 创建ColorMatrix：将原图的亮度映射到深色和浅色之间
+        // 公式：output = dark + (light - dark) * brightness
+        // 其中brightness是原图的亮度（0-1）
+        android.graphics.ColorMatrix().apply {
+            val matrix = FloatArray(20)
+            
+            // 红色通道：R' = darkR + deltaR * brightness
+            // brightness = (R*0.299 + G*0.587 + B*0.114) / 255
+            // 简化：R' = darkR + deltaR * (R*0.299 + G*0.587 + B*0.114)
+            matrix[0] = deltaR * 0.299f  // R对R的贡献
+            matrix[1] = deltaR * 0.587f  // G对R的贡献
+            matrix[2] = deltaR * 0.114f  // B对R的贡献
+            matrix[3] = 0f
+            matrix[4] = darkR * 255f     // 偏移量
+            
+            // 绿色通道
+            matrix[5] = deltaG * 0.299f
+            matrix[6] = deltaG * 0.587f
+            matrix[7] = deltaG * 0.114f
+            matrix[8] = 0f
+            matrix[9] = darkG * 255f
+            
+            // 蓝色通道
+            matrix[10] = deltaB * 0.299f
+            matrix[11] = deltaB * 0.587f
+            matrix[12] = deltaB * 0.114f
+            matrix[13] = 0f
+            matrix[14] = darkB * 255f
+            
+            // Alpha通道保持不变
+            matrix[15] = 0f
+            matrix[16] = 0f
+            matrix[17] = 0f
+            matrix[18] = 1f
+            matrix[19] = 0f
+            
+            set(matrix)
+        }
+    }
+    
+    // 使用AndroidView来显示动画WebP
+    AndroidView(
+        factory = { ctx ->
+            val imageViewInstance = android.widget.ImageView(ctx).apply {
+                scaleType = android.widget.ImageView.ScaleType.FIT_CENTER
+            }
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                // API 28+ 使用ImageDecoder加载动画WebP
+                val source = ImageDecoder.createSource(ctx.resources, drawableResId)
+                val decodedDrawable = ImageDecoder.decodeDrawable(source)
+                val animatedDrawableInstance = decodedDrawable as? AnimatedImageDrawable
+                animatedDrawable = animatedDrawableInstance
+                
+                // 应用ColorMatrix滤镜来实现双色效果
+                if (animatedDrawableInstance != null) {
+                    animatedDrawableInstance.colorFilter = android.graphics.ColorMatrixColorFilter(colorMatrix)
+                } else {
+                    // 如果是静态图片，也应用滤镜
+                    decodedDrawable.colorFilter = android.graphics.ColorMatrixColorFilter(colorMatrix)
+                }
+                imageViewInstance.setImageDrawable(decodedDrawable)
+            } else {
+                // API 28以下使用传统方式加载（不支持动画）
+                imageViewInstance.setImageResource(drawableResId)
+                // 应用ColorMatrix滤镜
+                imageViewInstance.colorFilter = android.graphics.ColorMatrixColorFilter(colorMatrix)
+            }
+            imageViewInstance
+        },
+        update = { view ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                val drawable = animatedDrawable
+                drawable?.let {
+                    // 更新ColorMatrix滤镜
+                    it.colorFilter = android.graphics.ColorMatrixColorFilter(colorMatrix)
+                }
+            } else {
+                // API 28以下更新ColorMatrix滤镜
+                view.colorFilter = android.graphics.ColorMatrixColorFilter(colorMatrix)
+            }
+        },
+        modifier = modifier
+    )
 }
 
 /**
@@ -2388,14 +2660,37 @@ private fun TimerFAB(
     isTimerActive: Boolean,
     timeLeftMillis: Long,
     onClick: () -> Unit,
+    enabled: Boolean = true, // 是否可点击，默认true
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    
     // 使用key确保当timeLeftMillis变化时强制重组
-    key(timeLeftMillis, isTimerActive) {
+    key(timeLeftMillis, isTimerActive, enabled) {
         Box(modifier = modifier) {
             FloatingActionButton(
-                onClick = onClick
+                onClick = if (enabled) {
+                    onClick
+                } else {
+                    { 
+                        // 不可点击时显示Toast提示
+                        android.widget.Toast.makeText(
+                            context,
+                            context.getString(R.string.please_play_sound_before_timer),
+                            android.widget.Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                },
+                containerColor = when {
+                    !enabled -> MaterialTheme.colorScheme.surfaceVariant // 禁用时使用灰色系
+                    isTimerActive -> MaterialTheme.colorScheme.primaryContainer // 激活时使用更浅的primaryContainer
+                    else -> MaterialTheme.colorScheme.primary // 未激活时使用primary
+                },
+                contentColor = when {
+                    !enabled -> MaterialTheme.colorScheme.onSurfaceVariant // 禁用时使用灰色文字
+                    isTimerActive -> MaterialTheme.colorScheme.onPrimaryContainer // 激活时使用onPrimaryContainer
+                    else -> MaterialTheme.colorScheme.onPrimary // 未激活时使用onPrimary
+                }
             ) {
                 Icon(
                     Icons.Default.Timer,
@@ -2455,12 +2750,20 @@ fun VolumeDialog(
     var volume by remember { mutableStateOf(currentVolume) }
     
     val soundName = when (sound) {
-        AudioManager.Sound.RAIN -> context.getString(R.string.sound_rain)
-        AudioManager.Sound.CAMPFIRE -> context.getString(R.string.sound_campfire)
-        AudioManager.Sound.THUNDER -> context.getString(R.string.sound_thunder)
-        AudioManager.Sound.CAT_PURRING -> context.getString(R.string.sound_cat_purring)
-        AudioManager.Sound.BIRD_CHIRPING -> context.getString(R.string.sound_bird_chirping)
-        AudioManager.Sound.NIGHT_INSECTS -> context.getString(R.string.sound_night_insects)
+        AudioManager.Sound.UMBRELLA_RAIN -> context.getString(R.string.sound_umbrella_rain)
+        AudioManager.Sound.ROWING -> context.getString(R.string.sound_rowing)
+        AudioManager.Sound.OFFICE -> context.getString(R.string.sound_office)
+        AudioManager.Sound.LIBRARY -> context.getString(R.string.sound_library)
+        AudioManager.Sound.HEAVY_RAIN -> context.getString(R.string.sound_heavy_rain)
+        AudioManager.Sound.TYPEWRITER -> context.getString(R.string.sound_typewriter)
+        AudioManager.Sound.THUNDER_NEW -> context.getString(R.string.sound_thunder_new)
+        AudioManager.Sound.CLOCK -> context.getString(R.string.sound_clock)
+        AudioManager.Sound.FOREST_BIRDS -> context.getString(R.string.sound_forest_birds)
+        AudioManager.Sound.DRIFTING -> context.getString(R.string.sound_drifting)
+        AudioManager.Sound.CAMPFIRE_NEW -> context.getString(R.string.sound_campfire_new)
+        AudioManager.Sound.WIND -> context.getString(R.string.sound_wind)
+        AudioManager.Sound.KEYBOARD -> context.getString(R.string.sound_keyboard)
+        AudioManager.Sound.SNOW_WALKING -> context.getString(R.string.sound_snow_walking)
         else -> context.getString(R.string.sound_default)
     }
     

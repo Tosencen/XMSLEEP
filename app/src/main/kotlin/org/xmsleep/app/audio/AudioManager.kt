@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -41,12 +42,20 @@ class AudioManager private constructor() {
     // 声音类型枚举
     enum class Sound {
         NONE,
-        RAIN,
-        CAMPFIRE,
-        THUNDER,
-        CAT_PURRING,
-        BIRD_CHIRPING,
-        NIGHT_INSECTS
+        UMBRELLA_RAIN,
+        ROWING,
+        OFFICE,
+        LIBRARY,
+        HEAVY_RAIN,
+        TYPEWRITER,
+        THUNDER_NEW,
+        CLOCK,
+        FOREST_BIRDS,
+        DRIFTING,
+        CAMPFIRE_NEW,
+        WIND,
+        KEYBOARD,
+        SNOW_WALKING
     }
     
     // 网络音频播放器（使用soundId作为key）
@@ -76,12 +85,20 @@ class AudioManager private constructor() {
     
     // 各声音的音量设置
     private val volumeSettings = mutableMapOf(
-        Sound.RAIN to DEFAULT_VOLUME,
-        Sound.CAMPFIRE to DEFAULT_VOLUME,
-        Sound.THUNDER to DEFAULT_VOLUME,
-        Sound.CAT_PURRING to DEFAULT_VOLUME,
-        Sound.BIRD_CHIRPING to DEFAULT_VOLUME,
-        Sound.NIGHT_INSECTS to DEFAULT_VOLUME
+        Sound.UMBRELLA_RAIN to DEFAULT_VOLUME,
+        Sound.ROWING to DEFAULT_VOLUME,
+        Sound.OFFICE to DEFAULT_VOLUME,
+        Sound.LIBRARY to DEFAULT_VOLUME,
+        Sound.HEAVY_RAIN to DEFAULT_VOLUME,
+        Sound.TYPEWRITER to DEFAULT_VOLUME,
+        Sound.THUNDER_NEW to DEFAULT_VOLUME,
+        Sound.CLOCK to DEFAULT_VOLUME,
+        Sound.FOREST_BIRDS to DEFAULT_VOLUME,
+        Sound.DRIFTING to DEFAULT_VOLUME,
+        Sound.CAMPFIRE_NEW to DEFAULT_VOLUME,
+        Sound.WIND to DEFAULT_VOLUME,
+        Sound.KEYBOARD to DEFAULT_VOLUME,
+        Sound.SNOW_WALKING to DEFAULT_VOLUME
     )
     
     // 音频焦点管理
@@ -141,6 +158,7 @@ class AudioManager private constructor() {
             }
         } catch (e: Exception) {
             Log.e(TAG, "请求音频焦点失败: ${e.message}")
+            e.printStackTrace()
             false
         }
     }
@@ -211,26 +229,50 @@ class AudioManager private constructor() {
             override fun onPlaybackStateChanged(state: Int) {
                 when (state) {
                     Player.STATE_ENDED -> {
+                        // 播放结束，自动循环（ClippingMediaSource 会自动循环）
                         playingStates[sound] = false
-                        players[sound]?.prepare()
-                        players[sound]?.play()
-                        playingStates[sound] = true
-                    }
-                    Player.STATE_READY -> {
-                        if (players[sound]?.playWhenReady == true) {
+                        val player = players[sound]
+                        if (player != null && playingQueue.contains(PlayingItem.LocalSound(sound))) {
+                            // 只有在播放队列中才自动循环
+                            player.prepare()
+                            player.play()
                             playingStates[sound] = true
                         }
+                    }
+                    Player.STATE_READY -> {
+                        // 播放器准备就绪
+                        val player = players[sound]
+                        if (player != null && player.playWhenReady && playingQueue.contains(PlayingItem.LocalSound(sound))) {
+                            playingStates[sound] = true
+                        } else if (player != null && !player.playWhenReady) {
+                            playingStates[sound] = false
+                        }
+                    }
+                    Player.STATE_IDLE -> {
+                        // 播放器空闲
+                        playingStates[sound] = false
+                    }
+                    Player.STATE_BUFFERING -> {
+                        // 缓冲中，保持当前状态
                     }
                 }
             }
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                playingStates[sound] = isPlaying
+                // 只有在播放队列中才更新状态
+                val player = players[sound]
+                if (player != null && playingQueue.contains(PlayingItem.LocalSound(sound))) {
+                    playingStates[sound] = isPlaying
+                } else if (!isPlaying) {
+                    playingStates[sound] = false
+                }
             }
 
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                 Log.e(TAG, "${sound.name} 播放错误: ${error.message}")
                 playingStates[sound] = false
+                // 从播放队列中移除
+                playingQueue.remove(PlayingItem.LocalSound(sound))
             }
         }
     }
@@ -254,21 +296,49 @@ class AudioManager private constructor() {
             val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
                 .createMediaSource(MediaItem.fromUri(uri))
 
-            val clippingMediaSource = ClippingMediaSource(
-                mediaSource,
-                startPositionMs * 1000,
-                endPositionMs * 1000
-            )
-
+            // 确保播放器已初始化
             if (players[sound] == null) {
                 initializePlayer(context, sound)
             }
 
-            players[sound]?.apply {
-                setMediaSource(clippingMediaSource)
-                repeatMode = Player.REPEAT_MODE_ONE
+            val player = players[sound]
+            if (player == null) {
+                Log.e(TAG, "播放器 $soundName 未初始化，无法设置媒体源")
+                return
             }
-            Log.d(TAG, "$soundName 音频媒体源已设置")
+
+            // 总是设置媒体源，确保播放器有正确的媒体源
+            // 注意：setMediaSource 会自动清除现有媒体项，所以不需要手动清除
+            // 但需要确保播放器处于正确的状态
+            try {
+                // 如果播放器正在播放或准备中，先停止
+                if (player.playbackState != Player.STATE_IDLE) {
+                    player.stop()
+                }
+                player.playWhenReady = false
+            } catch (e: Exception) {
+                Log.w(TAG, "重置播放器状态失败: ${e.message}")
+            }
+            
+            // 使用 ClippingMediaSource，设置具体的结束位置
+            // 注意：endPositionMs 必须是具体的毫秒数，不能使用 C.TIME_UNSET
+            // 如果 endPositionMs 为 0，使用一个很大的值（1小时）作为默认值
+            val endPositionUs = if (endPositionMs > 0) {
+                endPositionMs * 1000
+            } else {
+                // 如果未指定结束位置，使用1小时（3600000ms = 3600000000微秒）
+                3600000000L
+            }
+            
+            val clippingMediaSource = ClippingMediaSource(
+                mediaSource,
+                startPositionMs * 1000,
+                endPositionUs
+            )
+            
+            player.setMediaSource(clippingMediaSource)
+            player.repeatMode = Player.REPEAT_MODE_ONE
+            Log.d(TAG, "$soundName 音频媒体源已设置，循环范围: ${startPositionMs}ms - ${if (endPositionMs > 0) "${endPositionMs}ms" else "1小时"}")
         } catch (e: Exception) {
             Log.e(TAG, "准备$soundName 音频失败: ${e.message}")
             e.printStackTrace()
@@ -277,58 +347,134 @@ class AudioManager private constructor() {
 
     /**
      * 准备各种声音
+     * 所有音频都使用自动检测文件长度（endPositionMs = 0），避免循环时只播放部分音频的问题
      */
-    private fun prepareRainSound(context: Context, sound: Sound) {
+    private fun prepareUmbrellaRainSound(context: Context, sound: Sound) {
         prepareSoundAudio(
             context, sound,
-            R.raw.rain_sound_188158,
-            500L, 3400000L,
-            "雨声"
+            R.raw.umbrella_rain,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "伞上雨声"
         )
     }
 
-    private fun prepareThunderSound(context: Context, sound: Sound) {
+    private fun prepareRowingSound(context: Context, sound: Sound) {
         prepareSoundAudio(
             context, sound,
-            R.raw.dalei,
-            500L, 60000L,
-            "雷声"
+            R.raw.rowing,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "划船"
         )
     }
 
-    private fun prepareCampfireSound(context: Context, sound: Sound) {
+    private fun prepareOfficeSound(context: Context, sound: Sound) {
         prepareSoundAudio(
             context, sound,
-            R.raw.gouhuo,
-            500L, 90000L,
-            "篝火声"
+            R.raw.office,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "办公室"
         )
     }
 
-    private fun prepareCatPurringSound(context: Context, sound: Sound) {
+    private fun prepareLibrarySound(context: Context, sound: Sound) {
         prepareSoundAudio(
             context, sound,
-            R.raw.cat_purring,
-            500L, 60000L,
-            "呼噜声"
+            R.raw.library,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "图书馆"
         )
     }
 
-    private fun prepareBirdChirpingSound(context: Context, sound: Sound) {
+    private fun prepareHeavyRainSound(context: Context, sound: Sound) {
         prepareSoundAudio(
             context, sound,
-            R.raw.bird_chirping,
-            500L, 60000L,
-            "鸟鸣声"
+            R.raw.heavy_rain,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "大雨"
         )
     }
 
-    private fun prepareNightInsectsSound(context: Context, sound: Sound) {
+    private fun prepareTypewriterSound(context: Context, sound: Sound) {
         prepareSoundAudio(
             context, sound,
-            R.raw.xishuai_animation,
-            500L, 60000L,
-            "夜虫声"
+            R.raw.typewriter,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "打字机"
+        )
+    }
+
+    private fun prepareThunderNewSound(context: Context, sound: Sound) {
+        prepareSoundAudio(
+            context, sound,
+            R.raw.thunder_new,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "打雷"
+        )
+    }
+
+    private fun prepareClockSound(context: Context, sound: Sound) {
+        // 时钟音频文件较小（90KB），可能只有几秒，必须使用自动检测
+        prepareSoundAudio(
+            context, sound,
+            R.raw.clock,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "时钟"
+        )
+    }
+
+    private fun prepareForestBirdsSound(context: Context, sound: Sound) {
+        prepareSoundAudio(
+            context, sound,
+            R.raw.forest_birds,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "森林鸟鸣"
+        )
+    }
+
+    private fun prepareDriftingSound(context: Context, sound: Sound) {
+        prepareSoundAudio(
+            context, sound,
+            R.raw.drifting,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "漂流"
+        )
+    }
+
+    private fun prepareCampfireNewSound(context: Context, sound: Sound) {
+        prepareSoundAudio(
+            context, sound,
+            R.raw.campfire_new,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "篝火"
+        )
+    }
+
+    private fun prepareWindSound(context: Context, sound: Sound) {
+        prepareSoundAudio(
+            context, sound,
+            R.raw.wind,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "起风了"
+        )
+    }
+
+    private fun prepareKeyboardSound(context: Context, sound: Sound) {
+        prepareSoundAudio(
+            context, sound,
+            R.raw.keyboard,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "键盘"
+        )
+    }
+
+    private fun prepareSnowWalkingSound(context: Context, sound: Sound) {
+        // 雪地徒步音频文件可能较短，使用C.TIME_UNSET让ExoPlayer自动检测文件实际长度
+        // 这样可以避免循环时只播放前几秒的问题
+        prepareSoundAudio(
+            context, sound,
+            R.raw.snow_walking,
+            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            "雪地徒步"
         )
     }
 
@@ -336,12 +482,14 @@ class AudioManager private constructor() {
      * 播放指定类型的声音
      */
     fun playSound(context: Context, sound: Sound) {
+        Log.d(TAG, "playSound 被调用: ${sound.name}")
         try {
             if (applicationContext == null) {
                 applicationContext = context.applicationContext
             }
 
             if (sound == Sound.NONE) {
+                Log.w(TAG, "声音类型为 NONE，取消播放")
                 return
             }
 
@@ -354,6 +502,8 @@ class AudioManager private constructor() {
                 Log.d(TAG, "${sound.name} 已经在播放中")
                 return
             }
+            
+            Log.d(TAG, "开始播放流程: ${sound.name}")
 
             // 检查是否已达到最大播放数量，如果是则停止最早播放的声音
             if (playingQueue.size >= MAX_CONCURRENT_SOUNDS) {
@@ -374,29 +524,123 @@ class AudioManager private constructor() {
                 }
             }
 
-            initializePlayer(context, sound)
-            
-            when (sound) {
-                Sound.RAIN -> prepareRainSound(context, sound)
-                Sound.CAMPFIRE -> prepareCampfireSound(context, sound)
-                Sound.THUNDER -> prepareThunderSound(context, sound)
-                Sound.CAT_PURRING -> prepareCatPurringSound(context, sound)
-                Sound.BIRD_CHIRPING -> prepareBirdChirpingSound(context, sound)
-                Sound.NIGHT_INSECTS -> prepareNightInsectsSound(context, sound)
-                else -> return
+            // 如果播放器已存在，先停止并重置状态
+            val existingPlayer = players[sound]
+            if (existingPlayer != null) {
+                try {
+                    // 停止播放器
+                    existingPlayer.stop()
+                    existingPlayer.playWhenReady = false
+                    // 清除媒体项
+                    try {
+                        existingPlayer.clearMediaItems()
+                    } catch (e: NoSuchMethodError) {
+                        Log.d(TAG, "clearMediaItems 方法不可用，使用 stop() 重置播放器")
+                    } catch (e: Exception) {
+                        Log.w(TAG, "清除媒体项失败: ${e.message}")
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "重置播放器 ${sound.name} 状态时出错: ${e.message}")
+                    // 如果重置失败，释放旧播放器并创建新的
+                    try {
+                        existingPlayer.release()
+                        players.remove(sound)
+                        playingStates[sound] = false
+                    } catch (releaseException: Exception) {
+                        Log.e(TAG, "释放播放器 ${sound.name} 失败: ${releaseException.message}")
+                        players.remove(sound)
+                        playingStates[sound] = false
+                    }
+                }
             }
 
-            players[sound]?.apply {
-                volume = volumeSettings[sound] ?: DEFAULT_VOLUME
-                prepare()
-                play()
+            // 确保播放器已初始化（如果不存在或已被释放，则创建新的）
+            if (players[sound] == null) {
+                initializePlayer(context, sound)
             }
-            playingStates[sound] = true
-            // 添加到播放队列
-            playingQueue.offer(PlayingItem.LocalSound(sound))
-            Log.d(TAG, "${sound.name} 开始播放")
+            
+            val player = players[sound]
+            if (player == null) {
+                Log.e(TAG, "播放器 ${sound.name} 初始化失败，无法播放")
+                return
+            }
+
+            // 设置媒体源
+            try {
+                when (sound) {
+                    Sound.UMBRELLA_RAIN -> prepareUmbrellaRainSound(context, sound)
+                    Sound.ROWING -> prepareRowingSound(context, sound)
+                    Sound.OFFICE -> prepareOfficeSound(context, sound)
+                    Sound.LIBRARY -> prepareLibrarySound(context, sound)
+                    Sound.HEAVY_RAIN -> prepareHeavyRainSound(context, sound)
+                    Sound.TYPEWRITER -> prepareTypewriterSound(context, sound)
+                    Sound.THUNDER_NEW -> prepareThunderNewSound(context, sound)
+                    Sound.CLOCK -> prepareClockSound(context, sound)
+                    Sound.FOREST_BIRDS -> prepareForestBirdsSound(context, sound)
+                    Sound.DRIFTING -> prepareDriftingSound(context, sound)
+                    Sound.CAMPFIRE_NEW -> prepareCampfireNewSound(context, sound)
+                    Sound.WIND -> prepareWindSound(context, sound)
+                    Sound.KEYBOARD -> prepareKeyboardSound(context, sound)
+                    Sound.SNOW_WALKING -> prepareSnowWalkingSound(context, sound)
+                    else -> {
+                        Log.e(TAG, "未知的声音类型: ${sound.name}")
+                        return
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "准备 ${sound.name} 音频源失败: ${e.message}")
+                e.printStackTrace()
+                return
+            }
+
+            // 检查媒体源是否设置成功
+            if (player.mediaItemCount == 0) {
+                Log.e(TAG, "播放器 ${sound.name} 媒体源设置失败，mediaItemCount = 0")
+                return
+            }
+
+            try {
+                // 设置音量和播放模式（在 prepare 之前设置）
+                player.volume = volumeSettings[sound] ?: DEFAULT_VOLUME
+                player.repeatMode = Player.REPEAT_MODE_ONE
+                
+                // 确保播放器处于 IDLE 状态（setMediaSource 后应该是 IDLE）
+                if (player.playbackState != Player.STATE_IDLE) {
+                    Log.w(TAG, "播放器 ${sound.name} 状态不是 IDLE: ${player.playbackState}，尝试重置")
+                    try {
+                        player.stop()
+                        player.playWhenReady = false
+                    } catch (e: Exception) {
+                        Log.w(TAG, "重置播放器状态失败: ${e.message}")
+                    }
+                }
+                
+                // 准备播放器（异步操作）
+                // 注意：prepare() 必须在 IDLE 状态下调用
+                player.prepare()
+                
+                // 设置播放标志（播放器会在准备好后自动开始播放）
+                player.playWhenReady = true
+                
+                // 跳过开头部分（500ms），使用监听器在播放器准备好后执行
+                // 由于 prepare() 是异步的，我们需要在 STATE_READY 时执行 seekTo
+                // 这里先设置一个标记，在监听器中处理
+                
+                // 更新状态（实际状态会通过监听器更新）
+                playingStates[sound] = true
+                // 添加到播放队列
+                playingQueue.offer(PlayingItem.LocalSound(sound))
+                Log.d(TAG, "${sound.name} 开始播放，媒体源数量: ${player.mediaItemCount}，播放器状态: ${player.playbackState}，playWhenReady: ${player.playWhenReady}")
+            } catch (e: Exception) {
+                Log.e(TAG, "播放 ${sound.name} 时出错: ${e.message}", e)
+                playingStates[sound] = false
+                // 打印完整的堆栈跟踪
+                Log.e(TAG, "错误堆栈:", e)
+                e.printStackTrace()
+            }
         } catch (e: Exception) {
             Log.e(TAG, "播放 ${sound.name} 声音失败: ${e.message}")
+            playingStates[sound] = false
             e.printStackTrace()
         }
     }
@@ -446,12 +690,32 @@ class AudioManager private constructor() {
      */
     fun stopAllSounds() {
         try {
+            // 停止所有本地声音
             players.forEach { (sound, player) ->
                 try {
-                    player?.stop()
+                    player?.let {
+                        it.stop()
+                        it.playWhenReady = false
+                    }
                     playingStates[sound] = false
                 } catch (e: Exception) {
                     Log.e(TAG, "停止 ${sound.name} 失败: ${e.message}")
+                }
+            }
+            // 停止所有远程声音
+            remotePlayers.forEach { (soundId, player) ->
+                try {
+                    if (remotePlayingStates[soundId] == true) {
+                        player?.let {
+                            it.pause()
+                            it.playWhenReady = false
+                        }
+                        remotePlayingStates[soundId] = false
+                        // 从播放队列中移除
+                        playingQueue.remove(PlayingItem.RemoteSound(soundId))
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "停止远程声音 $soundId 失败: ${e.message}")
                 }
             }
             // 清空播放队列
@@ -525,6 +789,24 @@ class AudioManager private constructor() {
     }
     
     /**
+     * 检查是否有任何声音正在播放（本地+远程）
+     */
+    fun hasAnyPlayingSounds(): Boolean {
+        // 检查本地声音
+        val hasLocalPlaying = playingStates.values.any { it == true }
+        // 检查远程声音
+        val hasRemotePlaying = remotePlayingStates.values.any { it == true }
+        return hasLocalPlaying || hasRemotePlaying
+    }
+    
+    /**
+     * 获取正在播放的远程声音ID列表
+     */
+    fun getPlayingRemoteSoundIds(): List<String> {
+        return remotePlayingStates.filter { it.value }.keys.toList()
+    }
+    
+    /**
      * 播放网络音频（使用元数据）
      */
     @UnstableApi
@@ -572,6 +854,37 @@ class AudioManager private constructor() {
                 }
             }
             
+            // 如果播放器已存在但可能处于错误状态，先停止并重置
+            val existingPlayer = remotePlayers[soundId]
+            if (existingPlayer != null) {
+                try {
+                    // 停止播放器以确保状态重置
+                    existingPlayer.stop()
+                    existingPlayer.playWhenReady = false
+                    // 清除媒体项（如果方法存在）
+                    try {
+                        existingPlayer.clearMediaItems()
+                    } catch (e: NoSuchMethodError) {
+                        // 如果 clearMediaItems 不存在，尝试其他方法
+                        Log.d(TAG, "clearMediaItems 方法不可用，使用 stop() 重置播放器")
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "重置播放器 $soundId 状态时出错: ${e.message}")
+                    // 如果重置失败，释放旧播放器并创建新的
+                    try {
+                        existingPlayer.release()
+                        remotePlayers.remove(soundId)
+                        remotePlayingStates[soundId] = false
+                        remoteVolumeSettings.remove(soundId)
+                    } catch (releaseException: Exception) {
+                        Log.e(TAG, "释放播放器 $soundId 失败: ${releaseException.message}")
+                        remotePlayers.remove(soundId)
+                        remotePlayingStates[soundId] = false
+                        remoteVolumeSettings.remove(soundId)
+                    }
+                }
+            }
+            
             // 初始化播放器
             if (remotePlayers[soundId] == null) {
                 try {
@@ -583,7 +896,15 @@ class AudioManager private constructor() {
                     Log.d(TAG, "$soundId 播放器初始化成功")
                 } catch (e: Exception) {
                     Log.e(TAG, "初始化 $soundId 播放器失败: ${e.message}")
+                    e.printStackTrace()
+                    return
                 }
+            }
+            
+            val player = remotePlayers[soundId]
+            if (player == null) {
+                Log.e(TAG, "播放器 $soundId 初始化失败，无法播放")
+                return
             }
             
             // 准备音频源
@@ -598,23 +919,23 @@ class AudioManager private constructor() {
                     metadata.loopEnd * 1000
                 )
                 
-                remotePlayers[soundId]?.apply {
-                    setMediaSource(clippingMediaSource)
-                    repeatMode = Player.REPEAT_MODE_ONE
-                    volume = remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
-                    prepare()
-                    play()
-                }
+                player.setMediaSource(clippingMediaSource)
+                player.repeatMode = Player.REPEAT_MODE_ONE
+                player.volume = remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
+                player.prepare()
+                player.play()
                 remotePlayingStates[soundId] = true
                 // 添加到播放队列
                 playingQueue.offer(PlayingItem.RemoteSound(soundId))
                 Log.d(TAG, "$soundId 开始播放")
             } catch (e: Exception) {
                 Log.e(TAG, "播放 $soundId 声音失败: ${e.message}")
+                remotePlayingStates[soundId] = false
                 e.printStackTrace()
             }
         } catch (e: Exception) {
             Log.e(TAG, "播放网络音频失败: ${e.message}")
+            remotePlayingStates[metadata.id] = false
             e.printStackTrace()
         }
     }
