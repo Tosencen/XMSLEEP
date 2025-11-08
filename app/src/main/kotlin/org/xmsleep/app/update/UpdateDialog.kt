@@ -178,7 +178,7 @@ fun UpdateDialog(
                             }
                         }
                         
-                        Divider()
+                        HorizontalDivider()
                         
                         if (version.changelog.isNotBlank()) {
                             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

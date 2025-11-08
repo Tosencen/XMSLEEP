@@ -65,7 +65,9 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -139,17 +141,60 @@ import org.xmsleep.app.R
 import org.xmsleep.app.ui.AudioVisualizer
 
 class MainActivity : ComponentActivity() {
+    private var statsCollector: org.xmsleep.app.stats.StatsCollector? = null
+    
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase?.let { LanguageManager.updateAppLanguage(it) })
     }
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
         // 在应用启动时迁移旧版本的数据（如果存在）
         org.xmsleep.app.preferences.PreferencesManager.migrateFromOldVersion(this)
         
+        // 初始化统计数据收集器
+        initStatsCollector()
+        
         setContent {
             XMSLEEPApp()
+        }
+    }
+    
+    override fun onResume() {
+        super.onResume()
+        // 记录应用启动（每次进入前台）
+        statsCollector?.recordLaunch()
+    }
+    
+    override fun onPause() {
+        super.onPause()
+        // 记录会话结束（应用进入后台）
+        statsCollector?.recordSessionEnd()
+    }
+    
+    /**
+     * 初始化统计数据收集器
+     */
+    private fun initStatsCollector() {
+        try {
+            // 从 BuildConfig 读取 GitHub Token（如果配置了）
+            val buildConfigClass = Class.forName("org.xmsleep.app.BuildConfig")
+            val tokenField = buildConfigClass.getField("GITHUB_TOKEN")
+            val githubToken = tokenField.get(null) as? String
+            
+            if (!githubToken.isNullOrBlank()) {
+                statsCollector = org.xmsleep.app.stats.StatsCollector(
+                    context = this,
+                    githubToken = githubToken,
+                    gistId = null  // 首次创建，后续会自动保存Gist ID
+                )
+                android.util.Log.d("MainActivity", "统计数据收集器已初始化")
+            } else {
+                android.util.Log.d("MainActivity", "GitHub Token未配置，统计数据收集功能已禁用")
+            }
+        } catch (e: Exception) {
+            android.util.Log.d("MainActivity", "无法读取GITHUB_TOKEN，统计数据收集功能已禁用: ${e.message}")
         }
     }
 }
@@ -1501,12 +1546,20 @@ fun SettingsScreen(
                     TextButton(onClick = { 
                         // 应用到所有声音（包括未播放的，以便下次播放时使用）
                         listOf(
-                            org.xmsleep.app.audio.AudioManager.Sound.RAIN,
-                            org.xmsleep.app.audio.AudioManager.Sound.CAMPFIRE,
-                            org.xmsleep.app.audio.AudioManager.Sound.THUNDER,
-                            org.xmsleep.app.audio.AudioManager.Sound.CAT_PURRING,
-                            org.xmsleep.app.audio.AudioManager.Sound.BIRD_CHIRPING,
-                            org.xmsleep.app.audio.AudioManager.Sound.NIGHT_INSECTS
+                            org.xmsleep.app.audio.AudioManager.Sound.UMBRELLA_RAIN,
+                            org.xmsleep.app.audio.AudioManager.Sound.ROWING,
+                            org.xmsleep.app.audio.AudioManager.Sound.OFFICE,
+                            org.xmsleep.app.audio.AudioManager.Sound.LIBRARY,
+                            org.xmsleep.app.audio.AudioManager.Sound.HEAVY_RAIN,
+                            org.xmsleep.app.audio.AudioManager.Sound.TYPEWRITER,
+                            org.xmsleep.app.audio.AudioManager.Sound.THUNDER_NEW,
+                            org.xmsleep.app.audio.AudioManager.Sound.CLOCK,
+                            org.xmsleep.app.audio.AudioManager.Sound.FOREST_BIRDS,
+                            org.xmsleep.app.audio.AudioManager.Sound.DRIFTING,
+                            org.xmsleep.app.audio.AudioManager.Sound.CAMPFIRE_NEW,
+                            org.xmsleep.app.audio.AudioManager.Sound.WIND,
+                            org.xmsleep.app.audio.AudioManager.Sound.KEYBOARD,
+                            org.xmsleep.app.audio.AudioManager.Sound.SNOW_WALKING
                         ).forEach { sound ->
                             audioManager.setVolume(sound, volume)
                         }
@@ -2374,50 +2427,30 @@ fun AboutDialog(
                 
                 HorizontalDivider()
                 
-                // 应用说明
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        composeContext.getString(R.string.app_description_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        composeContext.getString(R.string.app_description),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+                // 应用说明（简化版）
+                Text(
+                    "专业的白噪音和自然声音播放应用，帮助您放松心情、提高专注力、改善睡眠质量。",
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 
-                // 使用说明
+                HorizontalDivider()
+                
+                // 隐私政策
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        composeContext.getString(R.string.usage_instructions_title),
+                        composeContext.getString(R.string.privacy_policy_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        composeContext.getString(R.string.usage_instructions),
+                        composeContext.getString(R.string.privacy_policy),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 
                 HorizontalDivider()
                 
-                // 声音使用说明
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        composeContext.getString(R.string.sound_usage_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        composeContext.getString(R.string.sound_usage),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                
-                HorizontalDivider()
-                
-                // 声音来源说明
+                // 声音来源说明（简化版）
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
                         composeContext.getString(R.string.sound_source_title),
@@ -2425,27 +2458,8 @@ fun AboutDialog(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        composeContext.getString(R.string.sound_source),
+                        "本应用提供的所有音频内容均来自公开可用的音频资源库。内置声音来自开源音频资源库，网络声音来自 moodist 项目（https://github.com/remvze/moodist），遵循 MIT 开源许可协议。本应用仅提供音频播放功能，不拥有任何音频内容的版权。",
                         style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-                
-                HorizontalDivider()
-                
-                // 技术信息
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(
-                        composeContext.getString(R.string.technical_info_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "• Kotlin + Jetpack Compose\n" +
-                        "• Material Design 3\n" +
-                        "• ExoPlayer/Media3\n" +
-                        "• ${composeContext.getString(R.string.lottie_animation)}",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 
@@ -2605,9 +2619,14 @@ fun StarSkyScreen(
         org.xmsleep.app.audio.AudioCacheManager.getInstance(context) 
     }
     
-    // 状态
-    var remoteSounds by remember { mutableStateOf<List<org.xmsleep.app.audio.model.SoundMetadata>>(emptyList()) }
-    var remoteCategories by remember { mutableStateOf<List<org.xmsleep.app.audio.model.SoundCategory>>(emptyList()) }
+    // 状态 - 初始化时从缓存加载，避免切换tab时重复加载
+    val initialCachedManifest = remember { resourceManager.getCachedManifest() }
+    var remoteSounds by remember { 
+        mutableStateOf(initialCachedManifest?.sounds ?: emptyList())
+    }
+    var remoteCategories by remember { 
+        mutableStateOf(initialCachedManifest?.categories ?: emptyList())
+    }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
@@ -2639,34 +2658,76 @@ fun StarSkyScreen(
         }
     }
     
-    // 加载音频清单
+    // 加载音频清单 - 优化：先显示缓存，后台刷新，避免重复加载
     LaunchedEffect(Unit) {
-        isLoading = true
-        errorMessage = null
-        try {
-            val manifest = resourceManager.refreshRemoteManifest().getOrNull()
-            if (manifest != null) {
-                remoteSounds = manifest.sounds
-                remoteCategories = manifest.categories
-                android.util.Log.d("StarSkyScreen", "成功加载清单，分类数量: ${manifest.categories.size}")
-            } else {
-                // 如果刷新失败，尝试从缓存加载
-                val cachedManifest = resourceManager.loadRemoteManifest()
-                if (cachedManifest != null) {
-                    remoteSounds = cachedManifest.sounds
-                    remoteCategories = cachedManifest.categories
-                    android.util.Log.d("StarSkyScreen", "从缓存加载清单，分类数量: ${cachedManifest.categories.size}")
-                } else {
-                    val sounds = resourceManager.getRemoteSounds()
-                    remoteSounds = sounds
-                    android.util.Log.w("StarSkyScreen", "无法加载分类信息")
+        // 如果已经有数据（从缓存初始化），不重新加载（避免切换tab时重复加载）
+        if (remoteSounds.isNotEmpty() && remoteCategories.isNotEmpty()) {
+            android.util.Log.d("StarSkyScreen", "已有缓存数据，跳过加载，直接后台刷新")
+            // 有缓存数据，延迟刷新（避免频繁请求），只在后台静默更新
+            delay(5000) // 延迟5秒后刷新，避免频繁请求
+            try {
+                val refreshedManifest = resourceManager.refreshRemoteManifest().getOrNull()
+                if (refreshedManifest != null) {
+                    remoteSounds = refreshedManifest.sounds
+                    remoteCategories = refreshedManifest.categories
+                    android.util.Log.d("StarSkyScreen", "后台刷新清单成功，分类数量: ${refreshedManifest.categories.size}")
                 }
+            } catch (e: Exception) {
+                // 后台刷新失败不影响显示
+                android.util.Log.e("StarSkyScreen", "后台刷新音频清单失败: ${e.message}")
             }
-        } catch (e: Exception) {
-            errorMessage = e.message
-            android.util.Log.e("StarSkyScreen", "加载音频清单失败: ${e.message}")
-        } finally {
-            isLoading = false
+            return@LaunchedEffect
+        }
+        
+        // 没有缓存数据，需要加载
+        errorMessage = null
+        
+        // 第一步：先尝试从缓存加载（同步，快速），立即显示（不显示加载状态）
+        val cachedManifest = resourceManager.getCachedManifest()
+        if (cachedManifest != null) {
+            remoteSounds = cachedManifest.sounds
+            remoteCategories = cachedManifest.categories
+            android.util.Log.d("StarSkyScreen", "从缓存加载清单，分类数量: ${cachedManifest.categories.size}")
+            isLoading = false // 有缓存数据，不显示加载状态
+        } else {
+            // 完全没有缓存，显示加载状态
+            isLoading = true
+        }
+        
+        // 第二步：后台刷新网络数据（不阻塞UI）
+        if (remoteSounds.isEmpty()) {
+            // 没有数据，立即刷新
+            try {
+                val refreshedManifest = resourceManager.refreshRemoteManifest().getOrNull()
+                if (refreshedManifest != null) {
+                    remoteSounds = refreshedManifest.sounds
+                    remoteCategories = refreshedManifest.categories
+                    android.util.Log.d("StarSkyScreen", "成功刷新清单，分类数量: ${refreshedManifest.categories.size}")
+                }
+            } catch (e: Exception) {
+                // 刷新失败不影响显示，只记录错误
+                if (remoteSounds.isEmpty()) {
+                    // 只有在完全没有数据时才显示错误
+                    errorMessage = e.message
+                }
+                android.util.Log.e("StarSkyScreen", "刷新音频清单失败: ${e.message}")
+            } finally {
+                isLoading = false
+            }
+        } else {
+            // 有数据，延迟刷新（避免频繁请求），只在后台静默更新
+            delay(5000) // 延迟5秒后刷新，避免频繁请求
+            try {
+                val refreshedManifest = resourceManager.refreshRemoteManifest().getOrNull()
+                if (refreshedManifest != null) {
+                    remoteSounds = refreshedManifest.sounds
+                    remoteCategories = refreshedManifest.categories
+                    android.util.Log.d("StarSkyScreen", "后台刷新清单成功，分类数量: ${refreshedManifest.categories.size}")
+                }
+            } catch (e: Exception) {
+                // 后台刷新失败不影响显示
+                android.util.Log.e("StarSkyScreen", "后台刷新音频清单失败: ${e.message}")
+            }
         }
     }
     
@@ -2730,6 +2791,11 @@ fun StarSkyScreen(
             categoryIdsFromSounds.sorted()
         }
     }
+    
+    // 保存每个分类的滚动状态，使用 remember 确保 tab 切换时保留
+    // 使用 Map 来存储每个分类的滚动状态，key 是分类 ID（null 表示"全部"）
+    val listStates = remember { mutableMapOf<String?, LazyListState>() }
+    val gridStates = remember { mutableMapOf<String?, LazyGridState>() }
     
     Box(
         modifier = modifier
@@ -2907,7 +2973,9 @@ fun StarSkyScreen(
                     val soundsByCategory = remoteSounds.groupBy { it.category }
                     val sortedCategories = categoryIds.filter { soundsByCategory.containsKey(it) }
                     
-                    val lazyListState = rememberLazyListState()
+                    // 使用 remember 配合分类 ID 作为 key，确保 tab 切换时保留滚动状态
+                    // 直接从 Map 中获取或创建状态，由于 listStates 在 remember 中保存，状态会在 tab 切换时保留
+                    val lazyListState = listStates.getOrPut(null) { rememberLazyListState() }
                     
                     // 监听滚动状态，触发浮动按钮收缩
                     LaunchedEffect(lazyListState.isScrollInProgress) {
@@ -3005,10 +3073,9 @@ fun StarSkyScreen(
                             scope.launch {
                                 try {
                                     // 首先检查是否正在播放，如果正在播放则停止播放
-                                    val currentlyPlaying = playingSounds.contains(sound.id)
+                                    val currentlyPlaying = audioManager.isPlayingRemoteSound(sound.id)
                                     if (currentlyPlaying) {
                                         audioManager.pauseRemoteSound(sound.id)
-                                        playingSounds = playingSounds - sound.id
                                         return@launch
                                     }
                                     
@@ -3044,6 +3111,9 @@ fun StarSkyScreen(
                                                     if (uri != null) {
                                                         audioManager.playRemoteSound(context, sound, uri)
                                                         playingSounds = playingSounds + sound.id
+                                                    } else {
+                                                        android.util.Log.e("StarSkyScreen", "下载完成后无法获取URI: ${sound.id}")
+                                                        Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
                                                     }
                                                     return@collect
                                                 }
@@ -3053,6 +3123,7 @@ fun StarSkyScreen(
                                                     downloadingSounds = downloadingSounds.toMutableMap().apply {
                                                         remove(sound.id)
                                                     }
+                                                    Toast.makeText(context, context.getString(R.string.download_failed) + ": ${progress.exception.message}", Toast.LENGTH_SHORT).show()
                                                     return@collect
                                                 }
                                             }
@@ -3063,10 +3134,14 @@ fun StarSkyScreen(
                                         if (uri != null) {
                                             audioManager.playRemoteSound(context, sound, uri)
                                             playingSounds = playingSounds + sound.id
+                                        } else {
+                                            android.util.Log.e("StarSkyScreen", "无法获取URI: ${sound.id}")
+                                            Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 } catch (e: Exception) {
                                     android.util.Log.e("StarSkyScreen", "播放失败: ${e.message}")
+                                    Toast.makeText(context, "播放失败: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
                             }
                                             },
@@ -3089,7 +3164,9 @@ fun StarSkyScreen(
                     // 其他分类，直接显示
                     val filteredSounds = remoteSounds.filter { it.category == category }
                     
-                    val lazyGridState = rememberLazyGridState()
+                    // 使用 remember 配合分类 ID 作为 key，确保 tab 切换时保留滚动状态
+                    // 直接从 Map 中获取或创建状态，由于 gridStates 在 remember 中保存，状态会在 tab 切换时保留
+                    val lazyGridState = gridStates.getOrPut(category) { rememberLazyGridState() }
                     
                     // 监听滚动状态，触发浮动按钮收缩
                     LaunchedEffect(lazyGridState.isScrollInProgress) {
@@ -3155,10 +3232,9 @@ fun StarSkyScreen(
                                 scope.launch {
                                     try {
                                         // 首先检查是否正在播放，如果正在播放则停止播放
-                                        val currentlyPlaying = playingSounds.contains(sound.id)
+                                        val currentlyPlaying = audioManager.isPlayingRemoteSound(sound.id)
                                         if (currentlyPlaying) {
                                             audioManager.pauseRemoteSound(sound.id)
-                                            playingSounds = playingSounds - sound.id
                                             return@launch
                                         }
                                         
@@ -3194,6 +3270,9 @@ fun StarSkyScreen(
                                                         if (uri != null) {
                                                             audioManager.playRemoteSound(context, sound, uri)
                                                             playingSounds = playingSounds + sound.id
+                                                        } else {
+                                                            android.util.Log.e("StarSkyScreen", "下载完成后无法获取URI: ${sound.id}")
+                                                            Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
                                                         }
                                                         return@collect
                                                     }
@@ -3203,6 +3282,7 @@ fun StarSkyScreen(
                                                         downloadingSounds = downloadingSounds.toMutableMap().apply {
                                                             remove(sound.id)
                                                         }
+                                                        Toast.makeText(context, context.getString(R.string.download_failed) + ": ${progress.exception.message}", Toast.LENGTH_SHORT).show()
                                                         return@collect
                                                     }
                                                 }
@@ -3213,10 +3293,14 @@ fun StarSkyScreen(
                                             if (uri != null) {
                                                 audioManager.playRemoteSound(context, sound, uri)
                                                 playingSounds = playingSounds + sound.id
+                                            } else {
+                                                android.util.Log.e("StarSkyScreen", "无法获取URI: ${sound.id}")
+                                                Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                     } catch (e: Exception) {
                                         android.util.Log.e("StarSkyScreen", "播放失败: ${e.message}")
+                                        Toast.makeText(context, "播放失败: ${e.message}", Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             },

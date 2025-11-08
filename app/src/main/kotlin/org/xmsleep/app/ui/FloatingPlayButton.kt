@@ -517,12 +517,20 @@ private fun FloatingPlayCard(
         is PlayingSoundItem.Local -> {
             // 获取本地声音的本地化名称
             when (item.sound) {
-                AudioManager.Sound.RAIN -> context.getString(R.string.sound_rain)
-                AudioManager.Sound.CAMPFIRE -> context.getString(R.string.sound_campfire)
-                AudioManager.Sound.THUNDER -> context.getString(R.string.sound_thunder)
-                AudioManager.Sound.CAT_PURRING -> context.getString(R.string.sound_cat_purring)
-                AudioManager.Sound.BIRD_CHIRPING -> context.getString(R.string.sound_bird_chirping)
-                AudioManager.Sound.NIGHT_INSECTS -> context.getString(R.string.sound_night_insects)
+                AudioManager.Sound.UMBRELLA_RAIN -> context.getString(R.string.sound_umbrella_rain)
+                AudioManager.Sound.ROWING -> context.getString(R.string.sound_rowing)
+                AudioManager.Sound.OFFICE -> context.getString(R.string.sound_office)
+                AudioManager.Sound.LIBRARY -> context.getString(R.string.sound_library)
+                AudioManager.Sound.HEAVY_RAIN -> context.getString(R.string.sound_heavy_rain)
+                AudioManager.Sound.TYPEWRITER -> context.getString(R.string.sound_typewriter)
+                AudioManager.Sound.THUNDER_NEW -> context.getString(R.string.sound_thunder_new)
+                AudioManager.Sound.CLOCK -> context.getString(R.string.sound_clock)
+                AudioManager.Sound.FOREST_BIRDS -> context.getString(R.string.sound_forest_birds)
+                AudioManager.Sound.DRIFTING -> context.getString(R.string.sound_drifting)
+                AudioManager.Sound.CAMPFIRE_NEW -> context.getString(R.string.sound_campfire_new)
+                AudioManager.Sound.WIND -> context.getString(R.string.sound_wind)
+                AudioManager.Sound.KEYBOARD -> context.getString(R.string.sound_keyboard)
+                AudioManager.Sound.SNOW_WALKING -> context.getString(R.string.sound_snow_walking)
                 else -> item.sound.name
             }
         }

@@ -82,44 +82,92 @@ fun FavoriteScreen(
         }
     }
     
-    // 6个声音模块的数据（使用字符串资源以支持语言切换）
+    // 14个声音模块的数据（使用字符串资源以支持语言切换）
     val configuration = LocalConfiguration.current
     val soundItems = remember(colorScheme, configuration.locales) {
         listOf(
             SoundItem(
-                AudioManager.Sound.RAIN,
-                context.getString(R.string.sound_rain),
-                R.raw.rain_animation_optimized,
+                AudioManager.Sound.UMBRELLA_RAIN,
+                context.getString(R.string.sound_umbrella_rain),
+                R.drawable.umbrella_rain,
                 colorScheme.primary
             ),
             SoundItem(
-                AudioManager.Sound.CAMPFIRE,
-                context.getString(R.string.sound_campfire),
-                R.raw.gouhuo_animation,
+                AudioManager.Sound.ROWING,
+                context.getString(R.string.sound_rowing),
+                R.drawable.rowing,
                 colorScheme.error
             ),
             SoundItem(
-                AudioManager.Sound.THUNDER,
-                context.getString(R.string.sound_thunder),
-                R.raw.dalei_animation,
+                AudioManager.Sound.OFFICE,
+                context.getString(R.string.sound_office),
+                R.drawable.office,
                 colorScheme.secondary
             ),
             SoundItem(
-                AudioManager.Sound.CAT_PURRING,
-                context.getString(R.string.sound_cat_purring),
-                R.raw.cat,
+                AudioManager.Sound.LIBRARY,
+                context.getString(R.string.sound_library),
+                R.drawable.library,
                 colorScheme.tertiary
             ),
             SoundItem(
-                AudioManager.Sound.BIRD_CHIRPING,
-                context.getString(R.string.sound_bird_chirping),
-                R.raw.bird,
+                AudioManager.Sound.HEAVY_RAIN,
+                context.getString(R.string.sound_heavy_rain),
+                R.drawable.heavy_rain,
                 colorScheme.primaryContainer
             ),
             SoundItem(
-                AudioManager.Sound.NIGHT_INSECTS,
-                context.getString(R.string.sound_night_insects),
-                R.raw.xishuai,
+                AudioManager.Sound.TYPEWRITER,
+                context.getString(R.string.sound_typewriter),
+                R.drawable.typewriter,
+                colorScheme.secondaryContainer
+            ),
+            SoundItem(
+                AudioManager.Sound.THUNDER_NEW,
+                context.getString(R.string.sound_thunder_new),
+                R.drawable.thunder_new,
+                colorScheme.tertiaryContainer
+            ),
+            SoundItem(
+                AudioManager.Sound.CLOCK,
+                context.getString(R.string.sound_clock),
+                R.drawable.clock,
+                colorScheme.errorContainer
+            ),
+            SoundItem(
+                AudioManager.Sound.FOREST_BIRDS,
+                context.getString(R.string.sound_forest_birds),
+                R.drawable.forest_birds,
+                colorScheme.primary
+            ),
+            SoundItem(
+                AudioManager.Sound.DRIFTING,
+                context.getString(R.string.sound_drifting),
+                R.drawable.drifting,
+                colorScheme.error
+            ),
+            SoundItem(
+                AudioManager.Sound.CAMPFIRE_NEW,
+                context.getString(R.string.sound_campfire_new),
+                R.drawable.campfire_new,
+                colorScheme.secondary
+            ),
+            SoundItem(
+                AudioManager.Sound.WIND,
+                context.getString(R.string.sound_wind),
+                R.drawable.wind,
+                colorScheme.tertiary
+            ),
+            SoundItem(
+                AudioManager.Sound.KEYBOARD,
+                context.getString(R.string.sound_keyboard),
+                R.drawable.keyboard,
+                colorScheme.primaryContainer
+            ),
+            SoundItem(
+                AudioManager.Sound.SNOW_WALKING,
+                context.getString(R.string.sound_snow_walking),
+                R.drawable.snow_walking,
                 colorScheme.secondaryContainer
             )
         )
