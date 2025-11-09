@@ -141,8 +141,6 @@ import org.xmsleep.app.R
 import org.xmsleep.app.ui.AudioVisualizer
 
 class MainActivity : ComponentActivity() {
-    private var statsCollector: org.xmsleep.app.stats.StatsCollector? = null
-    
     override fun attachBaseContext(newBase: Context?) {
         super.attachBaseContext(newBase?.let { LanguageManager.updateAppLanguage(it) })
     }
@@ -153,48 +151,8 @@ class MainActivity : ComponentActivity() {
         // 在应用启动时迁移旧版本的数据（如果存在）
         org.xmsleep.app.preferences.PreferencesManager.migrateFromOldVersion(this)
         
-        // 初始化统计数据收集器
-        initStatsCollector()
-        
         setContent {
             XMSLEEPApp()
-        }
-    }
-    
-    override fun onResume() {
-        super.onResume()
-        // 记录应用启动（每次进入前台）
-        statsCollector?.recordLaunch()
-    }
-    
-    override fun onPause() {
-        super.onPause()
-        // 记录会话结束（应用进入后台）
-        statsCollector?.recordSessionEnd()
-    }
-    
-    /**
-     * 初始化统计数据收集器
-     */
-    private fun initStatsCollector() {
-        try {
-            // 从 BuildConfig 读取 GitHub Token（如果配置了）
-            val buildConfigClass = Class.forName("org.xmsleep.app.BuildConfig")
-            val tokenField = buildConfigClass.getField("GITHUB_TOKEN")
-            val githubToken = tokenField.get(null) as? String
-            
-            if (!githubToken.isNullOrBlank()) {
-                statsCollector = org.xmsleep.app.stats.StatsCollector(
-                    context = this,
-                    githubToken = githubToken,
-                    gistId = null  // 首次创建，后续会自动保存Gist ID
-                )
-                android.util.Log.d("MainActivity", "统计数据收集器已初始化")
-            } else {
-                android.util.Log.d("MainActivity", "GitHub Token未配置，统计数据收集功能已禁用")
-            }
-        } catch (e: Exception) {
-            android.util.Log.d("MainActivity", "无法读取GITHUB_TOKEN，统计数据收集功能已禁用: ${e.message}")
         }
     }
 }
@@ -1441,7 +1399,8 @@ fun SettingsScreen(
         if (showAboutDialog) {
             AboutDialog(
                 onDismiss = { showAboutDialog = false },
-                currentLanguage = currentLanguage
+                currentLanguage = currentLanguage,
+                context = context
             )
         }
     
@@ -2366,7 +2325,8 @@ fun ClearCacheDialog(
 @Composable
 fun AboutDialog(
     onDismiss: () -> Unit,
-    currentLanguage: LanguageManager.Language
+    currentLanguage: LanguageManager.Language,
+    context: Context
 ) {
     val composeContext = LocalContext.current
     
