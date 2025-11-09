@@ -690,38 +690,88 @@ class AudioManager private constructor() {
      */
     fun stopAllSounds() {
         try {
+            Log.d(TAG, "开始停止所有声音...")
+            
             // 停止所有本地声音
             players.forEach { (sound, player) ->
                 try {
                     player?.let {
-                        it.stop()
+                        // 先设置 playWhenReady = false，防止自动恢复播放
                         it.playWhenReady = false
-                    }
-                    playingStates[sound] = false
-                } catch (e: Exception) {
-                    Log.e(TAG, "停止 ${sound.name} 失败: ${e.message}")
-                }
-            }
-            // 停止所有远程声音
-            remotePlayers.forEach { (soundId, player) ->
-                try {
-                    if (remotePlayingStates[soundId] == true) {
-                        player?.let {
+                        // 然后停止播放器
+                        it.stop()
+                        // 验证是否真的停止了
+                        if (it.isPlaying) {
+                            Log.w(TAG, "${sound.name} 停止后仍在播放，强制暂停")
                             it.pause()
                             it.playWhenReady = false
                         }
-                        remotePlayingStates[soundId] = false
-                        // 从播放队列中移除
-                        playingQueue.remove(PlayingItem.RemoteSound(soundId))
                     }
+                    // 强制更新状态，不管播放器实际状态如何
+                    playingStates[sound] = false
+                    Log.d(TAG, "${sound.name} 已停止")
                 } catch (e: Exception) {
-                    Log.e(TAG, "停止远程声音 $soundId 失败: ${e.message}")
+                    Log.e(TAG, "停止 ${sound.name} 失败: ${e.message}")
+                    // 即使出错也要更新状态
+                    playingStates[sound] = false
                 }
             }
+            
+            // 停止所有远程声音（不检查状态，直接停止所有）
+            remotePlayers.forEach { (soundId, player) ->
+                try {
+                    player?.let {
+                        // 先设置 playWhenReady = false，防止自动恢复播放
+                        it.playWhenReady = false
+                        // 然后暂停播放器
+                        it.pause()
+                        // 验证是否真的停止了
+                        if (it.isPlaying) {
+                            Log.w(TAG, "远程声音 $soundId 停止后仍在播放，强制停止")
+                            it.stop()
+                            it.playWhenReady = false
+                        }
+                    }
+                    // 强制更新状态，不管播放器实际状态如何
+                    remotePlayingStates[soundId] = false
+                    // 从播放队列中移除
+                    playingQueue.remove(PlayingItem.RemoteSound(soundId))
+                    Log.d(TAG, "远程声音 $soundId 已停止")
+                } catch (e: Exception) {
+                    Log.e(TAG, "停止远程声音 $soundId 失败: ${e.message}")
+                    // 即使出错也要更新状态
+                    remotePlayingStates[soundId] = false
+                    playingQueue.remove(PlayingItem.RemoteSound(soundId))
+                }
+            }
+            
             // 清空播放队列
             playingQueue.clear()
+            
+            // 验证是否还有声音在播放
+            val stillPlaying = hasAnyPlayingSounds()
+            if (stillPlaying) {
+                Log.w(TAG, "停止所有声音后，仍有声音在播放，进行二次停止")
+                // 二次停止，确保所有声音都停止
+                players.forEach { (sound, player) ->
+                    player?.let {
+                        it.playWhenReady = false
+                        it.pause()
+                        playingStates[sound] = false
+                    }
+                }
+                remotePlayers.forEach { (soundId, player) ->
+                    player?.let {
+                        it.playWhenReady = false
+                        it.pause()
+                        remotePlayingStates[soundId] = false
+                    }
+                }
+            }
+            
+            Log.d(TAG, "停止所有声音完成")
         } catch (e: Exception) {
-            Log.e(TAG, "停止所有声音时发生错误: ${e.message}")
+            Log.e(TAG, "停止所有声音时发生错误: ${e.message}", e)
         }
     }
 

@@ -507,21 +507,46 @@ fun SoundsScreen(
             
             override fun onTimerFinished() {
                 // 倒计时结束，立即停止所有声音播放（本地和远程）
-                // 在主线程执行停止操作，确保UI更新及时
+                // 使用 runBlocking 确保在主线程同步执行，避免异步延迟导致的问题
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
-                    // 停止所有声音
-                    audioManager.stopAllSounds()
-                    
-                    // 立即更新所有本地声音播放状态
-                    soundItems.forEach { item ->
-                        playingStates[item.sound] = false
+                    try {
+                        // 停止所有声音（同步执行，确保立即生效）
+                        audioManager.stopAllSounds()
+                        
+                        // 立即更新所有本地声音播放状态
+                        soundItems.forEach { item ->
+                            playingStates[item.sound] = false
+                        }
+                        
+                        // 立即更新所有远程声音播放状态
+                        playingRemoteSounds = emptySet()
+                        
+                        // 延迟一小段时间后再次验证，确保所有声音都已停止
+                        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                            // 再次检查并强制停止任何仍在播放的声音
+                            val stillPlaying = audioManager.hasAnyPlayingSounds()
+                            if (stillPlaying) {
+                                android.util.Log.w("SoundsScreen", "倒计时结束后仍有声音在播放，进行二次停止")
+                                audioManager.stopAllSounds()
+                                // 再次更新UI状态
+                                soundItems.forEach { item ->
+                                    playingStates[item.sound] = false
+                                }
+                                playingRemoteSounds = emptySet()
+                            }
+                        }, 200) // 200ms后验证
+                        
+                        // 显示Toast提示
+                        android.widget.Toast.makeText(context, context.getString(R.string.countdown_ended_stopped), android.widget.Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        android.util.Log.e("SoundsScreen", "倒计时结束处理失败: ${e.message}", e)
+                        // 即使出错也要尝试停止
+                        try {
+                            audioManager.stopAllSounds()
+                        } catch (ex: Exception) {
+                            android.util.Log.e("SoundsScreen", "二次停止失败: ${ex.message}")
+                        }
                     }
-                    
-                    // 立即更新所有远程声音播放状态
-                    playingRemoteSounds = emptySet()
-                    
-                    // 显示Toast提示
-                    android.widget.Toast.makeText(context, context.getString(R.string.countdown_ended_stopped), android.widget.Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -1174,7 +1199,7 @@ fun SoundsScreen(
                                             }
                                             is org.xmsleep.app.audio.DownloadProgress.Error -> {
                                                 downloadingSounds = downloadingSounds - sound.id
-                                                android.widget.Toast.makeText(context, "下载失败: ${progress.exception.message}", android.widget.Toast.LENGTH_SHORT).show()
+                                                android.widget.Toast.makeText(context, context.getString(R.string.download_failed) + ": ${progress.exception.message}", android.widget.Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                     }
@@ -1190,7 +1215,7 @@ fun SoundsScreen(
                                     }
                                 }
                             } catch (e: Exception) {
-                                android.widget.Toast.makeText(context, "播放失败: ${e.message}", android.widget.Toast.LENGTH_SHORT).show()
+                                android.widget.Toast.makeText(context, context.getString(R.string.load_failed, e.message ?: ""), android.widget.Toast.LENGTH_SHORT).show()
                             }
                         }
                     },
@@ -2594,6 +2619,8 @@ private fun TitleMenu(
     onPinnedClick: () -> Unit,
     onFavoriteClick: () -> Unit
 ) {
+    val context = LocalContext.current
+    
     if (showMenu) {
         // 使用 DropdownMenu 来显示弹窗
         DropdownMenu(
@@ -2616,7 +2643,7 @@ private fun TitleMenu(
                         tint = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = if (isPinned) "取消默认" else "默认",
+                        text = if (isPinned) context.getString(R.string.cancel_default) else context.getString(R.string.set_as_default),
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                     )
@@ -2639,7 +2666,7 @@ private fun TitleMenu(
                             tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            text = if (isFavorite) "取消收藏" else "收藏",
+                            text = if (isFavorite) context.getString(R.string.cancel_favorite) else context.getString(R.string.favorite),
                             style = MaterialTheme.typography.bodyMedium,
                             color = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                         )
@@ -2682,12 +2709,12 @@ private fun TimerFAB(
                     }
                 },
                 containerColor = when {
-                    !enabled -> MaterialTheme.colorScheme.surfaceVariant // 禁用时使用灰色系
+                    !enabled -> MaterialTheme.colorScheme.secondaryContainer // 禁用时使用secondaryContainer，与卡片背景明显区分
                     isTimerActive -> MaterialTheme.colorScheme.primaryContainer // 激活时使用更浅的primaryContainer
                     else -> MaterialTheme.colorScheme.primary // 未激活时使用primary
                 },
                 contentColor = when {
-                    !enabled -> MaterialTheme.colorScheme.onSurfaceVariant // 禁用时使用灰色文字
+                    !enabled -> MaterialTheme.colorScheme.onSecondaryContainer // 禁用时使用onSecondaryContainer文字
                     isTimerActive -> MaterialTheme.colorScheme.onPrimaryContainer // 激活时使用onPrimaryContainer
                     else -> MaterialTheme.colorScheme.onPrimary // 未激活时使用onPrimary
                 }

@@ -189,9 +189,22 @@ class TimerManager private constructor() {
         timerEndTime = 0
         _timeLeftMillis.value = 0
 
-        // 通知所有监听器倒计时结束
-        for (listener in listeners) {
-            listener.onTimerFinished()
+        // 在主线程上通知所有监听器倒计时结束，确保UI操作在主线程执行
+        scope.launch(Dispatchers.Main) {
+            try {
+                // 使用快照避免在遍历时修改列表
+                val listenersSnapshot = listeners.toList()
+                for (listener in listenersSnapshot) {
+                    try {
+                        listener.onTimerFinished()
+                    } catch (e: Exception) {
+                        Log.e(TAG, "通知监听器倒计时结束失败: ${e.message}", e)
+                    }
+                }
+                Log.d(TAG, "倒计时结束，已通知 ${listenersSnapshot.size} 个监听器")
+            } catch (e: Exception) {
+                Log.e(TAG, "完成倒计时时发生错误: ${e.message}", e)
+            }
         }
     }
 
