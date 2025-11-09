@@ -2429,7 +2429,7 @@ fun AboutDialog(
                 
                 // 应用说明（简化版）
                 Text(
-                    "专业的白噪音和自然声音播放应用，帮助您放松心情、提高专注力、改善睡眠质量。",
+                    composeContext.getString(R.string.app_description),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 
@@ -2458,7 +2458,7 @@ fun AboutDialog(
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        "本应用提供的所有音频内容均来自公开可用的音频资源库。内置声音来自开源音频资源库，网络声音来自 moodist 项目（https://github.com/remvze/moodist），遵循 MIT 开源许可协议。本应用仅提供音频播放功能，不拥有任何音频内容的版权。",
+                        composeContext.getString(R.string.sound_source),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

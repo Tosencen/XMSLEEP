@@ -149,5 +149,7 @@
     <string name="join_group_description">Share your thoughts</string>
     <string name="load_failed">Load failed: %1$s</string>
     <string name="all_categories">All</string>
+    <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="privacy_policy">This app highly values your privacy protection.\n\n• Data Collection: This app does not collect any personally identifiable information. The app only collects anonymous usage statistics (such as launch count, usage duration, etc.) to improve the app experience.\n\n• Data Storage: All statistical data is stored locally on your device, or stored in a private GitHub Gist through encryption, accessible only by you.\n\n• Data Usage: Statistical data is only used for app feature optimization and will not be used for any commercial purposes or shared with third parties.\n\n• Permissions: This app only requests necessary audio playback permissions and will not access your contacts, location, or other sensitive information.\n\n• Data Security: We adopt industry-standard security measures to protect your data, including data encryption and access control.\n\nIf you have any questions, please contact us through the in-app contact method.</string>
 </resources>
 
