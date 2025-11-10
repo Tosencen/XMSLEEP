@@ -182,7 +182,7 @@ object PreferencesManager {
     /**
      * 获取隐藏动画设置
      */
-    fun getHideAnimation(context: Context, default: Boolean = true): Boolean {
+    fun getHideAnimation(context: Context, default: Boolean = false): Boolean {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return prefs.getBoolean(KEY_HIDE_ANIMATION, default)
     }

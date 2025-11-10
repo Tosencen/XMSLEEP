@@ -98,9 +98,9 @@ fun FloatingPlayButton(
     // 收缩状态下外层背景宽度：按钮(56) + 间距(8) + 箭头(24) + 左padding(10) + 右padding(4) = 102dp
     val outerBackgroundSize = buttonSize + arrowSpacing + arrowIconSize + outerPaddingLeft + outerPaddingRight
     
-    // 固定位置：左侧，离底部360dp
+    // 固定位置：左侧，离底部300dp
     val fixedX = 16.dp
-    val fixedY = screenHeight - 360.dp - outerBackgroundHeight
+    val fixedY = screenHeight - 300.dp - outerBackgroundHeight
     
     var isExpanded by remember {
         mutableStateOf(false) // 默认未展开状态
@@ -116,6 +116,16 @@ fun FloatingPlayButton(
     
     // 按钮是否应该跟随红色区域一起消失
     var shouldFadeWithStopArea by remember { mutableStateOf(false) }
+    
+    // 长按后无拖动超时处理
+    var dragTimeoutJob by remember { mutableStateOf<kotlinx.coroutines.Job?>(null) }
+    
+    // 清理超时任务（组件销毁时）
+    DisposableEffect(Unit) {
+        onDispose {
+            dragTimeoutJob?.cancel()
+        }
+    }
     
     // 动态停止区域高度（根据按钮是否在区域内）
     val currentStopAreaHeight by animateDpAsState(
@@ -239,8 +249,30 @@ fun FloatingPlayButton(
         // 底部停止播放区域（拖动时显示）- 先渲染，在按钮下方
         androidx.compose.animation.AnimatedVisibility(
             visible = isDragging,
-            enter = fadeIn(animationSpec = tween(durationMillis = 200)),
-            exit = fadeOut(animationSpec = tween(durationMillis = 200))
+            enter = slideInVertically(
+                initialOffsetY = { fullHeight -> fullHeight },
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = FastOutSlowInEasing
+                )
+            ) + fadeIn(
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = FastOutSlowInEasing
+                )
+            ),
+            exit = slideOutVertically(
+                targetOffsetY = { fullHeight -> fullHeight },
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = FastOutSlowInEasing
+                )
+            ) + fadeOut(
+                animationSpec = tween(
+                    durationMillis = 300,
+                    easing = FastOutSlowInEasing
+                )
+            )
         ) {
             Box(
                 modifier = Modifier
@@ -287,8 +319,31 @@ fun FloatingPlayButton(
                         onDragStart = {
                             isDragging = true
                             isButtonInStopArea = false // 重置状态
+                            
+                            // 取消之前的超时任务（如果存在）
+                            dragTimeoutJob?.cancel()
+                            
+                            // 启动超时任务：如果3秒内没有拖动，自动隐藏红色区域
+                            dragTimeoutJob = scope.launch {
+                                delay(3000) // 3秒超时
+                                // 如果仍然在拖动状态，则重置状态（无论偏移量如何）
+                                // 这样可以处理用户长按后不动几秒钟然后松开手指的情况
+                                if (isDragging) {
+                                    isDragging = false
+                                    isButtonInStopArea = false
+                                    // 如果偏移量不为0，也需要重置位置
+                                    if (dragOffsetX.value != 0f || dragOffsetY.value != 0f) {
+                                        dragOffsetX.snapTo(0f)
+                                        dragOffsetY.snapTo(0f)
+                                    }
+                                }
+                            }
                         },
                         onDragEnd = {
+                            // 取消超时任务
+                            dragTimeoutJob?.cancel()
+                            dragTimeoutJob = null
+                            
                             // 检测是否在停止区域内
                             val currentButtonY = with(density) { fixedY.toPx() } + dragOffsetY.value
                             val stopAreaTopY = with(density) { (screenHeight - currentStopAreaHeight).toPx() }
@@ -347,6 +402,10 @@ fun FloatingPlayButton(
                             }
                         },
                         onDrag = { change, dragAmount ->
+                            // 取消超时任务（因为已经开始拖动）
+                            dragTimeoutJob?.cancel()
+                            dragTimeoutJob = null
+                            
                             // 拖动时实时更新位置（snapTo 是挂起函数，需要在协程中调用）
                             scope.launch {
                                 dragOffsetX.snapTo(dragOffsetX.value + dragAmount.x)
