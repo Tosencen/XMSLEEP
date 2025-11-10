@@ -22,8 +22,9 @@ class UpdateChecker(
     private val githubToken: String? = null
 ) {
     private val client = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(30, TimeUnit.SECONDS)
+        .connectTimeout(15, TimeUnit.SECONDS)  // 增加连接超时时间
+        .readTimeout(60, TimeUnit.SECONDS)     // 增加读取超时时间
+        .retryOnConnectionFailure(true)        // 启用连接失败重试
         .build()
     
     private val json = Json {
@@ -104,14 +105,24 @@ class UpdateChecker(
                 android.util.Log.d("UpdateChecker", "找到APK资源: ${apkAsset?.name ?: "未找到"}")
                 
                 if (apkAsset != null) {
+                    // 保存原始GitHub URL和jsDelivr URL（用于智能回退）
+                    val githubUrl = apkAsset.browserDownloadUrl
+                    val jsDelivrUrl = convertToJsDelivrUrl(
+                        githubUrl = githubUrl,
+                        tagName = release.tagName,
+                        fileName = apkAsset.name
+                    )
+                    
+                    // 优先使用jsDelivr URL，但保存原始URL用于回退
                     val newVersion = NewVersion(
                         version = latestVersion,
                         name = release.name.ifEmpty { release.tagName },
                         changelog = release.body,
-                        downloadUrl = apkAsset.browserDownloadUrl,
-                        publishedAt = release.publishedAt
+                        downloadUrl = jsDelivrUrl,  // 优先使用jsDelivr
+                        publishedAt = release.publishedAt,
+                        fallbackUrl = githubUrl  // 保存原始URL用于回退
                     )
-                    android.util.Log.d("UpdateChecker", "返回NewVersion: version=${newVersion.version}, downloadUrl=${newVersion.downloadUrl}")
+                    android.util.Log.d("UpdateChecker", "返回NewVersion: version=${newVersion.version}, downloadUrl=${newVersion.downloadUrl}, fallbackUrl=${newVersion.fallbackUrl}")
                     return@withContext newVersion
                 } else {
                     android.util.Log.w("UpdateChecker", "未找到APK资源文件")
@@ -130,6 +141,36 @@ class UpdateChecker(
             e.printStackTrace()
             // 其他异常也转换为IOException
             throw IOException("检查更新失败: ${e.message}", e)
+        }
+    }
+    
+    /**
+     * 将GitHub Release下载URL转换为jsDelivr CDN URL
+     * 例如: https://github.com/Tosencen/XMSLEEP/releases/download/v2.0.3/app-release.apk
+     * 转换为: https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@v2.0.3/app-release.apk
+     */
+    private fun convertToJsDelivrUrl(githubUrl: String, tagName: String, fileName: String): String {
+        return try {
+            // 尝试从GitHub URL中提取信息
+            val githubPattern = Regex("https://github.com/([^/]+)/([^/]+)/releases/download/(.+)")
+            val matchResult = githubPattern.find(githubUrl)
+            
+            if (matchResult != null) {
+                val (owner, repo, _) = matchResult.destructured
+                // 使用jsDelivr CDN格式
+                val jsDelivrUrl = "https://cdn.jsdelivr.net/gh/$owner/$repo@$tagName/$fileName"
+                android.util.Log.d("UpdateChecker", "URL转换: $githubUrl -> $jsDelivrUrl")
+                jsDelivrUrl
+            } else {
+                // 如果无法匹配，直接使用tagName和fileName构建
+                val jsDelivrUrl = "https://cdn.jsdelivr.net/gh/$repositoryOwner/$repositoryName@$tagName/$fileName"
+                android.util.Log.d("UpdateChecker", "使用默认格式构建URL: $jsDelivrUrl")
+                jsDelivrUrl
+            }
+        } catch (e: Exception) {
+            android.util.Log.e("UpdateChecker", "URL转换失败: ${e.message}", e)
+            // 转换失败时返回原URL
+            githubUrl
         }
     }
     
@@ -177,6 +218,7 @@ data class NewVersion(
     val version: String,
     val name: String,
     val changelog: String,
-    val downloadUrl: String,
-    val publishedAt: String
+    val downloadUrl: String,      // 优先使用的URL（jsDelivr CDN）
+    val publishedAt: String,
+    val fallbackUrl: String? = null  // 回退URL（GitHub原始URL）
 )
