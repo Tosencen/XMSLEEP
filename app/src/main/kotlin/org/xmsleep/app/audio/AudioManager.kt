@@ -329,11 +329,10 @@ class AudioManager private constructor() {
                 C.TIME_END_OF_SOURCE
             }
             
-            val clippingMediaSource = ClippingMediaSource(
-                mediaSource,
-                startPositionMs * 1000,
-                endPositionUs
-            )
+            val clippingMediaSource = ClippingMediaSource.Builder(mediaSource)
+                .setStartPositionUs(startPositionMs * 1000)
+                .setEndPositionUs(endPositionUs)
+                .build()
             
             player.setMediaSource(clippingMediaSource)
             player.repeatMode = Player.REPEAT_MODE_ONE
@@ -962,11 +961,10 @@ class AudioManager private constructor() {
                 val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(MediaItem.fromUri(uri))
                 
-                val clippingMediaSource = ClippingMediaSource(
-                    mediaSource,
-                    metadata.loopStart * 1000,
-                    metadata.loopEnd * 1000
-                )
+                val clippingMediaSource = ClippingMediaSource.Builder(mediaSource)
+                    .setStartPositionUs(metadata.loopStart * 1000)
+                    .setEndPositionUs(metadata.loopEnd * 1000)
+                    .build()
                 
                 player.setMediaSource(clippingMediaSource)
                 player.repeatMode = Player.REPEAT_MODE_ONE
