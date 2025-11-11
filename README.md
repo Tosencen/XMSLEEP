@@ -79,10 +79,13 @@ XMSLEEP 是一个专注于白噪音播放的 Android 应用，提供多种自然
 - **Jetpack Compose** - 现代化 UI 框架
 - **Material Design 3** - UI 设计系统
 - **ExoPlayer/Media3** - 音频播放引擎，支持无缝循环
-- **webp** - 动画支持
-- **MaterialKolor** - 动态颜色方案
 - **OkHttp** - 网络请求和文件下载
+- **Gson** - JSON 解析
 - **Kotlinx Serialization** - JSON 序列化
+- **Coil** - 图片加载
+- **WebP** - 动画支持（声音卡片动画）
+- **MaterialKolor** - 动态主题色生成
+- **Accompanist** - Pull-to-refresh 支持
 
 ## 📦 当前版本
 
