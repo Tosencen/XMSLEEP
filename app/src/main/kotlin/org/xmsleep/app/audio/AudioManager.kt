@@ -229,14 +229,15 @@ class AudioManager private constructor() {
             override fun onPlaybackStateChanged(state: Int) {
                 when (state) {
                     Player.STATE_ENDED -> {
-                        // 播放结束，自动循环（ClippingMediaSource 会自动循环）
-                        playingStates[sound] = false
+                        // 播放结束，由于使用了REPEAT_MODE_ONE，ExoPlayer会自动循环
+                        // 不需要手动调用prepare()和play()，避免卡顿
+                        // 只更新状态，让ExoPlayer自动处理循环
                         val player = players[sound]
                         if (player != null && playingQueue.contains(PlayingItem.LocalSound(sound))) {
-                            // 只有在播放队列中才自动循环
-                            player.prepare()
-                            player.play()
-                            playingStates[sound] = true
+                            // ExoPlayer会自动循环，只需要确保playWhenReady为true
+                            if (!player.playWhenReady) {
+                                player.playWhenReady = true
+                            }
                         }
                     }
                     Player.STATE_READY -> {
@@ -321,13 +322,11 @@ class AudioManager private constructor() {
             }
             
             // 使用 ClippingMediaSource，设置具体的结束位置
-            // 注意：endPositionMs 必须是具体的毫秒数，不能使用 C.TIME_UNSET
-            // 如果 endPositionMs 为 0，使用一个很大的值（1小时）作为默认值
+            // 如果 endPositionMs <= 0，使用 C.TIME_END_OF_SOURCE 表示直到音源末尾
             val endPositionUs = if (endPositionMs > 0) {
                 endPositionMs * 1000
             } else {
-                // 如果未指定结束位置，使用1小时（3600000ms = 3600000000微秒）
-                3600000000L
+                C.TIME_END_OF_SOURCE
             }
             
             val clippingMediaSource = ClippingMediaSource(
@@ -338,7 +337,7 @@ class AudioManager private constructor() {
             
             player.setMediaSource(clippingMediaSource)
             player.repeatMode = Player.REPEAT_MODE_ONE
-            Log.d(TAG, "$soundName 音频媒体源已设置，循环范围: ${startPositionMs}ms - ${if (endPositionMs > 0) "${endPositionMs}ms" else "1小时"}")
+            Log.d(TAG, "$soundName 音频媒体源已设置，循环范围: ${startPositionMs}ms - ${if (endPositionMs > 0) "${endPositionMs}ms" else "音源末尾"}")
         } catch (e: Exception) {
             Log.e(TAG, "准备$soundName 音频失败: ${e.message}")
             e.printStackTrace()
@@ -353,7 +352,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.umbrella_rain,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "伞上雨声"
         )
     }
@@ -362,7 +361,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.rowing,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "划船"
         )
     }
@@ -371,7 +370,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.office,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "办公室"
         )
     }
@@ -380,7 +379,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.library,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "图书馆"
         )
     }
@@ -389,7 +388,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.heavy_rain,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "大雨"
         )
     }
@@ -398,7 +397,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.typewriter,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "打字机"
         )
     }
@@ -407,7 +406,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.thunder_new,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "打雷"
         )
     }
@@ -417,7 +416,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.clock,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "时钟"
         )
     }
@@ -426,7 +425,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.forest_birds,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "森林鸟鸣"
         )
     }
@@ -435,7 +434,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.drifting,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "漂流"
         )
     }
@@ -444,7 +443,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.campfire_new,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "篝火"
         )
     }
@@ -453,7 +452,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.wind,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "起风了"
         )
     }
@@ -462,7 +461,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.keyboard,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "键盘"
         )
     }
@@ -473,7 +472,7 @@ class AudioManager private constructor() {
         prepareSoundAudio(
             context, sound,
             R.raw.snow_walking,
-            500L, 0L, // 使用0表示使用C.TIME_UNSET，自动检测文件实际长度
+            0L, 0L, // 从0ms开始，自动检测文件实际长度
             "雪地徒步"
         )
     }
@@ -998,13 +997,15 @@ class AudioManager private constructor() {
             override fun onPlaybackStateChanged(state: Int) {
                 when (state) {
                     Player.STATE_ENDED -> {
-                        // 检查播放器是否还在队列中，如果不在队列中，不应该自动重新播放
-                        val isInQueue = playingQueue.contains(PlayingItem.RemoteSound(soundId))
-                        if (isInQueue) {
-                            remotePlayingStates[soundId] = false
-                            remotePlayers[soundId]?.prepare()
-                            remotePlayers[soundId]?.play()
-                            remotePlayingStates[soundId] = true
+                        // 播放结束，由于使用了REPEAT_MODE_ONE，ExoPlayer会自动循环
+                        // 不需要手动调用prepare()和play()，避免卡顿
+                        // 只更新状态，让ExoPlayer自动处理循环
+                        val player = remotePlayers[soundId]
+                        if (player != null && playingQueue.contains(PlayingItem.RemoteSound(soundId))) {
+                            // ExoPlayer会自动循环，只需要确保playWhenReady为true
+                            if (!player.playWhenReady) {
+                                player.playWhenReady = true
+                            }
                         }
                     }
                     Player.STATE_READY -> {
@@ -1014,6 +1015,13 @@ class AudioManager private constructor() {
                             remotePlayingStates[soundId] = true
                         }
                     }
+                    Player.STATE_IDLE -> {
+                        // 播放器空闲
+                        remotePlayingStates[soundId] = false
+                    }
+                    Player.STATE_BUFFERING -> {
+                        // 缓冲中，保持当前状态
+                    }
                 }
             }
             
@@ -1022,12 +1030,16 @@ class AudioManager private constructor() {
                 val isInQueue = playingQueue.contains(PlayingItem.RemoteSound(soundId))
                 if (isInQueue) {
                     remotePlayingStates[soundId] = isPlaying
+                } else if (!isPlaying) {
+                    remotePlayingStates[soundId] = false
                 }
             }
             
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                 Log.e(TAG, "$soundId 播放错误: ${error.message}")
                 remotePlayingStates[soundId] = false
+                // 从播放队列中移除
+                playingQueue.remove(PlayingItem.RemoteSound(soundId))
             }
         }
     }
