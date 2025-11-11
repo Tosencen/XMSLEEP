@@ -1,0 +1,7 @@
+Version 2.0.4
+
+Improvements:
+- Disabled dependency metadata in APK/AAB builds (for F-Droid/IzzyOnDroid compatibility)
+- Added network security configuration to explicitly prohibit cleartext traffic
+- Optimized code structure and performance
+
