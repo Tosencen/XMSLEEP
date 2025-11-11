@@ -13,8 +13,13 @@ android {
         applicationId = "org.xmsleep.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 23
-        versionName = "2.0.3"
+		versionCode = 24
+		versionName = "2.0.4"
+        
+        // 只保留 arm64-v8a 架构以减小 APK 体积（现代设备都支持）
+        ndk {
+            abiFilters += listOf("arm64-v8a")
+        }
         
         // 从 gradle.properties 读取 GitHub Token（如果存在）
         val githubToken = project.findProperty("GITHUB_TOKEN") as String? ?: ""
@@ -36,7 +41,8 @@ android {
     
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = false  // 禁用代码混淆
+            isShrinkResources = false  // 禁用资源压缩
             signingConfig = signingConfigs.getByName("release")
         }
     }
@@ -61,6 +67,13 @@ android {
     lint {
         disable.add("NullSafeMutableLiveData")
     }
+    
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs (for IzzyOnDroid/F-Droid)
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles (for Google Play)
+        includeInBundle = false
+    }
 }
 
 dependencies {
@@ -72,6 +85,8 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.foundation:foundation")
+    // Pull-to-refresh (Accompanist)
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.34.0")
     
     // AndroidX
     implementation("androidx.core:core-ktx:1.15.0")

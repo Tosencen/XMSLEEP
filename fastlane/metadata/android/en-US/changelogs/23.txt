@@ -1,0 +1,17 @@
+Version 2.0.3
+
+Improvements:
+- Optimized WebP animation cover display logic, showing first frame instead of middle frame when not playing
+- Optimized code structure and performance
+
+Bug Fixes:
+- Fixed issue where countdown end did not stop all sound playback, ensuring complete player stop
+
+Privacy Improvements:
+- Removed data statistics feature: app no longer collects or uploads any usage data, fully protecting user privacy
+- Statistics viewing feature moved to independent HTML page, users can choose whether to view
+
+Technical Updates:
+- Cleaned up all statistics collection related code
+- Optimized app size and performance
+

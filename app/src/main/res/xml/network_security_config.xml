@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- 明确禁止所有 cleartext (HTTP) 流量，只允许 HTTPS -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <!-- 信任系统预装的 CA 证书 -->
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>
+
