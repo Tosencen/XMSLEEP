@@ -81,10 +81,13 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 - **Jetpack Compose** - Modern UI framework
 - **Material Design 3** - UI design system
 - **ExoPlayer/Media3** - Audio playback engine with seamless loop support
-- **webp** - Animation support
-- **MaterialKolor** - Dynamic color scheme
 - **OkHttp** - Network requests and file downloads
+- **Gson** - JSON parsing
 - **Kotlinx Serialization** - JSON serialization
+- **Coil** - Image loading
+- **WebP** - Animation support (sound card animations)
+- **MaterialKolor** - Dynamic theme color generation
+- **Accompanist** - Pull-to-refresh support
 
 ## 📦 Current Version
 
