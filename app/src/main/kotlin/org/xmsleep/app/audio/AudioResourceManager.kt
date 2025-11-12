@@ -98,6 +98,7 @@ class AudioResourceManager private constructor(context: Context) {
     
     /**
      * 获取音频文件URI（用于播放）
+     * 优先使用缓存文件，如果缓存不存在则返回网络URL
      */
     suspend fun getSoundUri(metadata: SoundMetadata): Uri? {
         return when (metadata.source) {
@@ -107,11 +108,14 @@ class AudioResourceManager private constructor(context: Context) {
                 }
             }
             AudioSource.REMOTE -> {
-                // 先检查缓存
-                cacheManager.getCachedFile(metadata.id)?.let { file ->
-                    Uri.fromFile(file)
-                } ?: run {
+                // 优先检查缓存，确保使用本地文件而不是网络URL
+                val cachedFile = cacheManager.getCachedFile(metadata.id)
+                if (cachedFile != null && cachedFile.exists() && cachedFile.length() > 0) {
+                    Log.d(TAG, "使用缓存文件播放: ${metadata.id} -> ${cachedFile.absolutePath}")
+                    Uri.fromFile(cachedFile)
+                } else {
                     // 如果未缓存，返回网络URL（ExoPlayer支持流式播放）
+                    Log.d(TAG, "使用网络URL播放: ${metadata.id} -> ${metadata.remoteUrl}")
                     metadata.remoteUrl?.let { Uri.parse(it) }
                 }
             }
