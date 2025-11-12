@@ -1,0 +1,58 @@
+Categories:
+  - Multimedia
+License: MIT
+AuthorName: Tosencen
+AuthorEmail: 
+AuthorWebSite: https://github.com/Tosencen
+SourceCode: https://github.com/Tosencen/XMSLEEP
+IssueTracker: https://github.com/Tosencen/XMSLEEP/issues
+Changelog: https://github.com/Tosencen/XMSLEEP/releases
+Donate: 
+Bitcoin: 
+Litecoin: 
+FlattrID: 
+LiberapayID: 
+OpenCollective: 
+
+AutoName: XMSLEEP
+Summary: A white noise and natural sound player app to help you relax, focus, and sleep better.
+Description: |-
+  XMSLEEP is a professional white noise and natural sound playback app dedicated to providing you with high-quality audio experiences. The app includes a variety of carefully selected natural sounds, including rain, thunder, campfire, bird chirping, and more, to help you relax, improve focus, and enhance sleep quality.
+
+  Built with Material Design 3 guidelines, the app features a clean and beautiful interface with smooth and intuitive operations. It supports multiple languages, customizable themes, independent volume control, quick play, favorites, and many other features to provide you with a personalized sound experience.
+
+  Features:
+  • Multiple white noise sounds: rain, thunder, campfire, cat purring, birds, crickets, and more
+  • Online audio: support for dynamically loading more audio resources from GitHub
+  • Seamless loop: audio supports seamless loop playback for an immersive experience
+  • Volume control: support for independent volume adjustment for each sound, or one-click adjustment for all sounds
+  • Beautiful animations: built-in sounds come with WebP animations to enhance visual experience
+  • Material Design 3: adopts the latest Material Design 3 design guidelines
+  • Theme switching: supports light/dark mode switching, adapts to system theme
+  • Custom themes: multiple color themes available, supports dynamic colors
+  • Countdown feature: set automatic stop playback time to help you control usage duration
+  • Quick play area: support for adding frequently used sounds to the quick play area for quick access
+  • Favorites: favorite your preferred white noise sounds
+  • Global floating button: displays currently playing sounds, supports quick pause and expand to view
+  • Auto update: supports automatic update checking via GitHub Releases
+
+  Privacy:
+  This app highly values your privacy protection. The app does not collect any personally identifiable information and does not track user activities.
+
+RepoType: git
+Repo: https://github.com/Tosencen/XMSLEEP.git
+
+Builds:
+  - versionName: '2.0.4'
+    versionCode: 24
+    commit: v2.0.4
+    subdir: app
+    gradle:
+      - yes
+    output: app/build/outputs/apk/release/app-release.apk
+
+AutoUpdateMode: Version v%v
+UpdateCheckMode: Tags
+CurrentVersion: '2.0.4'
+CurrentVersionCode: 24
+
