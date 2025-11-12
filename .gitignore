@@ -105,3 +105,4 @@ gradle.properties
 
 # 备份目录
 raw_backup/
+fdroiddata/
