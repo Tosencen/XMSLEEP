@@ -57,20 +57,18 @@ class AudioCacheManager private constructor(context: Context) {
     
     /**
      * 获取缓存的音频文件
+     * 支持多种格式：.mp3, .ogg, .wav
      */
     fun getCachedFile(soundId: String): File? {
-        val file = File(cacheDir, "$soundId.mp3") // 默认mp3格式
-        return if (file.exists() && file.length() > 0) {
-            file
-        } else {
-            // 尝试其他格式
-            val wavFile = File(cacheDir, "$soundId.wav")
-            if (wavFile.exists() && wavFile.length() > 0) {
-                wavFile
-            } else {
-                null
+        // 按优先级检查所有可能的格式
+        val formats = listOf("mp3", "ogg", "wav")
+        for (format in formats) {
+            val file = File(cacheDir, "$soundId.$format")
+            if (file.exists() && file.length() > 0) {
+                return file
             }
         }
+        return null
     }
     
     /**
@@ -267,6 +265,7 @@ class AudioCacheManager private constructor(context: Context) {
     
     /**
      * 使用指定URL下载音频文件（带进度回调和重试机制）
+     * 对于 403/404 错误，立即失败不重试；对于网络错误，会重试
      */
     private fun downloadAudioWithProgressAndUrl(
         url: String,
@@ -303,7 +302,17 @@ class AudioCacheManager private constructor(context: Context) {
                 val response = okHttpClient.newCall(request).execute()
                 
                 if (!response.isSuccessful) {
-                    throw IOException("下载失败: HTTP ${response.code}")
+                    val httpCode = response.code
+                    val errorMsg = "下载失败: HTTP $httpCode"
+                    Log.w(TAG, "$errorMsg (来源: $source, URL: $url)")
+                    
+                    // 对于 403/404 错误，立即失败，不重试（这些错误重试也没用）
+                    if (httpCode == 403 || httpCode == 404) {
+                        Log.w(TAG, "HTTP $httpCode 错误，立即失败，不回退重试")
+                        throw NonRetryableException(errorMsg, httpCode)
+                    }
+                    
+                    throw IOException(errorMsg)
                 }
                 
                 val body = response.body ?: throw IOException("响应体为空")
@@ -331,11 +340,16 @@ class AudioCacheManager private constructor(context: Context) {
                 Log.d(TAG, "音频下载成功: $soundId (来源: $source, 尝试 $attempt/$MAX_RETRY_COUNT)")
                 emit(DownloadProgress.Success(file))
                 return@flow
+            } catch (e: NonRetryableException) {
+                // 不可重试的错误（403/404），立即失败
+                Log.e(TAG, "不可重试的错误 (来源: $source): ${e.message}")
+                emit(DownloadProgress.Error(e))
+                return@flow
             } catch (e: Exception) {
                 lastException = e
                 Log.w(TAG, "下载音频失败 (来源: $source, 尝试 $attempt/$MAX_RETRY_COUNT): ${e.message}")
                 
-                // 如果不是最后一次尝试，等待后重试
+                // 如果不是最后一次尝试，等待后重试（仅对可重试的错误）
                 if (attempt < MAX_RETRY_COUNT) {
                     val delay = INITIAL_RETRY_DELAY * attempt // 递增延迟
                     delay(delay)
@@ -409,4 +423,9 @@ sealed class DownloadProgress {
     data class Success(val file: File) : DownloadProgress()
     data class Error(val exception: Exception) : DownloadProgress()
 }
+
+/**
+ * 不可重试的异常（如 403/404 错误）
+ */
+class NonRetryableException(message: String, val httpCode: Int) : IOException(message)
 

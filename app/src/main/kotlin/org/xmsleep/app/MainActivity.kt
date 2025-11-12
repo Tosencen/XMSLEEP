@@ -954,12 +954,20 @@ fun SettingsScreen(
             cacheSize = calculateCacheSize(context)
             isCalculatingCache = false
             
-            // 更新音量显示：获取第一个正在播放的声音的音量，如果没有则显示0
+            // 更新音量显示：获取第一个正在播放的声音的音量，优先检查本地音频，然后检查远程音频
             val playingSounds = audioManager.getPlayingSounds()
-            currentVolumeDisplay = if (playingSounds.isNotEmpty()) {
-                audioManager.getVolume(playingSounds.first())
-            } else {
-                0f
+            val playingRemoteSounds = audioManager.getPlayingRemoteSoundIds()
+            currentVolumeDisplay = when {
+                playingSounds.isNotEmpty() -> {
+                    audioManager.getVolume(playingSounds.first())
+                }
+                playingRemoteSounds.isNotEmpty() -> {
+                    audioManager.getRemoteVolume(playingRemoteSounds.first())
+                }
+                else -> {
+                    // 如果没有正在播放的音频，保持当前显示值不变（不重置为0）
+                    currentVolumeDisplay
+                }
             }
             
             // 检查缓存是否超过200M (200 * 1024 * 1024 字节)
@@ -991,10 +999,16 @@ fun SettingsScreen(
     LaunchedEffect(Unit) {
         while (true) {
             val playingSounds = audioManager.getPlayingSounds()
-            currentVolumeDisplay = if (playingSounds.isNotEmpty()) {
-                audioManager.getVolume(playingSounds.first())
-            } else {
-                0f
+            val playingRemoteSounds = audioManager.getPlayingRemoteSoundIds()
+            // 只在有音频播放时才更新显示，避免覆盖用户设置的值
+            when {
+                playingSounds.isNotEmpty() -> {
+                    currentVolumeDisplay = audioManager.getVolume(playingSounds.first())
+                }
+                playingRemoteSounds.isNotEmpty() -> {
+                    currentVolumeDisplay = audioManager.getRemoteVolume(playingRemoteSounds.first())
+                }
+                // 如果没有正在播放的音频，保持当前显示值不变
             }
             delay(300) // 每300ms更新一次音量显示
         }
@@ -1003,15 +1017,46 @@ fun SettingsScreen(
         modifier = modifier
             .fillMaxSize()
     ) {
-        // 固定标题
-        Text(
-            context.getString(R.string.settings),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-        )
+		// 固定标题 + GitHub 按钮
+		Row(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(horizontal = 16.dp, vertical = 16.dp),
+			horizontalArrangement = Arrangement.SpaceBetween,
+			verticalAlignment = Alignment.CenterVertically
+		) {
+			Text(
+				context.getString(R.string.settings),
+				style = MaterialTheme.typography.headlineSmall,
+				fontWeight = FontWeight.Bold,
+			)
+			// 参考首页深浅色切换按钮样式的圆形按钮
+			Surface(
+				onClick = {
+					val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/Tosencen/XMSLEEP"))
+					intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+					try {
+						context.startActivity(intent)
+					} catch (_: Exception) {
+					}
+				},
+				shape = CircleShape,
+				color = MaterialTheme.colorScheme.surfaceVariant,
+				modifier = Modifier.size(32.dp)
+			) {
+				Box(
+					modifier = Modifier.fillMaxSize(),
+					contentAlignment = Alignment.Center
+				) {
+					// 使用 GitHub 官方图标资源
+					androidx.compose.foundation.Image(
+						painter = androidx.compose.ui.res.painterResource(id = R.drawable.ic_github),
+						contentDescription = "GitHub",
+						colorFilter = androidx.compose.ui.graphics.ColorFilter.tint(MaterialTheme.colorScheme.onSurfaceVariant)
+					)
+				}
+			}
+		}
         
         // 可滚动内容区域
         val scrollState = rememberScrollState()
@@ -1437,9 +1482,11 @@ fun SettingsScreen(
         // 一键调整音量对话框
         var volume by remember { 
             mutableStateOf(
-                // 获取第一个正在播放的声音的音量作为默认值，如果没有则使用0.5
+                // 获取第一个正在播放的声音的音量作为默认值，优先检查本地音频，然后检查远程音频
                 audioManager.getPlayingSounds().firstOrNull()?.let { 
                     audioManager.getVolume(it) 
+                } ?: audioManager.getPlayingRemoteSoundIds().firstOrNull()?.let {
+                    audioManager.getRemoteVolume(it)
                 } ?: 0.5f
             )
         }
@@ -1467,9 +1514,17 @@ fun SettingsScreen(
                             value = volume,
                             onValueChange = { 
                                 volume = it
-                                // 实时应用到所有声音
-                                audioManager.getPlayingSounds().forEach { sound ->
+                                // 实时应用到所有本地声音
+                                val localSounds = audioManager.getPlayingSounds()
+                                localSounds.forEach { sound ->
                                     audioManager.setVolume(sound, volume)
+                                }
+                                // 实时应用到所有远程声音（繁星页面）
+                                val remoteSoundIds = audioManager.getPlayingRemoteSoundIds()
+                                android.util.Log.d("VolumeDialog", "正在播放的远程音频数量: ${remoteSoundIds.size}, IDs: $remoteSoundIds")
+                                remoteSoundIds.forEach { soundId ->
+                                    android.util.Log.d("VolumeDialog", "设置远程音频音量: $soundId = $volume")
+                                    audioManager.setRemoteVolume(soundId, volume)
                                 }
                                 // 实时更新显示的音量数值
                                 currentVolumeDisplay = volume
@@ -1503,7 +1558,7 @@ fun SettingsScreen(
                 },
                 confirmButton = {
                     TextButton(onClick = { 
-                        // 应用到所有声音（包括未播放的，以便下次播放时使用）
+                        // 应用到所有本地声音（包括未播放的，以便下次播放时使用）
                         listOf(
                             org.xmsleep.app.audio.AudioManager.Sound.UMBRELLA_RAIN,
                             org.xmsleep.app.audio.AudioManager.Sound.ROWING,
@@ -1521,6 +1576,11 @@ fun SettingsScreen(
                             org.xmsleep.app.audio.AudioManager.Sound.SNOW_WALKING
                         ).forEach { sound ->
                             audioManager.setVolume(sound, volume)
+                        }
+                        // 应用到所有正在播放的远程声音（繁星页面）
+                        val remoteSoundIds = audioManager.getPlayingRemoteSoundIds()
+                        remoteSoundIds.forEach { soundId ->
+                            audioManager.setRemoteVolume(soundId, volume)
                         }
                         // 更新显示的音量数值
                         currentVolumeDisplay = volume
@@ -3376,7 +3436,6 @@ fun StarSkyScreen(
         
     }
 }
-
 /**
  * 网络音频卡片
  */
@@ -3402,22 +3461,52 @@ fun RemoteSoundCard(
     val cacheManager = remember { 
         org.xmsleep.app.audio.AudioCacheManager.getInstance(context) 
     }
-    var isCached by remember { mutableStateOf(cacheManager.getCachedFile(sound.id) != null) }
+    var isCached by remember(sound.id) { 
+        mutableStateOf(cacheManager.getCachedFile(sound.id) != null) 
+    }
     
     // 监听下载完成，更新缓存状态
     LaunchedEffect(downloadProgress, sound.id, isPlaying) {
+        // 首次加载时立即检查缓存状态
+        val cached = cacheManager.getCachedFile(sound.id) != null
+        if (cached != isCached) {
+            isCached = cached
+        }
+        
         // 当下载进度为1.0时（下载完成），延迟一点再检查缓存状态，确保文件已经写入
         if (downloadProgress != null && downloadProgress >= 1.0f) {
-            delay(100) // 延迟100ms确保文件已经写入
-            isCached = cacheManager.getCachedFile(sound.id) != null
+            delay(300) // 延迟300ms确保文件已经写入
+            val newCached = cacheManager.getCachedFile(sound.id) != null
+            if (newCached != isCached) {
+                isCached = newCached
+            }
         }
-        // 当下载进度为null时（下载完成或未开始），检查缓存状态
+        // 当下载进度从非null变为null时（下载完成），再次检查缓存状态
+        // 注意：当下载成功时，downloadProgress会从1.0f变为null，此时需要检查缓存
         if (downloadProgress == null) {
-            isCached = cacheManager.getCachedFile(sound.id) != null
+            // 延迟检查，给文件系统一些时间完成写入（如果刚刚完成下载）
+            delay(300) // 延迟300ms确保文件已经写入
+            val newCached = cacheManager.getCachedFile(sound.id) != null
+            if (newCached != isCached) {
+                isCached = newCached
+            }
         }
         // 当开始播放时，也检查缓存状态（因为可能从缓存播放）
         if (isPlaying) {
-            isCached = cacheManager.getCachedFile(sound.id) != null
+            val playingCached = cacheManager.getCachedFile(sound.id) != null
+            if (playingCached != isCached) {
+                isCached = playingCached
+            }
+        }
+    }
+    
+    // 额外监听：当组件重新组合时（页面重新加载），重新检查缓存状态
+    LaunchedEffect(Unit) {
+        // 延迟一点检查，确保缓存目录已初始化
+        delay(100)
+        val cached = cacheManager.getCachedFile(sound.id) != null
+        if (cached != isCached) {
+            isCached = cached
         }
     }
     
@@ -3679,4 +3768,5 @@ fun RemoteSoundCard(
         }
     }
 }
+
 
