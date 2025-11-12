@@ -49,7 +49,7 @@ Builds:
     subdir: app
     gradle:
       - yes
-    output: app/build/outputs/apk/release/app-release.apk
+    output: build/outputs/apk/release/app-release.apk
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
