@@ -73,6 +73,12 @@ class AudioManager private constructor() {
     // 网络音频的位置检查 Runnable（用于无缝循环）
     private val remotePositionCheckRunnables = mutableMapOf<String, Runnable>()
     
+    // 本地音频的循环信息（用于无缝循环）
+    private val localLoopInfo = mutableMapOf<Sound, Pair<Long, Long>>() // sound -> (loopStart, loopEnd) in milliseconds
+    
+    // 本地音频的位置检查 Runnable（用于无缝循环）
+    private val localPositionCheckRunnables = mutableMapOf<Sound, Runnable>()
+    
     // 播放顺序队列，用于限制最多同时播放3个声音
     private sealed class PlayingItem {
         data class LocalSound(val sound: Sound) : PlayingItem()
@@ -235,7 +241,7 @@ class AudioManager private constructor() {
             override fun onPlaybackStateChanged(state: Int) {
                 when (state) {
                     Player.STATE_ENDED -> {
-                        // 播放结束，由于使用了REPEAT_MODE_ONE，ExoPlayer会自动循环
+                        // 播放结束，由于使用了REPEAT_MODE_ALL 或 REPEAT_MODE_ONE，ExoPlayer会自动循环
                         // 不需要手动调用prepare()和play()，避免卡顿
                         // 只更新状态，让ExoPlayer自动处理循环
                         val player = players[sound]
@@ -260,16 +266,30 @@ class AudioManager private constructor() {
                         playingStates[sound] = false
                     }
                     Player.STATE_BUFFERING -> {
-                        // 缓冲中，保持当前状态
+                        // 缓冲中，如果 playWhenReady 为 true，保持播放状态，避免 UI 闪烁
+                        val player = players[sound]
+                        if (player != null && player.playWhenReady && playingQueue.contains(PlayingItem.LocalSound(sound))) {
+                            // 保持播放状态，不更新为暂停
+                        }
                     }
                 }
             }
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                // 只有在播放队列中才更新状态
+                // 检查播放器是否还在队列中，如果不在队列中，不应该更新状态
                 val player = players[sound]
                 if (player != null && playingQueue.contains(PlayingItem.LocalSound(sound))) {
-                    playingStates[sound] = isPlaying
+                    if (isPlaying) {
+                        // 正在播放，更新为播放状态
+                        playingStates[sound] = true
+                    } else if (player.playWhenReady) {
+                        // 关键：isPlaying 为 false 但 playWhenReady 为 true，可能是循环衔接时的短暂缓冲
+                        // 保持播放状态，不立即更新为暂停，避免 UI 闪烁和音频中断
+                        // 这通常发生在 seekTo 跳转循环位置时的缓冲阶段
+                    } else {
+                        // playWhenReady 为 false，确实是暂停
+                        playingStates[sound] = false
+                    }
                 } else if (!isPlaying) {
                     playingStates[sound] = false
                 }
@@ -278,6 +298,8 @@ class AudioManager private constructor() {
             override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                 Log.e(TAG, "${sound.name} 播放错误: ${error.message}")
                 playingStates[sound] = false
+                // 停止无缝循环检查
+                stopLocalSeamlessLoopCheck(sound)
                 // 从播放队列中移除
                 playingQueue.remove(PlayingItem.LocalSound(sound))
             }
@@ -285,22 +307,24 @@ class AudioManager private constructor() {
     }
 
     /**
-     * 准备声音音频源
+     * 准备声音音频源（使用双份拼接技术实现无缝循环）
+     * 参考 moodist 的实现方式，使用 ConcatenatingMediaSource 拼接两个相同的音频片段
      */
     @UnstableApi
     private fun prepareSoundAudio(
         context: Context,
         sound: Sound,
         resourceId: Int,
-        startPositionMs: Long = 500L,
-        endPositionMs: Long,
-        soundName: String
+        startPositionMs: Long = 0L,
+        endPositionMs: Long = 0L,
+        soundName: String,
+        useSeamlessLoop: Boolean = true
     ) {
         try {
             val dataSourceFactory = DefaultDataSource.Factory(context)
             val uri = Uri.parse("android.resource://${context.packageName}/$resourceId")
             
-            val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+            val baseSource = ProgressiveMediaSource.Factory(dataSourceFactory)
                 .createMediaSource(MediaItem.fromUri(uri))
 
             // 确保播放器已初始化
@@ -335,14 +359,19 @@ class AudioManager private constructor() {
                 C.TIME_END_OF_SOURCE
             }
             
-            val clippingMediaSource = ClippingMediaSource.Builder(mediaSource)
+            val clipped = ClippingMediaSource.Builder(baseSource)
                 .setStartPositionUs(startPositionMs * 1000)
                 .setEndPositionUs(endPositionUs)
                 .build()
             
-            player.setMediaSource(clippingMediaSource)
+            // 直接使用 ClippingMediaSource，让 ExoPlayer 自动循环
+            player.setMediaSource(clipped)
             player.repeatMode = Player.REPEAT_MODE_ONE
-            Log.d(TAG, "$soundName 音频媒体源已设置，循环范围: ${startPositionMs}ms - ${if (endPositionMs > 0) "${endPositionMs}ms" else "音源末尾"}")
+            
+            // 不再需要循环检查，ExoPlayer 的 REPEAT_MODE_ONE 会自动处理
+            localLoopInfo.remove(sound)
+            
+            Log.d(TAG, "$soundName 音频媒体源已设置，循环范围: ${startPositionMs}ms - ${if (endPositionMs > 0) "${endPositionMs}ms" else "音源末尾"}，使用无缝循环: $useSeamlessLoop")
         } catch (e: Exception) {
             Log.e(TAG, "准备$soundName 音频失败: ${e.message}")
             e.printStackTrace()
@@ -390,12 +419,37 @@ class AudioManager private constructor() {
     }
 
     private fun prepareHeavyRainSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.heavy_rain,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "大雨"
-        )
+        try {
+            val dataSourceFactory = DefaultDataSource.Factory(context)
+            val uri = Uri.parse("android.resource://${context.packageName}/${R.raw.heavy_rain}")
+            val baseSource = ProgressiveMediaSource.Factory(dataSourceFactory)
+                .createMediaSource(MediaItem.fromUri(uri))
+
+            // 使用裁剪后的媒体源，起点0ms，终点由解码器自动检测
+            val clipped = ClippingMediaSource.Builder(baseSource)
+                .setStartPositionUs(0L)
+                .setEndPositionUs(C.TIME_END_OF_SOURCE)
+                .build()
+
+            if (players[sound] == null) {
+                initializePlayer(context, sound)
+            }
+            val player = players[sound] ?: return
+
+            try {
+                if (player.playbackState != Player.STATE_IDLE) {
+                    player.stop()
+                }
+                player.playWhenReady = false
+            } catch (_: Exception) { }
+
+            player.setMediaSource(clipped)
+            // 直接使用 REPEAT_MODE_ONE，让 ExoPlayer 自动循环
+            player.repeatMode = Player.REPEAT_MODE_ONE
+        } catch (e: Exception) {
+            Log.e(TAG, "准备大雨音频(AB拼接)失败: ${e.message}")
+            e.printStackTrace()
+        }
     }
 
     private fun prepareTypewriterSound(context: Context, sound: Sound) {
@@ -659,6 +713,9 @@ class AudioManager private constructor() {
                 return
             }
 
+            // 停止无缝循环检查
+            stopLocalSeamlessLoopCheck(sound)
+            
             players[sound]?.pause()
             playingStates[sound] = false
             // 从播放队列中移除
@@ -676,6 +733,8 @@ class AudioManager private constructor() {
         try {
             players.forEach { (sound, player) ->
                 try {
+                    // 停止无缝循环检查
+                    stopLocalSeamlessLoopCheck(sound)
                     player?.pause()
                     playingStates[sound] = false
                 } catch (e: Exception) {
@@ -699,6 +758,9 @@ class AudioManager private constructor() {
             // 停止所有本地声音
             players.forEach { (sound, player) ->
                 try {
+                    // 停止无缝循环检查
+                    stopLocalSeamlessLoopCheck(sound)
+                    
                     player?.let {
                         // 先设置 playWhenReady = false，防止自动恢复播放
                         it.playWhenReady = false
@@ -811,14 +873,19 @@ class AudioManager private constructor() {
         if (sound == Sound.NONE) return
 
         try {
+            // 停止无缝循环检查
+            stopLocalSeamlessLoopCheck(sound)
+            
             players[sound]?.stop()
             players[sound]?.release()
             players.remove(sound)
             playingStates[sound] = false
+            localLoopInfo.remove(sound)
             Log.d(TAG, "成功释放 ${sound.name} 播放器资源")
         } catch (e: Exception) {
             Log.e(TAG, "释放 ${sound.name} 播放器资源失败: ${e.message}")
             players.remove(sound)
+            localLoopInfo.remove(sound)
         }
     }
 
@@ -983,28 +1050,31 @@ class AudioManager private constructor() {
                 val mediaSource = ProgressiveMediaSource.Factory(dataSourceFactory)
                     .createMediaSource(MediaItem.fromUri(uri))
                 
+                // 如果 loopEnd 为 0，使用 C.TIME_END_OF_SOURCE 让 ExoPlayer 自动检测文件长度
+                val endPositionUs = if (metadata.loopEnd > 0) {
+                    metadata.loopEnd * 1000
+                } else {
+                    C.TIME_END_OF_SOURCE
+                }
+                
                 val clippingMediaSource = ClippingMediaSource.Builder(mediaSource)
                     .setStartPositionUs(metadata.loopStart * 1000)
-                    .setEndPositionUs(metadata.loopEnd * 1000)
+                    .setEndPositionUs(endPositionUs)
                     .build()
                 
+                // 直接使用 ClippingMediaSource，让 ExoPlayer 自动循环
                 player.setMediaSource(clippingMediaSource)
                 player.repeatMode = Player.REPEAT_MODE_ONE
                 player.volume = remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
                 
-                // 存储循环信息（用于无缝循环）
-                remoteLoopInfo[soundId] = Pair(metadata.loopStart, metadata.loopEnd)
+                // 不再需要循环检查，ExoPlayer 的 REPEAT_MODE_ONE 会自动处理
+                remoteLoopInfo.remove(soundId)
                 
                 player.prepare()
                 player.play()
                 remotePlayingStates[soundId] = true
                 // 添加到播放队列
                 playingQueue.offer(PlayingItem.RemoteSound(soundId))
-                
-                // 启动无缝循环检查（如果启用无缝循环）
-                if (metadata.isSeamless) {
-                    startSeamlessLoopCheck(soundId, metadata.loopStart, metadata.loopEnd)
-                }
                 
                 Log.d(TAG, "$soundId 开始播放，循环范围: ${metadata.loopStart}ms - ${metadata.loopEnd}ms")
             } catch (e: Exception) {
@@ -1027,26 +1097,14 @@ class AudioManager private constructor() {
             override fun onPlaybackStateChanged(state: Int) {
                 when (state) {
                     Player.STATE_ENDED -> {
-                        // 播放结束，由于使用了REPEAT_MODE_ONE和ClippingMediaSource，ExoPlayer会自动循环
-                        // 但为了确保无缝循环，我们已经在 startSeamlessLoopCheck 中提前跳转了
-                        // 这里只需要确保播放器继续播放
+                        // 播放结束，由于使用了REPEAT_MODE_ALL（双份拼接）或 REPEAT_MODE_ONE，ExoPlayer会自动循环
+                        // 不需要手动调用seekTo()，避免卡顿和静音
+                        // 只更新状态，让ExoPlayer自动处理循环
                         val player = remotePlayers[soundId]
                         if (player != null && playingQueue.contains(PlayingItem.RemoteSound(soundId))) {
-                            // 获取循环信息，确保跳转到正确位置
-                            val loopInfo = remoteLoopInfo[soundId]
-                            if (loopInfo != null) {
-                                val (loopStart, _) = loopInfo
-                                // 跳转到循环开始位置
-                                player.seekTo(loopStart)
-                                // 确保继续播放
-                                if (!player.playWhenReady) {
-                                    player.playWhenReady = true
-                                }
-                            } else {
-                                // 如果没有循环信息，让ExoPlayer自动处理
-                                if (!player.playWhenReady) {
-                                    player.playWhenReady = true
-                                }
+                            // ExoPlayer会自动循环，只需要确保playWhenReady为true
+                            if (!player.playWhenReady) {
+                                player.playWhenReady = true
                             }
                         }
                     }
@@ -1062,7 +1120,11 @@ class AudioManager private constructor() {
                         remotePlayingStates[soundId] = false
                     }
                     Player.STATE_BUFFERING -> {
-                        // 缓冲中，保持当前状态
+                        // 缓冲中，如果 playWhenReady 为 true，保持播放状态，避免 UI 闪烁
+                        val player = remotePlayers[soundId]
+                        if (player != null && player.playWhenReady && playingQueue.contains(PlayingItem.RemoteSound(soundId))) {
+                            // 保持播放状态，不更新为暂停
+                        }
                     }
                 }
             }
@@ -1070,8 +1132,20 @@ class AudioManager private constructor() {
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 // 检查播放器是否还在队列中，如果不在队列中，不应该更新状态
                 val isInQueue = playingQueue.contains(PlayingItem.RemoteSound(soundId))
-                if (isInQueue) {
-                    remotePlayingStates[soundId] = isPlaying
+                val player = remotePlayers[soundId]
+                
+                if (isInQueue && player != null) {
+                    if (isPlaying) {
+                        // 正在播放，更新为播放状态
+                        remotePlayingStates[soundId] = true
+                    } else if (player.playWhenReady) {
+                        // 关键：isPlaying 为 false 但 playWhenReady 为 true，可能是循环衔接时的短暂缓冲
+                        // 保持播放状态，不立即更新为暂停，避免 UI 闪烁和音频中断
+                        // 这通常发生在 seekTo 跳转循环位置时的缓冲阶段
+                    } else {
+                        // playWhenReady 为 false，确实是暂停
+                        remotePlayingStates[soundId] = false
+                    }
                 } else if (!isPlaying) {
                     remotePlayingStates[soundId] = false
                 }
@@ -1087,15 +1161,17 @@ class AudioManager private constructor() {
     }
     
     /**
-     * 启动无缝循环检查
-     * 定期检查播放位置，在接近结束时提前跳转到开始位置
+     * 启动无缝循环检查（远程音频）
+     * 对于使用双份拼接的音频，ExoPlayer 的 REPEAT_MODE_ALL 已经能够很好地处理循环
+     * 此检查主要用于监控和备用，确保在特殊情况下也能无缝循环
+     * 注意：使用双份拼接后，不再需要手动 seekTo，避免导致静音
      */
     private fun startSeamlessLoopCheck(soundId: String, loopStart: Long, loopEnd: Long) {
         // 停止之前的检查（如果存在）
         stopSeamlessLoopCheck(soundId)
         
         val player = remotePlayers[soundId] ?: return
-        val thresholdMs = 100L // 提前100ms跳转，确保无缝
+        val checkIntervalMs = 100L // 监控间隔，不需要太频繁
         
         val checkRunnable = object : Runnable {
             override fun run() {
@@ -1108,20 +1184,13 @@ class AudioManager private constructor() {
                 }
                 
                 try {
-                    // currentPosition 返回的是毫秒，相对于整个音频文件的位置
-                    val currentPositionMs = currentPlayer.currentPosition
+                    // 使用双份拼接后，ExoPlayer 的 REPEAT_MODE_ALL 会自动处理循环
+                    // 这里只做监控，不执行 seekTo，避免导致静音
+                    // 如果需要，可以在这里添加日志或监控逻辑
                     
-                    // 由于使用了 ClippingMediaSource，currentPosition 返回的是相对于整个源文件的位置
-                    // 我们需要检查是否接近循环段的结束位置
-                    // 如果当前位置 >= loopEnd - thresholdMs，提前跳转到 loopStart
-                    if (currentPositionMs >= loopEnd - thresholdMs) {
-                        currentPlayer.seekTo(loopStart)
-                        Log.d(TAG, "$soundId 无缝循环：从 ${currentPositionMs}ms 跳转到 ${loopStart}ms")
-                    }
-                    
-                    // 继续检查（每50ms检查一次，确保及时响应）
+                    // 继续检查（每100ms检查一次，用于监控）
                     if (remotePlayingStates[soundId] == true) {
-                        mainHandler.postDelayed(this, 50)
+                        mainHandler.postDelayed(this, checkIntervalMs)
                     } else {
                         remotePositionCheckRunnables.remove(soundId)
                     }
@@ -1133,17 +1202,91 @@ class AudioManager private constructor() {
         }
         
         remotePositionCheckRunnables[soundId] = checkRunnable
-        // 延迟50ms后开始第一次检查
-        mainHandler.postDelayed(checkRunnable, 50)
+        // 延迟100ms后开始第一次检查
+        mainHandler.postDelayed(checkRunnable, checkIntervalMs)
     }
     
     /**
-     * 停止无缝循环检查
+     * 停止无缝循环检查（远程音频）
      */
     private fun stopSeamlessLoopCheck(soundId: String) {
         remotePositionCheckRunnables[soundId]?.let { runnable ->
             mainHandler.removeCallbacks(runnable)
             remotePositionCheckRunnables.remove(soundId)
+        }
+    }
+    
+    /**
+     * 启动无缝循环检查（本地音频）
+     * 对于使用双份拼接的音频，ExoPlayer 的 REPEAT_MODE_ALL 已经能够很好地处理循环
+     * 此检查主要用于监控和备用，确保在特殊情况下也能无缝循环
+     * 使用与远程音频相同的优化参数
+     */
+    private fun startLocalSeamlessLoopCheck(sound: Sound, loopStart: Long, loopEnd: Long) {
+        // 停止之前的检查（如果存在）
+        stopLocalSeamlessLoopCheck(sound)
+        
+        val player = players[sound] ?: return
+        val thresholdMs = 50L // 提前50ms跳转，确保无缝
+        val checkIntervalMs = 30L // 每30ms检查一次，确保及时响应
+        
+        val checkRunnable = object : Runnable {
+            override fun run() {
+                val currentPlayer = players[sound]
+                val isPlaying = playingStates[sound] ?: false
+                if (currentPlayer == null || !isPlaying) {
+                    // 播放器不存在或已停止，停止检查
+                    localPositionCheckRunnables.remove(sound)
+                    return
+                }
+                
+                try {
+                    val currentPositionMs = currentPlayer.currentPosition
+                    val totalDuration = currentPlayer.duration
+                    
+                    // 对于双份拼接的音频，ExoPlayer 使用 REPEAT_MODE_ALL 会自动在两个片段间循环
+                    // 我们只需要在接近总时长结束时确保跳转到开始（作为备用机制）
+                    if (totalDuration > 0 && totalDuration != C.TIME_UNSET) {
+                        // 如果接近总时长结束，跳转到开始（虽然 REPEAT_MODE_ALL 应该会自动处理，但作为备用）
+                        if (currentPositionMs >= totalDuration - thresholdMs) {
+                            currentPlayer.seekTo(0)
+                            Log.d(TAG, "${sound.name} 无缝循环（备用）：从 ${currentPositionMs}ms 跳转到 0ms")
+                        }
+                    } else if (loopEnd > 0) {
+                        // 如果有指定的循环结束位置，使用它
+                        // 注意：对于双份拼接，这个值应该是单个片段的长度
+                        val actualLoopEnd = loopEnd * 2 // 因为双份拼接，总长度是单个片段的两倍
+                        if (currentPositionMs >= actualLoopEnd - thresholdMs) {
+                            currentPlayer.seekTo(0)
+                            Log.d(TAG, "${sound.name} 无缝循环（备用）：从 ${currentPositionMs}ms 跳转到 0ms")
+                        }
+                    }
+                    
+                    // 继续检查
+                    if (playingStates[sound] == true) {
+                        mainHandler.postDelayed(this, checkIntervalMs)
+                    } else {
+                        localPositionCheckRunnables.remove(sound)
+                    }
+                } catch (e: Exception) {
+                    Log.e(TAG, "${sound.name} 无缝循环检查失败: ${e.message}")
+                    localPositionCheckRunnables.remove(sound)
+                }
+            }
+        }
+        
+        localPositionCheckRunnables[sound] = checkRunnable
+        // 延迟30ms后开始第一次检查
+        mainHandler.postDelayed(checkRunnable, checkIntervalMs)
+    }
+    
+    /**
+     * 停止无缝循环检查（本地音频）
+     */
+    private fun stopLocalSeamlessLoopCheck(sound: Sound) {
+        localPositionCheckRunnables[sound]?.let { runnable ->
+            mainHandler.removeCallbacks(runnable)
+            localPositionCheckRunnables.remove(sound)
         }
     }
     
