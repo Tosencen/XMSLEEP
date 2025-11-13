@@ -146,10 +146,10 @@ XMSLEEP 是一个专注于白噪音播放的 Android 应用，提供多种自然
 
 ### v2.0.4 (2025-11-12)
 - 🔒 **安全**：添加网络安全配置禁止 cleartext traffic
-- 🔒 **安全**：禁用 DEPENDENCY_INFO_BLOCK（F-Droid 兼容性）
+- 🔒 **安全**：禁用 DEPENDENCY_INFO_BLOCK
 - 📦 **优化**：优化音频文件为单声道、96kbps
 - 📦 **优化**：仅保留 arm64-v8a 架构以减小 APK 体积
-- 📝 **文档**：添加 Fastlane 元数据结构（F-Droid 需要）
+- 📝 **文档**：添加 Fastlane 元数据结构
 
 ### v2.0.3 (2025-11-09)
 - 🎨 **改进**：优化 WebP 动画封面显示逻辑，未播放时显示第一帧而非中间帧
