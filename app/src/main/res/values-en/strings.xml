@@ -151,5 +151,6 @@
     <string name="all_categories">All</string>
     <string name="privacy_policy_title">Privacy Policy</string>
     <string name="privacy_policy">This app highly values your privacy protection.\n\n• Data Collection: This app does not collect any personally identifiable information and does not track user activities.\n\n• Permissions: This app only requests necessary audio playback permissions and will not access your contacts, location, or other sensitive information.\n\n• Data Security: We adopt industry-standard security measures to protect your data, including data encryption and access control.\n\nIf you have any questions, please contact us through the in-app contact method.</string>
+    <string name="wish_good_sleep">~ May you have sweet dreams ~</string>
 </resources>
 

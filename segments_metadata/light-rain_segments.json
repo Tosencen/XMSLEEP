@@ -1,0 +1,30 @@
+{
+  "audioId": "light-rain",
+  "segments": [
+    {
+      "name": "light-rain_segment_0",
+      "basePath": "light-rain_segments/light-rain_segment_0.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/light-rain_segments/light-rain_segment_0.ogg"
+    },
+    {
+      "name": "light-rain_segment_1",
+      "basePath": "light-rain_segments/light-rain_segment_1.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/light-rain_segments/light-rain_segment_1.ogg"
+    },
+    {
+      "name": "light-rain_segment_2",
+      "basePath": "light-rain_segments/light-rain_segment_2.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/light-rain_segments/light-rain_segment_2.ogg"
+    },
+    {
+      "name": "light-rain_segment_3",
+      "basePath": "light-rain_segments/light-rain_segment_3.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/light-rain_segments/light-rain_segment_3.ogg"
+    }
+  ],
+  "segmentCount": 4
+}

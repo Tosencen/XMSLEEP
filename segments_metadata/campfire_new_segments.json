@@ -1,0 +1,36 @@
+{
+  "audioId": "campfire_new",
+  "segments": [
+    {
+      "name": "campfire_new_segment_0",
+      "basePath": "campfire_new_segments/campfire_new_segment_0.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/campfire_new_segments/campfire_new_segment_0.ogg"
+    },
+    {
+      "name": "campfire_new_segment_1",
+      "basePath": "campfire_new_segments/campfire_new_segment_1.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/campfire_new_segments/campfire_new_segment_1.ogg"
+    },
+    {
+      "name": "campfire_new_segment_2",
+      "basePath": "campfire_new_segments/campfire_new_segment_2.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/campfire_new_segments/campfire_new_segment_2.ogg"
+    },
+    {
+      "name": "campfire_new_segment_3",
+      "basePath": "campfire_new_segments/campfire_new_segment_3.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/campfire_new_segments/campfire_new_segment_3.ogg"
+    },
+    {
+      "name": "campfire_new_segment_4",
+      "basePath": "campfire_new_segments/campfire_new_segment_4.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/campfire_new_segments/campfire_new_segment_4.ogg"
+    }
+  ],
+  "segmentCount": 5
+}

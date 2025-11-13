@@ -1,0 +1,30 @@
+{
+  "audioId": "wind_in_trees",
+  "segments": [
+    {
+      "name": "wind_in_trees_segment_0",
+      "basePath": "wind-in-trees_segments/wind-in-trees_segment_0.ogg",
+      "isFree": true,
+      "localResourceId": null
+    },
+    {
+      "name": "wind_in_trees_segment_1",
+      "basePath": "wind-in-trees_segments/wind-in-trees_segment_1.ogg",
+      "isFree": true,
+      "localResourceId": null
+    },
+    {
+      "name": "wind_in_trees_segment_2",
+      "basePath": "wind-in-trees_segments/wind-in-trees_segment_2.ogg",
+      "isFree": true,
+      "localResourceId": null
+    },
+    {
+      "name": "wind_in_trees_segment_3",
+      "basePath": "wind-in-trees_segments/wind-in-trees_segment_3.ogg",
+      "isFree": true,
+      "localResourceId": null
+    }
+  ],
+  "segmentCount": 4
+}

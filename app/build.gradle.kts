@@ -13,12 +13,13 @@ android {
         applicationId = "org.xmsleep.app"
         minSdk = 26
         targetSdk = 35
-		versionCode = 24
-		versionName = "2.0.4"
+		versionCode = 25
+		versionName = "2.0.5"
         
         // 只保留 arm64-v8a 架构以减小 APK 体积（现代设备都支持）
         ndk {
             abiFilters += listOf("arm64-v8a")
+            debugSymbolLevel = "NONE"  // 禁用debug符号，避免strip警告
         }
         
         // 从 gradle.properties 读取 GitHub Token（如果存在）
@@ -45,8 +46,16 @@ android {
             isShrinkResources = false  // 禁用资源压缩
             signingConfig = signingConfigs.getByName("release")
         }
+        debug {
+            // 禁用debug版本的strip操作，避免警告
+            isDebuggable = true
+            ndk {
+                debugSymbolLevel = "NONE"
+            }
+        }
     }
     
+        
     buildFeatures {
         compose = true
         buildConfig = true
@@ -66,6 +75,14 @@ android {
     
     lint {
         disable.add("NullSafeMutableLiveData")
+    }
+    
+    packaging {
+        // 忽略无法strip的库文件警告
+        jniLibs {
+            keepDebugSymbols.add("**/*.so")
+            useLegacyPackaging = true
+        }
     }
     
     dependenciesInfo {

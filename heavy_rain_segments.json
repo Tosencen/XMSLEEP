@@ -1,0 +1,30 @@
+{
+  "audioId": "heavy_rain",
+  "segments": [
+    {
+      "name": "heavy_rain_segment_0",
+      "basePath": "heavy_rain_segments/heavy_rain_segment_0.ogg",
+      "isFree": true,
+      "localResourceId": null
+    },
+    {
+      "name": "heavy_rain_segment_1",
+      "basePath": "heavy_rain_segments/heavy_rain_segment_1.ogg",
+      "isFree": true,
+      "localResourceId": null
+    },
+    {
+      "name": "heavy_rain_segment_2",
+      "basePath": "heavy_rain_segments/heavy_rain_segment_2.ogg",
+      "isFree": true,
+      "localResourceId": null
+    },
+    {
+      "name": "heavy_rain_segment_3",
+      "basePath": "heavy_rain_segments/heavy_rain_segment_3.ogg",
+      "isFree": true,
+      "localResourceId": null
+    }
+  ],
+  "segmentCount": 4
+}

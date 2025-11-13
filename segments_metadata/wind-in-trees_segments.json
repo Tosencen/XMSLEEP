@@ -1,0 +1,30 @@
+{
+  "audioId": "wind-in-trees",
+  "segments": [
+    {
+      "name": "wind-in-trees_segment_0",
+      "basePath": "wind-in-trees_segments/wind-in-trees_segment_0.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/wind-in-trees_segments/wind-in-trees_segment_0.ogg"
+    },
+    {
+      "name": "wind-in-trees_segment_1",
+      "basePath": "wind-in-trees_segments/wind-in-trees_segment_1.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/wind-in-trees_segments/wind-in-trees_segment_1.ogg"
+    },
+    {
+      "name": "wind-in-trees_segment_2",
+      "basePath": "wind-in-trees_segments/wind-in-trees_segment_2.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/wind-in-trees_segments/wind-in-trees_segment_2.ogg"
+    },
+    {
+      "name": "wind-in-trees_segment_3",
+      "basePath": "wind-in-trees_segments/wind-in-trees_segment_3.ogg",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/wind-in-trees_segments/wind-in-trees_segment_3.ogg"
+    }
+  ],
+  "segmentCount": 4
+}

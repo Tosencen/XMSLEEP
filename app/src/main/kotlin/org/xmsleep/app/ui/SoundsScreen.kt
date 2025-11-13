@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
@@ -84,9 +85,11 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -331,7 +334,7 @@ fun SoundsScreen(
     // 监听远程音频播放状态
     LaunchedEffect(Unit) {
         while (true) {
-            delay(500)
+            delay(100) // 缩短到100ms，提高远程音频状态响应速度
             val currentlyPlaying = remoteSounds.filter { sound ->
                 remotePinned.contains(sound.id) && audioManager.isPlayingRemoteSound(sound.id)
             }.map { it.id }.toSet()
@@ -466,7 +469,7 @@ fun SoundsScreen(
     // 定期更新播放状态（立即启动，确保状态同步）
     LaunchedEffect(Unit) {
         while (true) {
-            delay(300) // 缩短检测间隔，提高响应速度
+            delay(100) // 进一步缩短到100ms，提高本地音频状态响应速度
             soundItems.forEach { item ->
                 // 从AudioManager获取实际播放状态并同步
                 val actualPlaying = audioManager.isPlayingSound(item.sound)
@@ -1804,6 +1807,7 @@ private fun BuiltInSoundsContent(
     onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit
 ) {
     val scope = rememberCoroutineScope()
+    val colorScheme = MaterialTheme.colorScheme
     Column(modifier = Modifier.fillMaxSize()) {
         // 显示所有卡片（不过滤默认卡片，因为默认是复制而不是移动）
         val normalItems = soundItems
@@ -1816,7 +1820,7 @@ private fun BuiltInSoundsContent(
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
                 state = scrollState,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.weight(1f)
             ) {
                 items(normalItems) { item ->
                     var showVolumeDialog by remember { mutableStateOf(false) }
@@ -1890,6 +1894,36 @@ private fun BuiltInSoundsContent(
                                 audioManager.setVolume(item.sound, volume)
                             }
                         )
+                    }
+                }
+                
+                // 添加 XMSLEEP 文字到首页底部
+                item(span = { GridItemSpan(columnsCount) }) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 32.dp),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        // 显示 XMSLEEP 文字和标语，使用主题色
+                        Column(
+                            horizontalAlignment = Alignment.Start
+                        ) {
+                            Text(
+                                text = "XMSLEEP",
+                                style = MaterialTheme.typography.displaySmall.copy(fontSize = 28.sp),
+                                fontWeight = FontWeight.Bold,
+                                color = colorScheme.primary,
+                                letterSpacing = 2.sp
+                            )
+                            
+                            Text(
+                                text = stringResource(R.string.wish_good_sleep),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 4.dp)
+                            )
+                        }
                     }
                 }
             }

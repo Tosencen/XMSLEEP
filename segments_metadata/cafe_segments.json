@@ -1,0 +1,30 @@
+{
+  "audioId": "cafe",
+  "segments": [
+    {
+      "name": "cafe_segment_0",
+      "basePath": "cafe_segments/cafe_segment_0.mp3",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/cafe_segments/cafe_segment_0.mp3"
+    },
+    {
+      "name": "cafe_segment_1",
+      "basePath": "cafe_segments/cafe_segment_1.mp3",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/cafe_segments/cafe_segment_1.mp3"
+    },
+    {
+      "name": "cafe_segment_2",
+      "basePath": "cafe_segments/cafe_segment_2.mp3",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/cafe_segments/cafe_segment_2.mp3"
+    },
+    {
+      "name": "cafe_segment_3",
+      "basePath": "cafe_segments/cafe_segment_3.mp3",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/cafe_segments/cafe_segment_3.mp3"
+    }
+  ],
+  "segmentCount": 4
+}

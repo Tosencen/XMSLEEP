@@ -1,0 +1,30 @@
+{
+  "audioId": "office",
+  "segments": [
+    {
+      "name": "office_segment_0",
+      "basePath": "office_segments/office_segment_0.mp3",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/office_segments/office_segment_0.mp3"
+    },
+    {
+      "name": "office_segment_1",
+      "basePath": "office_segments/office_segment_1.mp3",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/office_segments/office_segment_1.mp3"
+    },
+    {
+      "name": "office_segment_2",
+      "basePath": "office_segments/office_segment_2.mp3",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/office_segments/office_segment_2.mp3"
+    },
+    {
+      "name": "office_segment_3",
+      "basePath": "office_segments/office_segment_3.mp3",
+      "isFree": true,
+      "remoteUrl": "https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@main/audio_segments/office_segments/office_segment_3.mp3"
+    }
+  ],
+  "segmentCount": 4
+}

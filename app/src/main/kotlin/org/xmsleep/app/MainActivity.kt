@@ -3126,9 +3126,11 @@ fun StarSkyScreen(
                                                     downloadingSounds = downloadingSounds.toMutableMap().apply {
                                                         remove(sound.id)
                                                     }
-                                                    // 下载完成后播放
+                                                    // 下载完成后，增加缓冲时间再播放
                                                     val uri = resourceManager.getSoundUri(sound)
                                                     if (uri != null) {
+                                                        // 延迟200ms确保文件系统写入完成
+                                                        delay(200)
                                                         audioManager.playRemoteSound(context, sound, uri)
                                                         playingSounds = playingSounds + sound.id
                                                     } else {
@@ -3285,9 +3287,11 @@ fun StarSkyScreen(
                                                         downloadingSounds = downloadingSounds.toMutableMap().apply {
                                                             remove(sound.id)
                                                         }
-                                                        // 下载完成后播放
+                                                        // 下载完成后，增加缓冲时间再播放
                                                         val uri = resourceManager.getSoundUri(sound)
                                                         if (uri != null) {
+                                                            // 延迟200ms确保文件系统写入完成
+                                                            delay(200)
                                                             audioManager.playRemoteSound(context, sound, uri)
                                                             playingSounds = playingSounds + sound.id
                                                         } else {

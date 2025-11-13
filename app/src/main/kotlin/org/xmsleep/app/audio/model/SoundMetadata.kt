@@ -13,6 +13,17 @@ enum class AudioSource {
 }
 
 /**
+ * 音频片段（参考 Noice 的分段播放）
+ */
+data class SoundSegment(
+    val name: String,                  // 片段名称
+    val basePath: String,              // 片段路径（相对于资源根目录）
+    val isFree: Boolean = true,        // 是否免费（用于未来扩展）
+    val localResourceId: Int? = null,  // 本地资源ID（如果使用本地片段）
+    val remoteUrl: String? = null       // 远程URL（如果使用远程片段）
+)
+
+/**
  * 音频元数据
  */
 data class SoundMetadata(
@@ -33,6 +44,9 @@ data class SoundMetadata(
     val loopStart: Long = 500L,         // 循环起点（毫秒）
     val loopEnd: Long,                  // 循环终点（毫秒）
     val isSeamless: Boolean = true,    // 是否无缝循环
+    
+    // 片段播放（参考 Noice，可选）
+    val segments: List<SoundSegment>? = null,  // 音频片段列表（如果提供，则使用片段播放）
     
     // 元数据
     val duration: Long? = null,         // 总时长（毫秒，可选）

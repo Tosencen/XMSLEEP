@@ -151,4 +151,5 @@
     <string name="all_categories">全部</string>
     <string name="privacy_policy_title">隐私政策</string>
     <string name="privacy_policy">本应用非常重视您的隐私保护。\n\n• 数据收集：本应用不会收集任何个人身份信息，也不会追踪用户活动。\n\n• 权限说明：本应用仅请求必要的音频播放权限，不会访问您的联系人、位置等敏感信息。\n\n• 数据安全：我们采用行业标准的安全措施保护您的数据，包括数据加密和访问控制。\n\n如有任何疑问，请通过应用内联系方式与我们联系。</string>
+    <string name="wish_good_sleep">～愿你有个好梦～</string>
 </resources>
