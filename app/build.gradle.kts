@@ -29,10 +29,15 @@ android {
     
     signingConfigs {
         create("release") {
-            storeFile = file("${project.rootDir}/release.keystore")
-            storePassword = "xmsleep2025"
-            keyAlias = "xmsleep"
-            keyPassword = "xmsleep2025"
+            val keystoreFile = project.findProperty("RELEASE_STORE_FILE") as String? ?: "release.keystore"
+            val keystorePassword = project.findProperty("RELEASE_STORE_PASSWORD") as String? ?: ""
+            val keyAliasName = project.findProperty("RELEASE_KEY_ALIAS") as String? ?: "xmsleep"
+            val keyAliasPassword = project.findProperty("RELEASE_KEY_PASSWORD") as String? ?: ""
+            
+            storeFile = file("${project.rootDir}/$keystoreFile")
+            storePassword = keystorePassword
+            keyAlias = keyAliasName
+            keyPassword = keyAliasPassword
             enableV1Signing = true
             enableV2Signing = true
             enableV3Signing = true

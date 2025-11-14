@@ -4,15 +4,23 @@ android.nonTransitiveRClass=true
 kotlin.code.style=official
 
 # Release signing config
+# 注意：请将此文件复制为 gradle.properties 并填入实际密码
+# gradle.properties 已在 .gitignore 中，不会被提交到仓库
+# 
+# 如何生成 keystore:
+# keytool -genkeypair -v -keystore release.keystore -alias xmsleep \
+#   -keyalg RSA -keysize 2048 -validity 10000 \
+#   -storepass "YOUR_PASSWORD" -keypass "YOUR_PASSWORD"
+#
 RELEASE_STORE_FILE=release.keystore
-RELEASE_STORE_PASSWORD=xmsleep2025
+RELEASE_STORE_PASSWORD=YOUR_STORE_PASSWORD_HERE
 RELEASE_KEY_ALIAS=xmsleep
-RELEASE_KEY_PASSWORD=xmsleep2025
+RELEASE_KEY_PASSWORD=YOUR_KEY_PASSWORD_HERE
 
-# GitHub Personal Access Token (可选)
-# 如果设置了此Token，API限制将从60次/小时提升到5000次/小时
+# GitHub Personal Access Token (用于统计数据上传)
+# 如果设置了此Token，应用会自动上传使用统计数据到GitHub Gist
 # 创建Token: https://github.com/settings/tokens
-# 权限: 至少需要 public_repo (读取公开仓库)
-# 注意: 请复制此文件为gradle.properties并填入您的Token，不要提交包含Token的文件
+# 权限: 必须勾选 gist 权限（创建、更新、读取 Gist）
+# 注意: 不要在仓库中存储任何 Token；留空或使用环境变量
 GITHUB_TOKEN=
 
