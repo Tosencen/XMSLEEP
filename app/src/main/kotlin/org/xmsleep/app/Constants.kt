@@ -2,7 +2,24 @@ package org.xmsleep.app
 
 /**
  * 应用常量配置
- * 统一管理所有硬编码的常量值
+ * 
+ * 统一管理所有硬编码的常量值，便于维护和修改。
+ * 避免在代码中直接使用字符串字面量，提高代码可读性和可维护性。
+ * 
+ * ## 使用示例
+ * ```kotlin
+ * // 使用 GitHub URL
+ * val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.GITHUB_URL))
+ * 
+ * // 使用 API 基础 URL
+ * val url = "${Constants.GITHUB_API_BASE_URL}/repos/..."
+ * 
+ * // 使用 SharedPreferences Key
+ * prefs.getString(Constants.PrefsKeys.DARK_MODE, "")
+ * ```
+ * 
+ * @since 2.0.5
+ * @author XMSLEEP Team
  */
 object Constants {
     

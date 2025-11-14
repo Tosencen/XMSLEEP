@@ -23,6 +23,7 @@ import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.theme.DarkModeOption
 import org.xmsleep.app.theme.XMSLEEPTheme
 import org.xmsleep.app.ui.MainScreen
+import org.xmsleep.app.utils.Logger
 
 /**
  * XMSLEEP 主Activity
@@ -64,7 +65,7 @@ fun XMSLEEPApp() {
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         // 权限请求结果处理
-        android.util.Log.d("MainActivity", "存储权限请求结果: $permissions")
+        Logger.d("MainActivity", "存储权限请求结果: $permissions")
     }
     
     LaunchedEffect(Unit) {
