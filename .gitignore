@@ -111,3 +111,8 @@ gradle.properties.local
 raw_backup/
 fdroiddata/
 KEYSTORE_BACKUP_INFO.txt
+
+# 备份文件
+*.backup
+*.tmp
+*.bak
