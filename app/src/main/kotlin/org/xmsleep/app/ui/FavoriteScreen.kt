@@ -382,7 +382,7 @@ fun FavoriteScreen(
                         }
                         
                         // 使用 MainActivity 中的 RemoteSoundCard
-                        org.xmsleep.app.RemoteSoundCard(
+                        org.xmsleep.app.ui.starsky.RemoteSoundCard(
                             sound = sound,
                             displayName = getSoundDisplayName(sound),
                             isPlaying = isPlaying,

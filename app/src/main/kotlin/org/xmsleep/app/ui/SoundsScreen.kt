@@ -1633,7 +1633,7 @@ private fun DefaultArea(
                         }
                         
                         // 使用 MainActivity 中的 RemoteSoundCard，适配快捷播放模块的大小（80.dp）
-                        org.xmsleep.app.RemoteSoundCard(
+                        org.xmsleep.app.ui.starsky.RemoteSoundCard(
                             sound = sound,
                             displayName = getSoundDisplayName(sound),
                             isPlaying = isPlaying,
