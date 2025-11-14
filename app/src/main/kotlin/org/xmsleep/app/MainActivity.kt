@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.materialkolor.hct.Hct
 import org.xmsleep.app.i18n.LanguageManager
-import org.xmsleep.app.theme.DarkModeOption as ThemeDarkModeOption
+import org.xmsleep.app.theme.DarkModeOption
 import org.xmsleep.app.theme.XMSLEEPTheme
 import org.xmsleep.app.ui.MainScreen
 
@@ -46,37 +46,12 @@ class MainActivity : ComponentActivity() {
 }
 
 /**
- * 深色模式选项
- * TODO: 待完全迁移到 theme.DarkModeOption 后可删除
- */
-enum class DarkModeOption {
-    LIGHT, DARK, AUTO
-}
-
-/**
  * XMSLEEP 应用入口Composable
  * 负责主题配置、语言管理和权限请求
  */
 @Composable
 fun XMSLEEPApp() {
     val context = LocalContext.current
-    
-    // 类型转换函数
-    fun convertToThemeDarkMode(mode: DarkModeOption): ThemeDarkModeOption {
-        return when (mode) {
-            DarkModeOption.LIGHT -> ThemeDarkModeOption.LIGHT
-            DarkModeOption.DARK -> ThemeDarkModeOption.DARK
-            DarkModeOption.AUTO -> ThemeDarkModeOption.AUTO
-        }
-    }
-    
-    fun convertFromThemeDarkMode(mode: ThemeDarkModeOption): DarkModeOption {
-        return when (mode) {
-            ThemeDarkModeOption.LIGHT -> DarkModeOption.LIGHT
-            ThemeDarkModeOption.DARK -> DarkModeOption.DARK
-            ThemeDarkModeOption.AUTO -> DarkModeOption.AUTO
-        }
-    }
     
     // 语言状态管理
     var currentLanguage by remember { mutableStateOf(LanguageManager.getCurrentLanguage(context)) }
@@ -173,7 +148,7 @@ fun XMSLEEPApp() {
                 color = MaterialTheme.colorScheme.background
             ) {
                 MainScreen(
-                    darkMode = convertToThemeDarkMode(darkMode),
+                    darkMode = darkMode,
                     selectedColor = selectedColor,
                     useDynamicColor = useDynamicColor,
                     useBlackBackground = useBlackBackground,
@@ -182,9 +157,8 @@ fun XMSLEEPApp() {
                     currentLanguage = currentLanguage,
                     onLanguageChange = { currentLanguage = it },
                     onDarkModeChange = { newMode ->
-                        val converted = convertFromThemeDarkMode(newMode)
-                        darkMode = converted
-                        org.xmsleep.app.preferences.PreferencesManager.saveDarkMode(context, converted)
+                        darkMode = newMode
+                        org.xmsleep.app.preferences.PreferencesManager.saveDarkMode(context, newMode)
                     },
                     onColorChange = { 
                         selectedColor = it

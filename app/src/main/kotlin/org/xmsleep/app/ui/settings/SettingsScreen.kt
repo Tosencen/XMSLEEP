@@ -27,6 +27,7 @@ import kotlinx.coroutines.launch
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.i18n.LanguageManager
+import org.xmsleep.app.Constants
 import org.xmsleep.app.ui.components.AboutDialog
 import org.xmsleep.app.ui.components.ClearCacheDialog
 import org.xmsleep.app.ui.components.LanguageSelectionDialog
@@ -171,7 +172,7 @@ fun SettingsScreen(
 			// 参考首页深浅色切换按钮样式的圆形按钮
 			Surface(
 				onClick = {
-					val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/Tosencen/XMSLEEP"))
+					val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(Constants.GITHUB_URL))
 					intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
 					try {
 						context.startActivity(intent)
@@ -480,7 +481,7 @@ fun SettingsScreen(
         Card(
             onClick = {
                 // 打开Telegram群聊链接
-                val telegramUrl = "https://t.me/xmsleep"
+                val telegramUrl = Constants.TELEGRAM_URL
                 try {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(telegramUrl))
                     intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK

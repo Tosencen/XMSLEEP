@@ -265,8 +265,8 @@ data class SoundItem(
 fun SoundsScreen(
     modifier: Modifier = Modifier,
     hideAnimation: Boolean = false,
-    darkMode: org.xmsleep.app.DarkModeOption = org.xmsleep.app.DarkModeOption.AUTO,
-    onDarkModeChange: (org.xmsleep.app.DarkModeOption) -> Unit = {},
+    darkMode: org.xmsleep.app.theme.DarkModeOption = org.xmsleep.app.theme.DarkModeOption.AUTO,
+    onDarkModeChange: (org.xmsleep.app.theme.DarkModeOption) -> Unit = {},
     columnsCount: Int = 2,
     onColumnsCountChange: (Int) -> Unit = {},
     pinnedSounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
@@ -607,18 +607,18 @@ fun SoundsScreen(
                 
                 // 深色/浅色模式切换按钮
                 val isDarkMode = when (darkMode) {
-                    org.xmsleep.app.DarkModeOption.LIGHT -> false
-                    org.xmsleep.app.DarkModeOption.DARK -> true
-                    org.xmsleep.app.DarkModeOption.AUTO -> isSystemInDarkTheme()
+                    org.xmsleep.app.theme.DarkModeOption.LIGHT -> false
+                    org.xmsleep.app.theme.DarkModeOption.DARK -> true
+                    org.xmsleep.app.theme.DarkModeOption.AUTO -> isSystemInDarkTheme()
                 }
                 
                 Surface(
                     onClick = {
                         // 在浅色和深色之间切换（跳过AUTO）
                         val newMode = if (isDarkMode) {
-                            org.xmsleep.app.DarkModeOption.LIGHT
+                            org.xmsleep.app.theme.DarkModeOption.LIGHT
                         } else {
-                            org.xmsleep.app.DarkModeOption.DARK
+                            org.xmsleep.app.theme.DarkModeOption.DARK
                         }
                         onDarkModeChange(newMode)
                     },

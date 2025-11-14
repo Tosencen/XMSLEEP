@@ -7,6 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.xmsleep.app.Constants
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -39,7 +40,7 @@ class UpdateChecker(
      */
     suspend fun checkLatestVersion(currentVersion: String): NewVersion? = withContext(Dispatchers.IO) {
         try {
-            val url = "https://api.github.com/repos/$repositoryOwner/$repositoryName/releases/latest"
+            val url = "${Constants.GITHUB_API_BASE_URL}/repos/$repositoryOwner/$repositoryName/releases/latest"
             android.util.Log.d("UpdateChecker", "请求URL: $url")
             android.util.Log.d("UpdateChecker", "当前版本: $currentVersion")
             
@@ -158,12 +159,12 @@ class UpdateChecker(
             if (matchResult != null) {
                 val (owner, repo, _) = matchResult.destructured
                 // 使用jsDelivr CDN格式
-                val jsDelivrUrl = "https://cdn.jsdelivr.net/gh/$owner/$repo@$tagName/$fileName"
+                val jsDelivrUrl = "${Constants.CDN_BASE_URL}/gh/$owner/$repo@$tagName/$fileName"
                 android.util.Log.d("UpdateChecker", "URL转换: $githubUrl -> $jsDelivrUrl")
                 jsDelivrUrl
             } else {
                 // 如果无法匹配，直接使用tagName和fileName构建
-                val jsDelivrUrl = "https://cdn.jsdelivr.net/gh/$repositoryOwner/$repositoryName@$tagName/$fileName"
+                val jsDelivrUrl = "${Constants.CDN_BASE_URL}/gh/$repositoryOwner/$repositoryName@$tagName/$fileName"
                 android.util.Log.d("UpdateChecker", "使用默认格式构建URL: $jsDelivrUrl")
                 jsDelivrUrl
             }

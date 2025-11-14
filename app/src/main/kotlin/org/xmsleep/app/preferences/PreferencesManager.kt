@@ -2,7 +2,7 @@ package org.xmsleep.app.preferences
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
-import org.xmsleep.app.DarkModeOption
+import org.xmsleep.app.theme.DarkModeOption
 
 /**
  * 应用偏好设置管理器

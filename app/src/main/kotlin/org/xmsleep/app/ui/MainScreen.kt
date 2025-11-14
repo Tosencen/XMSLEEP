@@ -29,7 +29,6 @@ import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.navigation.ProvideNavigator
 import org.xmsleep.app.navigation.rememberXMSleepNavigator
-import org.xmsleep.app.DarkModeOption as OldDarkModeOption
 import org.xmsleep.app.theme.DarkModeOption
 import org.xmsleep.app.ui.settings.SettingsScreen
 import org.xmsleep.app.ui.settings.ThemeSettingsScreen
@@ -58,23 +57,6 @@ fun MainScreen(
     onHideAnimationChange: (Boolean) -> Unit,
     onSoundCardsColumnsCountChange: (Int) -> Unit
 ) {
-    // 类型转换辅助函数（临时，等待 MainActivity.kt 清理后移除）
-    fun convertToOldDarkMode(mode: DarkModeOption): OldDarkModeOption {
-        return when (mode) {
-            DarkModeOption.LIGHT -> OldDarkModeOption.LIGHT
-            DarkModeOption.DARK -> OldDarkModeOption.DARK
-            DarkModeOption.AUTO -> OldDarkModeOption.AUTO
-        }
-    }
-    
-    fun convertToNewDarkMode(mode: OldDarkModeOption): DarkModeOption {
-        return when (mode) {
-            OldDarkModeOption.LIGHT -> DarkModeOption.LIGHT
-            OldDarkModeOption.DARK -> DarkModeOption.DARK
-            OldDarkModeOption.AUTO -> DarkModeOption.AUTO
-        }
-    }
-    
     // 使用Navigator接口来管理导航
     val navigator = rememberXMSleepNavigator()
     var selectedItem by remember { mutableIntStateOf(1) }
@@ -323,8 +305,8 @@ fun MainScreen(
                                     .fillMaxSize()
                                     .padding(paddingValues),
                                 hideAnimation = hideAnimation,
-                                darkMode = convertToOldDarkMode(darkMode),
-                                onDarkModeChange = { old -> onDarkModeChange(convertToNewDarkMode(old)) },
+                                darkMode = darkMode,
+                                onDarkModeChange = onDarkModeChange,
                                 columnsCount = soundCardsColumnsCount,
                                 onColumnsCountChange = onSoundCardsColumnsCountChange,
                                 pinnedSounds = pinnedSounds,
