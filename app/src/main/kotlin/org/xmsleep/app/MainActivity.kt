@@ -23,7 +23,10 @@ import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.theme.DarkModeOption
 import org.xmsleep.app.theme.XMSLEEPTheme
 import org.xmsleep.app.ui.MainScreen
+import org.xmsleep.app.ui.CrashScreen
 import org.xmsleep.app.utils.Logger
+import org.xmsleep.app.crash.CrashHandler
+import org.xmsleep.app.crash.getCrashInfo
 
 /**
  * XMSLEEP 主Activity
@@ -37,11 +40,32 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
+        // 初始化全局异常处理器
+        CrashHandler.init(this)
+        
         // 在应用启动时迁移旧版本的数据（如果存在）
         org.xmsleep.app.preferences.PreferencesManager.migrateFromOldVersion(this)
         
+        // 检查是否有崩溃信息
+        val (errorMessage, stackTrace) = intent.getCrashInfo()
+        
         setContent {
-            XMSLEEPApp()
+            if (errorMessage != null && stackTrace != null) {
+                // 显示崩溃页面
+                CrashScreen(
+                    errorMessage = errorMessage,
+                    stackTrace = stackTrace,
+                    onRestart = {
+                        // 清除崩溃信息并重新创建 Activity
+                        intent.removeExtra("crash_error_message")
+                        intent.removeExtra("crash_stack_trace")
+                        recreate()
+                    }
+                )
+            } else {
+                // 正常显示应用
+                XMSLEEPApp()
+            }
         }
     }
 }
@@ -111,7 +135,7 @@ fun XMSLEEPApp() {
         mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getDarkMode(context))
     }
     var selectedColor by remember { 
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors.first()))
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors[3]))
     }
     var useDynamicColor by remember { 
         mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getUseDynamicColor(context))

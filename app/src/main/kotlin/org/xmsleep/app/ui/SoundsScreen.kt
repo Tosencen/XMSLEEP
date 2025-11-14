@@ -1913,15 +1913,15 @@ private fun BuiltInSoundsContent(
                                 text = "XMSLEEP",
                                 style = MaterialTheme.typography.displaySmall.copy(fontSize = 28.sp),
                                 fontWeight = FontWeight.Bold,
-                                color = colorScheme.primary,
+                                color = colorScheme.primary.copy(alpha = 0.6f),
                                 letterSpacing = 2.sp
                             )
                             
                             Text(
                                 text = stringResource(R.string.wish_good_sleep),
                                 style = MaterialTheme.typography.labelSmall,
-                                color = colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(top = 4.dp)
+                                color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                modifier = Modifier.padding(top = 2.dp)
                             )
                         }
                     }

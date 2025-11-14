@@ -8,5 +8,32 @@
     <string name="language_english">English</string>
     <string name="select_language">选择语言</string>
     <string name="wish_good_sleep">～愿你有个好梦～</string>
+    
+    <!-- 浮动播放按钮 -->
+    <string name="collapse">收起</string>
+    <string name="expand">展开</string>
+    <string name="playing_title">正在播放 (%1$d)</string>
+    <string name="stop_all_confirm_title">停止所有播放</string>
+    <string name="stop_all_confirm_message">确定要停止所有正在播放的音频吗？</string>
+    <string name="stop">停止</string>
+    <string name="volume">音量</string>
+    <string name="drag_to_stop_play">拖到此处停止播放</string>
+    
+    <!-- 本地声音名称 -->
+    <string name="sound_umbrella_rain">伞上雨声</string>
+    <string name="sound_rowing">划船</string>
+    <string name="sound_office">办公室</string>
+    <string name="sound_library">图书馆</string>
+    <string name="sound_heavy_rain">大雨</string>
+    <string name="sound_typewriter">打字机</string>
+    <string name="sound_thunder_new">打雷</string>
+    <string name="sound_clock">时钟</string>
+    <string name="sound_forest_birds">森林鸟鸣</string>
+    <string name="sound_drifting">漂流</string>
+    <string name="sound_campfire_new">篝火</string>
+    <string name="sound_wind">起风了</string>
+    <string name="sound_keyboard">键盘</string>
+    <string name="sound_snow_walking">雪地徒步</string>
+    <string name="sound_default">声音</string>
 </resources>
 

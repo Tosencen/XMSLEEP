@@ -431,17 +431,9 @@ fun MainScreen(
         }
         }
         
-        // 全局浮动播放按钮
-        org.xmsleep.app.ui.FloatingPlayButton(
+        // 全局浮动播放按钮（新版本 - 吸附式交互）
+        org.xmsleep.app.ui.FloatingPlayButtonNew(
             audioManager = audioManager,
-            onSoundClick = { sound ->
-                // 点击卡片暂停播放
-                CoroutineScope(Dispatchers.Main).launch {
-                    if (audioManager.isPlayingRemoteSound(sound.id)) {
-                        audioManager.pauseRemoteSound(sound.id)
-                    }
-                }
-            },
             selectedTab = selectedItem, // 传递当前选中的 tab
             shouldCollapse = shouldCollapseFloatingButton // 传递收缩标志
         )
