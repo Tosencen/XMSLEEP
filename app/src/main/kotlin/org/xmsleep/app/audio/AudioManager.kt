@@ -27,7 +27,7 @@ class AudioManager private constructor() {
     companion object {
         private const val TAG = "AudioManager"
         private const val DEFAULT_VOLUME = 0.5f
-        private const val MAX_CONCURRENT_SOUNDS = 3
+        private const val MAX_CONCURRENT_SOUNDS = 10 // 最多同时播放10个音频
         
         @Volatile
         private var instance: AudioManager? = null
@@ -79,7 +79,7 @@ class AudioManager private constructor() {
     // 本地音频的位置检查 Runnable（用于无缝循环）
     private val localPositionCheckRunnables = mutableMapOf<Sound, Runnable>()
     
-    // 播放顺序队列，用于限制最多同时播放3个声音
+    // 播放顺序队列，用于限制最多同时播放的声音数量
     private sealed class PlayingItem {
         data class LocalSound(val sound: Sound) : PlayingItem()
         data class RemoteSound(val soundId: String) : PlayingItem()

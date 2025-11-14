@@ -152,5 +152,13 @@
     <string name="privacy_policy_title">隱私政策</string>
     <string name="privacy_policy">本應用非常重視您的隱私保護。\n\n• 資料收集：本應用不會收集任何個人身份資訊，也不會追蹤用戶活動。\n\n• 權限說明：本應用僅請求必要的音訊播放權限，不會訪問您的聯絡人、位置等敏感資訊。\n\n• 資料安全：我們採用業界標準的安全措施保護您的資料，包括資料加密和訪問控制。\n\n如有任何疑問，請透過應用內聯繫方式與我們聯繫。</string>
     <string name="wish_good_sleep">～願你有個好夢～</string>
+    
+    <!-- 浮動播放按鈕 -->
+    <string name="collapse">收起</string>
+    <string name="expand">展開</string>
+    <string name="playing_title">正在播放 (%1$d)</string>
+    <string name="stop_all_confirm_title">停止所有播放</string>
+    <string name="stop_all_confirm_message">確定要停止所有正在播放的音訊嗎？</string>
+    <string name="stop">停止</string>
+    <string name="volume">音量</string>
 </resources>
-
