@@ -91,8 +91,8 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.0.4
-- **Version Code**: 24
+- **Version**: 2.0.6
+- **Version Code**: 26
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 
@@ -146,23 +146,24 @@ Latest version available on [GitHub Releases](https://github.com/Tosencen/XMSLEE
 
 ## 📝 Changelog
 
-### v2.0.4 (2025-11-12)
-- 🔒 **Security**: Added network security configuration to prohibit cleartext traffic
-- 🔒 **Security**: Disabled DEPENDENCY_INFO_BLOCK for F-Droid compatibility
-- 📦 **Optimization**: Optimized audio files to mono, 96kbps
-- 📦 **Optimization**: Reduced APK size by keeping only arm64-v8a architecture
-- 📝 **Docs**: Added Fastlane metadata structure for F-Droid
+### v2.0.6 (2025-11-14)
+- 🎨 **UI**: Comprehensive floating button optimization (animation, shadow, layout)
+- 🐛 **Fix**: Fixed remote audio control and click-through issues
+- 🆕 **Feature**: Added global exception handling and crash screen
+- 🌍 **i18n**: Completed all English translations (100+ strings)
+- 🎨 **Theme**: Adjusted default primary color and slogan colors
 
-### v2.0.3 (2025-11-09)
-- 🎨 **Improvement**: Optimized WebP animation cover display logic, showing first frame instead of middle frame when not playing
-- 🐛 **Fix**: Fixed issue where countdown end did not stop all sound playback, ensuring complete player stop
-- 🔧 **Improvement**: Optimized code structure and performance
+### v2.0.5
+- 🎵 **Feature**: New floating play button with sticky interaction
+- 🔧 **Optimization**: Code refactoring and modularization
 
-### v2.0.2 (2025-11-07)
-- ✨ **New Feature**: Auto-detect install permission and show install dialog after returning from system settings
-- 🐛 **Fix**: Fixed install permission handling logic, resolving "Unable to start installer" issue
-- 🐛 **Fix**: Fixed retry install logic after permission request
-- 🔧 **Improvement**: Optimized code style, removed unnecessary full package name references
+### v2.0.4
+- 🔒 **Security**: Network security configuration optimization
+- 📦 **Optimization**: Audio file and APK size optimization
+
+### v2.0.3
+- 🎨 **Improvement**: WebP animation cover display optimization
+- 🐛 **Fix**: Countdown playback stop fix
 
 View full changelog: [GitHub Releases](https://github.com/Tosencen/XMSLEEP/releases)
 
