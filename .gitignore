@@ -110,3 +110,4 @@ gradle.properties.local
 # 备份目录
 raw_backup/
 fdroiddata/
+KEYSTORE_BACKUP_INFO.txt
