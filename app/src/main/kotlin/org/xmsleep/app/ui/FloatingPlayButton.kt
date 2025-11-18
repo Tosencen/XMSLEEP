@@ -87,7 +87,8 @@ fun FloatingPlayButtonNew(
     selectedTab: Int? = null,
     shouldCollapse: Boolean = false,
     activePreset: Int = 1, // 当前激活的预设
-    onAddToPreset: (localSounds: List<AudioManager.Sound>, remoteSoundIds: List<String>) -> Unit = { _, _ -> } // 添加到预设的回调
+    onAddToPreset: (localSounds: List<AudioManager.Sound>, remoteSoundIds: List<String>) -> Unit = { _, _ -> }, // 添加到预设的回调
+    forceCollapse: Boolean = false // 强制收缩悬浮播放按钮
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -100,6 +101,13 @@ fun FloatingPlayButtonNew(
     // 按钮状态
     var isExpanded by remember { mutableStateOf(false) }
     var showStopAllDialog by remember { mutableStateOf(false) }
+    
+    // 监听强制收缩参数
+    LaunchedEffect(forceCollapse) {
+        if (forceCollapse && isExpanded) {
+            isExpanded = false
+        }
+    }
     
     // 加载远程音频列表
     val resourceManager = remember { 
@@ -410,6 +418,45 @@ private fun ExpandedPlayingList(
     val context = LocalContext.current
     val isDarkTheme = isSystemInDarkTheme()
     
+    // 管理可见的播放项目（支持动画移除）
+    var visiblePlayingSounds by remember { mutableStateOf(playingSounds) }
+    
+    // 管理正在移除的项目ID集合（统一动画状态）
+    var removingIds by remember { mutableStateOf<Set<String>>(emptySet()) }
+    
+    // 当外部播放列表变化时，同步更新可见列表
+    LaunchedEffect(playingSounds) {
+        visiblePlayingSounds = playingSounds
+        removingIds = emptySet() // 重置移除状态
+    }
+    
+    // 监听移除动画完成，真正从可见列表中移除项目
+    LaunchedEffect(removingIds) {
+        if (removingIds.isNotEmpty()) {
+            // 等待动画完成（600ms + 100ms延迟）
+            delay(700)
+            // 从可见列表中移除已完成动画的项目
+            visiblePlayingSounds = visiblePlayingSounds.filter { !removingIds.contains(it.id) }
+            // 清空移除集合
+            removingIds = emptySet()
+        }
+    }
+    
+    // 额外的安全机制：定期检查移除状态，防止卡片卡住
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(1000) // 每秒检查一次
+            if (removingIds.isNotEmpty()) {
+                // 如果有卡片长时间处于移除状态，强制清理
+                delay(200) // 给最后一次动画机会
+                if (removingIds.isNotEmpty()) {
+                    visiblePlayingSounds = visiblePlayingSounds.filter { !removingIds.contains(it.id) }
+                    removingIds = emptySet()
+                }
+            }
+        }
+    }
+    
     // 计算按钮背景色：与声音卡片相同（containerColor 的 95% 深度）
     val buttonBackgroundColor = containerColor.copy(
         red = (containerColor.red * 0.95f).coerceAtLeast(0f),
@@ -471,12 +518,17 @@ private fun ExpandedPlayingList(
                 contentPadding = PaddingValues(bottom = 56.dp), // 为底部按钮留出空间
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(playingSounds, key = { it.id }) { item ->
+                items(visiblePlayingSounds, key = { it.id }) { item ->
                     FloatingPlayItemView(
                         item = item,
                         audioManager = audioManager,
                         contentColor = contentColor,
-                        containerColor = containerColor
+                        containerColor = containerColor,
+                        isRemoving = removingIds.contains(item.id),
+                        onRemove = {
+                            // 将项目添加到正在移除的集合中，触发动画
+                            removingIds = removingIds + item.id
+                        }
                     )
                 }
             }
@@ -551,7 +603,9 @@ private fun FloatingPlayItemView(
     item: FloatingPlayItem,
     audioManager: AudioManager,
     contentColor: Color,
-    containerColor: Color // 展开容器的背景色
+    containerColor: Color, // 展开容器的背景色
+    isRemoving: Boolean = false, // 是否正在移除（动画状态）
+    onRemove: () -> Unit = {} // 移除卡片的回调
 ) {
     val context = LocalContext.current
     val isDarkTheme = isSystemInDarkTheme()
@@ -572,11 +626,11 @@ private fun FloatingPlayItemView(
                 AudioManager.Sound.LIBRARY -> context.getString(R.string.sound_library)
                 AudioManager.Sound.HEAVY_RAIN -> context.getString(R.string.sound_heavy_rain)
                 AudioManager.Sound.TYPEWRITER -> context.getString(R.string.sound_typewriter)
-                AudioManager.Sound.THUNDER_NEW -> context.getString(R.string.sound_thunder_new)
+                AudioManager.Sound.THUNDER -> context.getString(R.string.sound_thunder)
                 AudioManager.Sound.CLOCK -> context.getString(R.string.sound_clock)
                 AudioManager.Sound.FOREST_BIRDS -> context.getString(R.string.sound_forest_birds)
                 AudioManager.Sound.DRIFTING -> context.getString(R.string.sound_drifting)
-                AudioManager.Sound.CAMPFIRE_NEW -> context.getString(R.string.sound_campfire_new)
+                AudioManager.Sound.CAMPFIRE -> context.getString(R.string.sound_campfire)
                 AudioManager.Sound.WIND -> context.getString(R.string.sound_wind)
                 AudioManager.Sound.KEYBOARD -> context.getString(R.string.sound_keyboard)
                 AudioManager.Sound.SNOW_WALKING -> context.getString(R.string.sound_snow_walking)
@@ -602,6 +656,25 @@ private fun FloatingPlayItemView(
     
     var currentVolume by remember { mutableStateOf(volume) }
     
+    // 使用外部传入的移除状态来控制动画
+    val offsetX by animateFloatAsState(
+        targetValue = if (isRemoving) -1000f else 0f, // 往左移动消失
+        animationSpec = tween(
+            durationMillis = 600, // 统一的动画时长
+            easing = FastOutSlowInEasing
+        ),
+        label = "cardOffset_${item.id}" // 为每个卡片创建唯一的动画标签
+    )
+    
+    // 监听动画完成，当动画结束时调用移除回调
+    LaunchedEffect(offsetX, item.id) {
+        if (offsetX == -1000f) {
+            // 动画完成，延迟一点时间后移除
+            delay(100)
+            onRemove()
+        }
+    }
+    
     // 音频卡片背景色：比展开容器深5%
     val cardBackgroundColor = containerColor.copy(
         red = (containerColor.red * 0.95f).coerceAtLeast(0f),
@@ -609,18 +682,13 @@ private fun FloatingPlayItemView(
         blue = (containerColor.blue * 0.95f).coerceAtLeast(0f)
     )
     
-    // 音频卡片内容颜色：确保对比度
-    val cardContentColor = if (isDarkTheme) {
-        // 深色模式：使用亮色文字
-        MaterialTheme.colorScheme.onPrimaryContainer
-    } else {
-        // 浅色模式：使用深色文字
-        MaterialTheme.colorScheme.onSurfaceVariant
-    }
+    // 音频卡片内容颜色：统一使用 contentColor (onPrimaryContainer) 保持一致性
+    val cardContentColor = contentColor
     
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .offset { IntOffset(offsetX.toInt(), 0) }
             .background(
                 color = cardBackgroundColor,
                 shape = RoundedCornerShape(8.dp)
@@ -649,19 +717,18 @@ private fun FloatingPlayItemView(
             ) {
                 FilledTonalButton(
                     onClick = {
+                        // 先停止音频
                         when (item) {
                             is FloatingPlayItem.Local -> audioManager.pauseSound(item.sound)
                             is FloatingPlayItem.Remote -> audioManager.pauseRemoteSound(item.id)
                         }
+                        // 调用外部回调触发移除动画
+                        onRemove()
                     },
                     modifier = Modifier.size(28.dp),
                     colors = ButtonDefaults.filledTonalButtonColors(
                         containerColor = containerColor,
-                        contentColor = if (isDarkTheme) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        }
+                        contentColor = contentColor
                     ),
                     contentPadding = PaddingValues(0.dp)
                 ) {

@@ -65,6 +65,9 @@ fun MainScreen(
     // 用于触发浮动按钮收缩的状态
     var shouldCollapseFloatingButton by remember { mutableStateOf(false) }
     
+    // 用于强制收缩悬浮播放按钮的状态（当底部预设模块展开时）
+    var forceCollapseFloatingButton by remember { mutableStateOf(false) }
+    
     // 自动更新检查（全局共享）
     val updateViewModel = remember { org.xmsleep.app.update.UpdateViewModel(context) }
     val updateState by updateViewModel.updateState.collectAsState()
@@ -420,6 +423,15 @@ fun MainScreen(
                                         delay(100) // 短暂延迟后重置
                                         shouldCollapseFloatingButton = false
                                     }
+                                },
+                                onQuickPlayExpand = {
+                                    // 当快捷播放展开时，强制收缩悬浮播放按钮
+                                    forceCollapseFloatingButton = true
+                                    // 短暂延迟后重置强制收缩状态
+                                    CoroutineScope(Dispatchers.Main).launch {
+                                        delay(100)
+                                        forceCollapseFloatingButton = false
+                                    }
                                 }
                             )
                         }
@@ -537,6 +549,7 @@ fun MainScreen(
             selectedTab = selectedItem, // 传递当前选中的 tab
             shouldCollapse = shouldCollapseFloatingButton, // 传递收缩标志
             activePreset = activePreset,
+            forceCollapse = forceCollapseFloatingButton, // 传递强制收缩标志
             onAddToPreset = { localSounds, remoteSoundIds ->
                 // 获取当前预设的 MutableState
                 val currentPresetSounds = when (activePreset) {

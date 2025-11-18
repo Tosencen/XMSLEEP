@@ -96,11 +96,11 @@
     <string name="sound_library">图书馆</string>
     <string name="sound_heavy_rain">大雨</string>
     <string name="sound_typewriter">打字机</string>
-    <string name="sound_thunder_new">打雷</string>
+    <string name="sound_thunder">打雷</string>
     <string name="sound_clock">时钟</string>
     <string name="sound_forest_birds">森林鸟鸣</string>
     <string name="sound_drifting">漂流</string>
-    <string name="sound_campfire_new">篝火</string>
+    <string name="sound_campfire">篝火</string>
     <string name="sound_wind">起风了</string>
     <string name="sound_keyboard">键盘</string>
     <string name="sound_snow_walking">雪地徒步</string>
@@ -171,4 +171,7 @@
     <string name="preset_2">预设 2</string>
     <string name="preset_3">预设 3</string>
     <string name="preset_max_reached">当前预设已达到最多10个声音</string>
+    
+    <!-- 预设空状态提示 -->
+    <string name="preset_empty_hint">长按音频卡片添加到此预设</string>
 </resources>

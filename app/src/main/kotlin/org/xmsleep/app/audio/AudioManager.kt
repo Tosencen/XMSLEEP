@@ -48,11 +48,11 @@ class AudioManager private constructor() {
         LIBRARY,
         HEAVY_RAIN,
         TYPEWRITER,
-        THUNDER_NEW,
+        THUNDER,
         CLOCK,
         FOREST_BIRDS,
         DRIFTING,
-        CAMPFIRE_NEW,
+        CAMPFIRE,
         WIND,
         KEYBOARD,
         SNOW_WALKING
@@ -103,11 +103,11 @@ class AudioManager private constructor() {
         Sound.LIBRARY to DEFAULT_VOLUME,
         Sound.HEAVY_RAIN to DEFAULT_VOLUME,
         Sound.TYPEWRITER to DEFAULT_VOLUME,
-        Sound.THUNDER_NEW to DEFAULT_VOLUME,
+        Sound.THUNDER to DEFAULT_VOLUME,
         Sound.CLOCK to DEFAULT_VOLUME,
         Sound.FOREST_BIRDS to DEFAULT_VOLUME,
         Sound.DRIFTING to DEFAULT_VOLUME,
-        Sound.CAMPFIRE_NEW to DEFAULT_VOLUME,
+        Sound.CAMPFIRE to DEFAULT_VOLUME,
         Sound.WIND to DEFAULT_VOLUME,
         Sound.KEYBOARD to DEFAULT_VOLUME,
         Sound.SNOW_WALKING to DEFAULT_VOLUME
@@ -461,10 +461,10 @@ class AudioManager private constructor() {
         )
     }
 
-    private fun prepareThunderNewSound(context: Context, sound: Sound) {
+    private fun prepareThunderSound(context: Context, sound: Sound) {
         prepareSoundAudio(
             context, sound,
-            R.raw.thunder_new,
+            R.raw.thunder,
             0L, 0L, // 从0ms开始，自动检测文件实际长度
             "打雷"
         )
@@ -498,10 +498,10 @@ class AudioManager private constructor() {
         )
     }
 
-    private fun prepareCampfireNewSound(context: Context, sound: Sound) {
+    private fun prepareCampfireSound(context: Context, sound: Sound) {
         prepareSoundAudio(
             context, sound,
-            R.raw.campfire_new,
+            R.raw.campfire,
             0L, 0L, // 从0ms开始，自动检测文件实际长度
             "篝火"
         )
@@ -632,11 +632,11 @@ class AudioManager private constructor() {
                     Sound.LIBRARY -> prepareLibrarySound(context, sound)
                     Sound.HEAVY_RAIN -> prepareHeavyRainSound(context, sound)
                     Sound.TYPEWRITER -> prepareTypewriterSound(context, sound)
-                    Sound.THUNDER_NEW -> prepareThunderNewSound(context, sound)
+                    Sound.THUNDER -> prepareThunderSound(context, sound)
                     Sound.CLOCK -> prepareClockSound(context, sound)
                     Sound.FOREST_BIRDS -> prepareForestBirdsSound(context, sound)
                     Sound.DRIFTING -> prepareDriftingSound(context, sound)
-                    Sound.CAMPFIRE_NEW -> prepareCampfireNewSound(context, sound)
+                    Sound.CAMPFIRE -> prepareCampfireSound(context, sound)
                     Sound.WIND -> prepareWindSound(context, sound)
                     Sound.KEYBOARD -> prepareKeyboardSound(context, sound)
                     Sound.SNOW_WALKING -> prepareSnowWalkingSound(context, sound)

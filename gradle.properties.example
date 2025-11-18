@@ -11,8 +11,10 @@ kotlin.code.style=official
 # keytool -genkeypair -v -keystore release.keystore -alias xmsleep \
 #   -keyalg RSA -keysize 2048 -validity 10000 \
 #   -storepass "YOUR_PASSWORD" -keypass "YOUR_PASSWORD"
-#
-RELEASE_STORE_FILE=release.keystore
+# 注意：推荐将密钥存放在项目外的安全位置
+# 默认位置: ~/XMSLEEP_KEYSTORE_SECURE/release.keystore
+# 如果你的密钥在其他位置，请取消注释并修改下面这行：
+# RELEASE_STORE_FILE=/absolute/path/to/your/release.keystore
 RELEASE_STORE_PASSWORD=YOUR_STORE_PASSWORD_HERE
 RELEASE_KEY_ALIAS=xmsleep
 RELEASE_KEY_PASSWORD=YOUR_KEY_PASSWORD_HERE

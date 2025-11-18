@@ -123,9 +123,9 @@ fun FavoriteScreen(
                 colorScheme.secondaryContainer
             ),
             SoundItem(
-                AudioManager.Sound.THUNDER_NEW,
-                context.getString(R.string.sound_thunder_new),
-                R.drawable.thunder_new,
+                AudioManager.Sound.THUNDER,
+                context.getString(R.string.sound_thunder),
+                R.drawable.thunder,
                 colorScheme.tertiaryContainer
             ),
             SoundItem(
@@ -147,9 +147,9 @@ fun FavoriteScreen(
                 colorScheme.error
             ),
             SoundItem(
-                AudioManager.Sound.CAMPFIRE_NEW,
-                context.getString(R.string.sound_campfire_new),
-                R.drawable.campfire_new,
+                AudioManager.Sound.CAMPFIRE,
+                context.getString(R.string.sound_campfire),
+                R.drawable.campfire,
                 colorScheme.secondary
             ),
             SoundItem(

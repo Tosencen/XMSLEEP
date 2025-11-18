@@ -29,12 +29,12 @@ android {
     
     signingConfigs {
         create("release") {
-            val keystoreFile = project.findProperty("RELEASE_STORE_FILE") as String? ?: "release.keystore"
+            val keystoreFile = project.findProperty("RELEASE_STORE_FILE") as String? ?: "${System.getProperty("user.home")}/XMSLEEP_KEYSTORE_SECURE/release.keystore"
             val keystorePassword = project.findProperty("RELEASE_STORE_PASSWORD") as String? ?: ""
             val keyAliasName = project.findProperty("RELEASE_KEY_ALIAS") as String? ?: "xmsleep"
             val keyAliasPassword = project.findProperty("RELEASE_KEY_PASSWORD") as String? ?: ""
             
-            storeFile = file("${project.rootDir}/$keystoreFile")
+            storeFile = file(keystoreFile)
             storePassword = keystorePassword
             keyAlias = keyAliasName
             keyPassword = keyAliasPassword

@@ -86,6 +86,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.toArgb
@@ -279,7 +280,8 @@ fun SoundsScreen(
     onActivePresetChange: (Int) -> Unit = {}, // 切换预设的回调
     hasAnyPresetItems: Boolean = false, // 所有预设中是否有卡片（用于判断预设模块是否显示）
     onNavigateToFavorite: () -> Unit = {},
-    onScrollDetected: () -> Unit = {} // 滚动检测回调
+    onScrollDetected: () -> Unit = {}, // 滚动检测回调
+    onQuickPlayExpand: () -> Unit = {} // 快捷播放展开时的回调（用于强制收缩悬浮播放按钮）
 ) {
     // 根据 activePreset 动态获取当前预设的 pinnedSounds
     val pinnedSounds = when (activePreset) {
@@ -423,16 +425,16 @@ fun SoundsScreen(
             ),
             // 7. 打雷
             SoundItem(
-                AudioManager.Sound.THUNDER_NEW,
-                context.getString(R.string.sound_thunder_new),
-                R.drawable.thunder_new,
+                AudioManager.Sound.THUNDER,
+                context.getString(R.string.sound_thunder),
+                R.drawable.thunder,
                 colorScheme.tertiaryContainer
             ),
             // 8. 篝火
             SoundItem(
-                AudioManager.Sound.CAMPFIRE_NEW,
-                context.getString(R.string.sound_campfire_new),
-                R.drawable.campfire_new,
+                AudioManager.Sound.CAMPFIRE,
+                context.getString(R.string.sound_campfire),
+                R.drawable.campfire,
                 colorScheme.secondary
             ),
             // 9. 雪地徒步
@@ -689,8 +691,7 @@ fun SoundsScreen(
                 remoteSounds.filter { remotePinned.contains(it.id) }
             }
             
-            // 使用从外部传入的 hasAnyPresetItems 来判断是否显示预设模块
-            // 这样即使切换到空预设，只要其他预设有卡片，模块也不会消失
+            // 只要任何预设有内容，预设模块就始终显示，让用户可以自由切换预设
             val hasDefaultItems = hasAnyPresetItems
             
             // 当默认区域没有内容时，自动退出编辑模式
@@ -851,6 +852,12 @@ fun SoundsScreen(
                         color = MaterialTheme.colorScheme.surfaceContainer,
                         shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
                     )
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) {
+                        // 拦截点击事件，防止穿透到后面的内容
+                    }
 
             ) {
                 Column(
@@ -877,6 +884,11 @@ fun SoundsScreen(
                                     }
                                     isQuickPlayExpanded = !isQuickPlayExpanded
                                     org.xmsleep.app.preferences.PreferencesManager.saveQuickPlayExpanded(context, isQuickPlayExpanded)
+                                    
+                                    // 如果展开快捷播放，强制收缩悬浮播放按钮
+                                    if (isQuickPlayExpanded) {
+                                        onQuickPlayExpand()
+                                    }
                                 },
                             contentAlignment = Alignment.Center
                         ) {
@@ -1147,71 +1159,56 @@ private fun DefaultArea(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 左侧：预设 Tab 切换
-            Row(
+            // 左侧：预设 Tab 切换（支持左右滑动）
+            ScrollableTabRow(
+                selectedTabIndex = activePreset - 1,
                 modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface,
+                edgePadding = 0.dp,
+                divider = {}
             ) {
                 // 预设1
-                Surface(
+                Tab(
+                    selected = activePreset == 1,
                     onClick = { onActivePresetChange(1) },
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (activePreset == 1) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    text = {
                         Text(
                             text = context.getString(R.string.preset_1),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = if (activePreset == 1) FontWeight.Bold else FontWeight.Normal,
-                            color = if (activePreset == 1) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                            fontWeight = if (activePreset == 1) FontWeight.Bold else FontWeight.Normal
                         )
-                    }
-                }
+                    },
+                    selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 
                 // 预设2
-                Surface(
+                Tab(
+                    selected = activePreset == 2,
                     onClick = { onActivePresetChange(2) },
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (activePreset == 2) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    text = {
                         Text(
                             text = context.getString(R.string.preset_2),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = if (activePreset == 2) FontWeight.Bold else FontWeight.Normal,
-                            color = if (activePreset == 2) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                            fontWeight = if (activePreset == 2) FontWeight.Bold else FontWeight.Normal
                         )
-                    }
-                }
+                    },
+                    selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
                 
                 // 预设3
-                Surface(
+                Tab(
+                    selected = activePreset == 3,
                     onClick = { onActivePresetChange(3) },
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (activePreset == 3) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
+                    text = {
                         Text(
                             text = context.getString(R.string.preset_3),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = if (activePreset == 3) FontWeight.Bold else FontWeight.Normal,
-                            color = if (activePreset == 3) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+                            fontWeight = if (activePreset == 3) FontWeight.Bold else FontWeight.Normal
                         )
-                    }
-                }
+                    },
+                    selectedContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
             
             // 右侧按钮区域：编辑按钮和播放按钮
@@ -1359,6 +1356,23 @@ private fun DefaultArea(
             val displayedLocalItems = defaultItems.take(maxLocalItems)
             val displayedRemoteSounds = remoteSounds.take(maxRemoteItems)
             val allDefaultItems = displayedLocalItems.size + displayedRemoteSounds.size
+            
+            // 空状态提示（当预设为空时显示）
+            if (allDefaultItems == 0) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(104.dp), // 与卡片区域高度一致
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = context.getString(R.string.preset_empty_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
             
             // 横向滚动布局，不再显示占位方块
             // 用户通过长按卡片来添加到预设
@@ -2626,11 +2640,11 @@ fun VolumeDialog(
         AudioManager.Sound.LIBRARY -> context.getString(R.string.sound_library)
         AudioManager.Sound.HEAVY_RAIN -> context.getString(R.string.sound_heavy_rain)
         AudioManager.Sound.TYPEWRITER -> context.getString(R.string.sound_typewriter)
-        AudioManager.Sound.THUNDER_NEW -> context.getString(R.string.sound_thunder_new)
+        AudioManager.Sound.THUNDER -> context.getString(R.string.sound_thunder)
         AudioManager.Sound.CLOCK -> context.getString(R.string.sound_clock)
         AudioManager.Sound.FOREST_BIRDS -> context.getString(R.string.sound_forest_birds)
         AudioManager.Sound.DRIFTING -> context.getString(R.string.sound_drifting)
-        AudioManager.Sound.CAMPFIRE_NEW -> context.getString(R.string.sound_campfire_new)
+        AudioManager.Sound.CAMPFIRE -> context.getString(R.string.sound_campfire)
         AudioManager.Sound.WIND -> context.getString(R.string.sound_wind)
         AudioManager.Sound.KEYBOARD -> context.getString(R.string.sound_keyboard)
         AudioManager.Sound.SNOW_WALKING -> context.getString(R.string.sound_snow_walking)

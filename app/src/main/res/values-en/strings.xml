@@ -164,13 +164,16 @@
     <string name="sound_library">Library</string>
     <string name="sound_heavy_rain">Heavy Rain</string>
     <string name="sound_typewriter">Typewriter</string>
-    <string name="sound_thunder_new">Thunder</string>
+    <string name="sound_thunder">Thunder</string>
     <string name="sound_clock">Clock</string>
     <string name="sound_forest_birds">Forest Birds</string>
     <string name="sound_drifting">Drifting</string>
-    <string name="sound_campfire_new">Campfire</string>
+    <string name="sound_campfire">Campfire</string>
     <string name="sound_wind">Wind</string>
     <string name="sound_keyboard">Keyboard</string>
     <string name="sound_snow_walking">Snow Walking</string>
     <string name="sound_default">Sound</string>
+    
+    <!-- Preset Empty State Hint -->
+    <string name="preset_empty_hint">Long press sound cards to add</string>
 </resources>
