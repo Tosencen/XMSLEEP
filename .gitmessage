@@ -1,0 +1,32 @@
+# <type>(<scope>): <subject>
+# |<----  Using a Maximum Of 50 Characters  ---->|
+
+# Explain why this change is being made
+# |<----   Try To Limit Each Line to a Maximum Of 72 Characters   ---->|
+
+# Provide links or keys to any relevant tickets, articles or other resources
+# Example: Closes #23
+
+# --- COMMIT END ---
+# Type can be 
+#    feat     (新功能)
+#    fix      (Bug修复)
+#    docs     (文档)
+#    style    (格式化，不影响代码运行的变动)
+#    refactor (重构)
+#    perf     (性能优化)
+#    test     (增加测试)
+#    chore    (构建过程或辅助工具的变动)
+#    ci       (CI配置)
+#    build    (构建系统)
+#    revert   (回滚)
+# --------------------
+# Scope 可选:
+#    audio, ui, theme, timer, settings, update, cache
+# --------------------
+# 记住:
+#   * 使用祈使句，现在时："add" 不是 "added" 或 "adds"
+#   * 不要大写首字母
+#   * 结尾不要加句号
+#   * 主题和正文之间空一行
+# --------------------

@@ -1253,6 +1253,36 @@
       "nameZhTW": "雨刷"
     },
     {
+      "id": "ear-cleaning-1",
+      "name": "掏耳朵1",
+      "nameEn": "Ear Cleaning 1",
+      "category": "things",
+      "icon": "👂",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/ear-cleaning-1.mp3",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "mp3",
+      "order": 17,
+      "nameZhTW": "掏耳朵1"
+    },
+    {
+      "id": "ear-cleaning-2",
+      "name": "掏耳朵2",
+      "nameEn": "Ear Cleaning 2",
+      "category": "things",
+      "icon": "👂",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/ear-cleaning-2.mp3",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "mp3",
+      "order": 18,
+      "nameZhTW": "掏耳朵2"
+    },
+    {
       "id": "white-noise",
       "name": "白噪音",
       "nameEn": "White Noise",
