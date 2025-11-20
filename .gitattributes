@@ -1,3 +1,4 @@
 # Exclude Gradle wrapper from language statistics
 /gradlew linguist-vendored
 /gradlew.bat linguist-vendored
+/.git-scripts/commit-helper.sh linguist-vendored
