@@ -24,6 +24,7 @@ import org.xmsleep.app.audio.AudioResourceManager
 import org.xmsleep.app.audio.AudioCacheManager
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.i18n.LanguageManager
+import org.xmsleep.app.utils.ToastUtils
 import android.widget.Toast
 
 /**
@@ -397,19 +398,25 @@ fun FavoriteScreen(
                                         Toast.makeText(context, context.getString(R.string.max_3_sounds_limit), Toast.LENGTH_SHORT).show()
                                     } else {
                                         newSet.add(sound.id)
+                                        remotePinned = newSet
+                                        PreferencesManager.saveRemotePinned(context, newSet)
+                                        ToastUtils.showToast(context, context.getString(R.string.pinned_success))
                                     }
                                 } else {
                                     newSet.remove(sound.id)
+                                    remotePinned = newSet
+                                    PreferencesManager.saveRemotePinned(context, newSet)
+                                    ToastUtils.showToast(context, context.getString(R.string.unpinned_success))
                                 }
-                                remotePinned = newSet
-                                PreferencesManager.saveRemotePinned(context, newSet)
                             },
                             onFavoriteChange = { isFavorite ->
                                 val newSet = remoteFavorites.toMutableSet()
                                 if (isFavorite) {
                                     newSet.add(sound.id)
+                                    ToastUtils.showToast(context, context.getString(R.string.favorited_success))
                                 } else {
                                     newSet.remove(sound.id)
+                                    ToastUtils.showToast(context, context.getString(R.string.unfavorited_success))
                                 }
                                 remoteFavorites = newSet
                                 PreferencesManager.saveRemoteFavorites(context, newSet)

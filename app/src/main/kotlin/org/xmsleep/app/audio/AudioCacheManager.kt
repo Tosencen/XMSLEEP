@@ -158,6 +158,8 @@ class AudioCacheManager private constructor(context: Context) {
             
             // 检查缓存空间
             ensureCacheSpace()
+            // 缓存清理后，等待100ms确保文件系统同步完成
+            Thread.sleep(100L)
             
             // 获取文件扩展名
             val extension = url.substringAfterLast('.', "mp3")
@@ -285,6 +287,8 @@ class AudioCacheManager private constructor(context: Context) {
         
         // 检查缓存空间
         ensureCacheSpace()
+        // 缓存清理后，等待100ms确保文件系统同步完成
+        kotlinx.coroutines.delay(100L)
         
         // 获取文件扩展名
         val extension = url.substringAfterLast('.', "mp3")
@@ -365,6 +369,7 @@ class AudioCacheManager private constructor(context: Context) {
     
     /**
      * 确保缓存空间足够
+     * 使用更安全的删除策略，避免与正在进行的播放发生冲突
      */
     private fun ensureCacheSpace() {
         val files = cacheDir.listFiles() ?: return
@@ -376,11 +381,32 @@ class AudioCacheManager private constructor(context: Context) {
         var currentSize = sortedFiles.sumOf { it.length() }
         
         // 如果超过最大缓存大小或文件数，删除最旧的文件
-        while ((currentSize > MAX_CACHE_SIZE || sortedFiles.size > MAX_CACHE_FILES) 
+        // 为了避免与播放过程冲突，只删除到目标大小的80%
+        val targetSize = (MAX_CACHE_SIZE * 0.8).toLong()
+        val targetFiles = (MAX_CACHE_FILES * 0.8).toInt()
+        
+        var deletedFiles = 0
+        while ((currentSize > targetSize || sortedFiles.size > targetFiles) 
                 && sortedFiles.isNotEmpty()) {
-            val oldestFile = sortedFiles.removeFirst()
-            currentSize -= oldestFile.length()
-            oldestFile.delete()
+            val oldestFile = sortedFiles.removeAt(0)
+            val fileSize = oldestFile.length()
+            
+            try {
+                val deleted = oldestFile.delete()
+                if (deleted) {
+                    currentSize -= fileSize
+                    deletedFiles++
+                    Log.d(TAG, "删除缓存文件: ${oldestFile.name} (${fileSize / 1024 / 1024}MB)")
+                } else {
+                    Log.w(TAG, "删除缓存文件失败: ${oldestFile.name}")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "删除缓存文件异常: ${oldestFile.name} - ${e.message}")
+            }
+        }
+        
+        if (deletedFiles > 0) {
+            Log.d(TAG, "缓存清理完成，删除了 $deletedFiles 个文件，当前大小: ${currentSize / 1024 / 1024}MB")
         }
     }
     

@@ -36,11 +36,27 @@
     <string name="app_description_title">App Description</string>
     <string name="app_description">XMSLEEP is a professional white noise and natural sound playback app dedicated to providing you with high-quality audio experiences. The app features multiple carefully selected natural sounds, including rain, thunder, campfire, birdsong, etc., to help you relax, improve focus, and enhance sleep quality.\n\nThe app adopts Material Design 3 specifications with a clean and beautiful interface and smooth and intuitive operation. It supports rich features such as multi-language switching, theme customization, independent volume adjustment, pinned sound area, favorites, etc., allowing you to enjoy a personalized sound experience.</string>
     <string name="usage_instructions_title">Usage Instructions</string>
-    <string name="usage_instructions">• Tap a sound card to start playback, tap again to stop\n• Tap the volume icon to adjust each sound\'s volume individually\n• Tap the title to set pinned sound area or favorite sounds\n• Tap the pushpin icon to batch select sounds to add to pinned sound area\n• Use the countdown function to set automatic stop playback time\n• In settings, you can adjust themes, hide animations, switch layouts, etc.</string>
+    <string name="usage_instructions">• Tap a sound card to start playback, tap again to stop
+• Tap the volume icon to adjust each sound\'s volume individually
+• Tap the title to set pinned sound area or favorite sounds
+• Tap the pushpin icon to batch select sounds to add to pinned sound area
+• Use the countdown function to set automatic stop playback time
+• In settings, you can adjust themes, hide animations, switch layouts, etc.</string>
     <string name="sound_usage_title">Sound Usage Instructions</string>
-    <string name="sound_usage">• Built-in sounds: No network required, can be played directly\n• Network sounds: Need to download on first use, can be played offline after downloading\n• Pinned sound area: Can add up to 3 sounds, supports mixed use of local and network sounds\n• Favorites: Can add favorite sounds to the favorites list for quick access\n• Volume adjustment: Each sound can be adjusted independently, supports 0-100%% precise control\n• Countdown function: Can set playback duration, automatically stops all sounds when time is up</string>
+    <string name="sound_usage">• Built-in sounds: No network required, can be played directly
+• Network sounds: Need to download on first use, can be played offline after downloading
+• Pinned sound area: Can add up to 3 sounds, supports mixed use of local and network sounds
+• Favorites: Can add favorite sounds to the favorites list for quick access
+• Volume adjustment: Each sound can be adjusted independently, supports 0-100%% precise control
+• Countdown function: Can set playback duration, automatically stops all sounds when time is up</string>
     <string name="sound_source_title">Sound Source Information</string>
-    <string name="sound_source">All audio content provided by this app comes from publicly available audio resource libraries, including but not limited to:\n\n• Built-in sounds: Sound files built into the app come from open-source audio resource libraries, carefully selected and optimized to ensure clear sound quality suitable for long-term playback.\n\n• Network sounds: Sound resources loaded through the network come from the moodist project (https://github.com/remvze/moodist), an open-source ambient sound project. All resources follow the MIT open-source license.\n\n• Copyright Notice: This app only provides audio playback functions and does not own the copyright of any audio content. All audio content is for personal learning and entertainment only and should not be used for commercial purposes. If you find any audio content that infringes your copyright, please contact us and we will handle it promptly.</string>
+    <string name="sound_source">All audio content provided by this app comes from publicly available audio resource libraries, including but not limited to:
+
+• Built-in sounds: Sound files built into the app come from open-source audio resource libraries, carefully selected and optimized to ensure clear sound quality suitable for long-term playback.
+
+• Network sounds: Sound resources loaded through the network come from the moodist project (https://github.com/remvze/moodist), an open-source ambient sound project. All resources follow the MIT open-source license.
+
+• Copyright Notice: This app only provides audio playback functions and does not own the copyright of any audio content. All audio content is for personal learning and entertainment only and should not be used for commercial purposes. If you find any audio content that infringes your copyright, please contact us and we will handle it promptly.</string>
     <string name="technical_info_title">Technical Information</string>
     <string name="copyright">© 2025 XMSLEEP. All rights reserved.\n\nThe audio content provided by this app is for personal learning and entertainment only.\nPlease respect the copyright of related audio resources and do not use them for commercial purposes.</string>
     <string name="hide_animation">Hide WebP Animation</string>
@@ -79,6 +95,10 @@
     <string name="cancel_default">Unpin</string>
     <string name="favorite">Favorite</string>
     <string name="cancel_favorite">Unfavorite</string>
+    <string name="pinned_success">Pinned</string>
+    <string name="unpinned_success">Unpinned</string>
+    <string name="favorited_success">Favorited</string>
+    <string name="unfavorited_success">Unfavorited</string>
     <string name="current_countdown">Current countdown: %1$s</string>
     <string name="please_play_sound_before_timer">Please play a sound before setting countdown</string>
     <string name="quick_select">Quick Select</string>
@@ -133,7 +153,15 @@
     <string name="load_failed">Load failed: %1$s</string>
     <string name="all_categories">All</string>
     <string name="privacy_policy_title">Privacy Policy</string>
-    <string name="privacy_policy">This app highly values your privacy protection.\n\n• Data Collection: This app does not collect any personally identifiable information and does not track user activities.\n\n• Permissions: This app only requests necessary audio playback permissions and will not access your contacts, location, or other sensitive information.\n\n• Data Security: We adopt industry-standard security measures to protect your data, including data encryption and access control.\n\nIf you have any questions, please contact us through the in-app contact method.</string>
+    <string name="privacy_policy">This app highly values your privacy protection.
+
+• Data Collection: This app does not collect any personally identifiable information and does not track user activities.
+
+• Permissions: This app only requests necessary audio playback permissions and will not access your contacts, location, or other sensitive information.
+
+• Data Security: We adopt industry-standard security measures to protect your data, including data encryption and access control.
+
+If you have any questions, please contact us through the in-app contact method.</string>
     <string name="wish_good_sleep">~ May you have sweet dreams ~</string>
     
     <!-- Floating Play Button -->

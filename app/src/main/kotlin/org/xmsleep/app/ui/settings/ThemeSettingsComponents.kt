@@ -105,7 +105,9 @@ fun ThemeSettingsScreen(
             // 外观模式选择面板
             DarkModeSelectPanel(
                 currentMode = darkMode,
-                onModeSelected = onDarkModeChange
+                onModeSelected = onDarkModeChange,
+                selectedColor = selectedColor,
+                useBlackBackground = useBlackBackground
             )
             
             // 动态颜色开关（Android 12+）
@@ -180,6 +182,8 @@ fun ThemeSettingsScreen(
 fun DarkModeSelectPanel(
     currentMode: DarkModeOption,
     onModeSelected: (DarkModeOption) -> Unit,
+    selectedColor: Color = Color(0xFF4F378B),
+    useBlackBackground: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -191,11 +195,15 @@ fun DarkModeSelectPanel(
             panel = {
                 if (mode != DarkModeOption.AUTO) {
                     ThemePreviewPanel(
+                        seedColor = selectedColor,
                         isDark = mode == DarkModeOption.DARK,
+                        useBlackBackground = useBlackBackground,
                         modifier = panelModifier,
                     )
                 } else {
                     DiagonalMixedThemePreviewPanel(
+                        seedColor = selectedColor,
+                        useBlackBackground = useBlackBackground,
                         modifier = panelModifier,
                     )
                 }
@@ -271,15 +279,15 @@ fun ColorSchemePreviewItem(
  */
 @Composable
 fun ThemePreviewPanel(
+    seedColor: Color = Color(0xFF4F378B),
     isDark: Boolean,
+    useBlackBackground: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-    // 使用更柔和的紫色（降低饱和度和亮度）
-    val previewColor = Color(Hct.from(280.0, 36.0, 50.0).toInt())
     val colorScheme = dynamicColorScheme(
-        primary = previewColor,
+        primary = seedColor,
         isDark = isDark,
-        isAmoled = false,
+        isAmoled = useBlackBackground,
         style = PaletteStyle.TonalSpot,
     )
     
@@ -391,17 +399,23 @@ fun ThemePreviewPanel(
  */
 @Composable
 fun DiagonalMixedThemePreviewPanel(
+    seedColor: Color = Color(0xFF4F378B),
+    useBlackBackground: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Box(modifier) {
         ThemePreviewPanel(
+            seedColor = seedColor,
             isDark = false,
+            useBlackBackground = useBlackBackground,
             modifier = Modifier
                 .fillMaxSize()
                 .clip(TopLeftDiagonalShape),
         )
         ThemePreviewPanel(
+            seedColor = seedColor,
             isDark = true,
+            useBlackBackground = useBlackBackground,
             modifier = Modifier
                 .fillMaxSize()
                 .clip(BottomRightDiagonalShape),

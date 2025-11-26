@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
+import org.xmsleep.app.utils.ToastUtils
 
 /**
  * 无动画卡片组件 - 2列布局（100.dp高度）
@@ -141,8 +142,15 @@ fun SimpleSoundCard2Columns(
                             }
                         },
                         onClick = {
-                            onFavoriteChange(!isFavorite)
+                            val newFavoriteState = !isFavorite
+                            onFavoriteChange(newFavoriteState)
                             showTitleMenu = false
+                            val toastMessage = if (newFavoriteState) {
+                                context.getString(R.string.favorited_success)
+                            } else {
+                                context.getString(R.string.unfavorited_success)
+                            }
+                            ToastUtils.showToast(context, toastMessage)
                         }
                     )
                 }
@@ -270,8 +278,15 @@ fun SimpleSoundCard3Columns(
                             }
                         },
                         onClick = {
-                            onPinnedChange(!isPinned)
+                            val newPinnedState = !isPinned
+                            onPinnedChange(newPinnedState)
                             showTitleMenu = false
+                            val toastMessage = if (newPinnedState) {
+                                context.getString(R.string.pinned_success)
+                            } else {
+                                context.getString(R.string.unpinned_success)
+                            }
+                            ToastUtils.showToast(context, toastMessage)
                         }
                     )
                     
@@ -296,8 +311,15 @@ fun SimpleSoundCard3Columns(
                             }
                         },
                         onClick = {
-                            onFavoriteChange(!isFavorite)
+                            val newFavoriteState = !isFavorite
+                            onFavoriteChange(newFavoriteState)
                             showTitleMenu = false
+                            val toastMessage = if (newFavoriteState) {
+                                context.getString(R.string.favorited_success)
+                            } else {
+                                context.getString(R.string.unfavorited_success)
+                            }
+                            ToastUtils.showToast(context, toastMessage)
                         }
                     )
                 }

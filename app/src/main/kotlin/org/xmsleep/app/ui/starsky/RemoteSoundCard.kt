@@ -27,6 +27,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.xmsleep.app.R
 import org.xmsleep.app.ui.AudioVisualizer
+import org.xmsleep.app.utils.ToastUtils
 
 /**
  * 远程音频卡片组件
@@ -223,8 +224,26 @@ fun RemoteSoundCard(
                                     }
                                 },
                                 onClick = {
-                                    onPinnedChange(!isPinned)
-                                    showTitleMenu = false
+                                    val newPinnedState = !isPinned
+                                    // 如果是要固定，先检查是否已下载
+                                    if (newPinnedState && !isCached) {
+                                        // 未下载，显示提示但不调用回调
+                                        Toast.makeText(
+                                            context,
+                                            context.getString(R.string.must_download_before_pin),
+                                            Toast.LENGTH_SHORT
+                                        ).show()
+                                    } else {
+                                        // 允许操作
+                                        onPinnedChange(newPinnedState)
+                                        showTitleMenu = false
+                                        val toastMessage = if (newPinnedState) {
+                                            context.getString(R.string.pinned_success)
+                                        } else {
+                                            context.getString(R.string.unpinned_success)
+                                        }
+                                        ToastUtils.showToast(context, toastMessage)
+                                    }
                                 }
                             )
                             
@@ -264,8 +283,15 @@ fun RemoteSoundCard(
                                     }
                                 },
                                 onClick = {
-                                    onFavoriteChange(!isFavorite)
+                                    val newFavoriteState = !isFavorite
+                                    onFavoriteChange(newFavoriteState)
                                     showTitleMenu = false
+                                    val toastMessage = if (newFavoriteState) {
+                                        context.getString(R.string.favorited_success)
+                                    } else {
+                                        context.getString(R.string.unfavorited_success)
+                                    }
+                                    ToastUtils.showToast(context, toastMessage)
                                 }
                             )
                             

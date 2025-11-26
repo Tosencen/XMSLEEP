@@ -91,8 +91,8 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.0.7
-- **Version Code**: 27
+- **Version**: 2.0.8
+- **Version Code**: 28
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 
@@ -145,6 +145,12 @@ Latest version available on [GitHub Releases](https://github.com/Tosencen/XMSLEE
 9. **Long Press Drag to Stop**: Long press floating button to drag, drag to bottom red area to stop all playback
 
 ## 📝 Changelog
+
+### v2.0.8 (2025-11-26)
+- 🎨 **Theme Optimization**: Dark mode card colors fully follow app theme
+- 🍃 **Toast Improvement**: Toast background fully adapts to light/dark theme
+- 🔒 **Pin Validation**: Prevent pinning uncached cards, show tips only
+- 📱 **Remote Audio**: Remove broken campfire card with 404 error
 
 ### v2.0.7 (2025-11-17)
 - 🎛 **Preset Optimization**: Improved preset module visibility logic for clearer behavior when clearing or switching presets

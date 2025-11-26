@@ -99,21 +99,6 @@
       "nameZhTW": "海浪"
     },
     {
-      "id": "campfire",
-      "name": "篝火",
-      "nameEn": "Campfire",
-      "category": "nature",
-      "icon": "🔥",
-      "source": "REMOTE",
-      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/campfire_new.ogg",
-      "loopStart": 0,
-      "loopEnd": 0,
-      "isSeamless": true,
-      "format": "ogg",
-      "order": 3,
-      "nameZhTW": "篝火"
-    },
-    {
       "id": "wind",
       "name": "风声",
       "nameEn": "Wind",

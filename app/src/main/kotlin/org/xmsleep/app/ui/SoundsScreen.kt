@@ -141,6 +141,7 @@ import androidx.compose.runtime.DisposableEffect
 import com.materialkolor.hct.Hct
 import com.materialkolor.ktx.toHct
 import com.airbnb.lottie.value.LottieFrameInfo
+import org.xmsleep.app.utils.ToastUtils
 
 /**
  * 自定义颜色回调，根据原颜色的亮度和饱和度动态映射到主题色系或灰色系
@@ -2038,8 +2039,15 @@ fun SoundCard(
                                     }
                                 },
                                 onClick = {
-                                    onPinnedChange(!isPinned)
+                                    val newPinnedState = !isPinned
+                                    onPinnedChange(newPinnedState)
                                     showTitleMenu = false
+                                    val toastMessage = if (newPinnedState) {
+                                        context.getString(R.string.pinned_success)
+                                    } else {
+                                        context.getString(R.string.unpinned_success)
+                                    }
+                                    ToastUtils.showToast(context, toastMessage)
                                 }
                             )
                             
@@ -2064,8 +2072,15 @@ fun SoundCard(
                                     }
                                 },
                                 onClick = {
-                                    onFavoriteChange(!isFavorite)
+                                    val newFavoriteState = !isFavorite
+                                    onFavoriteChange(newFavoriteState)
                                     showTitleMenu = false
+                                    val toastMessage = if (newFavoriteState) {
+                                        context.getString(R.string.favorited_success)
+                                    } else {
+                                        context.getString(R.string.unfavorited_success)
+                                    }
+                                    ToastUtils.showToast(context, toastMessage)
                                 }
                             )
                         }
@@ -2139,8 +2154,15 @@ fun SoundCard(
                                     }
                                 },
                                 onClick = {
-                                    onPinnedChange(!isPinned)
+                                    val newPinnedState = !isPinned
+                                    onPinnedChange(newPinnedState)
                                     showTitleMenu = false
+                                    val toastMessage = if (newPinnedState) {
+                                        context.getString(R.string.pinned_success)
+                                    } else {
+                                        context.getString(R.string.unpinned_success)
+                                    }
+                                    ToastUtils.showToast(context, toastMessage)
                                 }
                             )
                             
@@ -2165,8 +2187,15 @@ fun SoundCard(
                                     }
                                 },
                                 onClick = {
-                                    onFavoriteChange(!isFavorite)
+                                    val newFavoriteState = !isFavorite
+                                    onFavoriteChange(newFavoriteState)
                                     showTitleMenu = false
+                                    val toastMessage = if (newFavoriteState) {
+                                        context.getString(R.string.favorited_success)
+                                    } else {
+                                        context.getString(R.string.unfavorited_success)
+                                    }
+                                    ToastUtils.showToast(context, toastMessage)
                                 }
                             )
                         }
@@ -2248,8 +2277,15 @@ fun SoundCard(
                                 }
                             },
                             onClick = {
-                                onPinnedChange(!isPinned)
+                                val newPinnedState = !isPinned
+                                onPinnedChange(newPinnedState)
                                 showTitleMenu = false
+                                val toastMessage = if (newPinnedState) {
+                                    context.getString(R.string.pinned_success)
+                                } else {
+                                    context.getString(R.string.unpinned_success)
+                                }
+                                android.widget.Toast.makeText(context, toastMessage, android.widget.Toast.LENGTH_SHORT).show()
                             }
                         )
                         
@@ -2274,8 +2310,15 @@ fun SoundCard(
                                 }
                             },
                             onClick = {
-                                onFavoriteChange(!isFavorite)
+                                val newFavoriteState = !isFavorite
+                                onFavoriteChange(newFavoriteState)
                                 showTitleMenu = false
+                                val toastMessage = if (newFavoriteState) {
+                                    context.getString(R.string.favorited_success)
+                                } else {
+                                    context.getString(R.string.unfavorited_success)
+                                }
+                                android.widget.Toast.makeText(context, toastMessage, android.widget.Toast.LENGTH_SHORT).show()
                             }
                         )
                     }
@@ -2292,7 +2335,7 @@ fun SoundCard(
                     )
                 }
                 
-                // 音量图标（右下角，只在播放时显示）
+                // 音量图标（右下角，只在播放时昺示）
                 if (isPlaying) {
                     IconButton(
                         onClick = onVolumeClick,
