@@ -11,7 +11,8 @@ A white noise and natural sound player app to help you relax, focus, and sleep b
 
 [Download](#download) • [Features](#features) • [Usage](#usage) • [Changelog](#changelog)
 
-**Language**: [中文](README.md) | English
+**Language**: [中文](README.md) | English 
+<a href="https://hellogithub.com/repository/Tosencen/XMSLEEP" target="_blank"><img src="https://abroad.hellogithub.com/v1/widgets/recommend.svg?rid=3cbf370c9f534ea3bf3695b7f9b8bd19&claim_uid=Gxvd2eIyHm54S9p" alt="Featured｜HelloGitHub" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 </div>
 
