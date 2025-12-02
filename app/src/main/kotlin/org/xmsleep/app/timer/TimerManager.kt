@@ -30,6 +30,11 @@ class TimerManager private constructor() {
     private var currentTimerMinutes: Int = 0
     private var _isTimerActive = MutableStateFlow(false)
     val isTimerActive: StateFlow<Boolean> = _isTimerActive.asStateFlow()
+    
+    // 倒计时暂停状态
+    private var _isTimerPaused = MutableStateFlow(false)
+    val isTimerPaused: StateFlow<Boolean> = _isTimerPaused.asStateFlow()
+    private var pausedTimeLeft: Long = 0  // 暂停时剩余的时间
 
     // 剩余时间（毫秒）
     private var _timeLeftMillis = MutableStateFlow(0L)
@@ -43,7 +48,8 @@ class TimerManager private constructor() {
      */
     interface TimerListener {
         fun onTimerTick(timeLeftMillis: Long)
-        fun onTimerFinished()
+        fun onTimerFinished()  // 倒计时自然结束（需要停止播放）
+        fun onTimerCancelled() {} // 倒计时被取消（默认不做任何事，不停止播放）
     }
 
     /**
@@ -110,19 +116,22 @@ class TimerManager private constructor() {
 
     /**
      * 取消倒计时
+     * 关键：取消倒计时不应该停止音频播放，所以调用onTimerCancelled而非onTimerFinished
      * @param notifyListeners 是否通知监听器，默认为true
      */
     fun cancelTimer(notifyListeners: Boolean = true) {
         try {
             _isTimerActive.value = false
+            _isTimerPaused.value = false
             currentTimerMinutes = 0
             timerEndTime = 0
+            pausedTimeLeft = 0
             _timeLeftMillis.value = 0
 
-            // 通知所有监听器倒计时已取消
+            // 通知所有监听器倒计时已取消（不停止音频）
             if (notifyListeners) {
                 for (listener in listeners) {
-                    listener.onTimerFinished()
+                    listener.onTimerCancelled()  // 调用onTimerCancelled而非onTimerFinished
                 }
             }
 
@@ -130,6 +139,41 @@ class TimerManager private constructor() {
         } catch (e: Exception) {
             Log.e(TAG, "取消倒计时失败: ${e.message}")
         }
+    }
+    
+    /**
+     * 暂停倒计时
+     */
+    fun pauseTimer() {
+        if (!_isTimerActive.value || _isTimerPaused.value) {
+            return
+        }
+        
+        _isTimerPaused.value = true
+        pausedTimeLeft = timerEndTime - System.currentTimeMillis()
+        if (pausedTimeLeft < 0) pausedTimeLeft = 0
+        
+        Log.d(TAG, "倒计时已暂停，剩余时间: ${pausedTimeLeft}ms")
+    }
+    
+    /**
+     * 恢复倒计时
+     */
+    fun resumeTimer() {
+        if (!_isTimerActive.value || !_isTimerPaused.value) {
+            return
+        }
+        
+        _isTimerPaused.value = false
+        // 重新计算结束时间
+        timerEndTime = System.currentTimeMillis() + pausedTimeLeft
+        
+        // 重启倒计时循环
+        scope.launch {
+            startTimerLoop()
+        }
+        
+        Log.d(TAG, "倒计时已恢复，剩余时间: ${pausedTimeLeft}ms")
     }
 
     /**
@@ -144,8 +188,14 @@ class TimerManager private constructor() {
      */
     fun getTimeLeftMillis(): Long {
         return if (_isTimerActive.value) {
-            val timeLeft = timerEndTime - System.currentTimeMillis()
-            if (timeLeft > 0) timeLeft else 0
+            if (_isTimerPaused.value) {
+                // 暂停状态，返回暂停时保存的时间
+                pausedTimeLeft
+            } else {
+                // 运行状态，计算当前剩余时间
+                val timeLeft = timerEndTime - System.currentTimeMillis()
+                if (timeLeft > 0) timeLeft else 0
+            }
         } else {
             0
         }
@@ -155,7 +205,7 @@ class TimerManager private constructor() {
      * 倒计时循环
      */
     private suspend fun startTimerLoop() {
-        while (_isTimerActive.value) {
+        while (_isTimerActive.value && !_isTimerPaused.value) {
             val now = System.currentTimeMillis()
             val timeLeft = timerEndTime - now
 
@@ -213,8 +263,10 @@ class TimerManager private constructor() {
      */
     private fun resetTimerState() {
         _isTimerActive.value = false
+        _isTimerPaused.value = false
         currentTimerMinutes = 0
         timerEndTime = 0
+        pausedTimeLeft = 0
         _timeLeftMillis.value = 0
     }
 

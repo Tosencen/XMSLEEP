@@ -140,19 +140,20 @@ fun ThemeSettingsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // 使用 HCT 色彩空间生成均匀分布的颜色
+                        // 使用 HCT 色彩空间生成均匀分布的柔和粉彩色（30° 间隔，12色）
                         val colors = listOf(
-                            Color(Hct.from(140.0, 40.0, 40.0).toInt()),  // base=4: 绿色偏青
-                            Color(Hct.from(175.0, 40.0, 40.0).toInt()),  // base=5: 青绿
-                            Color(Hct.from(210.0, 40.0, 40.0).toInt()),  // base=6: 青蓝
-                            Color(Hct.from(245.0, 40.0, 40.0).toInt()),  // base=7: 蓝紫
-                            Color(Hct.from(280.0, 40.0, 40.0).toInt()),  // base=8: 紫红
-                            Color(0xFF4F378B),  // 默认紫色
-                            Color(Hct.from(315.0, 40.0, 40.0).toInt()),  // base=9: 粉红
-                            Color(Hct.from(350.0, 40.0, 40.0).toInt()),  // base=10: 红
-                            Color(Hct.from(35.0, 40.0, 40.0).toInt()),   // base=1: 橙黄
-                            Color(Hct.from(70.0, 40.0, 40.0).toInt()),   // base=2: 黄
-                            Color(Hct.from(105.0, 40.0, 40.0).toInt()),  // base=3: 黄绿
+                            Color(Hct.from(0.0, 45.0, 75.0).toInt()),    // 1. 柔和红
+                            Color(Hct.from(30.0, 45.0, 75.0).toInt()),   // 2. 柔和橙
+                            Color(Hct.from(60.0, 45.0, 75.0).toInt()),   // 3. 柔和黄
+                            Color(Hct.from(90.0, 45.0, 75.0).toInt()),   // 4. 柔和黄绿
+                            Color(Hct.from(120.0, 45.0, 75.0).toInt()),  // 5. 柔和绿
+                            Color(Hct.from(150.0, 45.0, 75.0).toInt()),  // 6. 柔和青绿
+                            Color(Hct.from(180.0, 45.0, 75.0).toInt()),  // 7. 柔和青
+                            Color(Hct.from(210.0, 45.0, 75.0).toInt()),  // 8. 柔和蓝
+                            Color(Hct.from(240.0, 45.0, 75.0).toInt()),  // 9. 柔和靛蓝
+                            Color(Hct.from(270.0, 45.0, 75.0).toInt()),  // 10. 柔和紫色（修复：改为270°，与第11个拉开差距）
+                            Color(Hct.from(300.0, 45.0, 75.0).toInt()),  // 11. 柔和品红
+                            Color(Hct.from(330.0, 45.0, 75.0).toInt()),  // 12. 柔和粉红
                         )
                         
                         colors.forEach { color ->

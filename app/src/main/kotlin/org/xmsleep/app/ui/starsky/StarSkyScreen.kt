@@ -110,7 +110,15 @@ fun StarSkyScreen(
     
     
     // 监听播放状态变化
+    // 关键优化：页面显示时立即更新一次，避免切换页面时播放状态UI滞后
     LaunchedEffect(Unit) {
+        // 立即检查一次播放状态（避免切换页面时的延迟）
+        val initialPlaying = remoteSounds.filter { sound ->
+            audioManager.isPlayingRemoteSound(sound.id)
+        }.map { it.id }.toSet()
+        playingSounds = initialPlaying
+        
+        // 然后开始轮询
         while (true) {
             delay(500) // 每500ms检查一次播放状态
             val currentlyPlaying = remoteSounds.filter { sound ->
@@ -126,8 +134,7 @@ fun StarSkyScreen(
         if (remoteSounds.isNotEmpty() && remoteCategories.isNotEmpty()) {
             addDebugLog("✓ 已有缓存数据，跳过加载，直接后台刷新")
             android.util.Log.d("StarSkyScreen", "已有缓存数据，跳过加载，直接后台刷新")
-            // 有缓存数据，延迟刷新（避免频繁请求），只在后台静默更新
-            delay(5000) // 延迟5秒后刷新，避免频繁请求
+            // 有缓存数据，立即静默刷新（确保数据完整性，避免卡片延迟出现）
             try {
                 addDebugLog("→ 开始后台刷新...")
                 val refreshedManifest = resourceManager.refreshRemoteManifest().getOrNull()
@@ -211,9 +218,8 @@ fun StarSkyScreen(
                 isLoading = false
             }
         } else {
-            // 有数据，延迟刷新（避免频繁请求），只在后台静默更新
-            addDebugLog("→ 5秒后后台刷新...")
-            delay(5000) // 延迟5秒后刷新，避免频繁请求
+            // 有数据，立即静默刷新（确保数据完整性，避免卡片延迟出现）
+            addDebugLog("→ 后台刷新...")
             try {
                 val refreshedManifest = resourceManager.refreshRemoteManifest().getOrNull()
                 if (refreshedManifest != null) {

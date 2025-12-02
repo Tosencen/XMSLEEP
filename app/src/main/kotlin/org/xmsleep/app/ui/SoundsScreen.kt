@@ -533,7 +533,7 @@ fun SoundsScreen(
             }
             
             override fun onTimerFinished() {
-                // 倒计时结束，立即停止所有声音播放（本地和远程）
+                // 倒计时自然结束，立即停止所有声音播放（本地和远程）
                 // 使用 runBlocking 确保在主线程同步执行，避免异步延迟导致的问题
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
                     try {
@@ -575,6 +575,12 @@ fun SoundsScreen(
                         }
                     }
                 }
+            }
+            
+            override fun onTimerCancelled() {
+                // 倒计时被用户取消，不停止音频播放
+                android.util.Log.d("SoundsScreen", "倒计时已取消，继续播放")
+                // 什么都不做，让音频继续播放
             }
         }
     }

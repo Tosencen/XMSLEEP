@@ -162,11 +162,14 @@ fun AboutDialog(
                         )
                         Text(
                             composeContext.getString(R.string.privacy_policy),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.4
                         )
                     }
                     
+                    Spacer(modifier = Modifier.height(8.dp))
                     HorizontalDivider()
+                    Spacer(modifier = Modifier.height(8.dp))
                     
                     // 声音来源说明（简化版）
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -177,7 +180,8 @@ fun AboutDialog(
                         )
                         Text(
                             composeContext.getString(R.string.sound_source),
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.bodyMedium,
+                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.4
                         )
                     }
                     

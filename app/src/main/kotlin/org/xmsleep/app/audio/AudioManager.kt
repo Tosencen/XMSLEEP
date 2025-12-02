@@ -1,11 +1,15 @@
 package org.xmsleep.app.audio
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.ServiceConnection
 import android.media.AudioFocusRequest
 import android.media.AudioManager as SystemAudioManager
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
+import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import androidx.media3.common.C
@@ -17,6 +21,7 @@ import androidx.media3.exoplayer.source.ClippingMediaSource
 import androidx.media3.exoplayer.source.ProgressiveMediaSource
 import androidx.media3.common.MediaItem
 import org.xmsleep.app.R
+import org.xmsleep.app.service.MusicService
 
 /**
  * 全局音频管理器
@@ -67,6 +72,9 @@ class AudioManager private constructor() {
     // 网络音频的音量设置
     private val remoteVolumeSettings = mutableMapOf<String, Float>()
     
+    // 网络音频的元数据（用于恢复播放）
+    private val remoteMetadataCache = java.util.concurrent.ConcurrentHashMap<String, Pair<org.xmsleep.app.audio.model.SoundMetadata, android.net.Uri>>()
+    
     // 网络音频的循环信息（用于无缝循环）
     private val remoteLoopInfo = mutableMapOf<String, Pair<Long, Long>>() // soundId -> (loopStart, loopEnd) in milliseconds
     
@@ -88,6 +96,28 @@ class AudioManager private constructor() {
 
     private var applicationContext: Context? = null
     private val mainHandler = Handler(Looper.getMainLooper())
+    
+    // MusicService 相关
+    private var musicService: MusicService? = null
+    private var isServiceBound = false
+    
+    private val serviceConnection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            val binder = service as? MusicService.MusicServiceBinder
+            musicService = binder?.getService()
+            isServiceBound = true
+            Log.d(TAG, "MusicService 已连接")
+            
+            // 连接后立即更新播放状态
+            notifyServicePlayingStateChanged()
+        }
+        
+        override fun onServiceDisconnected(name: ComponentName?) {
+            musicService = null
+            isServiceBound = false
+            Log.d(TAG, "MusicService 已断开")
+        }
+    }
     
     // 为每种声音类型创建单独的ExoPlayer实例
     private val players = java.util.concurrent.ConcurrentHashMap<Sound, ExoPlayer?>()
@@ -688,6 +718,10 @@ class AudioManager private constructor() {
                 playingStates[sound] = true
                 // 添加到播放队列
                 playingQueue.offer(PlayingItem.LocalSound(sound))
+                
+                // 通知服务播放状态已改变
+                notifyServicePlayingStateChanged()
+                
                 Log.d(TAG, "${sound.name} 开始播放，媒体源数量: ${player.mediaItemCount}，播放器状态: ${player.playbackState}，playWhenReady: ${player.playWhenReady}")
             } catch (e: Exception) {
                 Log.e(TAG, "播放 ${sound.name} 时出错: ${e.message}", e)
@@ -720,6 +754,10 @@ class AudioManager private constructor() {
             playingStates[sound] = false
             // 从播放队列中移除
             playingQueue.remove(PlayingItem.LocalSound(sound))
+            
+            // 通知服务播放状态已改变
+            notifyServicePlayingStateChanged()
+            
             Log.d(TAG, "${sound.name} 已暂停")
         } catch (e: Exception) {
             Log.e(TAG, "暂停 ${sound.name} 失败: ${e.message}")
@@ -731,18 +769,61 @@ class AudioManager private constructor() {
      */
     fun pauseAllSounds() {
         try {
+            // 暂停所有本地声音
             players.forEach { (sound, player) ->
                 try {
                     // 停止无缝循环检查
                     stopLocalSeamlessLoopCheck(sound)
-                    player?.pause()
+                    
+                    player?.let {
+                        // 关键：先设置 playWhenReady = false，防止自动恢复播放
+                        it.playWhenReady = false
+                        // 然后暂停播放器
+                        it.pause()
+                    }
                     playingStates[sound] = false
                 } catch (e: Exception) {
                     Log.e(TAG, "暂停 ${sound.name} 失败: ${e.message}")
+                    playingStates[sound] = false
                 }
             }
+            
+            // 暂停所有远程声音（释放播放器，但保留元数据、音量和播放状态用于恢复）
+            val remotePlayerIds = remotePlayers.keys.toList() // 复制键列表避免并发修改
+            remotePlayerIds.forEach { soundId ->
+                try {
+                    // 停止无缝循环检查
+                    stopSeamlessLoopCheck(soundId)
+                    
+                    remotePlayers[soundId]?.apply {
+                        try {
+                            playWhenReady = false
+                            stop()
+                            release()
+                        } catch (e: Exception) {
+                            Log.w(TAG, "释放远程播放器 $soundId 时出错: ${e.message}")
+                        }
+                    }
+                    remotePlayers.remove(soundId)
+                    // 关键：保留播放状态为false，而不是删除，这样UI和恢复逻辑都能正确工作
+                    remotePlayingStates[soundId] = false
+                    // 保留元数据和音量，用于恢复播放
+                    remoteLoopInfo.remove(soundId)
+                } catch (e: Exception) {
+                    Log.e(TAG, "暂停远程声音 $soundId 失败: ${e.message}")
+                    remotePlayers.remove(soundId)
+                    remotePlayingStates[soundId] = false
+                    remoteLoopInfo.remove(soundId)
+                }
+            }
+            
             // 清空播放队列
             playingQueue.clear()
+            
+            // 通知服务播放状态已改变
+            notifyServicePlayingStateChanged()
+            
+            Log.d(TAG, "所有声音已暂停")
         } catch (e: Exception) {
             Log.e(TAG, "暂停所有声音时发生错误: ${e.message}")
         }
@@ -784,32 +865,38 @@ class AudioManager private constructor() {
             }
             
             // 停止所有远程声音（不检查状态，直接停止所有）
-            remotePlayers.forEach { (soundId, player) ->
+            // 关键修复：释放所有远程播放器资源，防止资源累积
+            val remotePlayerIds = remotePlayers.keys.toList() // 复制键列表避免并发修改
+            remotePlayerIds.forEach { soundId ->
                 try {
                     // 停止无缝循环检查
                     stopSeamlessLoopCheck(soundId)
                     
-                    player?.let {
+                    remotePlayers[soundId]?.let {
                         // 先设置 playWhenReady = false，防止自动恢复播放
                         it.playWhenReady = false
-                        // 然后暂停播放器
-                        it.pause()
-                        // 验证是否真的停止了
-                        if (it.isPlaying) {
-                            Log.w(TAG, "远程声音 $soundId 停止后仍在播放，强制停止")
+                        // 然后停止并释放播放器
+                        try {
                             it.stop()
-                            it.playWhenReady = false
+                            it.release()
+                        } catch (e: Exception) {
+                            Log.w(TAG, "释放远程播放器 $soundId 时出错: ${e.message}")
                         }
                     }
-                    // 强制更新状态，不管播放器实际状态如何
-                    remotePlayingStates[soundId] = false
-                    // 从播放队列中移除
+                    // 清理所有相关状态
+                    remotePlayers.remove(soundId)
+                    remotePlayingStates.remove(soundId)
+                    // 保留音量设置，下次播放时使用
+                    // remoteVolumeSettings[soundId] 不删除
+                    remoteLoopInfo.remove(soundId)
                     playingQueue.remove(PlayingItem.RemoteSound(soundId))
-                    Log.d(TAG, "远程声音 $soundId 已停止")
+                    Log.d(TAG, "远程声音 $soundId 已停止并释放资源")
                 } catch (e: Exception) {
                     Log.e(TAG, "停止远程声音 $soundId 失败: ${e.message}")
                     // 即使出错也要更新状态
-                    remotePlayingStates[soundId] = false
+                    remotePlayers.remove(soundId)
+                    remotePlayingStates.remove(soundId)
+                    remoteLoopInfo.remove(soundId)
                     playingQueue.remove(PlayingItem.RemoteSound(soundId))
                 }
             }
@@ -829,16 +916,13 @@ class AudioManager private constructor() {
                         playingStates[sound] = false
                     }
                 }
-                remotePlayers.forEach { (soundId, player) ->
-                    player?.let {
-                        it.playWhenReady = false
-                        it.pause()
-                        remotePlayingStates[soundId] = false
-                    }
-                }
+                // 远程声音已经释放，不需要二次停止
             }
             
-            Log.d(TAG, "停止所有声音完成")
+            Log.d(TAG, "停止所有声音完成，远程播放器数量: ${remotePlayers.size}")
+            
+            // 通知服务播放状态已改变
+            notifyServicePlayingStateChanged()
         } catch (e: Exception) {
             Log.e(TAG, "停止所有声音时发生错误: ${e.message}", e)
         }
@@ -924,6 +1008,72 @@ class AudioManager private constructor() {
     }
     
     /**
+     * 启动音乐服务
+     */
+    fun startMusicService(context: Context) {
+        try {
+            if (applicationContext == null) {
+                applicationContext = context.applicationContext
+            }
+            
+            val serviceIntent = Intent(context, MusicService::class.java)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context.startForegroundService(serviceIntent)
+            } else {
+                context.startService(serviceIntent)
+            }
+            
+            // 绑定服务
+            context.bindService(
+                serviceIntent,
+                serviceConnection,
+                Context.BIND_AUTO_CREATE
+            )
+            
+            Log.d(TAG, "MusicService 启动请求已发送")
+        } catch (e: Exception) {
+            Log.e(TAG, "启动 MusicService 失败: ${e.message}", e)
+        }
+    }
+    
+    /**
+     * 停止音乐服务
+     */
+    fun stopMusicService(context: Context) {
+        try {
+            if (isServiceBound) {
+                context.unbindService(serviceConnection)
+                isServiceBound = false
+            }
+            
+            val serviceIntent = Intent(context, MusicService::class.java)
+            context.stopService(serviceIntent)
+            
+            musicService = null
+            Log.d(TAG, "MusicService 已停止")
+        } catch (e: Exception) {
+            Log.e(TAG, "停止 MusicService 失败: ${e.message}", e)
+        }
+    }
+    
+    /**
+     * 通知服务播放状态已改变
+     */
+    private fun notifyServicePlayingStateChanged() {
+        try {
+            val isPlaying = hasAnyPlayingSounds()
+            val localCount = playingStates.count { it.value }
+            val remoteCount = remotePlayingStates.count { it.value }
+            val totalCount = localCount + remoteCount
+            
+            musicService?.updatePlayingState(isPlaying, totalCount)
+            Log.d(TAG, "通知服务状态: isPlaying=$isPlaying, count=$totalCount")
+        } catch (e: Exception) {
+            Log.e(TAG, "通知服务播放状态失败: ${e.message}")
+        }
+    }
+    
+    /**
      * 获取正在播放的远程声音ID列表
      * 检查所有有播放器的远程音频，确保能获取到所有正在播放的音频
      */
@@ -937,10 +1087,20 @@ class AudioManager private constructor() {
         }
         // 如果通过播放器检查找到了，返回结果
         if (playingIds.isNotEmpty()) {
+            Log.d(TAG, "获取正在播放的远程音频（从播放器）: ${playingIds.joinToString()}")
             return playingIds
         }
         // 否则回退到状态检查（与本地音频逻辑一致）
-        return remotePlayingStates.filter { it.value }.keys.toList()
+        val stateBasedIds = remotePlayingStates.filter { it.value }.keys.toList()
+        Log.d(TAG, "获取正在播放的远程音频（从状态）: ${stateBasedIds.joinToString()}")
+        return stateBasedIds
+    }
+    
+    /**
+     * 获取远程音频的元数据和URI（用于恢复播放）
+     */
+    fun getRemoteMetadata(soundId: String): Pair<org.xmsleep.app.audio.model.SoundMetadata, android.net.Uri>? {
+        return remoteMetadataCache[soundId]
     }
     
     /**
@@ -974,52 +1134,55 @@ class AudioManager private constructor() {
                 val oldestItem = playingQueue.poll() // 移除最早播放的声音
                 when (oldestItem) {
                     is PlayingItem.LocalSound -> {
-                        // 直接暂停，不调用pauseSound避免递归
-                        players[oldestItem.sound]?.pause()
+                        // 本地声音：只暂停，不释放（播放器会一直存在）
+                        players[oldestItem.sound]?.apply {
+                            playWhenReady = false
+                            pause()
+                        }
                         playingStates[oldestItem.sound] = false
-                        Log.d(TAG, "已达到最大播放数量，停止最早播放的本地声音: ${oldestItem.sound.name}")
+                        Log.d(TAG, "已达到最大播放数量，暂停最早播放的本地声音: ${oldestItem.sound.name}")
                     }
                     is PlayingItem.RemoteSound -> {
-                        // 停止播放器并确保不会自动重新播放
-                        remotePlayers[oldestItem.soundId]?.apply {
-                            pause()
-                            playWhenReady = false
+                        // 远程声音：暂停并释放播放器（避免资源累积）
+                        try {
+                            remotePlayers[oldestItem.soundId]?.apply {
+                                playWhenReady = false
+                                stop()
+                                release()
+                            }
+                            remotePlayers.remove(oldestItem.soundId)
+                            // 关键：保留播放状态为false，而不是删除
+                            remotePlayingStates[oldestItem.soundId] = false
+                            // 保留音量和元数据，用于恢复播放
+                            remoteLoopInfo.remove(oldestItem.soundId)
+                            stopSeamlessLoopCheck(oldestItem.soundId)
+                            Log.d(TAG, "已达到最大播放数量，释放最早播放的远程声音: ${oldestItem.soundId}")
+                        } catch (e: Exception) {
+                            Log.e(TAG, "释放旧远程播放器失败: ${e.message}")
+                            remotePlayers.remove(oldestItem.soundId)
+                            remotePlayingStates[oldestItem.soundId] = false
+                            remoteLoopInfo.remove(oldestItem.soundId)
                         }
-                        remotePlayingStates[oldestItem.soundId] = false
-                        Log.d(TAG, "已达到最大播放数量，停止最早播放的远程声音: ${oldestItem.soundId}")
                     }
                 }
             }
             
-            // 如果播放器已存在但可能处于错误状态，先停止并重置
+            // 关键简化：如果播放器已存在，直接释放并创建新的
+            // 这样可以避免重用逻辑与暂停释放策略的冲突
             val existingPlayer = remotePlayers[soundId]
             if (existingPlayer != null) {
                 try {
-                    // 停止播放器以确保状态重置
-                    existingPlayer.stop()
+                    Log.d(TAG, "播放器 $soundId 已存在，释放后重新创建")
                     existingPlayer.playWhenReady = false
-                    // 清除媒体项（如果方法存在）
-                    try {
-                        existingPlayer.clearMediaItems()
-                    } catch (e: NoSuchMethodError) {
-                        // 如果 clearMediaItems 不存在，尝试其他方法
-                        Log.d(TAG, "clearMediaItems 方法不可用，使用 stop() 重置播放器")
-                    }
+                    existingPlayer.stop()
+                    existingPlayer.release()
                 } catch (e: Exception) {
-                    Log.w(TAG, "重置播放器 $soundId 状态时出错: ${e.message}")
-                    // 如果重置失败，释放旧播放器并创建新的
-                    try {
-                        existingPlayer.release()
-                        remotePlayers.remove(soundId)
-                        remotePlayingStates[soundId] = false
-                        remoteVolumeSettings.remove(soundId)
-                    } catch (releaseException: Exception) {
-                        Log.e(TAG, "释放播放器 $soundId 失败: ${releaseException.message}")
-                        remotePlayers.remove(soundId)
-                        remotePlayingStates[soundId] = false
-                        remoteVolumeSettings.remove(soundId)
-                    }
+                    Log.w(TAG, "释放旧播放器 $soundId 失败: ${e.message}")
                 }
+                remotePlayers.remove(soundId)
+                // 关键：不删除播放状态，后面会重新设置
+                // remotePlayingStates 保持不变，避免影响恢复逻辑
+                stopSeamlessLoopCheck(soundId)
             }
             
             // 初始化播放器
@@ -1043,6 +1206,9 @@ class AudioManager private constructor() {
                 Log.e(TAG, "播放器 $soundId 初始化失败，无法播放")
                 return
             }
+            
+            // 保存元数据和URI，用于后续恢复播放
+            remoteMetadataCache[soundId] = Pair(metadata, uri)
             
             // 准备音频源 - 针对网络音频优化
             try {
@@ -1121,6 +1287,9 @@ class AudioManager private constructor() {
                 remotePlayingStates[soundId] = true
                 // 添加到播放队列
                 playingQueue.offer(PlayingItem.RemoteSound(soundId))
+                
+                // 通知服务播放状态已改变
+                notifyServicePlayingStateChanged()
                 
                 Log.d(TAG, "$soundId 开始播放，循环范围: ${metadata.loopStart}ms - ${metadata.loopEnd}ms")
             } catch (e: Exception) {
@@ -1350,19 +1519,44 @@ class AudioManager private constructor() {
     
     /**
      * 暂停网络音频
+     * 释放播放器资源，但保留元数据、音量设置和播放状态用于恢复播放
      */
     fun pauseRemoteSound(soundId: String) {
         try {
             // 停止无缝循环检查
             stopSeamlessLoopCheck(soundId)
             
-            remotePlayers[soundId]?.pause()
+            // 关键修复：释放播放器资源，防止累积
+            // 但保留元数据、音量和播放状态，用于通知中心恢复播放和UI状态同步
+            remotePlayers[soundId]?.apply {
+                try {
+                    playWhenReady = false
+                    stop()
+                    release()
+                } catch (e: Exception) {
+                    Log.w(TAG, "释放播放器 $soundId 时出错: ${e.message}")
+                }
+            }
+            remotePlayers.remove(soundId)
+            // 关键：保留播放状态为false，而不是删除，这样UI和恢复逻辑都能正确工作
             remotePlayingStates[soundId] = false
+            // 保留元数据和音量，用于恢复播放
+            // remoteMetadataCache[soundId] 不删除
+            // remoteVolumeSettings[soundId] 不删除
+            remoteLoopInfo.remove(soundId)
+            
             // 从播放队列中移除
             playingQueue.remove(PlayingItem.RemoteSound(soundId))
-            Log.d(TAG, "$soundId 已暂停")
+            
+            // 通知服务播放状态已改变
+            notifyServicePlayingStateChanged()
+            
+            Log.d(TAG, "$soundId 已暂停并释放播放器，保留元数据和音量")
         } catch (e: Exception) {
             Log.e(TAG, "暂停 $soundId 失败: ${e.message}")
+            remotePlayers.remove(soundId)
+            remotePlayingStates[soundId] = false
+            remoteLoopInfo.remove(soundId)
         }
     }
     

@@ -2,6 +2,9 @@ rootProject.name = "XMSLEEP"
 
 pluginManagement {
     repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
         gradlePluginPortal()
         mavenCentral()
         google()
@@ -11,6 +14,8 @@ pluginManagement {
 dependencyResolutionManagement {
     @Suppress("UnstableApiUsage")
     repositories {
+        maven { url = uri("https://maven.aliyun.com/repository/public") }
+        maven { url = uri("https://maven.aliyun.com/repository/google") }
         mavenCentral()
         google()
     }

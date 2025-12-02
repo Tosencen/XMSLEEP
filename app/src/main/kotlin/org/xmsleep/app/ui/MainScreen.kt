@@ -262,6 +262,40 @@ fun MainScreen(
     // AudioManager实例（用于播放/暂停快捷播放的声音）
     val audioManager = remember { org.xmsleep.app.audio.AudioManager.getInstance() }
     
+    // 监听播放状态，自动启动/停止MusicService
+    val hasPlayingSounds = remember { mutableStateOf(false) }
+    
+    LaunchedEffect(Unit) {
+        // 实时监听播放状态
+        while (true) {
+            val isPlaying = audioManager.hasAnyPlayingSounds()
+            if (isPlaying != hasPlayingSounds.value) {
+                hasPlayingSounds.value = isPlaying
+                
+                if (isPlaying) {
+                    // 有音频播放，启动服务
+                    android.util.Log.d("MainScreen", "检测到音频播放，启动MusicService")
+                    audioManager.startMusicService(context)
+                } else {
+                    // 所有音频已停止
+                    android.util.Log.d("MainScreen", "所有音频已停止")
+                }
+            }
+            delay(1000) // 每秒检查一次
+        }
+    }
+    
+    // 应用退出时清理服务
+    DisposableEffect(Unit) {
+        onDispose {
+            android.util.Log.d("MainScreen", "MainScreen onDispose")
+            // 如果没有播放中的声音，停止服务
+            if (!audioManager.hasAnyPlayingSounds()) {
+                audioManager.stopMusicService(context)
+            }
+        }
+    }
+    
     // PreferencesManager实例（用于管理预设的远程声音）
     val preferencesManager = remember { org.xmsleep.app.preferences.PreferencesManager }
     
