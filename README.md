@@ -186,11 +186,6 @@ XMSLEEP 是一个专注于白噪音播放的 Android 应用，提供多种自然
 - [音频资源管理](./docs/AUDIO_RESOURCES.md) - 音频资源管理说明
 - [声音模块资源清单](./docs/SOUND_MODULES_RESOURCES.md) - 声音模块资源清单
 
-## 📥 用户音频上传（audio 分支）
-
-- 欢迎在 `audio` 分支的 `audio/` 目录提交/更新音频资源（无需修改应用代码）。
-- 仓库已对常见音频格式启用 Git LFS，请遵循 `audio/README.md` 的命名、许可与体积规范后提交 PR。
-
 ## ⚠️ 声音来源说明
 
 本应用中的声音来源如下：

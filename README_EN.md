@@ -189,11 +189,6 @@ More technical documentation available in [docs](./docs/) directory:
 - [Audio Resource Management](./docs/AUDIO_RESOURCES.md) - Audio resource management guide
 - [Sound Modules Resource List](./docs/SOUND_MODULES_RESOURCES.md) - Sound modules resource list
 
-## 📥 User Audio Uploads (audio branch)
-
-- Community audio assets can be added/updated in the `audio` branch under the `audio/` folder (no app code changes required).
-- Git LFS is enabled for common audio formats; follow the rules in `audio/README.md` (naming, license, size) before opening a PR.
-
 ## ⚠️ Sound Source Attribution
 
 Sound sources in this app are as follows:
