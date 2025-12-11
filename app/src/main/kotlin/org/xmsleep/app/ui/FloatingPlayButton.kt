@@ -379,8 +379,8 @@ fun FloatingPlayButtonNew(
         AlertDialog(
             onDismissRequest = { showStopAllDialog = false },
             icon = { Icon(Icons.Default.Delete, contentDescription = null) },
-            title = { Text(stringResource(R.string.stop_all_confirm_title)) },
-            text = { Text(stringResource(R.string.stop_all_confirm_message)) },
+            title = { Text(context.getString(R.string.stop_all_confirm_title)) },
+            text = { Text(context.getString(R.string.stop_all_confirm_message)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -389,12 +389,12 @@ fun FloatingPlayButtonNew(
                         isExpanded = false
                     }
                 ) {
-                    Text(stringResource(R.string.stop_all))
+                    Text(context.getString(R.string.stop_all))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showStopAllDialog = false }) {
-                    Text(stringResource(R.string.cancel))
+                    Text(context.getString(R.string.cancel))
                 }
             }
         )

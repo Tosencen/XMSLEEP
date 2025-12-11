@@ -93,8 +93,8 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.0.8
-- **Version Code**: 28
+- **Version**: 2.1.0
+- **Version Code**: 30
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 

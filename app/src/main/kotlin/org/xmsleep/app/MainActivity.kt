@@ -3,6 +3,7 @@ package org.xmsleep.app
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.core.content.ContextCompat
 import com.materialkolor.hct.Hct
 import org.xmsleep.app.i18n.LanguageManager
@@ -85,6 +87,9 @@ fun XMSLEEPApp() {
     var currentLanguage by remember { mutableStateOf(LanguageManager.getCurrentLanguage(context)) }
     val localizedContext = remember(currentLanguage) {
         LanguageManager.createLocalizedContext(context, currentLanguage)
+    }
+    val localizedConfiguration = remember(currentLanguage) {
+        localizedContext.resources.configuration
     }
     
     // 请求存储权限
@@ -176,9 +181,10 @@ fun XMSLEEPApp() {
         useDynamicColor = useDynamicColor,
         useBlackBackground = useBlackBackground
     ) {
-        // 使用CompositionLocalProvider提供语言化的Context
+        // 使用CompositionLocalProvider提供语言化的Context和Configuration
         CompositionLocalProvider(
-            LocalContext provides localizedContext
+            LocalContext provides localizedContext,
+            LocalConfiguration provides localizedConfiguration
         ) {
             Surface(
                 modifier = Modifier.fillMaxSize(),

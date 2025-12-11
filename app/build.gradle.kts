@@ -13,8 +13,8 @@ android {
         applicationId = "org.xmsleep.app"
         minSdk = 26
         targetSdk = 35
-		versionCode = 29
-		versionName = "2.0.9"
+		versionCode = 30
+		versionName = "2.1.0"
         
         // 只保留 arm64-v8a 架构以减小 APK 体积（现代设备都支持）
         ndk {
