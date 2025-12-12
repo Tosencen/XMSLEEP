@@ -31,7 +31,7 @@ interface PermissionCallback {
 
 /**
  * 音频权限管理器
- * 参考 nextplayer 的实现，提供完善的权限请求和状态管理
+ * 提供完善的权限请求和状态管理
  */
 class AudioPermissionManager(private val context: Context) {
     

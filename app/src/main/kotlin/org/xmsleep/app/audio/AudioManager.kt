@@ -338,7 +338,7 @@ class AudioManager private constructor() {
 
     /**
      * 准备声音音频源（使用双份拼接技术实现无缝循环）
-     * 参考 moodist 的实现方式，使用 ConcatenatingMediaSource 拼接两个相同的音频片段
+     * 使用 ConcatenatingMediaSource 拼接两个相同的音频片段
      */
     @UnstableApi
     private fun prepareSoundAudio(
