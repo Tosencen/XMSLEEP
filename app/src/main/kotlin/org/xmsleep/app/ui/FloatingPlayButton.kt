@@ -617,11 +617,6 @@ private fun ExpandedPlayingList(
                         
                         if (localSounds.isNotEmpty() || remoteSoundIds.isNotEmpty()) {
                             onAddToPreset(localSounds, remoteSoundIds)
-                            android.widget.Toast.makeText(
-                                context,
-                                context.getString(R.string.added_to_preset, localSounds.size + remoteSoundIds.size, 1),
-                                android.widget.Toast.LENGTH_SHORT
-                            ).show()
                         } else {
                             android.widget.Toast.makeText(
                                 context,
