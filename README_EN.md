@@ -9,7 +9,7 @@ A white noise and natural sound player app to help you relax, focus, and sleep b
 [![Kotlin](https://img.shields.io/badge/Kotlin-1.9.0-blue.svg)](https://kotlinlang.org/)
 [![Android](https://img.shields.io/badge/Android-8.0%2B-green.svg)](https://www.android.com/)
 
-[Download](#download) • [Features](#features) • [Usage](#usage) • [Changelog](#changelog)
+[Download](#download) • [Features](#features) • [Usage](#usage)
 
 **Language**: [中文](README.md) | English  
 
@@ -61,8 +61,10 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 ### 🎵 Audio Features
 - **Multiple White Noise**: Provides rain, campfire, thunder, cat purring, birds, crickets, and more natural sounds
 - **Online Audio**: Support for dynamically loading more audio resources from GitHub
+- **Local Audio**: Support for playing audio files from your phone
 - **Seamless Loop**: Audio supports seamless loop playback for an immersive experience
 - **Volume Control**: Support for independent volume adjustment for each sound, or one-click adjustment for all sounds
+- **Bluetooth Headset Support**: Automatically pauses playback when Bluetooth headset disconnects
 
 ### 🎨 Interface & Experience
 - **Beautiful Animations**: Built-in sounds come with WebP animations to enhance visual experience
@@ -74,6 +76,7 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 - **Countdown Feature**: Set automatic stop playback time to help you control usage duration
 - **Quick Play Area**: Support for adding frequently used sounds to the quick play area for quick access
 - **Favorites**: Favorite your preferred white noise sounds
+- **Recent Play**: Shows recent play dialog on app restart for quick resume
 - **Global Floating Button**: Displays currently playing sounds, supports quick pause and expand to view
 - **Auto Update**: Supports automatic update checking via GitHub Releases
 
@@ -93,8 +96,8 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.1.0
-- **Version Code**: 30
+- **Version**: 2.1.1
+- **Version Code**: 31
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 
@@ -145,46 +148,6 @@ Latest version available on [GitHub Releases](https://github.com/Tosencen/XMSLEE
 ### Advanced Features
 8. **Global Floating Button**: When sounds are playing, a floating button appears, tap to expand and view currently playing sounds
 9. **Long Press Drag to Stop**: Long press floating button to drag, drag to bottom red area to stop all playback
-
-## 📝 Changelog
-
-### v2.1.0 (2025-12-12)
-- 📚 **Documentation**: Updated audio resource upload guide and project documentation
-- 🧹 **Code Cleanup**: Cleaned up redundant files and optimized project structure
-- 🔧 **Build Optimization**: Improved build configuration and dependency management
-
-### v2.0.8 (2025-11-26)
-- 🎨 **Theme Optimization**: Dark mode card colors fully follow app theme
-- 🍃 **Toast Improvement**: Toast background fully adapts to light/dark theme
-- 🔒 **Pin Validation**: Prevent pinning uncached cards, show tips only
-- 📱 **Remote Audio**: Remove broken campfire card with 404 error
-
-### v2.0.7 (2025-11-17)
-- 🎛 **Preset Optimization**: Improved preset module visibility logic for clearer behavior when clearing or switching presets
-- 🧩 **Preset Tabs**: Preset 1/2/3 tabs now support horizontal scrolling, long labels are no longer truncated
-- ▶️ **Floating Play**: Global floating button now auto-collapses when the bottom preset panel is expanded
-- 🎬 **Card Animation**: Playing items in the expanded floating list now slide out to the left with a unified removal animation
-
-### v2.0.6 (2025-11-14)
-- 🎨 **UI**: Comprehensive floating button optimization (animation, shadow, layout)
-- 🐛 **Fix**: Fixed remote audio control and click-through issues
-- 🆕 **Feature**: Added global exception handling and crash screen
-- 🌍 **i18n**: Completed all English translations (100+ strings)
-- 🎨 **Theme**: Adjusted default primary color and slogan colors
-
-### v2.0.5
-- 🎵 **Feature**: New floating play button with sticky interaction
-- 🔧 **Optimization**: Code refactoring and modularization
-
-### v2.0.4
-- 🔒 **Security**: Network security configuration optimization
-- 📦 **Optimization**: Audio file and APK size optimization
-
-### v2.0.3
-- 🎨 **Improvement**: WebP animation cover display optimization
-- 🐛 **Fix**: Countdown playback stop fix
-
-View full changelog: [GitHub Releases](https://github.com/Tosencen/XMSLEEP/releases)
 
 ## 📚 Documentation
 
