@@ -149,13 +149,6 @@ Latest version available on [GitHub Releases](https://github.com/Tosencen/XMSLEE
 8. **Global Floating Button**: When sounds are playing, a floating button appears, tap to expand and view currently playing sounds
 9. **Long Press Drag to Stop**: Long press floating button to drag, drag to bottom red area to stop all playback
 
-## 📚 Documentation
-
-More technical documentation available in [docs](./docs/) directory:
-
-- [Audio Architecture Design](./docs/AUDIO_ARCHITECTURE.md) - Audio resource management architecture documentation
-- [Audio Resource Management](./docs/AUDIO_RESOURCES.md) - Audio resource management guide
-- [Sound Modules Resource List](./docs/SOUND_MODULES_RESOURCES.md) - Sound modules resource list
 
 ## ⚠️ Sound Source Attribution
 
