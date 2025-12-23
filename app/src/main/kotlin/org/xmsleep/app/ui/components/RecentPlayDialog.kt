@@ -52,7 +52,7 @@ fun RecentPlayDialog(
     var visible by remember { mutableStateOf(true) }
     
     LaunchedEffect(Unit) {
-        delay(3000) // 3秒后自动消失
+        delay(2000) // 2秒后自动消失
         visible = false
         delay(500) // 等待动画完成
         onDismiss()

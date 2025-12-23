@@ -65,6 +65,14 @@
       "icon": "🔊",
       "order": 8,
       "nameZhTW": "噪音"
+    },
+    {
+      "id": "music",
+      "name": "音乐",
+      "nameEn": "Music",
+      "icon": "🎵",
+      "order": 10,
+      "nameZhTW": "音樂"
     }
   ],
   "sounds": [
@@ -1324,6 +1332,66 @@
       "format": "ogg",
       "order": 3,
       "nameZhTW": "棕噪音"
+    },
+    {
+      "id": "field",
+      "name": "田野",
+      "nameEn": "Field",
+      "category": "music",
+      "icon": "🌾",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/music/田野.mp3",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "mp3",
+      "order": 1,
+      "nameZhTW": "田野"
+    },
+    {
+      "id": "guitar",
+      "name": "吉他",
+      "nameEn": "Guitar",
+      "category": "music",
+      "icon": "🎸",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/music/吉他.wav",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "wav",
+      "order": 2,
+      "nameZhTW": "吉他"
+    },
+    {
+      "id": "light-piano",
+      "name": "轻钢琴",
+      "nameEn": "Light Piano",
+      "category": "music",
+      "icon": "🎹",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/music/轻钢琴.wav",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "wav",
+      "order": 3,
+      "nameZhTW": "輕鋼琴"
+    },
+    {
+      "id": "guzheng",
+      "name": "古筝",
+      "nameEn": "Guzheng",
+      "category": "music",
+      "icon": "🎶",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/music/古筝.wav",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "wav",
+      "order": 4,
+      "nameZhTW": "古箏"
     }
   ]
 }
