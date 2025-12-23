@@ -125,7 +125,13 @@ class RemoteAudioLoader(private val context: Context) {
     suspend fun loadManifest(forceRefresh: Boolean = false): SoundsManifest {
         return withContext(Dispatchers.IO) {
             var lastException: Exception? = null
-            val urls = listOf(REMOTE_MANIFEST_URL, BACKUP_MANIFEST_URL)
+            
+            // 添加时间戳参数来绕过 CDN 缓存
+            val timestamp = System.currentTimeMillis()
+            val urlWithTimestamp = "$REMOTE_MANIFEST_URL?t=$timestamp"
+            val backupUrlWithTimestamp = "$BACKUP_MANIFEST_URL?t=$timestamp"
+            
+            val urls = listOf(urlWithTimestamp, backupUrlWithTimestamp)
             
             for (url in urls) {
                 Log.d(TAG, "开始会载网络音频清单，URL: $url")
