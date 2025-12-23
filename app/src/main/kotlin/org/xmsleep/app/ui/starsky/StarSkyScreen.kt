@@ -501,8 +501,7 @@ fun StarSkyScreen(
                 ScrollableTabRow(
                     selectedTabIndex = pagerState.currentPage,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 16.dp),
+                        .fillMaxWidth(),
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.primary,
                     edgePadding = 0.dp,
@@ -756,7 +755,7 @@ fun StarSkyScreen(
                     LazyVerticalGrid(
                         state = lazyGridState,
                         columns = GridCells.Fixed(columnsCount),
-                        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 16.dp),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.fillMaxSize()

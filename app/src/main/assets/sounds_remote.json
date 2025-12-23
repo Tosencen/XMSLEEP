@@ -99,6 +99,21 @@
       "nameZhTW": "海浪"
     },
     {
+      "id": "campfire",
+      "name": "篝火",
+      "nameEn": "Campfire",
+      "category": "nature",
+      "icon": "🔥",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/campfire.ogg",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "ogg",
+      "order": 3,
+      "nameZhTW": "篝火"
+    },
+    {
       "id": "wind",
       "name": "风声",
       "nameEn": "Wind",
@@ -232,6 +247,21 @@
       "format": "ogg",
       "order": 12,
       "nameZhTW": "丛林"
+    },
+    {
+      "id": "field",
+      "name": "田野",
+      "nameEn": "Field",
+      "category": "nature",
+      "icon": "🌾",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/music/田野.mp3",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "mp3",
+      "order": 13,
+      "nameZhTW": "田野"
     },
     {
       "id": "light-rain",
@@ -1264,6 +1294,51 @@
       "format": "mp3",
       "order": 18,
       "nameZhTW": "掏耳朵2"
+    },
+    {
+      "id": "guitar",
+      "name": "吉他",
+      "nameEn": "Guitar",
+      "category": "things",
+      "icon": "🎸",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/music/吉他.wav",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "wav",
+      "order": 19,
+      "nameZhTW": "吉他"
+    },
+    {
+      "id": "light-piano",
+      "name": "轻钢琴",
+      "nameEn": "Light Piano",
+      "category": "things",
+      "icon": "🎹",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/music/轻钢琴.wav",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "wav",
+      "order": 20,
+      "nameZhTW": "輕鋼琴"
+    },
+    {
+      "id": "guzheng",
+      "name": "古筝",
+      "nameEn": "Guzheng",
+      "category": "things",
+      "icon": "🎶",
+      "source": "REMOTE",
+      "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/music/古筝.wav",
+      "loopStart": 0,
+      "loopEnd": 0,
+      "isSeamless": true,
+      "format": "wav",
+      "order": 21,
+      "nameZhTW": "古箏"
     },
     {
       "id": "white-noise",
