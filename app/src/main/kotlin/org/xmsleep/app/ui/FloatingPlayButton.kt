@@ -688,6 +688,8 @@ private fun FloatingPlayItemView(
                 AudioManager.Sound.WIND -> context.getString(R.string.sound_wind)
                 AudioManager.Sound.KEYBOARD -> context.getString(R.string.sound_keyboard)
                 AudioManager.Sound.SNOW_WALKING -> context.getString(R.string.sound_snow_walking)
+                AudioManager.Sound.MORNING_COFFEE -> context.getString(R.string.sound_morning_coffee)
+                AudioManager.Sound.WINDMILL -> context.getString(R.string.sound_windmill)
                 else -> item.sound.name
             }
         }

@@ -383,117 +383,117 @@ fun SoundsScreen(
     // 使用 configuration.locales 作为依赖，确保语言切换时重新创建
     val soundItems = remember(colorScheme, configuration.locales) {
         listOf(
-            // 1. 伞上雨声
-            SoundItem(
-                AudioManager.Sound.UMBRELLA_RAIN,
-                context.getString(R.string.sound_umbrella_rain),
-                R.drawable.umbrella_rain,
-                colorScheme.primary
-            ),
-            // 2. 打字机
-            SoundItem(
-                AudioManager.Sound.TYPEWRITER,
-                context.getString(R.string.sound_typewriter),
-                R.drawable.typewriter,
-                colorScheme.secondaryContainer
-            ),
-            // 3. 时钟
-            SoundItem(
-                AudioManager.Sound.CLOCK,
-                context.getString(R.string.sound_clock),
-                R.drawable.clock,
-                colorScheme.errorContainer
-            ),
-            // 4. 划船
-            SoundItem(
-                AudioManager.Sound.ROWING,
-                context.getString(R.string.sound_rowing),
-                R.drawable.rowing,
-                colorScheme.error
-            ),
-            // 5. 森林鸟鸣
-            SoundItem(
-                AudioManager.Sound.FOREST_BIRDS,
-                context.getString(R.string.sound_forest_birds),
-                R.drawable.forest_birds,
-                colorScheme.primary
-            ),
-            // 6. 漂流
-            SoundItem(
-                AudioManager.Sound.DRIFTING,
-                context.getString(R.string.sound_drifting),
-                R.drawable.drifting,
-                colorScheme.error
-            ),
-            // 7. 打雷
-            SoundItem(
-                AudioManager.Sound.THUNDER,
-                context.getString(R.string.sound_thunder),
-                R.drawable.thunder,
-                colorScheme.tertiaryContainer
-            ),
-            // 8. 篝火
-            SoundItem(
-                AudioManager.Sound.CAMPFIRE,
-                context.getString(R.string.sound_campfire),
-                R.drawable.campfire,
-                colorScheme.secondary
-            ),
-            // 9. 雪地徒步
-            SoundItem(
-                AudioManager.Sound.SNOW_WALKING,
-                context.getString(R.string.sound_snow_walking),
-                R.drawable.snow_walking,
-                colorScheme.secondaryContainer
-            ),
-            // 10. 起风了
-            SoundItem(
-                AudioManager.Sound.WIND,
-                context.getString(R.string.sound_wind),
-                R.drawable.wind,
-                colorScheme.tertiary
-            ),
-            // 11. 大雨
-            SoundItem(
-                AudioManager.Sound.HEAVY_RAIN,
-                context.getString(R.string.sound_heavy_rain),
-                R.drawable.heavy_rain,
-                colorScheme.primaryContainer
-            ),
-            // 12. 图书馆
-            SoundItem(
-                AudioManager.Sound.LIBRARY,
-                context.getString(R.string.sound_library),
-                R.drawable.library,
-                colorScheme.tertiary
-            ),
-            // 13. 键盘
-            SoundItem(
-                AudioManager.Sound.KEYBOARD,
-                context.getString(R.string.sound_keyboard),
-                R.drawable.keyboard,
-                colorScheme.primaryContainer
-            ),
-            // 14. 办公室
-            SoundItem(
-                AudioManager.Sound.OFFICE,
-                context.getString(R.string.sound_office),
-                R.drawable.office,
-                colorScheme.secondary
-            ),
-            // 15. 早晨咖啡
+            // 1. 早晨咖啡
             SoundItem(
                 AudioManager.Sound.MORNING_COFFEE,
                 context.getString(R.string.sound_morning_coffee),
                 R.drawable.morning_coffee,
                 colorScheme.primaryContainer
             ),
-            // 16. 风车
+            // 2. 风车
             SoundItem(
                 AudioManager.Sound.WINDMILL,
                 context.getString(R.string.sound_windmill),
                 R.drawable.windmill,
                 colorScheme.tertiaryContainer
+            ),
+            // 3. 伞上雨声
+            SoundItem(
+                AudioManager.Sound.UMBRELLA_RAIN,
+                context.getString(R.string.sound_umbrella_rain),
+                R.drawable.umbrella_rain,
+                colorScheme.primary
+            ),
+            // 4. 打字机
+            SoundItem(
+                AudioManager.Sound.TYPEWRITER,
+                context.getString(R.string.sound_typewriter),
+                R.drawable.typewriter,
+                colorScheme.secondaryContainer
+            ),
+            // 5. 时钟
+            SoundItem(
+                AudioManager.Sound.CLOCK,
+                context.getString(R.string.sound_clock),
+                R.drawable.clock,
+                colorScheme.errorContainer
+            ),
+            // 6. 划船
+            SoundItem(
+                AudioManager.Sound.ROWING,
+                context.getString(R.string.sound_rowing),
+                R.drawable.rowing,
+                colorScheme.error
+            ),
+            // 7. 森林鸟鸣
+            SoundItem(
+                AudioManager.Sound.FOREST_BIRDS,
+                context.getString(R.string.sound_forest_birds),
+                R.drawable.forest_birds,
+                colorScheme.primary
+            ),
+            // 8. 漂流
+            SoundItem(
+                AudioManager.Sound.DRIFTING,
+                context.getString(R.string.sound_drifting),
+                R.drawable.drifting,
+                colorScheme.error
+            ),
+            // 9. 打雷
+            SoundItem(
+                AudioManager.Sound.THUNDER,
+                context.getString(R.string.sound_thunder),
+                R.drawable.thunder,
+                colorScheme.tertiaryContainer
+            ),
+            // 10. 篝火
+            SoundItem(
+                AudioManager.Sound.CAMPFIRE,
+                context.getString(R.string.sound_campfire),
+                R.drawable.campfire,
+                colorScheme.secondary
+            ),
+            // 11. 雪地徒步
+            SoundItem(
+                AudioManager.Sound.SNOW_WALKING,
+                context.getString(R.string.sound_snow_walking),
+                R.drawable.snow_walking,
+                colorScheme.secondaryContainer
+            ),
+            // 12. 起风了
+            SoundItem(
+                AudioManager.Sound.WIND,
+                context.getString(R.string.sound_wind),
+                R.drawable.wind,
+                colorScheme.tertiary
+            ),
+            // 13. 大雨
+            SoundItem(
+                AudioManager.Sound.HEAVY_RAIN,
+                context.getString(R.string.sound_heavy_rain),
+                R.drawable.heavy_rain,
+                colorScheme.primaryContainer
+            ),
+            // 14. 图书馆
+            SoundItem(
+                AudioManager.Sound.LIBRARY,
+                context.getString(R.string.sound_library),
+                R.drawable.library,
+                colorScheme.tertiary
+            ),
+            // 15. 键盘
+            SoundItem(
+                AudioManager.Sound.KEYBOARD,
+                context.getString(R.string.sound_keyboard),
+                R.drawable.keyboard,
+                colorScheme.primaryContainer
+            ),
+            // 16. 办公室
+            SoundItem(
+                AudioManager.Sound.OFFICE,
+                context.getString(R.string.sound_office),
+                R.drawable.office,
+                colorScheme.secondary
             )
         )
     }

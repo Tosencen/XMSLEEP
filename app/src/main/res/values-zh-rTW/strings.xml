@@ -124,6 +124,8 @@
     <string name="sound_wind">起風了</string>
     <string name="sound_keyboard">鍵盤</string>
     <string name="sound_snow_walking">雪地徒步</string>
+    <string name="sound_morning_coffee">早晨咖啡</string>
+    <string name="sound_windmill">風車</string>
     <string name="sound_default">聲音</string>
     <string name="dynamic_color">動態顏色</string>
     <string name="use_wallpaper_color_as_theme">使用壁紙顏色作為主題色</string>
