@@ -95,7 +95,8 @@ fun FloatingPlayButtonNew(
     shouldCollapse: Boolean = false,
     activePreset: Int = 1, // 当前激活的预设
     onAddToPreset: (localSounds: List<AudioManager.Sound>, remoteSoundIds: List<String>) -> Unit = { _, _ -> }, // 添加到预设的回调
-    forceCollapse: Boolean = false // 强制收缩悬浮播放按钮
+    forceCollapse: Boolean = false, // 强制收缩悬浮播放按钮
+    onExpandStateChange: (Boolean) -> Unit = {} // 展开状态变化回调
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -373,7 +374,10 @@ fun FloatingPlayButtonNew(
                         .clickable(
                             interactionSource = remember { MutableInteractionSource() },
                             indication = null,
-                            onClick = { isExpanded = false }
+                            onClick = { 
+                                isExpanded = false
+                                onExpandStateChange(false) // 通知收缩状态变化
+                            }
                         ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -417,6 +421,7 @@ fun FloatingPlayButtonNew(
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         isExpanded = true
+                        onExpandStateChange(true) // 通知展开状态变化
                     }
                 )
             ) {

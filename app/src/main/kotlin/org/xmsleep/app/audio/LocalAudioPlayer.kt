@@ -91,6 +91,16 @@ class LocalAudioPlayer private constructor() {
             // 缓存 URI，用于恢复播放
             audioUriCache[audioId] = audioUri.toString()
             
+            // 加载保存的音量（如果没有保存则使用默认值）
+            if (!volumeSettings.containsKey(audioId)) {
+                val savedVolume = org.xmsleep.app.preferences.PreferencesManager.getLocalAudioVolume(
+                    context,
+                    audioId,
+                    _currentVolume.value
+                )
+                volumeSettings[audioId] = savedVolume
+            }
+            
             // 立即更新状态，提供即时反馈
             playingStates[audioId] = true
             playingQueue.offer(audioId)
@@ -215,9 +225,26 @@ class LocalAudioPlayer private constructor() {
      * 设置指定音频的音量
      */
     fun setVolume(audioId: Long, volume: Float) {
-        volumeSettings[audioId] = volume
-        mediaPlayers[audioId]?.setVolume(volume, volume)
-        Log.d(TAG, "设置音频音量: audioId=$audioId, volume=$volume")
+        val coercedVolume = volume.coerceIn(0f, 1f)
+        volumeSettings[audioId] = coercedVolume
+        mediaPlayers[audioId]?.setVolume(coercedVolume, coercedVolume)
+        
+        // 保存音量到 SharedPreferences
+        try {
+            // 需要 Context，从 AudioManager 获取
+            val context = org.xmsleep.app.audio.AudioManager.getInstance().applicationContext
+            context?.let {
+                org.xmsleep.app.preferences.PreferencesManager.saveLocalAudioVolume(
+                    it,
+                    audioId,
+                    coercedVolume
+                )
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "保存音频音量失败: audioId=$audioId", e)
+        }
+        
+        Log.d(TAG, "设置音频音量: audioId=$audioId, volume=$coercedVolume")
     }
     
     /**

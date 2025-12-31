@@ -50,9 +50,19 @@ fun ThemeSettingsScreen(
     onColorChange: (Color) -> Unit,
     onDynamicColorChange: (Boolean) -> Unit,
     onBlackBackgroundChange: (Boolean) -> Unit,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onScrollDetected: () -> Unit = {} // 滚动检测回调
 ) {
     val context = LocalContext.current
+    val scrollState = rememberScrollState()
+    
+    // 监听滚动事件
+    LaunchedEffect(scrollState.isScrollInProgress) {
+        if (scrollState.isScrollInProgress) {
+            onScrollDetected()
+        }
+    }
+    
     // 固定 TopAppBar，不随滚动隐藏
     Scaffold(
         topBar = {
@@ -97,7 +107,7 @@ fun ThemeSettingsScreen(
                     WindowInsets.systemBars.union(WindowInsets.displayCutout)
                         .only(WindowInsetsSides.Top)
                 )
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(paddingValues)
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)

@@ -78,6 +78,9 @@ class AudioManager private constructor() {
     // 网络音频的音量设置
     private val remoteVolumeSettings = mutableMapOf<String, Float>()
     
+    // 记录哪些远程音频的音量已经从 SharedPreferences 加载过
+    private val remoteVolumeLoaded = mutableSetOf<String>()
+    
     // 网络音频的元数据（用于恢复播放）
     private val remoteMetadataCache = java.util.concurrent.ConcurrentHashMap<String, Pair<org.xmsleep.app.audio.model.SoundMetadata, android.net.Uri>>()
     
@@ -100,7 +103,7 @@ class AudioManager private constructor() {
     }
     private val playingQueue = java.util.concurrent.ConcurrentLinkedQueue<PlayingItem>()
 
-    private var applicationContext: Context? = null
+    internal var applicationContext: Context? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     
     // 蓝牙耳机管理器
@@ -134,25 +137,11 @@ class AudioManager private constructor() {
     // 各声音的播放状态
     private val playingStates = java.util.concurrent.ConcurrentHashMap<Sound, Boolean>()
     
-    // 各声音的音量设置
-    private val volumeSettings = mutableMapOf(
-        Sound.UMBRELLA_RAIN to DEFAULT_VOLUME,
-        Sound.ROWING to DEFAULT_VOLUME,
-        Sound.OFFICE to DEFAULT_VOLUME,
-        Sound.LIBRARY to DEFAULT_VOLUME,
-        Sound.HEAVY_RAIN to DEFAULT_VOLUME,
-        Sound.TYPEWRITER to DEFAULT_VOLUME,
-        Sound.THUNDER to DEFAULT_VOLUME,
-        Sound.CLOCK to DEFAULT_VOLUME,
-        Sound.FOREST_BIRDS to DEFAULT_VOLUME,
-        Sound.DRIFTING to DEFAULT_VOLUME,
-        Sound.CAMPFIRE to DEFAULT_VOLUME,
-        Sound.WIND to DEFAULT_VOLUME,
-        Sound.KEYBOARD to DEFAULT_VOLUME,
-        Sound.SNOW_WALKING to DEFAULT_VOLUME,
-        Sound.MORNING_COFFEE to DEFAULT_VOLUME,
-        Sound.WINDMILL to DEFAULT_VOLUME
-    )
+    // 各声音的音量设置（不再预设默认值，而是在需要时从 SharedPreferences 加载）
+    private val volumeSettings = mutableMapOf<Sound, Float>()
+    
+    // 记录哪些音量已经从 SharedPreferences 加载过
+    private val volumeLoaded = mutableSetOf<Sound>()
     
     // 音频焦点管理
     private var audioFocusRequest: AudioFocusRequest? = null
@@ -606,6 +595,9 @@ class AudioManager private constructor() {
                 // 初始化蓝牙耳机监听器
                 initializeBluetoothHeadsetListener(context)
             }
+            
+            // 关键修复：确保该声音的音量已从 SharedPreferences 加载
+            ensureVolumeLoaded(context, sound)
 
             if (sound == Sound.NONE) {
                 Log.w(TAG, "声音类型为 NONE，取消播放")
@@ -997,15 +989,59 @@ class AudioManager private constructor() {
      * 设置音量
      */
     fun setVolume(sound: Sound, volume: Float) {
-        volumeSettings[sound] = volume.coerceIn(0f, 1f)
-        players[sound]?.volume = volumeSettings[sound] ?: DEFAULT_VOLUME
+        val coercedVolume = volume.coerceIn(0f, 1f)
+        volumeSettings[sound] = coercedVolume
+        players[sound]?.volume = coercedVolume
+        
+        // 保存音量到 SharedPreferences
+        applicationContext?.let { context ->
+            org.xmsleep.app.preferences.PreferencesManager.saveLocalSoundVolume(
+                context, 
+                sound.name, 
+                coercedVolume
+            )
+        }
     }
 
     /**
      * 获取音量
      */
     fun getVolume(sound: Sound): Float {
+        // 如果还没有加载，先从 SharedPreferences 加载
+        if (!volumeLoaded.contains(sound)) {
+            applicationContext?.let { context ->
+                ensureVolumeLoaded(context, sound)
+            }
+        }
         return volumeSettings[sound] ?: DEFAULT_VOLUME
+    }
+    
+    /**
+     * 确保指定声音的音量已从 SharedPreferences 加载
+     */
+    private fun ensureVolumeLoaded(context: Context, sound: Sound) {
+        if (!volumeLoaded.contains(sound)) {
+            val savedVolume = org.xmsleep.app.preferences.PreferencesManager.getLocalSoundVolume(
+                context,
+                sound.name,
+                DEFAULT_VOLUME
+            )
+            volumeSettings[sound] = savedVolume
+            volumeLoaded.add(sound)
+            Log.d(TAG, "加载 ${sound.name} 的保存音量: $savedVolume")
+        }
+    }
+    
+    /**
+     * 从 SharedPreferences 加载所有本地声音的音量设置
+     */
+    private fun loadLocalSoundVolumes(context: Context) {
+        Sound.values().forEach { sound ->
+            if (sound != Sound.NONE) {
+                ensureVolumeLoaded(context, sound)
+            }
+        }
+        Log.d(TAG, "已加载所有本地声音音量设置")
     }
 
     /**
@@ -1360,9 +1396,19 @@ class AudioManager private constructor() {
                 applicationContext = context.applicationContext
                 // 初始化蓝牙耳机监听器
                 initializeBluetoothHeadsetListener(context)
+                // 加载保存的音量设置
+                loadLocalSoundVolumes(context)
             }
             
             val soundId = metadata.id
+            
+            // 关键修复：确保该远程音频的音量已从 SharedPreferences 加载
+            ensureRemoteVolumeLoaded(context, soundId)
+            
+            // 加载该远程音频的保存音量（如果没有保存则使用默认值）
+            if (!remoteVolumeSettings.containsKey(soundId)) {
+                remoteVolumeSettings[soundId] = loadRemoteSoundVolume(context, soundId)
+            }
             
             if (!hasAudioFocus && !requestAudioFocus(context)) {
                 Log.w(TAG, "无法获取音频焦点，取消播放")
@@ -1821,14 +1867,54 @@ class AudioManager private constructor() {
      * 与本地音频的 setVolume 逻辑保持一致
      */
     fun setRemoteVolume(soundId: String, volume: Float) {
-        remoteVolumeSettings[soundId] = volume.coerceIn(0f, 1f)
-        remotePlayers[soundId]?.volume = remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
+        val coercedVolume = volume.coerceIn(0f, 1f)
+        remoteVolumeSettings[soundId] = coercedVolume
+        remotePlayers[soundId]?.volume = coercedVolume
+        
+        // 保存音量到 SharedPreferences
+        applicationContext?.let { context ->
+            org.xmsleep.app.preferences.PreferencesManager.saveRemoteSoundVolume(
+                context,
+                soundId,
+                coercedVolume
+            )
+        }
     }
     
     /**
      * 获取网络音频音量
      */
     fun getRemoteVolume(soundId: String): Float {
+        // 如果还没有加载，先从 SharedPreferences 加载
+        if (!remoteVolumeLoaded.contains(soundId)) {
+            applicationContext?.let { context ->
+                ensureRemoteVolumeLoaded(context, soundId)
+            }
+        }
+        return remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
+    }
+    
+    /**
+     * 确保指定远程音频的音量已从 SharedPreferences 加载
+     */
+    private fun ensureRemoteVolumeLoaded(context: Context, soundId: String) {
+        if (!remoteVolumeLoaded.contains(soundId)) {
+            val savedVolume = org.xmsleep.app.preferences.PreferencesManager.getRemoteSoundVolume(
+                context,
+                soundId,
+                DEFAULT_VOLUME
+            )
+            remoteVolumeSettings[soundId] = savedVolume
+            remoteVolumeLoaded.add(soundId)
+            Log.d(TAG, "加载远程音频 $soundId 的保存音量: $savedVolume")
+        }
+    }
+    
+    /**
+     * 从 SharedPreferences 加载远程声音的音量设置
+     */
+    private fun loadRemoteSoundVolume(context: Context, soundId: String): Float {
+        ensureRemoteVolumeLoaded(context, soundId)
         return remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
     }
     

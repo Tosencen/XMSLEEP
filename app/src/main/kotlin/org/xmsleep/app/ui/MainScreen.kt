@@ -124,7 +124,6 @@ fun MainScreen(
     // 自动更新检查（全局共享）
     val updateViewModel = remember { org.xmsleep.app.update.UpdateViewModel(context) }
     val updateState by updateViewModel.updateState.collectAsState()
-    var showAutoUpdateDialog by remember { mutableStateOf(false) }
     
     // 获取当前版本号
     val currentVersion = remember {
@@ -147,51 +146,11 @@ fun MainScreen(
         }
     }
     
-    // 每次进入主页时自动检查更新（使用LaunchedEffect确保只在组合时执行一次）
+    // 每次进入主页时静默检查更新（不自动弹窗）
     LaunchedEffect(Unit) {
-        android.util.Log.d("UpdateCheck", "开始自动检查更新，当前版本: $currentVersion")
-        
-        // 先检查初始状态，如果已经是HasUpdate状态，立即显示弹窗（处理从后台恢复的情况）
-        val initialState = updateViewModel.updateState.value
-        if (initialState is org.xmsleep.app.update.UpdateState.HasUpdate) {
-            android.util.Log.d("UpdateCheck", "初始状态已是HasUpdate，显示弹窗")
-            delay(500)
-            showAutoUpdateDialog = true
-                        } else {
-            // 否则开始检查更新
-            updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
-        }
-    }
-    
-    // 当检测到有新版本时，自动显示更新弹窗
-    // 使用LaunchedEffect监听updateState变化，并在状态为HasUpdate时显示弹窗
-    LaunchedEffect(updateState) {
-        val state = updateState
-        when (state) {
-            is org.xmsleep.app.update.UpdateState.HasUpdate -> {
-                android.util.Log.d("UpdateCheck", "检测到新版本: ${state.version.version}")
-                // 延迟一小段时间确保UI已准备好
-                delay(300)
-                showAutoUpdateDialog = true
-            }
-            is org.xmsleep.app.update.UpdateState.CheckFailed -> {
-                android.util.Log.e("UpdateCheck", "检查更新失败: ${state.error}")
-                // 如果是rate limit错误，也显示弹窗提示用户
-                if (state.error.contains("rate limit", ignoreCase = true) || 
-                    state.error.contains("请求次数", ignoreCase = true)) {
-                    android.util.Log.d("UpdateCheck", "Rate limit错误，显示弹窗提示用户")
-                    delay(300)
-                    showAutoUpdateDialog = true
-                }
-            }
-            is org.xmsleep.app.update.UpdateState.UpToDate -> {
-                android.util.Log.d("UpdateCheck", "当前已是最新版本")
-            }
-            is org.xmsleep.app.update.UpdateState.Checking -> {
-                android.util.Log.d("UpdateCheck", "正在检查更新...")
-            }
-            else -> {}
-        }
+        android.util.Log.d("UpdateCheck", "开始后台静默检查更新，当前版本: $currentVersion")
+        // 静默检查更新，不弹窗，只更新状态和显示图标
+        updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
     }
     
     // 监听生命周期，当应用恢复时检查更新和待安装的文件
@@ -204,16 +163,12 @@ fun MainScreen(
                 
                 // 先检查是否有待安装的文件且权限已授予
                 if (updateViewModel.checkPendingInstall()) {
-                    android.util.Log.d("UpdateCheck", "检测到待安装文件且权限已授予，自动弹出安装对话框")
+                    android.util.Log.d("UpdateCheck", "检测到待安装文件且权限已授予")
                     // 在协程中延迟一小段时间确保UI已准备好
                     scope.launch {
                         delay(500)
                         // 自动重试安装
                         updateViewModel.autoRetryInstall()
-                        // 显示更新对话框（如果还没有显示）
-                        if (!showAutoUpdateDialog) {
-                            showAutoUpdateDialog = true
-                        }
                     }
                 } else {
                     // 应用恢复时也检查更新（会受1小时间隔限制）
@@ -563,7 +518,8 @@ fun MainScreen(
                                         delay(100)
                                         forceCollapseFloatingButton = false
                                     }
-                                }
+                                },
+                                updateViewModel = updateViewModel
                             )
                         }
                         2 -> {
@@ -642,7 +598,15 @@ fun MainScreen(
                     onColorChange = onColorChange,
                     onDynamicColorChange = onDynamicColorChange,
                     onBlackBackgroundChange = onBlackBackgroundChange,
-                    onBack = { navigator.popBackStack() }
+                    onBack = { navigator.popBackStack() },
+                    onScrollDetected = {
+                        // 滚动时收缩悬浮按钮
+                        shouldCollapseFloatingButton = true
+                        CoroutineScope(Dispatchers.Main).launch {
+                            delay(100)
+                            shouldCollapseFloatingButton = false
+                        }
+                    }
                 )
             }
             
@@ -656,6 +620,14 @@ fun MainScreen(
                     pinnedSounds = pinnedSounds,
                     favoriteSounds = favoriteSounds,
                     onBack = { navigator.popBackStack() },
+                    onScrollDetected = {
+                        // 滚动时收缩悬浮按钮
+                        shouldCollapseFloatingButton = true
+                        CoroutineScope(Dispatchers.Main).launch {
+                            delay(100)
+                            shouldCollapseFloatingButton = false
+                        }
+                    },
                     onPinnedChange = { sound, isPinned ->
                         val currentSet = pinnedSounds.value.toMutableSet()
                         if (isPinned) {
@@ -703,6 +675,13 @@ fun MainScreen(
             shouldCollapse = shouldCollapseFloatingButton, // 传递收缩标志
             activePreset = activePreset,
             forceCollapse = forceCollapseFloatingButton, // 传递强制收缩标志
+            onExpandStateChange = { isExpanded ->
+                // 当悬浮按钮展开时，收缩底部预设弹窗
+                if (isExpanded) {
+                    // 通过修改 PreferencesManager 中的快捷播放展开状态来收缩预设弹窗
+                    org.xmsleep.app.preferences.PreferencesManager.saveQuickPlayExpanded(context, false)
+                }
+            },
             onAddToPreset = { localSounds, remoteSoundIds ->
                 // 获取当前预设的 MutableState
                 val currentPresetSounds = when (activePreset) {
@@ -799,79 +778,6 @@ fun MainScreen(
             )
         }
         }
-    }
-    
-    // 自动更新弹窗（检测到新版本时自动显示）
-    // 注意：只在HasUpdate状态时显示自动弹窗，避免在Idle状态时重复检查
-    val currentUpdateState by updateViewModel.updateState.collectAsState()
-    
-    // 判断是否应该显示更新弹窗
-    // 在以下状态时显示：HasUpdate、Downloading、Downloaded、DownloadFailed、Installing、InstallFailed
-    val shouldShowUpdateDialog = when (currentUpdateState) {
-        is org.xmsleep.app.update.UpdateState.HasUpdate -> {
-            android.util.Log.d("UpdateDialog", "状态: HasUpdate, 应该显示弹窗")
-            true
-        }
-        is org.xmsleep.app.update.UpdateState.Downloading -> {
-            val downloadingState = currentUpdateState as org.xmsleep.app.update.UpdateState.Downloading
-            android.util.Log.d("UpdateDialog", "状态: Downloading, 应该显示弹窗, 进度: ${downloadingState.progress}")
-            true
-        }
-        is org.xmsleep.app.update.UpdateState.Downloaded -> {
-            android.util.Log.d("UpdateDialog", "状态: Downloaded, 应该显示弹窗")
-            true
-        }
-        is org.xmsleep.app.update.UpdateState.DownloadFailed -> {
-            android.util.Log.d("UpdateDialog", "状态: DownloadFailed, 应该显示弹窗")
-            true
-        }
-        is org.xmsleep.app.update.UpdateState.Installing -> {
-            android.util.Log.d("UpdateDialog", "状态: Installing, 应该显示弹窗")
-            true
-        }
-        is org.xmsleep.app.update.UpdateState.InstallFailed -> {
-            android.util.Log.d("UpdateDialog", "状态: InstallFailed, 应该显示弹窗")
-            true
-        }
-        is org.xmsleep.app.update.UpdateState.CheckFailed -> {
-            // 只在rate limit错误时显示
-            val errorState = currentUpdateState as org.xmsleep.app.update.UpdateState.CheckFailed
-            val shouldShow = errorState.error.contains("rate limit", ignoreCase = true) || 
-                           errorState.error.contains("请求次数", ignoreCase = true)
-            android.util.Log.d("UpdateDialog", "状态: CheckFailed, 应该显示弹窗: $shouldShow")
-            shouldShow
-        }
-        else -> {
-            android.util.Log.d("UpdateDialog", "状态: ${currentUpdateState::class.simpleName}, 不显示弹窗")
-            false
-        }
-    }
-    
-    // 显示更新弹窗
-    android.util.Log.d("UpdateDialog", "showAutoUpdateDialog: $showAutoUpdateDialog, shouldShowUpdateDialog: $shouldShowUpdateDialog")
-    if (showAutoUpdateDialog && shouldShowUpdateDialog) {
-        UpdateDialog(
-            onDismiss = {
-                // 只有在非下载/安装状态时才允许关闭弹窗
-                val state = updateViewModel.updateState.value
-                when (state) {
-                    is org.xmsleep.app.update.UpdateState.Downloading -> {
-                        // 下载中不允许关闭，由UpdateDialog内部处理
-                        android.util.Log.d("UpdateCheck", "下载中，不允许关闭弹窗")
-                    }
-                    is org.xmsleep.app.update.UpdateState.Installing -> {
-                        // 安装中不允许关闭
-                        android.util.Log.d("UpdateCheck", "安装中，不允许关闭弹窗")
-                    }
-                    else -> {
-                        showAutoUpdateDialog = false
-                        android.util.Log.d("UpdateCheck", "用户关闭了更新弹窗")
-                    }
-                }
-            },
-            updateViewModel = updateViewModel,
-            currentLanguage = currentLanguage
-        )
     }
     
     // 本地音频权限请求对话框

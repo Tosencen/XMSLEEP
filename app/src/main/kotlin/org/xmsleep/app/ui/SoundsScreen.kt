@@ -63,6 +63,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.*
 import androidx.compose.ui.draw.clip
@@ -132,12 +133,16 @@ import com.airbnb.lottie.value.LottieValueCallback
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.math.abs
 import java.util.concurrent.TimeUnit
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.timer.TimerManager
 import org.xmsleep.app.i18n.LanguageManager
+import org.xmsleep.app.update.UpdateViewModel
+import org.xmsleep.app.update.UpdateState
+import org.xmsleep.app.update.UpdateDialog
 import androidx.compose.runtime.DisposableEffect
 import com.materialkolor.hct.Hct
 import com.materialkolor.ktx.toHct
@@ -283,7 +288,8 @@ fun SoundsScreen(
     hasAnyPresetItems: Boolean = false, // 所有预设中是否有卡片（用于判断预设模块是否显示）
     onNavigateToFavorite: () -> Unit = {},
     onScrollDetected: () -> Unit = {}, // 滚动检测回调
-    onQuickPlayExpand: () -> Unit = {} // 快捷播放展开时的回调（用于强制收缩悬浮播放按钮）
+    onQuickPlayExpand: () -> Unit = {}, // 快捷播放展开时的回调（用于强制收缩悬浮播放按钮）
+    updateViewModel: UpdateViewModel? = null // 更新ViewModel
 ) {
     // 根据 activePreset 动态获取当前预设的 pinnedSounds
     val pinnedSounds = when (activePreset) {
@@ -301,6 +307,15 @@ fun SoundsScreen(
     val cacheManager = remember { org.xmsleep.app.audio.AudioCacheManager.getInstance(context) }
     val scope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
+    
+    // 更新相关状态
+    val updateState by (updateViewModel?.updateState ?: MutableStateFlow(UpdateState.Idle)).collectAsState()
+    var showUpdateDialog by remember { mutableStateOf(false) }
+    
+    // 判断是否显示更新图标（有新版本或已下载但未安装）
+    val showUpdateIcon = remember(updateState) {
+        updateState is UpdateState.HasUpdate || updateState is UpdateState.Downloaded
+    }
     
     // 各声音的播放状态
     val playingStates = remember { mutableStateMapOf<AudioManager.Sound, Boolean>() }
@@ -677,17 +692,43 @@ fun SoundsScreen(
                 }
             }
             
-            // 右侧：收藏按钮
+            // 右侧：更新图标和收藏按钮
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // 更新图标（有新版本时显示，带小红点）
+                if (showUpdateIcon) {
+                    Box {
+                        IconButton(
+                            onClick = { showUpdateDialog = true }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.SystemUpdate,
+                                contentDescription = context.getString(R.string.software_update),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                        }
+                        // 小红点Badge - 调整到图标右上角
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .align(Alignment.TopEnd)
+                                .offset(x = (-8).dp, y = 8.dp) // 调整位置到图标内部右上角
+                                .background(
+                                    color = MaterialTheme.colorScheme.error,
+                                    shape = CircleShape
+                                )
+                        )
+                    }
+                }
+                
                 // 收藏按钮
                 IconButton(
                     onClick = { onNavigateToFavorite() }
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Bookmark,
+                        painter = painterResource(id = R.drawable.cards_star_24px),
                         contentDescription = context.getString(R.string.tab_favorite),
                         tint = MaterialTheme.colorScheme.primary
                     )
@@ -696,8 +737,9 @@ fun SoundsScreen(
         }
         
         // 快捷播放展开/收缩状态（提前定义，以便在Column中使用）
+        // 应用启动时始终收起，不管之前的状态
         var isQuickPlayExpanded by remember { 
-            mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getQuickPlayExpanded(context, true)) 
+            mutableStateOf(false) 
         }
         
         // 协程作用域（用于在pointerInput中更新状态）
@@ -1115,6 +1157,16 @@ fun SoundsScreen(
                 showTimerDialog = false
             },
             currentTimerMinutes = if (isTimerActive) timerManager.getCurrentTimerMinutes() else 0
+        )
+    }
+    
+    // 更新对话框
+    if (showUpdateDialog && updateViewModel != null) {
+        val currentLanguage = org.xmsleep.app.i18n.LanguageManager.getCurrentLanguage(context)
+        UpdateDialog(
+            onDismiss = { showUpdateDialog = false },
+            updateViewModel = updateViewModel,
+            currentLanguage = currentLanguage
         )
     }
 }

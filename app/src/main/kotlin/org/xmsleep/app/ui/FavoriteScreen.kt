@@ -54,7 +54,8 @@ fun FavoriteScreen(
     favoriteSounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
     onBack: () -> Unit,
     onPinnedChange: (AudioManager.Sound, Boolean) -> Unit,
-    onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit
+    onFavoriteChange: (AudioManager.Sound, Boolean) -> Unit,
+    onScrollDetected: () -> Unit = {} // 滚动检测回调
 ) {
     val context = LocalContext.current
     val audioManager = remember { AudioManager.getInstance() }
@@ -302,6 +303,13 @@ fun FavoriteScreen(
     
     // 滚动状态
     val scrollState = rememberLazyGridState()
+    
+    // 监听滚动事件
+    LaunchedEffect(scrollState.isScrollInProgress) {
+        if (scrollState.isScrollInProgress) {
+            onScrollDetected()
+        }
+    }
     
     Scaffold(
         topBar = {

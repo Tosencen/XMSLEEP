@@ -50,6 +50,9 @@ class UpdateViewModel(private val context: Context) {
     
     private var lastCheckTime: Long = 0L
     
+    // SharedPreferences 用于持久化下载状态
+    private val prefs = context.getSharedPreferences("update_prefs", Context.MODE_PRIVATE)
+    
     /**
      * 自动检查更新（带时间间隔限制，1小时内只检查一次）
      */
@@ -83,8 +86,24 @@ class UpdateViewModel(private val context: Context) {
                 
                 if (newVersion != null) {
                     _latestVersion = newVersion
-                    _updateState.value = UpdateState.HasUpdate(newVersion)
-                    android.util.Log.d("UpdateCheck", "已设置更新状态为HasUpdate")
+                    
+                    // 检查是否已下载该版本
+                    val downloadedFile = getDownloadedApkFile(newVersion.version)
+                    if (downloadedFile != null && downloadedFile.exists() && isValidApk(downloadedFile)) {
+                        // 已下载且文件有效，直接进入已下载状态
+                        android.util.Log.d("UpdateCheck", "检测到已下载的APK文件: ${downloadedFile.path}")
+                        _updateState.value = UpdateState.Downloaded(downloadedFile)
+                    } else {
+                        // 未下载或文件无效，清理旧文件
+                        if (downloadedFile != null && downloadedFile.exists()) {
+                            downloadedFile.delete()
+                            android.util.Log.d("UpdateCheck", "删除无效的APK文件")
+                        }
+                        clearDownloadState()
+                        _updateState.value = UpdateState.HasUpdate(newVersion)
+                    }
+                    
+                    android.util.Log.d("UpdateCheck", "已设置更新状态")
                 } else {
                     _updateState.value = UpdateState.UpToDate
                     android.util.Log.d("UpdateCheck", "已设置更新状态为UpToDate")
@@ -100,6 +119,52 @@ class UpdateViewModel(private val context: Context) {
                 _updateState.value = UpdateState.CheckFailed(errorMsg)
             }
         }
+    }
+    
+    /**
+     * 获取已下载的APK文件
+     */
+    private fun getDownloadedApkFile(version: String): File? {
+        val downloadedVersion = prefs.getString("downloaded_version", null)
+        val downloadedPath = prefs.getString("downloaded_path", null)
+        
+        if (downloadedVersion == version && downloadedPath != null) {
+            return File(downloadedPath)
+        }
+        return null
+    }
+    
+    /**
+     * 验证APK文件是否有效
+     */
+    private fun isValidApk(file: File): Boolean {
+        return try {
+            file.exists() && file.length() > 0 && file.canRead()
+        } catch (e: Exception) {
+            false
+        }
+    }
+    
+    /**
+     * 保存下载状态
+     */
+    private fun saveDownloadState(version: String, filePath: String) {
+        prefs.edit()
+            .putString("downloaded_version", version)
+            .putString("downloaded_path", filePath)
+            .apply()
+        android.util.Log.d("UpdateCheck", "保存下载状态: version=$version, path=$filePath")
+    }
+    
+    /**
+     * 清除下载状态
+     */
+    private fun clearDownloadState() {
+        prefs.edit()
+            .remove("downloaded_version")
+            .remove("downloaded_path")
+            .apply()
+        android.util.Log.d("UpdateCheck", "清除下载状态")
     }
     
     /**
@@ -131,6 +196,8 @@ class UpdateViewModel(private val context: Context) {
                 downloadState.collect { state ->
                     when (state) {
                         is DownloadState.Success -> {
+                            // 保存下载状态
+                            saveDownloadState(version.version, state.file.absolutePath)
                             _updateState.value = UpdateState.Downloaded(state.file)
                             progressJob?.cancel()
                         }
@@ -215,6 +282,8 @@ class UpdateViewModel(private val context: Context) {
         val success = updateInstaller.install(apkFile)
         if (success) {
             _updateState.value = UpdateState.Installing
+            // 安装成功后清除下载状态（在下次启动时会检测到已安装最新版本）
+            clearDownloadState()
             pendingInstallFile = null
         } else {
             _updateState.value = UpdateState.InstallFailed("无法启动安装程序，请检查文件是否完整")

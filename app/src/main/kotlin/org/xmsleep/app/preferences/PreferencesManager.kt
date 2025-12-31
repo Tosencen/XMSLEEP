@@ -44,6 +44,8 @@ object PreferencesManager {
     private const val KEY_RECENT_REMOTE_SOUNDS = "recent_remote_sounds"
     // 最近播放的本地音频文件列表
     private const val KEY_RECENT_LOCAL_AUDIO_FILES = "recent_local_audio_files"
+    // 音量设置前缀
+    private const val KEY_VOLUME_PREFIX = "volume_"
     
     /**
      * 从旧版本迁移数据（如果存在）
@@ -501,6 +503,66 @@ object PreferencesManager {
             android.util.Log.e("PreferencesManager", "解析最近播放的本地音频文件失败: ${e.message}")
             emptyMap()
         }
+    }
+    
+    /**
+     * 保存本地声音的音量
+     * @param soundName 声音名称（如 "UMBRELLA_RAIN"）
+     * @param volume 音量值（0.0 - 1.0）
+     */
+    fun saveLocalSoundVolume(context: Context, soundName: String, volume: Float) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putFloat("${KEY_VOLUME_PREFIX}local_$soundName", volume).apply()
+    }
+    
+    /**
+     * 获取本地声音的音量
+     * @param soundName 声音名称（如 "UMBRELLA_RAIN"）
+     * @param default 默认音量值
+     */
+    fun getLocalSoundVolume(context: Context, soundName: String, default: Float = 0.5f): Float {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getFloat("${KEY_VOLUME_PREFIX}local_$soundName", default)
+    }
+    
+    /**
+     * 保存远程声音的音量
+     * @param soundId 声音ID
+     * @param volume 音量值（0.0 - 1.0）
+     */
+    fun saveRemoteSoundVolume(context: Context, soundId: String, volume: Float) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putFloat("${KEY_VOLUME_PREFIX}remote_$soundId", volume).apply()
+    }
+    
+    /**
+     * 获取远程声音的音量
+     * @param soundId 声音ID
+     * @param default 默认音量值
+     */
+    fun getRemoteSoundVolume(context: Context, soundId: String, default: Float = 0.5f): Float {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getFloat("${KEY_VOLUME_PREFIX}remote_$soundId", default)
+    }
+    
+    /**
+     * 保存本地音频文件的音量
+     * @param audioId 音频ID
+     * @param volume 音量值（0.0 - 1.0）
+     */
+    fun saveLocalAudioVolume(context: Context, audioId: Long, volume: Float) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putFloat("${KEY_VOLUME_PREFIX}audio_$audioId", volume).apply()
+    }
+    
+    /**
+     * 获取本地音频文件的音量
+     * @param audioId 音频ID
+     * @param default 默认音量值
+     */
+    fun getLocalAudioVolume(context: Context, audioId: Long, default: Float = 0.5f): Float {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getFloat("${KEY_VOLUME_PREFIX}audio_$audioId", default)
     }
 }
 
