@@ -64,6 +64,7 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 - **Local Audio**: Support for playing audio files from your phone
 - **Seamless Loop**: Audio supports seamless loop playback for an immersive experience
 - **Volume Control**: Support for independent volume adjustment for each sound, or one-click adjustment for all sounds
+- **Volume Persistence**: Volume settings are automatically saved and restored on app restart
 - **Bluetooth Headset Support**: Automatically pauses playback when Bluetooth headset disconnects
 
 ### 🎨 Interface & Experience
@@ -74,11 +75,12 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ### ⚙️ Practical Features
 - **Countdown Feature**: Set automatic stop playback time to help you control usage duration
-- **Quick Play Area**: Support for adding frequently used sounds to the quick play area for quick access
+- **Preset Area**: Support for adding frequently used sounds to preset area, supports up to 3 preset configurations for quick switching
 - **Favorites**: Favorite your preferred white noise sounds
 - **Recent Play**: Shows recent play dialog on app restart for quick resume
 - **Global Floating Button**: Displays currently playing sounds, supports quick pause and expand to view
-- **Auto Update**: Supports automatic update checking via GitHub Releases
+- **Smart Interaction**: Preset sheet and floating button are mutually exclusive; both auto-hide when scrolling
+- **Auto Update**: Supports silent update checking via GitHub Releases, update icon appears when new version available
 
 ## 🛠️ Tech Stack
 
@@ -96,10 +98,20 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.1.1
-- **Version Code**: 31
+- **Version**: 2.1.3
+- **Version Code**: 33
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
+
+## 🆕 Latest Updates
+
+### v2.1.3 (2025-01-01)
+- ✨ Added volume persistence feature - volume settings are saved and restored on app restart
+- ✨ Preset sheet and floating button mutual exclusion - only one can be expanded at a time
+- ✨ Added scroll detection to hide floating button in secondary pages (theme settings, favorites)
+- 🐛 Fixed preset sheet always starting collapsed on app launch
+- 🎨 Adjusted update icon badge position to top-right corner of icon
+- 🎨 Replaced favorite icon with custom drawable
 
 ## 🚀 Download
 
@@ -142,7 +154,7 @@ Latest version available on [GitHub Releases](https://github.com/Tosencen/XMSLEE
 ### Interface Operations
 4. **Switch Theme**: Tap theme switch button at top-left to switch between light and dark modes
 5. **Custom Settings**: Adjust theme colors, hide animations, etc. in settings page
-6. **Quick Play Area**: Tap sound card title, select "Pin" to add sound to quick play area
+6. **Preset Management**: Tap sound card title, select "Pin" to add sound to preset area; supports up to 3 preset configurations, swipe left/right to switch
 7. **Favorites**: Tap sound card title, select "Favorite" to add sound to favorites list
 
 ### Advanced Features
