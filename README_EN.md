@@ -98,20 +98,22 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.1.3
-- **Version Code**: 33
+- **Version**: 2.1.4
+- **Version Code**: 34
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 
 ## 🆕 Latest Updates
 
-### v2.1.3 (2025-01-01)
-- ✨ Added volume persistence feature - volume settings are saved and restored on app restart
-- ✨ Preset sheet and floating button mutual exclusion - only one can be expanded at a time
-- ✨ Added scroll detection to hide floating button in secondary pages (theme settings, favorites)
-- 🐛 Fixed preset sheet always starting collapsed on app launch
-- 🎨 Adjusted update icon badge position to top-right corner of icon
-- 🎨 Replaced favorite icon with custom drawable
+### v2.1.4 (2025-01-05)
+- 🎵 **New Audio**: Added 21 high-quality audio tracks
+  - Rain category: Added 11 rain sounds (rain on raincoat, rain on windowsill, rain on wooden house, rain while driving, rain on empty street, drizzle, rain on eaves, heavy rain on glass, etc.)
+  - Places category: Added kitchen cooking audio
+  - Noise category: Added study, eating chips, piano sounds
+- 🔄 **Pull to Refresh**: Added pull-to-refresh feature on StarSky home page for manual audio list refresh
+- 🎨 **UI Optimization**: Adjusted floating button transparency from 38% to 40% when collapsed
+- 🐛 **Cache Fix**: Added version check mechanism to automatically update audio manifest cache, ensuring all new audio is visible after upgrade
+- 📊 **Total Audio**: Increased from 88 to 109 audio tracks
 
 ## 🚀 Download
 
