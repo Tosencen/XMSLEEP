@@ -1,6 +1,6 @@
 {
-  "version": "1.0.0",
-  "description": "XMSLEEP audio manifest - Fixed remoteUrl formatting for ear-cleaning audios",
+  "version": "1.0.2",
+  "description": "XMSLEEP audio manifest - Fixed lake audio icon conflict",
   "categories": [
     {
       "id": "nature",
