@@ -119,6 +119,8 @@
     <string name="cache_auto_cleared">Cache exceeded 200M, automatically cleared</string>
     <string name="must_download_before_pin">Please download audio before adding to pinned sound area</string>
     <string name="auto_clear_failed">Auto clear failed: %1$s</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="cloud_audio">Cloud Audio</string>
     <string name="light_mode">Light</string>
     <string name="dark_mode">Dark</string>
     <string name="auto_mode">Auto</string>

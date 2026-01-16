@@ -138,6 +138,8 @@
     <string name="cache_auto_cleared">緩存已超過200M，自動清理完成</string>
     <string name="must_download_before_pin">請先下載音頻才能添加到固定聲音區域</string>
     <string name="auto_clear_failed">自動清理失敗: %1$s</string>
+    <string name="downloaded">已下載</string>
+    <string name="cloud_audio">雲端音頻</string>
     <string name="light_mode">淺色</string>
     <string name="dark_mode">深色</string>
     <string name="auto_mode">自動</string>

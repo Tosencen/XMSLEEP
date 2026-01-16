@@ -645,53 +645,12 @@ fun SoundsScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // 左侧：标题和深色模式切换按钮
-            Row(
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "XMSLEEP",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold
-                )
-                
-                Spacer(modifier = Modifier.width(12.dp))
-                
-                // 深色/浅色模式切换按钮
-                val isDarkMode = when (darkMode) {
-                    org.xmsleep.app.theme.DarkModeOption.LIGHT -> false
-                    org.xmsleep.app.theme.DarkModeOption.DARK -> true
-                    org.xmsleep.app.theme.DarkModeOption.AUTO -> isSystemInDarkTheme()
-                }
-                
-                Surface(
-                    onClick = {
-                        // 在浅色和深色之间切换（跳过AUTO）
-                        val newMode = if (isDarkMode) {
-                            org.xmsleep.app.theme.DarkModeOption.LIGHT
-                        } else {
-                            org.xmsleep.app.theme.DarkModeOption.DARK
-                        }
-                        onDarkModeChange(newMode)
-                    },
-                    shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
-                            contentDescription = if (isDarkMode) context.getString(R.string.switch_to_light_mode) else context.getString(R.string.switch_to_dark_mode),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    }
-                }
-            }
+            // 左侧：标题
+            Text(
+                text = "XMSLEEP",
+                style = MaterialTheme.typography.headlineLarge,
+                fontWeight = FontWeight.Bold
+            )
             
             // 右侧：更新图标和收藏按钮
             Row(

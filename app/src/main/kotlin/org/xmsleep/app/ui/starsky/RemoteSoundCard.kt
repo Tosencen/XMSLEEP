@@ -3,6 +3,7 @@ package org.xmsleep.app.ui.starsky
 import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -104,9 +105,9 @@ fun RemoteSoundCard(
     )
     
     val cardBackgroundColor = if (isCached) {
-        MaterialTheme.colorScheme.surfaceVariant
+        MaterialTheme.colorScheme.surfaceContainerHigh // 已下载使用较深的背景色，与未下载角标颜色一致
     } else {
-        MaterialTheme.colorScheme.surfaceContainerHighest
+        MaterialTheme.colorScheme.surfaceVariant // 未下载使用正常背景色
     }
     
     var showTitleMenu by remember { mutableStateOf(false) }
@@ -136,15 +137,7 @@ fun RemoteSoundCard(
             ),
         colors = CardDefaults.cardColors(
             containerColor = cardBackgroundColor
-        ),
-        border = if (!isCached) {
-            BorderStroke(
-                width = 2.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-            )
-        } else {
-            null
-        }
+        )
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             val padding = if (finalCardHeight == 80.dp) 12.dp else 16.dp
@@ -166,20 +159,11 @@ fun RemoteSoundCard(
                         text = displayName,
                         style = textStyle,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.alpha(alpha),
+                        modifier = Modifier
+                            .alpha(alpha)
+                            .padding(end = 32.dp), // 为右上角图标留出空间
                         maxLines = maxLines,
                         overflow = TextOverflow.Ellipsis
-                    )
-                }
-                
-                // 加载指示器
-                if (isDownloadingButNoProgress && (downloadProgress == null || downloadProgress == 0f)) {
-                    CircularProgressIndicator(
-                        modifier = Modifier
-                            .align(Alignment.TopEnd)
-                            .size(16.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.primary
                     )
                 }
                 
@@ -388,6 +372,71 @@ fun RemoteSoundCard(
                             contentDescription = context.getString(R.string.adjust_volume),
                             modifier = Modifier.size(24.dp),
                             tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+            
+            // 状态图标（右上角角标 - 在外层Box，完全贴合卡片边缘）
+            if (isDownloadingButNoProgress && (downloadProgress == null || downloadProgress == 0f)) {
+                // 加载指示器
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(24.dp)
+                        .background(
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            shape = RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 12.dp, // 跟随卡片的圆角
+                                bottomEnd = 0.dp,
+                                bottomStart = 12.dp
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(14.dp),
+                        strokeWidth = 1.5.dp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            } else if (downloadProgress != null && downloadProgress > 0f && downloadProgress < 1f) {
+                // 下载中，不显示图标（底部有进度条）
+            } else {
+                // 显示状态角标
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(24.dp)
+                        .background(
+                            color = if (isCached) {
+                                MaterialTheme.colorScheme.primaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.surfaceContainerHigh
+                            },
+                            shape = RoundedCornerShape(
+                                topStart = 0.dp,
+                                topEnd = 12.dp, // 跟随卡片的圆角
+                                bottomEnd = 0.dp,
+                                bottomStart = 12.dp
+                            )
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isCached) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = context.getString(R.string.downloaded),
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Default.CloudDownload,
+                            contentDescription = context.getString(R.string.cloud_audio),
+                            modifier = Modifier.size(14.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                         )
                     }
                 }

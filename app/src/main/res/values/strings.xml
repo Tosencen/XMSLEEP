@@ -138,6 +138,8 @@
     <string name="cache_auto_cleared">缓存已超过200M，自动清理完成</string>
     <string name="must_download_before_pin">请先下载音频才能添加到固定声音区域</string>
     <string name="auto_clear_failed">自动清理失败: %1$s</string>
+    <string name="downloaded">已下载</string>
+    <string name="cloud_audio">云端音频</string>
     <string name="light_mode">浅色</string>
     <string name="dark_mode">深色</string>
     <string name="auto_mode">自动</string>
