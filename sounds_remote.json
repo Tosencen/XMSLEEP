@@ -1,6 +1,6 @@
 {
-  "version": "1.0.2",
-  "description": "XMSLEEP audio manifest - Fixed lake audio icon conflict",
+  "version": "1.0.3",
+  "description": "XMSLEEP audio manifest - Fixed audio file paths and recompressed large files",
   "categories": [
     {
       "id": "nature",

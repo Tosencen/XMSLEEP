@@ -260,7 +260,6 @@ class AudioResourceManager private constructor(context: Context) {
      * 修复清单中不完整的音频数据
      */
     private fun fixManifestData(manifest: SoundsManifest): SoundsManifest {
-    private fun fixManifestData(manifest: SoundsManifest): SoundsManifest {
         val fixedSounds = manifest.sounds.map { sound ->
             sound.copy(
                 source = sound.source ?: (if (sound.remoteUrl != null) AudioSource.REMOTE else AudioSource.LOCAL),
