@@ -1339,6 +1339,7 @@
       "name": "掏耳朵1",
       "nameEn": "Ear Cleaning 1",
       "category": "things",
+      "source": "REMOTE",
       "remoteUrl": "https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/ear-cleaning-1.mp3",
       "loopStart": 0,
       "loopEnd": 0,
