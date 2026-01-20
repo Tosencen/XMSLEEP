@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths xmlns:android="http://schemas.android.com/apk/res/android">
-    <external-files-path name="downloads" path="." />
+    <!-- 缓存目录 -->
     <cache-path name="cache" path="." />
+    <!-- 分享目录 -->
+    <cache-path name="share" path="share/" />
+    <!-- 外部存储 -->
+    <external-path name="external" path="." />
+    <!-- 外部缓存 -->
+    <external-cache-path name="external_cache" path="." />
 </paths>

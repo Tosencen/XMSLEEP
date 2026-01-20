@@ -259,4 +259,20 @@
     <string name="tap_to_play">点击播放</string>
     <string name="refresh_success">刷新成功</string>
     <string name="refresh_failed">刷新失败</string>
+    
+    <!-- 一言一句功能 -->
+    <string name="daily_quote">一言一句</string>
+    <string name="daily_quote_description">查看历史名句记录</string>
+    <string name="quote_history">一言一句历史</string>
+    <string name="no_quote_history">暂无历史记录</string>
+    <string name="no_quote_history_hint">查看过的每日一言会显示在这里</string>
+    <string name="clear_history">清空历史</string>
+    <string name="clear_history_confirm">确定要清空所有历史记录吗？此操作不可恢复。</string>
+    <string name="clear">清空</string>
+    <string name="share">分享</string>
+    <string name="save_image">保存图片</string>
+    <string name="sharing">分享中...</string>
+    <string name="saving">保存中...</string>
+    <string name="loading_quote">正在获取名句...</string>
+    <string name="refresh_quote">换一句</string>
 </resources>

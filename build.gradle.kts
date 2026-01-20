@@ -10,5 +10,11 @@ plugins {
 allprojects {
     group = "org.xmsleep"
     version = "2.1.0"
+    
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+        kotlinOptions {
+            allWarningsAsErrors = false
+        }
+    }
 }
 

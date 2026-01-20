@@ -275,21 +275,19 @@ data class SoundItem(
 fun SoundsScreen(
     modifier: Modifier = Modifier,
     hideAnimation: Boolean = false,
-    darkMode: org.xmsleep.app.theme.DarkModeOption = org.xmsleep.app.theme.DarkModeOption.AUTO,
-    onDarkModeChange: (org.xmsleep.app.theme.DarkModeOption) -> Unit = {},
     columnsCount: Int = 2,
     onColumnsCountChange: (Int) -> Unit = {},
-    preset1Sounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
-    preset2Sounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
-    preset3Sounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
-    favoriteSounds: androidx.compose.runtime.MutableState<MutableSet<AudioManager.Sound>>,
-    activePreset: Int = 1, // 当前激活的预设 (1, 2, 3)
-    onActivePresetChange: (Int) -> Unit = {}, // 切换预设的回调
-    hasAnyPresetItems: Boolean = false, // 所有预设中是否有卡片（用于判断预设模块是否显示）
+    preset1Sounds: MutableState<MutableSet<AudioManager.Sound>>,
+    preset2Sounds: MutableState<MutableSet<AudioManager.Sound>>,
+    preset3Sounds: MutableState<MutableSet<AudioManager.Sound>>,
+    favoriteSounds: MutableState<MutableSet<AudioManager.Sound>>,
+    activePreset: Int = 1,
+    onActivePresetChange: (Int) -> Unit = {},
+    hasAnyPresetItems: Boolean = false,
     onNavigateToFavorite: () -> Unit = {},
-    onScrollDetected: () -> Unit = {}, // 滚动检测回调
-    onQuickPlayExpand: () -> Unit = {}, // 快捷播放展开时的回调（用于强制收缩悬浮播放按钮）
-    updateViewModel: UpdateViewModel? = null // 更新ViewModel
+    onScrollDetected: () -> Unit = {},
+    onQuickPlayExpand: () -> Unit = {},
+    updateViewModel: UpdateViewModel? = null
 ) {
     // 根据 activePreset 动态获取当前预设的 pinnedSounds
     val pinnedSounds = when (activePreset) {

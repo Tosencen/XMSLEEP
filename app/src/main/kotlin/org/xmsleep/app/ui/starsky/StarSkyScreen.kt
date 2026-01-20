@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.ViewAgenda
 import androidx.compose.material3.*
@@ -109,6 +110,11 @@ fun StarSkyScreen(
     var remotePinned by remember(activePreset) { 
         mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getPresetRemotePinned(context, activePreset).toMutableSet()) 
     }
+    
+    // 每日一言状态
+    var showDailyQuoteDialog by remember { mutableStateOf(false) }
+    var dailyQuote by remember { mutableStateOf<org.xmsleep.app.quote.Quote?>(null) }
+    var isLoadingQuote by remember { mutableStateOf(false) }
     
     // 下拉刷新状态
     var isRefreshing by remember { mutableStateOf(false) }
@@ -377,6 +383,35 @@ fun StarSkyScreen(
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                // 每日一言按钮
+                IconButton(
+                    onClick = {
+                        // 立即显示弹窗
+                        showDailyQuoteDialog = true
+                        isLoadingQuote = true
+                        dailyQuote = null
+                        
+                        // 异步加载名句
+                        scope.launch {
+                            try {
+                                val quoteManager = org.xmsleep.app.quote.QuoteManager.getInstance(context)
+                                dailyQuote = quoteManager.getTodayQuote()
+                            } catch (e: Exception) {
+                                Toast.makeText(context, "加载名句失败", Toast.LENGTH_SHORT).show()
+                                showDailyQuoteDialog = false
+                            } finally {
+                                isLoadingQuote = false
+                            }
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.AutoAwesome,
+                        contentDescription = "每日一言",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
+                
                 // 文件夹图标（本地音频）
                 IconButton(
                     onClick = onNavigateToLocalAudio
@@ -1054,6 +1089,30 @@ fun StarSkyScreen(
                         Text(context.getString(R.string.cancel))
                     }
                 }
+            )
+        }
+        
+        // 每日一言对话框
+        if (showDailyQuoteDialog) {
+            org.xmsleep.app.quote.DailyQuoteDialog(
+                quote = dailyQuote,
+                onDismiss = { showDailyQuoteDialog = false },
+                onRefresh = {
+                    // 刷新名句
+                    isLoadingQuote = true
+                    dailyQuote = null
+                    scope.launch {
+                        try {
+                            val quoteManager = org.xmsleep.app.quote.QuoteManager.getInstance(context)
+                            dailyQuote = quoteManager.getTodayQuote()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "加载名句失败", Toast.LENGTH_SHORT).show()
+                        } finally {
+                            isLoadingQuote = false
+                        }
+                    }
+                },
+                isLoading = isLoadingQuote
             )
         }
         

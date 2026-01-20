@@ -49,6 +49,7 @@ fun SettingsScreen(
     onLanguageChange: (LanguageManager.Language) -> Unit,
     onNavigateToTheme: () -> Unit,
     onNavigateToSounds: () -> Unit = {},
+    onNavigateToQuoteHistory: () -> Unit = {},
     pinnedSounds: MutableState<MutableSet<AudioManager.Sound>>,
     favoriteSounds: MutableState<MutableSet<AudioManager.Sound>>,
     onScrollDetected: () -> Unit = {}
@@ -430,6 +431,46 @@ fun SettingsScreen(
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.primary
         )
+        
+        // 每日一言历史
+        Card(
+            onClick = onNavigateToQuoteHistory,
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            )
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        Icons.Default.FormatQuote,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Column {
+                        Text(context.getString(R.string.daily_quote), style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            context.getString(R.string.daily_quote_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Icon(
+                    Icons.Default.ChevronRight,
+                    contentDescription = null
+                )
+            }
+        }
         
         // 软件更新
         Card(

@@ -234,6 +234,22 @@
     <string name="removed_from_favorite">已取消收藏</string>
     <string name="scanning_local_audio">正在掃描本地音頻文件...</string>
     
+    <!-- 一言一句功能 -->
+    <string name="daily_quote">一言一句</string>
+    <string name="daily_quote_description">查看歷史名句記錄</string>
+    <string name="quote_history">一言一句歷史</string>
+    <string name="no_quote_history">暫無歷史記錄</string>
+    <string name="no_quote_history_hint">查看過的每日一言會顯示在這裡</string>
+    <string name="clear_history">清空歷史</string>
+    <string name="clear_history_confirm">確定要清空所有歷史記錄嗎？此操作不可恢復。</string>
+    <string name="clear">清空</string>
+    <string name="share">分享</string>
+    <string name="save_image">保存圖片</string>
+    <string name="sharing">分享中...</string>
+    <string name="saving">保存中...</string>
+    <string name="loading_quote">正在獲取名句...</string>
+    <string name="refresh_quote">換一句</string>
+    
     <!-- 最近播放 -->
     <string name="recent_play">最近播放</string>
     <string name="tap_to_play">點擊播放</string>

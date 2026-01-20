@@ -236,6 +236,22 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="removed_from_favorite">Removed from favorites</string>
     <string name="scanning_local_audio">Scanning local audio files...</string>
     
+    <!-- Daily Quote Feature -->
+    <string name="daily_quote">Daily Quote</string>
+    <string name="daily_quote_description">View quote history</string>
+    <string name="quote_history">Quote History</string>
+    <string name="no_quote_history">No History</string>
+    <string name="no_quote_history_hint">Viewed quotes will appear here</string>
+    <string name="clear_history">Clear History</string>
+    <string name="clear_history_confirm">Are you sure you want to clear all history? This action cannot be undone.</string>
+    <string name="clear">Clear</string>
+    <string name="share">Share</string>
+    <string name="save_image">Save Image</string>
+    <string name="sharing">Sharing...</string>
+    <string name="saving">Saving...</string>
+    <string name="loading_quote">Loading quote...</string>
+    <string name="refresh_quote">Refresh</string>
+    
     <!-- Recent Play -->
     <string name="recent_play">Recent Play</string>
     <string name="tap_to_play">Tap to Play</string>

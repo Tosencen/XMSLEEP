@@ -376,7 +376,7 @@ fun MainScreen(
     // 监听当前路由，判断是否在二级页面
     val currentBackStackEntry by navigator.navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    val isInSecondaryPage = currentRoute in listOf("theme", "favorite", "local_audio")
+    val isInSecondaryPage = currentRoute in listOf("theme", "favorite", "local_audio", "quoteHistory")
     val isMainRoute = !isInSecondaryPage  // 主页面 = 不在二级页面
     
     // 使用ProvideNavigator提供导航器给子组件
@@ -488,8 +488,6 @@ fun MainScreen(
                                     .fillMaxSize()
                                     .padding(paddingValues),
                                 hideAnimation = hideAnimation,
-                                darkMode = darkMode,
-                                onDarkModeChange = onDarkModeChange,
                                 columnsCount = soundCardsColumnsCount,
                                 onColumnsCountChange = onSoundCardsColumnsCountChange,
                                 preset1Sounds = preset1Sounds,
@@ -578,6 +576,9 @@ fun MainScreen(
                                 onNavigateToSounds = {
                                     // 不再需要导航到声音页面，因为已经是独立tab
                                 },
+                                onNavigateToQuoteHistory = {
+                                    navigator.navigateToQuoteHistory()
+                                },
                                 pinnedSounds = pinnedSounds,
                                 favoriteSounds = favoriteSounds
                             )
@@ -662,6 +663,12 @@ fun MainScreen(
             composable("local_audio") {
                 org.xmsleep.app.ui.LocalAudioScreen(
                     modifier = Modifier.fillMaxSize(),
+                    onBack = { navigator.popBackStack() }
+                )
+            }
+            
+            composable("quoteHistory") {
+                org.xmsleep.app.quote.QuoteHistoryScreen(
                     onBack = { navigator.popBackStack() }
                 )
             }

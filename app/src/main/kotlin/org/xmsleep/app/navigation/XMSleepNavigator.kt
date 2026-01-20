@@ -22,6 +22,13 @@ interface XMSleepNavigator {
     }
     
     /**
+     * 导航到每日一言历史页面
+     */
+    fun navigateToQuoteHistory() {
+        navController.navigate("quoteHistory")
+    }
+    
+    /**
      * 导航到收藏页面
      */
     fun navigateToFavorite() {
