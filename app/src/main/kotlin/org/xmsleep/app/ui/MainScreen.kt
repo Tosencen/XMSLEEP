@@ -405,6 +405,14 @@ fun MainScreen(
     // 使用ProvideNavigator提供导航器给子组件
     ProvideNavigator(navigator) {
         Box(modifier = Modifier.fillMaxSize()) {
+            // 最底层：动画背景（如果用户选择了背景）
+            if (!hideAnimation) {
+                org.xmsleep.app.ui.components.AnimatedBackground(
+                    backgroundSelection = backgroundSelection,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+            
             // 内容层 - 应用haze捕获内容用于模糊
             Box(
                 modifier = Modifier
