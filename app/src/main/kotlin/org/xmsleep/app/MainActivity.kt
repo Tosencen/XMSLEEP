@@ -49,6 +49,9 @@ class MainActivity : ComponentActivity() {
         
         super.onCreate(savedInstanceState)
         
+        // 初始化日志框架
+        Logger.init()
+        
         // 初始化全局异常处理器
         CrashHandler.init(this)
         
@@ -91,7 +94,7 @@ class MainActivity : ComponentActivity() {
             val audioManager = org.xmsleep.app.audio.AudioManager.getInstance()
             audioManager.saveRecentPlayingSounds()
         } catch (e: Exception) {
-            android.util.Log.e("MainActivity", "保存最近播放记录失败: ${e.message}")
+            Logger.e("MainActivity", "保存最近播放记录失败: ${e.message}")
         }
     }
 }
@@ -181,21 +184,21 @@ fun XMSLEEPApp() {
     val backgroundThemeColors = remember {
         val colors = mutableMapOf<BackgroundSelection, Color>()
         
-        android.util.Log.d("MainActivity", "=== 开始提取背景主题色 ===")
+        Logger.d("MainActivity", "=== 开始提取背景主题色 ===")
         
         // 直接使用预定义的主题色（不再从缩略图提取）
-        BackgroundSelection.values().forEach { bg ->
-            android.util.Log.d("MainActivity", "检查背景: ${bg.name}, themeColor=${bg.themeColor}")
+        BackgroundSelection.entries.forEach { bg ->
+            Logger.d("MainActivity", "检查背景: ${bg.name}, themeColor=${bg.themeColor}")
             if (bg != BackgroundSelection.None && bg.themeColor != null) {
                 colors[bg] = bg.themeColor
                 val colorValue = bg.themeColor.value
                 val colorHex = colorValue.toString(16).padStart(16, '0').substring(8).uppercase()
-                android.util.Log.d("MainActivity", "✓ 背景 ${bg.name}: value=$colorValue, hex=#$colorHex, color=${bg.themeColor}")
+                Logger.d("MainActivity", "✓ 背景 ${bg.name}: value=$colorValue, hex=#$colorHex, color=${bg.themeColor}")
             }
         }
         
-        android.util.Log.d("MainActivity", "=== 背景主题色提取完成，共提取 ${colors.size} 个颜色 ===")
-        android.util.Log.d("MainActivity", "Map内容: $colors")
+        Logger.d("MainActivity", "=== 背景主题色提取完成，共提取 ${colors.size} 个颜色 ===")
+        Logger.d("MainActivity", "Map内容: $colors")
         colors.toMap()
     }
     
@@ -230,11 +233,11 @@ fun XMSLEEPApp() {
     LaunchedEffect(selectedColor, backgroundSelection, useDynamicColor) {
         val colorHex = selectedColor.value.toString(16).padStart(16, '0').substring(8).uppercase()
         val isDefault = selectedColor == DefaultThemeColor
-        android.util.Log.d("MainActivity", "=== 当前主题状态 ===")
-        android.util.Log.d("MainActivity", "主题色: #$colorHex (是否默认: $isDefault)")
-        android.util.Log.d("MainActivity", "背景选择: $backgroundSelection")
-        android.util.Log.d("MainActivity", "动态颜色: $useDynamicColor")
-        android.util.Log.d("MainActivity", "实际使用: ${if (isDefault && useDynamicColor) "系统动态颜色" else "自定义主题色"}")
+        Logger.d("MainActivity", "=== 当前主题状态 ===")
+        Logger.d("MainActivity", "主题色: #$colorHex (是否默认: $isDefault)")
+        Logger.d("MainActivity", "背景选择: $backgroundSelection")
+        Logger.d("MainActivity", "动态颜色: $useDynamicColor")
+        Logger.d("MainActivity", "实际使用: ${if (isDefault && useDynamicColor) "系统动态颜色" else "自定义主题色"}")
     }
     var soundCardsColumnsCount by remember { 
         mutableIntStateOf(org.xmsleep.app.preferences.PreferencesManager.getSoundCardsColumnsCount(context))
@@ -282,13 +285,13 @@ fun XMSLEEPApp() {
                     },
                     onColorChange = { 
                         val colorHex = it.value.toString(16).padStart(8, '0').takeLast(6).uppercase()
-                        android.util.Log.d("MainActivity", "用户选择调色板颜色: #$colorHex")
+                        Logger.d("MainActivity", "用户选择调色板颜色: #$colorHex")
                         selectedColor = it
                         org.xmsleep.app.preferences.PreferencesManager.saveSelectedColor(context, it)
                         
                         // 用户手动选择调色板颜色时，自动切换到"无背景"
                         if (backgroundSelection != BackgroundSelection.None) {
-                            android.util.Log.d("MainActivity", "自动切换到无背景")
+                            Logger.d("MainActivity", "自动切换到无背景")
                             backgroundSelection = BackgroundSelection.None
                             org.xmsleep.app.preferences.PreferencesManager.saveBackgroundSelection(context, BackgroundSelection.None)
                         }
@@ -306,9 +309,9 @@ fun XMSLEEPApp() {
                         org.xmsleep.app.preferences.PreferencesManager.saveHideAnimation(context, it)
                     },
                     onBackgroundSelectionChange = { newBackground ->
-                        android.util.Log.d("MainActivity", "=== 背景切换开始 ===")
-                        android.util.Log.d("MainActivity", "从: $backgroundSelection")
-                        android.util.Log.d("MainActivity", "到: $newBackground")
+                        Logger.d("MainActivity", "=== 背景切换开始 ===")
+                        Logger.d("MainActivity", "从: $backgroundSelection")
+                        Logger.d("MainActivity", "到: $newBackground")
                         
                         // 先更新主题色，再更新背景选择，确保主题色先生效
                         if (newBackground == BackgroundSelection.None) {
@@ -317,7 +320,7 @@ fun XMSLEEPApp() {
                             selectedColor = savedColor
                             
                             val colorHex = savedColor.value.toString(16).padStart(16, '0').substring(8).uppercase()
-                            android.util.Log.d("MainActivity", "恢复调色板颜色: #$colorHex")
+                            Logger.d("MainActivity", "恢复调色板颜色: #$colorHex")
                         } else {
                             // 应用背景的主题色
                             val themeColor = backgroundThemeColors[newBackground]
@@ -327,12 +330,12 @@ fun XMSLEEPApp() {
                                 
                                 val colorHex = themeColor.value.toString(16).padStart(16, '0').substring(8).uppercase()
                                 val isDefault = themeColor == DefaultThemeColor
-                                android.util.Log.d("MainActivity", "应用背景主题色: #$colorHex (是否默认: $isDefault)")
-                                android.util.Log.d("MainActivity", "当前 useDynamicColor: $useDynamicColor")
-                                android.util.Log.d("MainActivity", "将使用: ${if (isDefault && useDynamicColor) "系统动态颜色" else "背景主题色"}")
+                                Logger.d("MainActivity", "应用背景主题色: #$colorHex (是否默认: $isDefault)")
+                                Logger.d("MainActivity", "当前 useDynamicColor: $useDynamicColor")
+                                Logger.d("MainActivity", "将使用: ${if (isDefault && useDynamicColor) "系统动态颜色" else "背景主题色"}")
                             } else {
-                                android.util.Log.e("MainActivity", "✗ 未找到背景主题色: $newBackground")
-                                android.util.Log.d("MainActivity", "可用的背景主题色: ${backgroundThemeColors.keys}")
+                                Logger.e("MainActivity", "✗ 未找到背景主题色: $newBackground")
+                                Logger.d("MainActivity", "可用的背景主题色: ${backgroundThemeColors.keys}")
                             }
                         }
                         
@@ -340,7 +343,7 @@ fun XMSLEEPApp() {
                         backgroundSelection = newBackground
                         org.xmsleep.app.preferences.PreferencesManager.saveBackgroundSelection(context, newBackground)
                         
-                        android.util.Log.d("MainActivity", "=== 背景切换结束 ===")
+                        Logger.d("MainActivity", "=== 背景切换结束 ===")
                     },
                     onSoundCardsColumnsCountChange = { 
                         soundCardsColumnsCount = it

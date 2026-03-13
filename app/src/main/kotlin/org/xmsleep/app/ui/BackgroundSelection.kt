@@ -3,6 +3,7 @@ package org.xmsleep.app.ui
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import org.xmsleep.app.R
+import org.xmsleep.app.utils.Logger
 
 /**
  * 背景选择枚举
@@ -61,7 +62,7 @@ enum class BackgroundSelection(
             return try {
                 values().find { it.value == value } ?: None
             } catch (e: Exception) {
-                android.util.Log.e("BackgroundSelection", "Failed to parse value: $value", e)
+                Logger.e("BackgroundSelection", "Failed to parse value: $value", e)
                 None
             }
         }
@@ -96,7 +97,7 @@ enum class BackgroundSelection(
             context.resources.getDrawable(resourceId!!, null)
             true
         } catch (e: Exception) {
-            android.util.Log.e("BackgroundSelection", "Failed to load resource: $resourceId", e)
+            Logger.e("BackgroundSelection", "Failed to load resource: $resourceId", e)
             false
         }
     }

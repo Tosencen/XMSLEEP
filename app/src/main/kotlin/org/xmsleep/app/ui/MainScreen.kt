@@ -37,7 +37,9 @@ import org.xmsleep.app.theme.DarkModeOption
 import org.xmsleep.app.ui.settings.SettingsScreen
 import org.xmsleep.app.ui.settings.ThemeSettingsScreen
 import org.xmsleep.app.ui.starsky.StarSkyScreen
+import org.xmsleep.app.ui.breathing.BreathingScreen
 import org.xmsleep.app.update.UpdateDialog
+import org.xmsleep.app.utils.Logger
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.graphicsLayer
@@ -55,6 +57,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import org.xmsleep.app.weather.WeatherSoundMapper
 
 /**
  * 主屏幕 - 包含底部导航和页面切换
@@ -87,6 +90,17 @@ fun MainScreen(
     var selectedItem by remember { mutableIntStateOf(1) }
     val context = androidx.compose.ui.platform.LocalContext.current
     val isDarkTheme = isSystemInDarkTheme()
+    
+    // 获取 Activity - 使用 LifecycleOwner
+    // 注意：复用下面的 lifecycleOwner 变量
+    var mainActivity by remember { mutableStateOf<android.app.Activity?>(null) }
+    
+    // lifecycleOwner 在下面声明，这里直接使用
+    val lifecycleOwnerForActivity = LocalLifecycleOwner.current
+    
+    LaunchedEffect(lifecycleOwnerForActivity) {
+        mainActivity = lifecycleOwnerForActivity as? android.app.Activity
+    }
     
     // Haze状态用于毛玻璃效果
     val hazeState = remember { HazeState() }
@@ -169,17 +183,17 @@ fun MainScreen(
                 context.packageManager.getPackageInfo(context.packageName, 0)
             }
             val version = packageInfo?.versionName ?: "0.0.0"
-            android.util.Log.d("UpdateCheck", "读取到的版本号: $version")
+            Logger.d("UpdateCheck", "读取到的版本号: $version")
             version
         } catch (e: Exception) {
-            android.util.Log.e("UpdateCheck", "读取版本号失败，使用默认值", e)
+            Logger.e("UpdateCheck", "读取版本号失败，使用默认值", e)
             "0.0.0" // 使用最低版本号作为默认值，确保能检测到更新
         }
     }
     
     // 每次进入主页时静默检查更新（不自动弹窗）
     LaunchedEffect(Unit) {
-        android.util.Log.d("UpdateCheck", "开始后台静默检查更新，当前版本: $currentVersion")
+        Logger.d("UpdateCheck", "开始后台静默检查更新，当前版本: $currentVersion")
         // 静默检查更新，不弹窗，只更新状态和显示图标
         updateViewModel.startAutomaticCheckLatestVersion(currentVersion)
     }
@@ -190,11 +204,11 @@ fun MainScreen(
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                android.util.Log.d("UpdateCheck", "Activity resumed, 检查更新和待安装文件")
+                Logger.d("UpdateCheck", "Activity resumed, 检查更新和待安装文件")
                 
                 // 先检查是否有待安装的文件且权限已授予
                 if (updateViewModel.checkPendingInstall()) {
-                    android.util.Log.d("UpdateCheck", "检测到待安装文件且权限已授予")
+                    Logger.d("UpdateCheck", "检测到待安装文件且权限已授予")
                     // 在协程中延迟一小段时间确保UI已准备好
                     scope.launch {
                         delay(500)
@@ -216,6 +230,20 @@ fun MainScreen(
     // 当前激活的预设（1, 2, 3）
     var activePreset by remember { 
         mutableIntStateOf(org.xmsleep.app.preferences.PreferencesManager.getActivePreset(context))
+    }
+    
+    // 天气推荐是否开启
+    var weatherEnabled by remember { mutableStateOf(WeatherSoundMapper.isEnabled(context)) }
+    
+    // 定期检查天气开关状态
+    LaunchedEffect(Unit) {
+        while (true) {
+            val enabled = WeatherSoundMapper.isEnabled(context)
+            if (enabled != weatherEnabled) {
+                weatherEnabled = enabled
+            }
+            delay(1000)
+        }
     }
     
     // 3个预设的固定声音列表
@@ -313,11 +341,11 @@ fun MainScreen(
                 
                 if (isPlaying) {
                     // 有音频播放，启动服务
-                    android.util.Log.d("MainScreen", "检测到音频播放，启动MusicService")
+                    Logger.d("MainScreen", "检测到音频播放，启动MusicService")
                     audioManager.startMusicService(context)
                 } else {
                     // 所有音频已停止
-                    android.util.Log.d("MainScreen", "所有音频已停止")
+                    Logger.d("MainScreen", "所有音频已停止")
                 }
             }
             delay(1000) // 每秒检查一次
@@ -327,7 +355,7 @@ fun MainScreen(
     // 应用退出时清理服务
     DisposableEffect(Unit) {
         onDispose {
-            android.util.Log.d("MainScreen", "MainScreen onDispose")
+            Logger.d("MainScreen", "MainScreen onDispose")
             // 如果没有播放中的声音，停止服务
             if (!audioManager.hasAnyPlayingSounds()) {
                 audioManager.stopMusicService(context)
@@ -348,7 +376,7 @@ fun MainScreen(
         // 如果读取到的数据与当前数据不一致，说明应用被关闭后重新打开，需要同步
         if (savedFavorites.isNotEmpty() && favoriteSounds.value.isEmpty()) {
             favoriteSounds.value = savedFavorites
-            android.util.Log.d("MainScreen", "从SharedPreferences恢复收藏数据: ${savedFavorites.size}个")
+            Logger.d("MainScreen", "从SharedPreferences恢复收藏数据: ${savedFavorites.size}个")
         }
         
         onDispose { /* 不需要清理 */ }
@@ -368,7 +396,7 @@ fun MainScreen(
     
     // 添加调试日志跟踪预设模块显示状态
     LaunchedEffect(defaultAreaHasSounds) {
-        android.util.Log.d("MainScreen", "预设模块显示状态变化: $defaultAreaHasSounds, 本地预设1=${preset1Sounds.value.size}, 预设2=${preset2Sounds.value.size}, 预设3=${preset3Sounds.value.size}, 远程固定=${allRemotePinned.size}")
+        Logger.d("MainScreen", "预设模块显示状态变化: $defaultAreaHasSounds, 本地预设1=${preset1Sounds.value.size}, 预设2=${preset2Sounds.value.size}, 预设3=${preset3Sounds.value.size}, 远程固定=${allRemotePinned.size}")
     }
     
     // 实时监听所有预设的远程音频固定状态变化
@@ -381,7 +409,7 @@ fun MainScreen(
             val newAllRemotePinned = newPreset1RemotePinned + newPreset2RemotePinned + newPreset3RemotePinned
             
             if (newAllRemotePinned != allRemotePinned) {
-                android.util.Log.d("MainScreen", "所有预设远程音频固定状态变化: ${allRemotePinned.size} -> ${newAllRemotePinned.size}")
+                Logger.d("MainScreen", "所有预设远程音频固定状态变化: ${allRemotePinned.size} -> ${newAllRemotePinned.size}")
                 preset1RemotePinned = newPreset1RemotePinned
                 preset2RemotePinned = newPreset2RemotePinned
                 preset3RemotePinned = newPreset3RemotePinned
@@ -456,15 +484,17 @@ fun MainScreen(
                                         // 向右滑动
                                         accumulatedDrag > threshold -> {
                                             when (selectedItem) {
-                                                2 -> selectedItem = 1  // 从星空到白噪音
-                                                3 -> selectedItem = 2  // 从设置到星空
+                                                2 -> selectedItem = 1  // 从繁星到白噪音
+                                                4 -> selectedItem = 2  // 从呼吸到繁星
+                                                3 -> selectedItem = 4  // 从设置到呼吸
                                             }
                                         }
                                         // 向左滑动
                                         accumulatedDrag < -threshold -> {
                                             when (selectedItem) {
-                                                1 -> selectedItem = 2  // 从白噪音到星空
-                                                2 -> selectedItem = 3  // 从星空到设置
+                                                1 -> selectedItem = 2  // 从白噪音到繁星
+                                                2 -> selectedItem = 4  // 从繁星到呼吸
+                                                4 -> selectedItem = 3  // 从呼吸到设置
                                             }
                                         }
                                     }
@@ -476,7 +506,14 @@ fun MainScreen(
                         },
                     transitionSpec = {
                         // 改进的过渡动画：使用滑动和淡入淡出效果
-                        val direction = if (targetState > initialState) 1 else -1
+                        // 切换到设置页 (tab 3) 时从右往左，其他情况保持原有逻辑
+                        val direction = if (targetState == 3 && initialState != 3) {
+                            1 // 切换到设置页时，新页面从右边进入
+                        } else if (initialState == 3 && targetState != 3) {
+                            -1 // 从设置页切出时，旧页面向右退出
+                        } else {
+                            if (targetState > initialState) 1 else -1
+                        }
                         slideInHorizontally(
                             initialOffsetX = { fullWidth -> fullWidth * direction },
                             animationSpec = tween(300, easing = FastOutSlowInEasing)
@@ -566,6 +603,15 @@ fun MainScreen(
                                         showPermissionDialog = true
                                     }
                                 }
+                            )
+                        }
+                        4 -> {
+                            // 呼吸页面
+                            BreathingScreen(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(paddingValues),
+                                activity = mainActivity
                             )
                         }
                         3 -> {
@@ -756,15 +802,23 @@ fun MainScreen(
                             selected = selectedItem == 1,
                             onClick = { selectedItem = 1 },
                             icon = Icons.Default.LocalFlorist,
-                            label = context.getString(R.string.white_noise)
+                            label = context.getString(R.string.tab_white_noise) // 显示文字
                         )
                         
-                        // 星空 Tab
+                        // 繁星 Tab
                         NavigationBarItem(
                             selected = selectedItem == 2,
                             onClick = { selectedItem = 2 },
                             icon = Icons.Default.Satellite,
-                            label = context.getString(R.string.star_sky)
+                            label = context.getString(R.string.tab_starsky) // 显示文字
+                        )
+                        
+                        // 呼吸 Tab
+                        NavigationBarItem(
+                            selected = selectedItem == 4,
+                            onClick = { selectedItem = 4 },
+                            icon = Icons.Default.SelfImprovement,
+                            label = context.getString(R.string.tab_breathing) // 显示文字
                         )
                         
                         // 设置 Tab
@@ -772,7 +826,7 @@ fun MainScreen(
                             selected = selectedItem == 3,
                             onClick = { selectedItem = 3 },
                             icon = Icons.Default.Settings,
-                            label = context.getString(R.string.settings)
+                            label = context.getString(R.string.tab_settings) // 显示文字
                         )
                     }
                 }
@@ -786,6 +840,7 @@ fun MainScreen(
             shouldCollapse = shouldCollapseFloatingButton, // 传递收缩标志
             activePreset = activePreset,
             forceCollapse = forceCollapseFloatingButton, // 传递强制收缩标志
+            weatherEnabled = weatherEnabled, // 天气推荐是否开启
             onExpandStateChange = { isExpanded ->
                 // 当悬浮按钮展开时，收缩底部预设弹窗
                 if (isExpanded) {
@@ -899,13 +954,13 @@ fun MainScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            android.util.Log.d("MainScreen", "点击授予权限按钮")
+                            Logger.d("MainScreen", "点击授予权限按钮")
                             showPermissionDialog = false
                             // 使用从 MainActivity 传递的 audioPermissionLauncher 请求权限
                             audioPermissionLauncher.launch(requiredPermission)
                             permissionGrantedPending = true
                             onAudioPermissionGranted()
-                            android.util.Log.d("MainScreen", "权限请求已发送: $requiredPermission")
+                            Logger.d("MainScreen", "权限请求已发送: $requiredPermission")
                         }
                     ) {
                         Text(context.getString(R.string.request_permission))
@@ -929,7 +984,7 @@ private fun NavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
+    label: String?, // 改为可空类型
     modifier: Modifier = Modifier
 ) {
     val iconColor = if (selected) {
@@ -965,11 +1020,15 @@ private fun NavigationBarItem(
             modifier = Modifier.size(24.dp),
             tint = iconColor
         )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = iconColor
-        )
+        
+        // 只在 label 不为空时显示文字
+        if (label != null) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall,
+                color = iconColor
+            )
+        }
     }
 }

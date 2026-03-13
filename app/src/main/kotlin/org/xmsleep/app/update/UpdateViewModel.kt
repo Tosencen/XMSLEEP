@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.xmsleep.app.utils.Logger
 import java.io.File
 import java.io.IOException
 
@@ -30,7 +31,7 @@ class UpdateViewModel(private val context: Context) {
         val token = tokenField.get(null) as? String
         if (token.isNullOrBlank()) null else token
     } catch (e: Exception) {
-        android.util.Log.d("UpdateCheck", "无法读取GITHUB_TOKEN，使用未认证请求")
+        Logger.d("UpdateCheck", "无法读取GITHUB_TOKEN，使用未认证请求")
         null
     }
     
@@ -61,10 +62,10 @@ class UpdateViewModel(private val context: Context) {
         val timeSinceLastCheck = currentTime - lastCheckTime
         // 1小时内只检查一次
         if (lastCheckTime > 0 && timeSinceLastCheck < 1000 * 60 * 60 * 1) {
-            android.util.Log.d("UpdateCheck", "距离上次检查仅 ${timeSinceLastCheck / 1000 / 60} 分钟，跳过本次检查")
+            Logger.d("UpdateCheck", "距离上次检查仅 ${timeSinceLastCheck / 1000 / 60} 分钟，跳过本次检查")
             return
         }
-        android.util.Log.d("UpdateCheck", "开始检查更新，当前版本: $currentVersion")
+        Logger.d("UpdateCheck", "开始检查更新，当前版本: $currentVersion")
         checkUpdate(currentVersion)
     }
     
@@ -76,13 +77,13 @@ class UpdateViewModel(private val context: Context) {
         scope.launch {
             _updateState.value = UpdateState.Checking
             lastCheckTime = System.currentTimeMillis()
-            android.util.Log.d("UpdateCheck", "开始调用UpdateChecker.checkLatestVersion，当前版本: $currentVersion")
+            Logger.d("UpdateCheck", "开始调用UpdateChecker.checkLatestVersion，当前版本: $currentVersion")
             try {
                 val newVersion = withContext(Dispatchers.IO) {
                     updateChecker.checkLatestVersion(currentVersion)
                 }
                 
-                android.util.Log.d("UpdateCheck", "UpdateChecker返回结果: ${if (newVersion != null) "有新版本 ${newVersion.version}" else "无新版本"}")
+                Logger.d("UpdateCheck", "UpdateChecker返回结果: ${if (newVersion != null) "有新版本 ${newVersion.version}" else "无新版本"}")
                 
                 if (newVersion != null) {
                     _latestVersion = newVersion
@@ -91,31 +92,31 @@ class UpdateViewModel(private val context: Context) {
                     val downloadedFile = getDownloadedApkFile(newVersion.version)
                     if (downloadedFile != null && downloadedFile.exists() && isValidApk(downloadedFile)) {
                         // 已下载且文件有效，直接进入已下载状态
-                        android.util.Log.d("UpdateCheck", "检测到已下载的APK文件: ${downloadedFile.path}")
+                        Logger.d("UpdateCheck", "检测到已下载的APK文件: ${downloadedFile.path}")
                         _updateState.value = UpdateState.Downloaded(downloadedFile)
                     } else {
                         // 未下载或文件无效，清理旧文件
                         if (downloadedFile != null && downloadedFile.exists()) {
                             downloadedFile.delete()
-                            android.util.Log.d("UpdateCheck", "删除无效的APK文件")
+                            Logger.d("UpdateCheck", "删除无效的APK文件")
                         }
                         clearDownloadState()
                         _updateState.value = UpdateState.HasUpdate(newVersion)
                     }
                     
-                    android.util.Log.d("UpdateCheck", "已设置更新状态")
+                    Logger.d("UpdateCheck", "已设置更新状态")
                 } else {
                     _updateState.value = UpdateState.UpToDate
-                    android.util.Log.d("UpdateCheck", "已设置更新状态为UpToDate")
+                    Logger.d("UpdateCheck", "已设置更新状态为UpToDate")
                 }
             } catch (e: IOException) {
                 // 网络错误或 rate limit 错误
                 val errorMsg = e.message ?: "网络连接失败，请检查网络后重试"
-                android.util.Log.e("UpdateCheck", "检查更新失败 (IOException): $errorMsg", e)
+                Logger.e("UpdateCheck", "检查更新失败 (IOException): $errorMsg", e)
                 _updateState.value = UpdateState.CheckFailed(errorMsg)
             } catch (e: Exception) {
                 val errorMsg = e.message ?: "检查更新失败"
-                android.util.Log.e("UpdateCheck", "检查更新失败 (Exception): $errorMsg", e)
+                Logger.e("UpdateCheck", "检查更新失败 (Exception): $errorMsg", e)
                 _updateState.value = UpdateState.CheckFailed(errorMsg)
             }
         }
@@ -153,7 +154,7 @@ class UpdateViewModel(private val context: Context) {
             .putString("downloaded_version", version)
             .putString("downloaded_path", filePath)
             .apply()
-        android.util.Log.d("UpdateCheck", "保存下载状态: version=$version, path=$filePath")
+        Logger.d("UpdateCheck", "保存下载状态: version=$version, path=$filePath")
     }
     
     /**
@@ -164,7 +165,7 @@ class UpdateViewModel(private val context: Context) {
             .remove("downloaded_version")
             .remove("downloaded_path")
             .apply()
-        android.util.Log.d("UpdateCheck", "清除下载状态")
+        Logger.d("UpdateCheck", "清除下载状态")
     }
     
     /**

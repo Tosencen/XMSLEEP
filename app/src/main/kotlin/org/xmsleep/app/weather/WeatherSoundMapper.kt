@@ -24,29 +24,70 @@ object WeatherSoundMapper {
 
     fun getDefaultMappings(): List<SoundMapping> {
         return listOf(
+            // 晴天：厨房烹饪、风铃、轻钢琴
             SoundMapping(
-                weatherTypes = listOf(WeatherType.RAIN_LIGHT, WeatherType.RAIN_MODERATE, WeatherType.RAIN_HEAVY, WeatherType.RAIN_SHOWER),
-                soundIds = listOf("rain", "light-rain", "heavy-rain", "drizzle")
+                weatherTypes = listOf(WeatherType.SUNNY_CLEAR),
+                soundIds = listOf("kitchen", "wind-chimes", "light-piano")
             ),
+            // 晴晚：田野、风声
+            SoundMapping(
+                weatherTypes = listOf(WeatherType.SUNNY_NIGHT),
+                soundIds = listOf("field", "wind")
+            ),
+            // 多云：轻钢琴、鸟叫
+            SoundMapping(
+                weatherTypes = listOf(WeatherType.CLOUDY_PARTLY),
+                soundIds = listOf("light-piano", "birds")
+            ),
+            // 阴：湖泊、风声
+            SoundMapping(
+                weatherTypes = listOf(WeatherType.CLOUDY_OVERCAST),
+                soundIds = listOf("lake", "wind")
+            ),
+            // 雾：风铃、厨房烹饪
+            SoundMapping(
+                weatherTypes = listOf(WeatherType.FOGGY),
+                soundIds = listOf("wind-chimes", "kitchen")
+            ),
+            // 小雾：湖泊、风声
+            SoundMapping(
+                weatherTypes = listOf(WeatherType.FOGGY_DRIZZLE),
+                soundIds = listOf("lake", "wind")
+            ),
+            // 雨夹雪：风声、踩雪、毛毛雨
+            SoundMapping(
+                weatherTypes = listOf(WeatherType.SNOW_SLEET),
+                soundIds = listOf("wind", "walk-in-snow", "drizzle")
+            ),
+            // 小雨
+            SoundMapping(
+                weatherTypes = listOf(WeatherType.RAIN_LIGHT),
+                soundIds = listOf("rain", "light-rain", "drizzle")
+            ),
+            // 中雨
+            SoundMapping(
+                weatherTypes = listOf(WeatherType.RAIN_MODERATE),
+                soundIds = listOf("rain", "light-rain")
+            ),
+            // 大雨/阵雨
+            SoundMapping(
+                weatherTypes = listOf(WeatherType.RAIN_HEAVY, WeatherType.RAIN_SHOWER),
+                soundIds = listOf("heavy-rain", "rain", "drizzle")
+            ),
+            // 雷暴
             SoundMapping(
                 weatherTypes = listOf(WeatherType.THUNDERSTORM, WeatherType.THUNDERSTORM_HAIL),
                 soundIds = listOf("thunderstorm", "rain", "heavy-rain")
             ),
+            // 小雪
             SoundMapping(
-                weatherTypes = listOf(WeatherType.SNOW_LIGHT, WeatherType.SNOW_MODERATE, WeatherType.SNOW_HEAVY, WeatherType.SNOW_SLEET),
-                soundIds = listOf("wind", "wind-in-trees", "walk-in-snow")
+                weatherTypes = listOf(WeatherType.SNOW_LIGHT),
+                soundIds = listOf("walk-in-snow", "wind")
             ),
+            // 中雪/大雪
             SoundMapping(
-                weatherTypes = listOf(WeatherType.FOGGY, WeatherType.FOGGY_DRIZZLE),
-                soundIds = listOf("wind", "rain", "wind-in-trees")
-            ),
-            SoundMapping(
-                weatherTypes = listOf(WeatherType.CLOUDY_PARTLY, WeatherType.CLOUDY_OVERCAST),
-                soundIds = listOf("wind", "birds", "river")
-            ),
-            SoundMapping(
-                weatherTypes = listOf(WeatherType.SUNNY_CLEAR, WeatherType.SUNNY_NIGHT),
-                soundIds = listOf("birds", "river", "wind")
+                weatherTypes = listOf(WeatherType.SNOW_MODERATE, WeatherType.SNOW_HEAVY),
+                soundIds = listOf("walk-in-snow", "wind", "field")
             )
         )
     }

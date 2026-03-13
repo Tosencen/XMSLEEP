@@ -154,6 +154,7 @@ import org.xmsleep.app.utils.ToastUtils
 import org.xmsleep.app.weather.WeatherData
 import org.xmsleep.app.weather.WeatherService
 import org.xmsleep.app.weather.WeatherSoundMapper
+import org.xmsleep.app.utils.Logger
 
 /**
  * 自定义颜色回调，根据原颜色的亮度和饱和度动态映射到主题色系或灰色系
@@ -343,7 +344,7 @@ fun SoundsScreen(
     LaunchedEffect(activePreset) {
         val newPinned = org.xmsleep.app.preferences.PreferencesManager.getPresetRemotePinned(context, activePreset).toMutableSet()
         remotePinned = newPinned
-        android.util.Log.d("SoundsScreen", "切换到预设 $activePreset，远程固定音频数量: ${newPinned.size}")
+        Logger.d("SoundsScreen", "切换到预设 $activePreset，远程固定音频数量: ${newPinned.size}")
     }
     var downloadingSounds by remember { mutableStateOf<Map<String, Float>>(emptyMap()) }
     var playingRemoteSounds by remember { mutableStateOf<Set<String>>(emptySet()) }
@@ -368,7 +369,7 @@ fun SoundsScreen(
             val sounds = resourceManager.getRemoteSounds()
             remoteSounds = sounds
         } catch (e: Exception) {
-            android.util.Log.e("SoundsScreen", "加载远程音频失败: ${e.message}")
+            Logger.e("SoundsScreen", "加载远程音频失败: ${e.message}")
         }
     }
     
@@ -427,7 +428,7 @@ fun SoundsScreen(
                 }
             }
         } catch (e: Exception) {
-            android.util.Log.e("SoundsScreen", "获取天气失败: ${e.message}")
+            Logger.e("SoundsScreen", "获取天气失败: ${e.message}")
         }
     }
     
@@ -652,7 +653,7 @@ fun SoundsScreen(
                             // 再次检查并强制停止任何仍在播放的声音
                             val stillPlaying = audioManager.hasAnyPlayingSounds()
                             if (stillPlaying) {
-                                android.util.Log.w("SoundsScreen", "倒计时结束后仍有声音在播放，进行二次停止")
+                                Logger.w("SoundsScreen", "倒计时结束后仍有声音在播放，进行二次停止")
                                 audioManager.stopAllSounds()
                                 // 再次更新UI状态
                                 soundItems.forEach { item ->
@@ -665,12 +666,12 @@ fun SoundsScreen(
                         // 显示Toast提示
                         android.widget.Toast.makeText(context, context.getString(R.string.countdown_ended_stopped), android.widget.Toast.LENGTH_SHORT).show()
                     } catch (e: Exception) {
-                        android.util.Log.e("SoundsScreen", "倒计时结束处理失败: ${e.message}", e)
+                        Logger.e("SoundsScreen", "倒计时结束处理失败: ${e.message}", e)
                         // 即使出错也要尝试停止
                         try {
                             audioManager.stopAllSounds()
                         } catch (ex: Exception) {
-                            android.util.Log.e("SoundsScreen", "二次停止失败: ${ex.message}")
+                            Logger.e("SoundsScreen", "二次停止失败: ${ex.message}")
                         }
                     }
                 }
@@ -678,7 +679,7 @@ fun SoundsScreen(
             
             override fun onTimerCancelled() {
                 // 倒计时被用户取消，不停止音频播放
-                android.util.Log.d("SoundsScreen", "倒计时已取消，继续播放")
+                Logger.d("SoundsScreen", "倒计时已取消，继续播放")
                 // 什么都不做，让音频继续播放
             }
         }
@@ -884,8 +885,8 @@ fun SoundsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // 预设按钮（只在有预设内容时显示）
-                        if (hasAnyPresetItems) {
+                        // 预设按钮（只在有预设内容时显示，且天气推荐未开启）
+                        if (hasAnyPresetItems && !weatherEnabled) {
                             IconButton(
                                 onClick = { showPresetDialog = true } // 显示弹窗
                             ) {
@@ -1670,16 +1671,16 @@ private fun DefaultArea(
                             isFavorite = favoriteSounds.value.contains(item.sound),
                             isEditMode = isEditMode,
                             onToggle = { sound ->
-                                android.util.Log.d("SoundsScreen", "DefaultCard onToggle 被调用: ${sound.name}")
+                                Logger.d("SoundsScreen", "DefaultCard onToggle 被调用: ${sound.name}")
                                 val wasPlaying = audioManager.isPlayingSound(sound)
-                                android.util.Log.d("SoundsScreen", "当前播放状态: $wasPlaying")
+                                Logger.d("SoundsScreen", "当前播放状态: $wasPlaying")
                                 if (wasPlaying) {
-                                    android.util.Log.d("SoundsScreen", "暂停播放: ${sound.name}")
+                                    Logger.d("SoundsScreen", "暂停播放: ${sound.name}")
                                     audioManager.pauseSound(sound)
                                     playingStates[sound] = false
                                     soundPlayingPreset.remove(sound)
                                 } else {
-                                    android.util.Log.d("SoundsScreen", "开始播放: ${sound.name}")
+                                    Logger.d("SoundsScreen", "开始播放: ${sound.name}")
                                     // 先设置状态为true，表示正在启动播放
                                     playingStates[sound] = true
                                     soundPlayingPreset[sound] = activePreset // 记录从哪个预设播放

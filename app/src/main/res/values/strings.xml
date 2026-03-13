@@ -8,6 +8,7 @@
     <string name="language_english">English</string>
     <string name="select_language">选择语言</string>
     <string name="white_noise">白噪音</string>
+    <string name="breathing">呼吸</string>
     <string name="star_sky">繁星</string>
     <string name="star_sky_more_sounds_hint">会有更多声音出现在这里</string>
     <string name="settings">设置</string>
@@ -308,7 +309,7 @@
         <item>新的一天，新的开始</item>
         <item>晨光微露，美好如约而至</item>
         <item>用微笑迎接崭新的一天</item>
-        <item>清晨的阳光，温暖你的心房</item>
+        <item>清晨的露珠，晶莹剔透</item>
         <item>今天也要元气满满哦</item>
         <item>早起的鸟儿有虫吃，加油</item>
         <item>美好的一天从现在开始</item>
@@ -318,7 +319,7 @@
         <item>新的一天，充满无限可能</item>
         <item>清晨的风，带来好心情</item>
         <item>今天也要开心快乐</item>
-        <item>早晨的第一缕阳光属于你</item>
+        <item>早上好，我的朋友</item>
         <item>用好心情开启美好一天</item>
         <item>早安，愿你笑容常在</item>
         <item>晨光熹微，岁月静好</item>
@@ -339,34 +340,34 @@
     <!-- 治愈句子 - 中午 -->
     <string-array name="healing_quotes_afternoon">
         <item>午后时光，静享安宁</item>
-        <item>阳光正好，微风不燥</item>
+        <item>做一个安静的人</item>
         <item>慢下来，感受生活的美好</item>
-        <item>午后的阳光，温暖而惬意</item>
+        <item>中午了，你是不是该午休啦</item>
         <item>给自己一个放松的时刻</item>
         <item>下午茶时间，享受悠闲</item>
-        <item>午后的宁静，让心灵休憩</item>
-        <item>阳光洒落，岁月静好</item>
+        <item>多喝热水，动起来</item>
+        <item>这一刻你在想什么</item>
         <item>慢生活，才是真生活</item>
-        <item>午后的微风，轻抚心灵</item>
+        <item>今天有好好吃饭吗</item>
         <item>给忙碌的自己一个拥抱</item>
         <item>下午好，记得休息一下</item>
         <item>午后时光，温柔而美好</item>
-        <item>阳光明媚，心情愉悦</item>
+        <item>好春光，不如梦一场</item>
         <item>慢慢来，一切都来得及</item>
-        <item>午后的悠闲，值得珍惜</item>
+        <item>真诚的明辨是非</item>
         <item>给心灵放个假</item>
-        <item>下午的阳光，治愈一切</item>
-        <item>午后时光，静静享受</item>
-        <item>阳光正好，不负好时光</item>
+        <item>是不是忘记摸鱼了</item>
+        <item>眼播间操做了吗</item>
+        <item>我想带你去我的外婆家，一起看看日落</item>
         <item>慢下脚步，感受当下</item>
-        <item>午后的温暖，沁人心脾</item>
+        <item>最近一次买花是什么时候了</item>
         <item>给自己一点时间放空</item>
         <item>下午好，愿你轻松愉快</item>
-        <item>午后的宁静，让人安心</item>
-        <item>阳光洒在身上，暖在心里</item>
-        <item>慢生活，慢享受</item>
+        <item>告诉你个秘密，其实我的鞋子没有增高垫</item>
+        <item>你是不是在雪山上救过一只狐狸</item>
+        <item>脖子酸了吗，左三圈右三圈来一遍</item>
         <item>午后时光，美好而宁静</item>
-        <item>阳光明媚，岁月静好</item>
+        <item>哈哈哈哈哈哈哈</item>
         <item>给疲惫的心灵一个休息</item>
     </string-array>
     
@@ -431,8 +432,27 @@
     <string name="weather_sound_jungle">丛林</string>
     <string name="weather_sound_drizzle">毛毛雨</string>
     <string name="weather_sound_walk_in_snow">踩雪</string>
-    <string name="weather_sound_night">夜晚</string>
+    <string name="weather_sound_night">夜晚村庄</string>
     <string name="weather_sound_crickets">蟋蟀</string>
+    <string name="weather_sound_field">田野</string>
+    <string name="weather_sound_lake">湖泊</string>
+    <string name="weather_sound_kitchen">厨房烹饪</string>
+    <string name="weather_sound_wind_chimes">风铃</string>
+    <string name="weather_sound_light_piano">轻钢琴</string>
+    <string name="weather_sound_rain_on_car_roof">雨打车顶</string>
+    <string name="weather_sound_rain_on_umbrella">雨打伞</string>
+    <string name="weather_sound_rain_on_tent">雨打帐篷</string>
+    <string name="weather_sound_rain_on_leaves">雨打树叶</string>
+    <string name="weather_sound_rain_on_raincoat">雨打雨衣</string>
+    <string name="weather_sound_rain_on_windowsill">雨打窗台</string>
+    <string name="weather_sound_rain_on_wooden_house">雨打木屋</string>
+    <string name="weather_sound_rain_while_driving">开车遇雨</string>
+    <string name="weather_sound_rain_on_empty_street">雨打空街</string>
+    <string name="weather_sound_rain_on_eaves">雨打屋檐</string>
+    <string name="weather_sound_heavy_rain_on_glass">大雨打玻璃</string>
+    <string name="weather_category_nature">自然</string>
+    <string name="weather_category_rain">下雨</string>
+    <string name="weather_category_other">其他</string>
     <string name="weather_sunny_clear">晴</string>
     <string name="weather_sunny_night">晴晚</string>
     <string name="weather_cloudy_partly">多云</string>
@@ -469,7 +489,37 @@
     <string name="downloading">正在下载</string>
     <string name="tap_to_download_and_play">点击下载并播放</string>
     <string name="playing">正在播放</string>
-    <string name="play_recommended">播放推荐音乐</string>
+    <string name="play_recommended">播放推荐音频</string>
     <string name="download_and_play">下载并播放</string>
     <string name="weather_location_required">需要定位权限获取天气</string>
+    
+    <!-- 呼吸练习 -->
+    <string name="breathing_exercise">呼吸练习</string>
+    <string name="tap_to_start">点击开始</string>
+    <string name="inhale">吸气...</string>
+    <string name="hold">屏息</string>
+    <string name="exhale">呼气...</string>
+    <string name="breath_count">第 %1$d 次呼吸</string>
+    
+    <!-- 呼吸练习指南 -->
+    <string name="breathing_guide_title">呼吸练习指南</string>
+    <string name="breathing_guide_step1">1. 点击下方的播放按钮开始练习</string>
+    <string name="breathing_guide_step2">2. 吸气（4 秒）：跟随外圈放大，播放吸气声</string>
+    <string name="breathing_guide_step3">3. 屏息（4 秒）：保持最大状态</string>
+    <string name="breathing_guide_step4">4. 呼气（4 秒）：跟随外圈缩小，播放呼气声</string>
+    <string name="breathing_guide_step5">5. 练习时长为 5 分钟，结束后自动停止</string>
+    <string name="got_it">我知道了</string>
+    
+    <!-- 屏幕常亮设置 -->
+    <string name="keep_screen_on">保持屏幕常亮</string>
+    <string name="screen_on_enabled">屏幕常亮已开启</string>
+    <string name="screen_on_disabled">屏幕常亮已关闭</string>
+    <string name="screen_on_description">呼吸练习期间保持屏幕常亮，避免自动锁屏</string>
+    <string name="tutorial">教程</string>
+    
+    <!-- 底部导航 Tab -->
+    <string name="tab_white_noise">白噪音</string>
+    <string name="tab_starsky">繁星</string>
+    <string name="tab_breathing">呼吸</string>
+    <string name="tab_settings">设置</string>
 </resources>

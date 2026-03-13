@@ -59,7 +59,7 @@ class ThemeColorExtractor(private val context: Context) {
             // 5. 转换为 Compose Color (需要转换为 ULong)
             Color(extractedColor.toULong() or 0xFF000000UL)
         } catch (e: Exception) {
-            android.util.Log.e("ThemeColorExtractor", "同步提取主题色失败: ${e.message}")
+            Logger.e("ThemeColorExtractor", "同步提取主题色失败: ${e.message}")
             null
         }
     }
@@ -89,31 +89,31 @@ class ThemeColorExtractor(private val context: Context) {
      */
     private fun selectBestThemeColor(palette: Palette): Int {
         // 打印所有可用的颜色用于调试
-        android.util.Log.d("ThemeColorExtractor", "=== 调色板分析 ===")
+        Logger.d("ThemeColorExtractor", "=== 调色板分析 ===")
         palette.dominantSwatch?.let { 
-            android.util.Log.d("ThemeColorExtractor", "Dominant: #${Integer.toHexString(it.rgb).uppercase()}")
+            Logger.d("ThemeColorExtractor", "Dominant: #${Integer.toHexString(it.rgb).uppercase()}")
         }
         palette.vibrantSwatch?.let { 
-            android.util.Log.d("ThemeColorExtractor", "Vibrant: #${Integer.toHexString(it.rgb).uppercase()}")
+            Logger.d("ThemeColorExtractor", "Vibrant: #${Integer.toHexString(it.rgb).uppercase()}")
         }
         palette.mutedSwatch?.let { 
-            android.util.Log.d("ThemeColorExtractor", "Muted: #${Integer.toHexString(it.rgb).uppercase()}")
+            Logger.d("ThemeColorExtractor", "Muted: #${Integer.toHexString(it.rgb).uppercase()}")
         }
         
         // 直接使用 Dominant 色（主导色）
         palette.dominantSwatch?.let { swatch ->
-            android.util.Log.d("ThemeColorExtractor", "✓ 选择 Dominant 色: #${Integer.toHexString(swatch.rgb).uppercase()}")
+            Logger.d("ThemeColorExtractor", "✓ 选择 Dominant 色: #${Integer.toHexString(swatch.rgb).uppercase()}")
             return swatch.rgb
         }
         
         // 如果没有 Dominant 色，尝试 Vibrant
         palette.vibrantSwatch?.let { swatch ->
-            android.util.Log.d("ThemeColorExtractor", "✓ 选择 Vibrant 色: #${Integer.toHexString(swatch.rgb).uppercase()}")
+            Logger.d("ThemeColorExtractor", "✓ 选择 Vibrant 色: #${Integer.toHexString(swatch.rgb).uppercase()}")
             return swatch.rgb
         }
         
         // 如果都没有，返回默认颜色
-        android.util.Log.d("ThemeColorExtractor", "✗ 使用默认颜色")
+        Logger.d("ThemeColorExtractor", "✗ 使用默认颜色")
         return 0xFF6750A4.toInt()
     }
     

@@ -80,7 +80,7 @@ suspend fun calculateCacheSize(context: Context): Long {
             totalSize += cacheManager.getCacheSize()
         } catch (e: Exception) {
             // 如果获取音频缓存失败，继续计算其他缓存
-            android.util.Log.w("FileUtils", "获取音频缓存大小失败: ${e.message}")
+            Logger.w("FileUtils", "获取音频缓存大小失败: ${e.message}")
         }
         
         // 内部缓存目录（排除音频缓存子目录以避免重复计算）
@@ -112,9 +112,9 @@ suspend fun clearApplicationCache(context: Context) {
             try {
                 val cacheManager = org.xmsleep.app.audio.AudioCacheManager.getInstance(context)
                 cacheManager.clearCache()
-                android.util.Log.d("FileUtils", "音频缓存清理完成")
+                Logger.d("FileUtils", "音频缓存清理完成")
             } catch (e: Exception) {
-                android.util.Log.w("FileUtils", "音频缓存清理失败: ${e.message}")
+                Logger.w("FileUtils", "音频缓存清理失败: ${e.message}")
             }
             
             // 清理应用缓存目录

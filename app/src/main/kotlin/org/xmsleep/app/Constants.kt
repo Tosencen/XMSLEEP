@@ -25,6 +25,10 @@ object Constants {
     
     // ==================== 应用信息 ====================
     const val APP_NAME = "XMSLEEP"
+    const val APP_PACKAGE = "org.xmsleep.app"
+    
+    // ==================== 旧版本信息（用于数据迁移）====================
+    const val OLD_APP_PACKAGE = "org.xmsleep.app"
     
     // ==================== 外部链接 ====================
     const val GITHUB_URL = "https://github.com/Tosencen/XMSLEEP"
@@ -51,6 +55,8 @@ object Constants {
     
     // ==================== SharedPreferences Keys ====================
     object PrefsKeys {
+        const val PREFS_NAME = "app_prefs"
+        
         const val DARK_MODE = "dark_mode"
         const val SELECTED_COLOR = "selected_color"
         const val USE_DYNAMIC_COLOR = "use_dynamic_color"
@@ -59,6 +65,38 @@ object Constants {
         const val SOUND_CARDS_COLUMNS = "sound_cards_columns_count"
         const val LANGUAGE = "language"
         const val LAST_UPDATE_CHECK = "last_update_check"
+        
+        const val STAR_SKY_COLUMNS_COUNT = "star_sky_columns_count"
+        const val QUICK_PLAY_EXPANDED = "quick_play_expanded"
+        const val NOW_PLAYING_EXPANDED = "now_playing_expanded"
+        const val REMOTE_FAVORITES = "remote_favorites"
+        const val REMOTE_PINNED = "remote_pinned"
+        const val MIGRATION_DONE = "migration_done"
+        const val FLOATING_BUTTON_X = "floating_button_x"
+        const val FLOATING_BUTTON_Y = "floating_button_y"
+        const val FLOATING_BUTTON_IS_LEFT = "floating_button_is_left"
+        const val FLOATING_BUTTON_EXPANDED = "floating_button_expanded"
+        
+        const val PRESET1_LOCAL_PINNED = "preset1_local_pinned"
+        const val PRESET2_LOCAL_PINNED = "preset2_local_pinned"
+        const val PRESET3_LOCAL_PINNED = "preset3_local_pinned"
+        const val PRESET1_REMOTE_PINNED = "preset1_remote_pinned"
+        const val PRESET2_REMOTE_PINNED = "preset2_remote_pinned"
+        const val PRESET3_REMOTE_PINNED = "preset3_remote_pinned"
+        const val ACTIVE_PRESET = "active_preset"
+        
+        const val LOCAL_AUDIO_FAVORITES = "local_audio_favorites"
+        const val RECENT_LOCAL_SOUNDS = "recent_local_sounds"
+        const val RECENT_REMOTE_SOUNDS = "recent_remote_sounds"
+        const val RECENT_LOCAL_AUDIO_FILES = "recent_local_audio_files"
+        const val VOLUME_PREFIX = "volume_"
+        
+        const val BACKGROUND_SELECTION = "background_animation_selection"
+        const val AUTO_COUNTDOWN_MINUTES = "auto_countdown_minutes"
+        const val KEEP_SCREEN_ON = "keep_screen_on"
+        
+        const val LANGUAGE_PREFS_NAME = "language_prefs"
+        const val KEY_LANGUAGE = "language"
     }
     
     // ==================== Intent Actions ====================

@@ -38,6 +38,7 @@ import com.materialkolor.hct.Hct
 import com.materialkolor.ktx.toHct
 import org.xmsleep.app.R
 import org.xmsleep.app.theme.DarkModeOption
+import org.xmsleep.app.utils.Logger
 
 /**
  * 开关设置项
@@ -541,16 +542,16 @@ fun PullRingControl(
             .pointerInput(Unit) {
                 detectVerticalDragGestures(
                     onDragEnd = {
-                        android.util.Log.d("PullRingControl", "拖拽结束，偏移量: $dragOffset")
+                        Logger.d("PullRingControl", "拖拽结束，偏移量: $dragOffset")
                         if (kotlin.math.abs(dragOffset) > threshold) {
-                            android.util.Log.d("PullRingControl", "超过阈值，触发切换")
+                            Logger.d("PullRingControl", "超过阈值，触发切换")
                             onToggle()
                         }
                         dragOffset = 0f
                     },
                     onVerticalDrag = { _, dragAmount ->
                         dragOffset += dragAmount
-                        android.util.Log.d("PullRingControl", "拖拽中，当前偏移: $dragOffset")
+                        Logger.d("PullRingControl", "拖拽中，当前偏移: $dragOffset")
                     }
                 )
             },

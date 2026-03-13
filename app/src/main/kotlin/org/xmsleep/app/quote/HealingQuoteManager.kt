@@ -1,6 +1,7 @@
 package org.xmsleep.app.quote
 
 import android.content.Context
+import org.xmsleep.app.utils.Logger
 import java.util.Calendar
 import kotlin.random.Random
 
@@ -30,7 +31,7 @@ object HealingQuoteManager {
         
         // 如果语言切换了，强制刷新句子
         if (languageChanged) {
-            android.util.Log.d("HealingQuoteManager", "语言切换: $lastLanguageCode -> $currentLanguageCode")
+            Logger.d("HealingQuoteManager", "语言切换: $lastLanguageCode -> $currentLanguageCode")
             cachedQuote = null
             lastUpdateTime = 0
             lastLanguageCode = currentLanguageCode
@@ -60,7 +61,7 @@ object HealingQuoteManager {
         val quotes = localizedContext.resources.getStringArray(quotesArrayId)
         val newQuote = quotes[Random.nextInt(quotes.size)]
         
-        android.util.Log.d("HealingQuoteManager", "生成新句子: $newQuote (语言: $currentLanguageCode)")
+        Logger.d("HealingQuoteManager", "生成新句子: $newQuote (语言: $currentLanguageCode)")
         
         // 更新缓存
         cachedQuote = newQuote

@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.content.res.ResourcesCompat
 import org.xmsleep.app.R
+import org.xmsleep.app.utils.Logger
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -30,7 +31,7 @@ object ImageGenerator {
         quote: Quote,
         isDarkTheme: Boolean = false
     ): Bitmap {
-        android.util.Log.d("ImageGenerator", "开始生成图片，isDarkTheme=$isDarkTheme")
+        Logger.d("ImageGenerator", "开始生成图片，isDarkTheme=$isDarkTheme")
         
         // 图片尺寸
         val width = 1080
@@ -111,7 +112,7 @@ object ImageGenerator {
         
         val height = currentY.toInt()
         
-        android.util.Log.d("ImageGenerator", "计算高度: $height")
+        Logger.d("ImageGenerator", "计算高度: $height")
         
         // 创建 Bitmap
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -196,7 +197,7 @@ object ImageGenerator {
             )
             canvas.drawBitmap(qrBitmap, null, qrRect, null)
         } catch (e: Exception) {
-            android.util.Log.e("ImageGenerator", "绘制二维码失败", e)
+            Logger.e("ImageGenerator", "绘制二维码失败", e)
         }
         
         // 绘制左侧文字（底部对齐）
@@ -208,7 +209,7 @@ object ImageGenerator {
         val appNameY = descY - 60f // 向上偏移
         canvas.drawText("XMSLEEP", padding, appNameY, appNamePaint)
         
-        android.util.Log.d("ImageGenerator", "图片生成完成: ${bitmap.width}x${bitmap.height}")
+        Logger.d("ImageGenerator", "图片生成完成: ${bitmap.width}x${bitmap.height}")
         return bitmap
     }
     

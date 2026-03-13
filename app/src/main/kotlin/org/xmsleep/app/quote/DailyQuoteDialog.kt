@@ -26,6 +26,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.xmsleep.app.R
+import org.xmsleep.app.utils.Logger
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -147,15 +148,15 @@ fun DailyQuoteDialog(
                                     isSharing = true
                                     scope.launch {
                                         try {
-                                            android.util.Log.d("DailyQuoteDialog", "开始分享流程")
+                                            Logger.d("DailyQuoteDialog", "开始分享流程")
                                             val bitmap = withContext(Dispatchers.Main) {
                                                 ImageGenerator.generateQuoteImage(context, quote, isDarkTheme)
                                             }
-                                            android.util.Log.d("DailyQuoteDialog", "图片生成成功，开始分享")
+                                            Logger.d("DailyQuoteDialog", "图片生成成功，开始分享")
                                             ShareUtils.shareImage(context, bitmap, quote)
-                                            android.util.Log.d("DailyQuoteDialog", "分享完成")
+                                            Logger.d("DailyQuoteDialog", "分享完成")
                                         } catch (e: Exception) {
-                                            android.util.Log.e("DailyQuoteDialog", "分享失败", e)
+                                            Logger.e("DailyQuoteDialog", "分享失败", e)
                                             withContext(Dispatchers.Main) {
                                                 Toast.makeText(context, "分享失败: ${e.message}", Toast.LENGTH_SHORT).show()
                                             }
@@ -206,11 +207,11 @@ fun DailyQuoteDialog(
                                     isSaving = true
                                     scope.launch {
                                         try {
-                                            android.util.Log.d("DailyQuoteDialog", "开始保存流程")
+                                            Logger.d("DailyQuoteDialog", "开始保存流程")
                                             val bitmap = withContext(Dispatchers.Main) {
                                                 ImageGenerator.generateQuoteImage(context, quote, isDarkTheme)
                                             }
-                                            android.util.Log.d("DailyQuoteDialog", "图片生成成功，开始保存")
+                                            Logger.d("DailyQuoteDialog", "图片生成成功，开始保存")
                                             val result = ShareUtils.saveImageToGallery(context, bitmap)
                                             withContext(Dispatchers.Main) {
                                                 if (result.isSuccess) {
@@ -219,9 +220,9 @@ fun DailyQuoteDialog(
                                                     Toast.makeText(context, "保存失败: ${result.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
                                                 }
                                             }
-                                            android.util.Log.d("DailyQuoteDialog", "保存完成")
+                                            Logger.d("DailyQuoteDialog", "保存完成")
                                         } catch (e: Exception) {
-                                            android.util.Log.e("DailyQuoteDialog", "保存失败", e)
+                                            Logger.e("DailyQuoteDialog", "保存失败", e)
                                             withContext(Dispatchers.Main) {
                                                 Toast.makeText(context, "保存失败: ${e.message}", Toast.LENGTH_SHORT).show()
                                             }

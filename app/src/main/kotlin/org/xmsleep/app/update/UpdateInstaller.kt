@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.core.content.FileProvider
+import org.xmsleep.app.utils.Logger
 import java.io.File
 
 /**
@@ -37,7 +38,7 @@ class UpdateInstaller(private val context: Context) {
                 }
                 context.startActivity(intent)
             } catch (e: Exception) {
-                android.util.Log.e("UpdateInstaller", "请求安装权限失败", e)
+                Logger.e("UpdateInstaller", "请求安装权限失败", e)
             }
         }
     }
@@ -79,7 +80,7 @@ class UpdateInstaller(private val context: Context) {
             context.startActivity(intent)
             true
         } catch (e: Exception) {
-            android.util.Log.e("UpdateInstaller", "安装 APK 失败", e)
+            Logger.e("UpdateInstaller", "安装 APK 失败", e)
             false
         }
     }

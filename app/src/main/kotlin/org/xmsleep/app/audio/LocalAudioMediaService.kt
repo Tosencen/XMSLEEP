@@ -17,6 +17,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import org.xmsleep.app.utils.Logger
 import kotlin.coroutines.resume
 
 /**
@@ -125,17 +126,17 @@ class LocalAudioMediaService private constructor(
                             put(MediaStore.Audio.Media.DISPLAY_NAME, newName)
                         }
                         val updateCount = contentResolver.update(uri, values, null, null)
-                        android.util.Log.d("LocalAudioMediaService", "重命名更新结果: $updateCount")
+                        Logger.d("LocalAudioMediaService", "重命名更新结果: $updateCount")
                         updateCount > 0
                     } catch (e: Exception) {
-                        android.util.Log.e("LocalAudioMediaService", "重命名失败", e)
+                        Logger.e("LocalAudioMediaService", "重命名失败", e)
                         false
                     }
                     continuation.resume(result)
                 }
             },
             onResultCanceled = { 
-                android.util.Log.d("LocalAudioMediaService", "用户取消重命名")
+                Logger.d("LocalAudioMediaService", "用户取消重命名")
                 continuation.resume(false) 
             }
         )
@@ -148,7 +149,7 @@ class LocalAudioMediaService private constructor(
             }
             contentResolver.update(uri, values, null, null) > 0
         } catch (e: Exception) {
-            android.util.Log.e("LocalAudioMediaService", "重命名失败", e)
+            Logger.e("LocalAudioMediaService", "重命名失败", e)
             false
         }
     }

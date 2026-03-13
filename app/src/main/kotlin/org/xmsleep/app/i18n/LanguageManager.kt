@@ -2,16 +2,17 @@ package org.xmsleep.app.i18n
 
 import android.content.Context
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.os.Build
+import org.xmsleep.app.Constants
 import java.util.Locale
 
 /**
  * 语言管理器
+ * 语言设置已合并到 PreferencesManager 中，此对象提供便捷访问方法
  */
 object LanguageManager {
-    private const val PREFS_NAME = "language_prefs"
-    private const val KEY_LANGUAGE = "language"
+    private val PREFS_NAME = Constants.PrefsKeys.LANGUAGE_PREFS_NAME
+    private val KEY_LANGUAGE = Constants.PrefsKeys.KEY_LANGUAGE
     
     // 支持的语言
     enum class Language(val code: String, val displayName: String, val locale: Locale) {
@@ -21,7 +22,7 @@ object LanguageManager {
         
         companion object {
             fun fromCode(code: String): Language {
-                return values().find { it.code == code } ?: SIMPLIFIED_CHINESE
+                return entries.find { it.code == code } ?: SIMPLIFIED_CHINESE
             }
         }
     }
@@ -35,7 +36,6 @@ object LanguageManager {
         return if (code != null) {
             Language.fromCode(code)
         } else {
-            // 如果没有保存的语言设置，默认使用简体中文
             Language.SIMPLIFIED_CHINESE
         }
     }
@@ -63,7 +63,7 @@ object LanguageManager {
             locale.language == "zh" && locale.country == "CN" -> Language.SIMPLIFIED_CHINESE
             locale.language == "zh" && (locale.country == "TW" || locale.country == "HK" || locale.country == "MO") -> Language.TRADITIONAL_CHINESE
             locale.language == "en" -> Language.ENGLISH
-            else -> Language.SIMPLIFIED_CHINESE // 默认使用简体中文
+            else -> Language.SIMPLIFIED_CHINESE
         }
     }
     

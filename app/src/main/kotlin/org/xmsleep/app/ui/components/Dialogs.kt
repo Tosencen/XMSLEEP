@@ -17,6 +17,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.xmsleep.app.R
 import org.xmsleep.app.i18n.LanguageManager
+import org.xmsleep.app.utils.Logger
 
 /**
  * 缓存清理对话框
@@ -111,7 +112,7 @@ fun AboutDialog(
                 (packageInfo?.versionCode ?: 1)
             }
         } catch (e: Exception) {
-            android.util.Log.e("AboutDialog", "Error getting package info", e)
+            Logger.e("AboutDialog", "Error getting package info", e)
         }
     }
     
@@ -152,24 +153,6 @@ fun AboutDialog(
                     )
                     
                     HorizontalDivider()
-                    
-                    // 隐私政策
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            composeContext.getString(R.string.privacy_policy_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            composeContext.getString(R.string.privacy_policy),
-                            style = MaterialTheme.typography.bodyMedium,
-                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.4
-                        )
-                    }
-                    
-                    Spacer(modifier = Modifier.height(8.dp))
-                    HorizontalDivider()
-                    Spacer(modifier = Modifier.height(8.dp))
                     
                     // 声音来源说明（简化版）
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -226,7 +209,7 @@ fun LanguageSelectionDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                LanguageManager.Language.values().forEach { language ->
+                LanguageManager.Language.entries.forEach { language ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()

@@ -8,6 +8,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.xmsleep.app.Constants
+import org.xmsleep.app.utils.Logger
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -41,8 +42,8 @@ class UpdateChecker(
     suspend fun checkLatestVersion(currentVersion: String): NewVersion? = withContext(Dispatchers.IO) {
         try {
             val url = "${Constants.GITHUB_API_BASE_URL}/repos/$repositoryOwner/$repositoryName/releases/latest"
-            android.util.Log.d("UpdateChecker", "请求URL: $url")
-            android.util.Log.d("UpdateChecker", "当前版本: $currentVersion")
+            Logger.d("UpdateChecker", "请求URL: $url")
+            Logger.d("UpdateChecker", "当前版本: $currentVersion")
             
             val requestBuilder = Request.Builder()
                 .url(url)
@@ -51,9 +52,9 @@ class UpdateChecker(
             // 如果提供了Token，添加Authorization header
             if (!githubToken.isNullOrBlank()) {
                 requestBuilder.header("Authorization", "Bearer $githubToken")
-                android.util.Log.d("UpdateChecker", "使用GitHub Token进行认证请求")
+                Logger.d("UpdateChecker", "使用GitHub Token进行认证请求")
             } else {
-                android.util.Log.d("UpdateChecker", "使用未认证请求（限制60次/小时）")
+                Logger.d("UpdateChecker", "使用未认证请求（限制60次/小时）")
             }
             
             val request = requestBuilder.get().build()
@@ -64,7 +65,7 @@ class UpdateChecker(
             val remaining = response.header("X-RateLimit-Remaining")?.toIntOrNull() ?: -1
             val rateLimitReset = response.header("X-RateLimit-Reset")?.toLongOrNull()
             
-            android.util.Log.d("UpdateChecker", "HTTP响应码: ${response.code}, RateLimit剩余: $remaining")
+            Logger.d("UpdateChecker", "HTTP响应码: ${response.code}, RateLimit剩余: $remaining")
             
             if (!response.isSuccessful) {
                 // 处理 rate limit 错误
@@ -74,27 +75,27 @@ class UpdateChecker(
                         java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
                             .format(java.util.Date(it * 1000))
                     } ?: "稍后"
-                    android.util.Log.e("UpdateChecker", "Rate limit已耗尽，重置时间: $resetTime")
+                    Logger.e("UpdateChecker", "Rate limit已耗尽，重置时间: $resetTime")
                     throw IOException("GitHub API 请求次数已达上限，请于 $resetTime 后重试")
                 }
                 val errorBody = response.body?.string()
-                android.util.Log.e("UpdateChecker", "HTTP请求失败: ${response.code}, 响应体: $errorBody")
+                Logger.e("UpdateChecker", "HTTP请求失败: ${response.code}, 响应体: $errorBody")
                 return@withContext null
             }
             
             val body = response.body?.string() ?: run {
-                android.util.Log.e("UpdateChecker", "响应体为空")
+                Logger.e("UpdateChecker", "响应体为空")
                 return@withContext null
             }
             
-            android.util.Log.d("UpdateChecker", "响应体长度: ${body.length}")
+            Logger.d("UpdateChecker", "响应体长度: ${body.length}")
             
             val release = json.decodeFromString<GitHubRelease>(body)
-            android.util.Log.d("UpdateChecker", "最新Release: tagName=${release.tagName}, name=${release.name}, assets数量=${release.assets.size}")
+            Logger.d("UpdateChecker", "最新Release: tagName=${release.tagName}, name=${release.name}, assets数量=${release.assets.size}")
             
             val latestVersion = release.tagName.removePrefix("v")
             val compareResult = compareVersions(latestVersion, currentVersion)
-            android.util.Log.d("UpdateChecker", "版本比较: $latestVersion vs $currentVersion = $compareResult")
+            Logger.d("UpdateChecker", "版本比较: $latestVersion vs $currentVersion = $compareResult")
             
             // 比较版本号
             if (compareResult > 0) {
@@ -103,7 +104,7 @@ class UpdateChecker(
                     it.name.endsWith(".apk", ignoreCase = true) 
                 }
                 
-                android.util.Log.d("UpdateChecker", "找到APK资源: ${apkAsset?.name ?: "未找到"}")
+                Logger.d("UpdateChecker", "找到APK资源: ${apkAsset?.name ?: "未找到"}")
                 
                 if (apkAsset != null) {
                     // 保存原始GitHub URL和jsDelivr URL（用于智能回退）
@@ -123,22 +124,22 @@ class UpdateChecker(
                         publishedAt = release.publishedAt,
                         fallbackUrl = githubUrl  // 保存原始URL用于回退
                     )
-                    android.util.Log.d("UpdateChecker", "返回NewVersion: version=${newVersion.version}, downloadUrl=${newVersion.downloadUrl}, fallbackUrl=${newVersion.fallbackUrl}")
+                    Logger.d("UpdateChecker", "返回NewVersion: version=${newVersion.version}, downloadUrl=${newVersion.downloadUrl}, fallbackUrl=${newVersion.fallbackUrl}")
                     return@withContext newVersion
                 } else {
-                    android.util.Log.w("UpdateChecker", "未找到APK资源文件")
+                    Logger.w("UpdateChecker", "未找到APK资源文件")
                 }
             } else {
-                android.util.Log.d("UpdateChecker", "当前版本已是最新版本或更新")
+                Logger.d("UpdateChecker", "当前版本已是最新版本或更新")
             }
             
             null
         } catch (e: IOException) {
             // 重新抛出IOException，让UpdateViewModel正确处理
-            android.util.Log.e("UpdateChecker", "IOException: ${e.message}", e)
+            Logger.e("UpdateChecker", "IOException: ${e.message}", e)
             throw e
         } catch (e: Exception) {
-            android.util.Log.e("UpdateChecker", "检查更新失败", e)
+            Logger.e("UpdateChecker", "检查更新失败", e)
             // 其他异常也转换为 IOException
             throw IOException("检查更新失败：${e.message}", e)
         }
@@ -159,16 +160,16 @@ class UpdateChecker(
                 val (owner, repo, _) = matchResult.destructured
                 // 使用jsDelivr CDN格式
                 val jsDelivrUrl = "${Constants.CDN_BASE_URL}/gh/$owner/$repo@$tagName/$fileName"
-                android.util.Log.d("UpdateChecker", "URL转换: $githubUrl -> $jsDelivrUrl")
+                Logger.d("UpdateChecker", "URL转换: $githubUrl -> $jsDelivrUrl")
                 jsDelivrUrl
             } else {
                 // 如果无法匹配，直接使用tagName和fileName构建
                 val jsDelivrUrl = "${Constants.CDN_BASE_URL}/gh/$repositoryOwner/$repositoryName@$tagName/$fileName"
-                android.util.Log.d("UpdateChecker", "使用默认格式构建URL: $jsDelivrUrl")
+                Logger.d("UpdateChecker", "使用默认格式构建URL: $jsDelivrUrl")
                 jsDelivrUrl
             }
         } catch (e: Exception) {
-            android.util.Log.e("UpdateChecker", "URL转换失败: ${e.message}", e)
+            Logger.e("UpdateChecker", "URL转换失败: ${e.message}", e)
             // 转换失败时返回原URL
             githubUrl
         }

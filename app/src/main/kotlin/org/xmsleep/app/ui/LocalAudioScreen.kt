@@ -48,6 +48,7 @@ import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.audio.LocalAudioPlayer
 import org.xmsleep.app.timer.TimerManager
+import org.xmsleep.app.utils.Logger
 
 /**
  * 本地音频数据类
@@ -213,7 +214,7 @@ fun LocalAudioScreen(
                         isRefreshing = false
                     }
                 } catch (e: Exception) {
-                    android.util.Log.e("LocalAudioScreen", "扫描音频文件失败", e)
+                    Logger.e("LocalAudioScreen", "扫描音频文件失败", e)
                     withContext(Dispatchers.Main) {
                         isLoading = false
                         isRefreshing = false
@@ -283,9 +284,9 @@ fun LocalAudioScreen(
                 newName
             }
             
-            android.util.Log.d("LocalAudioScreen", "开始重命名: ${audio.title} -> $finalName, URI: ${audio.uri}")
+            Logger.d("LocalAudioScreen", "开始重命名: ${audio.title} -> $finalName, URI: ${audio.uri}")
             val success = mediaService.renameMedia(audio.uri, finalName)
-            android.util.Log.d("LocalAudioScreen", "重命名结果: $success")
+            Logger.d("LocalAudioScreen", "重命名结果: $success")
             
             if (success) {
                 withContext(Dispatchers.Main) {
@@ -339,15 +340,15 @@ fun LocalAudioScreen(
     }
     // 初始权限检查
     LaunchedEffect(Unit) {
-        android.util.Log.d("LocalAudioScreen", "开始检查权限")
-        android.util.Log.d("LocalAudioScreen", "权限状态: hasPermission=$hasPermission")
+        Logger.d("LocalAudioScreen", "开始检查权限")
+        Logger.d("LocalAudioScreen", "权限状态: hasPermission=$hasPermission")
         
         if (hasPermission) {
-            android.util.Log.d("LocalAudioScreen", "权限已授予，开始扫描")
+            Logger.d("LocalAudioScreen", "权限已授予，开始扫描")
             scanAudioFiles(false)
         } else {
             // 未授予权限，显示引导界面
-            android.util.Log.d("LocalAudioScreen", "权限未授予，显示引导界面")
+            Logger.d("LocalAudioScreen", "权限未授予，显示引导界面")
             isLoading = false
         }
     }
@@ -355,7 +356,7 @@ fun LocalAudioScreen(
     // 监听权限状态变化，授予后自动扫描
     LaunchedEffect(hasPermission) {
         if (hasPermission && localAudioList.isEmpty()) {
-            android.util.Log.d("LocalAudioScreen", "权限已授予，触发扫描")
+            Logger.d("LocalAudioScreen", "权限已授予，触发扫描")
             scanAudioFiles(false)
         }
     }

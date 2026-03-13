@@ -41,6 +41,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.xmsleep.app.R
 import org.xmsleep.app.ui.components.pagerTabIndicatorOffset
+import org.xmsleep.app.utils.Logger
 
 /**
  * 星空页面 - 远程音频浏览和管理
@@ -87,12 +88,12 @@ fun StarSkyScreen(
         problemSounds.forEach { id ->
             val sound = remoteSounds.find { it.id == id }
             if (sound != null) {
-                android.util.Log.d("StarSkyScreen", "✓ 找到音频 $id: category=${sound.category}, source=${sound.source}, url=${sound.remoteUrl}")
+                Logger.d("StarSkyScreen", "✓ 找到音频 $id: category=${sound.category}, source=${sound.source}, url=${sound.remoteUrl}")
             } else {
-                android.util.Log.e("StarSkyScreen", "✗ 未找到音频 $id")
+                Logger.e("StarSkyScreen", "✗ 未找到音频 $id")
             }
         }
-        android.util.Log.d("StarSkyScreen", "当前音频总数: ${remoteSounds.size}")
+        Logger.d("StarSkyScreen", "当前音频总数: ${remoteSounds.size}")
     }
     var isLoading by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -120,6 +121,7 @@ fun StarSkyScreen(
     
     // 下拉刷新状态
     var isRefreshing by remember { mutableStateOf(false) }
+    @Suppress("DEPRECATION")
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing)
     
     // 调试模式：记录加载日志
@@ -161,7 +163,7 @@ fun StarSkyScreen(
     LaunchedEffect(activePreset) {
         val newPinned = org.xmsleep.app.preferences.PreferencesManager.getPresetRemotePinned(context, activePreset).toMutableSet()
         remotePinned = newPinned
-        android.util.Log.d("StarSkyScreen", "切换到预设 $activePreset，远程固定音频数量: ${newPinned.size}")
+        Logger.d("StarSkyScreen", "切换到预设 $activePreset，远程固定音频数量: ${newPinned.size}")
     }
     
     
@@ -189,7 +191,7 @@ fun StarSkyScreen(
         // 如果已经有数据（从缓存初始化），不重新加载（避免切换tab时重复加载）
         if (remoteSounds.isNotEmpty() && remoteCategories.isNotEmpty()) {
             addDebugLog("✓ 已有缓存数据，跳过加载，直接后台刷新")
-            android.util.Log.d("StarSkyScreen", "已有缓存数据，跳过加载，直接后台刷新")
+            Logger.d("StarSkyScreen", "已有缓存数据，跳过加载，直接后台刷新")
             // 有缓存数据，立即静默刷新（确保数据完整性，避免卡片延迟出现）
             try {
                 addDebugLog("→ 开始后台刷新...")
@@ -198,12 +200,12 @@ fun StarSkyScreen(
                     remoteSounds = refreshedManifest.sounds
                     remoteCategories = refreshedManifest.categories
                     addDebugLog("✓ 后台刷新成功，分类数: ${refreshedManifest.categories.size}，音频数: ${refreshedManifest.sounds.size}")
-                    android.util.Log.d("StarSkyScreen", "后台刷新清单成功，分类数量: ${refreshedManifest.categories.size}")
+                    Logger.d("StarSkyScreen", "后台刷新清单成功，分类数量: ${refreshedManifest.categories.size}")
                 }
             } catch (e: Exception) {
                 // 后台刷新失败不影响显示
                 addDebugLog("✗ 后台刷新失败: ${e.message}")
-                android.util.Log.e("StarSkyScreen", "后台刷新音频清单失败: ${e.message}")
+                Logger.e("StarSkyScreen", "后台刷新音频清单失败: ${e.message}")
             }
             return@LaunchedEffect
         }
@@ -218,7 +220,7 @@ fun StarSkyScreen(
             remoteSounds = cachedManifest.sounds
             remoteCategories = cachedManifest.categories
             addDebugLog("✓ 从本地缓存加载，分类数: ${cachedManifest.categories.size}，音频数: ${cachedManifest.sounds.size}")
-            android.util.Log.d("StarSkyScreen", "从缓存加载清单，分类数量: ${cachedManifest.categories.size}")
+            Logger.d("StarSkyScreen", "从缓存加载清单，分类数量: ${cachedManifest.categories.size}")
             isLoading = false // 有缓存数据，不显示加载状态
         } else {
             // 完全没有缓存，显示加载状态
@@ -236,29 +238,29 @@ fun StarSkyScreen(
                     remoteSounds = refreshedManifest.sounds
                     remoteCategories = refreshedManifest.categories
                     addDebugLog("✓ 网络加载成功，分类数: ${refreshedManifest.categories.size}，音频数: ${refreshedManifest.sounds.size}")
-                    android.util.Log.d("StarSkyScreen", "成功刷新清单，分类数量: ${refreshedManifest.categories.size}")
+                    Logger.d("StarSkyScreen", "成功刷新清单，分类数量: ${refreshedManifest.categories.size}")
                 } else {
                     // 刷新返回 null，说明可能有网络问题但不是异常
                     addDebugLog("⚠ 网络返回 null，尝试默认数据...")
-                    android.util.Log.w("StarSkyScreen", "刷新清单返回null，尝试使用默认数据")
+                    Logger.w("StarSkyScreen", "刷新清单返回null，尝试使用默认数据")
                     val defaultSounds = resourceManager.getRemoteSounds()
                     if (defaultSounds.isNotEmpty()) {
                         remoteSounds = defaultSounds
                         addDebugLog("✓ 使用默认数据，音频数: ${defaultSounds.size}")
-                        android.util.Log.d("StarSkyScreen", "使用默认远程音频数据，数量: ${defaultSounds.size}")
+                        Logger.d("StarSkyScreen", "使用默认远程音频数据，数量: ${defaultSounds.size}")
                     }
                 }
             } catch (e: Exception) {
                 // 刷新失败，尝试使用默认数据
                 addDebugLog("✗ 网络加载失败: ${e.javaClass.simpleName}: ${e.message}")
-                android.util.Log.e("StarSkyScreen", "刷新音频清单异常: ${e.message}")
+                Logger.e("StarSkyScreen", "刷新音频清单异常: ${e.message}")
                 try {
                     addDebugLog("→ 尝试使用默认数据...")
                     val defaultSounds = resourceManager.getRemoteSounds()
                     if (defaultSounds.isNotEmpty()) {
                         remoteSounds = defaultSounds
                         addDebugLog("✓ 使用默认数据，音频数: ${defaultSounds.size}")
-                        android.util.Log.d("StarSkyScreen", "异常后使用默认远程音频数据，数量: ${defaultSounds.size}")
+                        Logger.d("StarSkyScreen", "异常后使用默认远程音频数据，数量: ${defaultSounds.size}")
                     } else if (remoteSounds.isEmpty()) {
                         // 既没有缓存也没有默认数据，才显示错误
                         addDebugLog("✗ 加载完全失败！")
@@ -282,12 +284,12 @@ fun StarSkyScreen(
                     remoteSounds = refreshedManifest.sounds
                     remoteCategories = refreshedManifest.categories
                     addDebugLog("✓ 后台刷新成功")
-                    android.util.Log.d("StarSkyScreen", "后台刷新清单成功，分类数量: ${refreshedManifest.categories.size}")
+                    Logger.d("StarSkyScreen", "后台刷新清单成功，分类数量: ${refreshedManifest.categories.size}")
                 }
             } catch (e: Exception) {
                 // 后台刷新失败不影响显示
                 addDebugLog("⚠ 后台刷新失败（不影响显示）: ${e.message}")
-                android.util.Log.e("StarSkyScreen", "后台刷新音频清单失败: ${e.message}")
+                Logger.e("StarSkyScreen", "后台刷新音频清单失败: ${e.message}")
             }
         }
     }
@@ -343,12 +345,12 @@ fun StarSkyScreen(
                 .filter { it.id in categoryIdsFromSounds }
                 .sortedBy { it.order }
                 .map { it.id }
-            android.util.Log.d("StarSkyScreen", "分类排序: ${sorted.joinToString { it }}")
-            android.util.Log.d("StarSkyScreen", "分类详情: ${remoteCategories.map { "${it.id}: order=${it.order}" }.joinToString()}")
+            Logger.d("StarSkyScreen", "分类排序: ${sorted.joinToString { it }}")
+            Logger.d("StarSkyScreen", "分类详情: ${remoteCategories.map { "${it.id}: order=${it.order}" }.joinToString()}")
             sorted
         } else {
             // 如果没有分类信息，使用字符串排序作为后备
-            android.util.Log.w("StarSkyScreen", "remoteCategories 为空，使用字符串排序")
+            Logger.w("StarSkyScreen", "remoteCategories 为空，使用字符串排序")
             categoryIdsFromSounds.sorted()
         }
     }
@@ -581,6 +583,7 @@ fun StarSkyScreen(
         
         // 音频列表
         else if (remoteSounds.isNotEmpty()) {
+            @Suppress("DEPRECATION")
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = refreshData,
@@ -751,7 +754,7 @@ fun StarSkyScreen(
                                     } else {
                                         newSet.add(sound.id)
                                         remotePinned = newSet
-                                        android.util.Log.d("StarSkyScreen", "保存到预设 $activePreset: ${sound.id}")
+                                        Logger.d("StarSkyScreen", "保存到预设 $activePreset: ${sound.id}")
                                         org.xmsleep.app.preferences.PreferencesManager.savePresetRemotePinned(context, activePreset, newSet)
                                     }
                                 }
@@ -795,7 +798,7 @@ fun StarSkyScreen(
                                             when (progress) {
                                                 is org.xmsleep.app.audio.DownloadProgress.Progress -> {
                                                     val percent = progress.bytesRead.toFloat() / progress.contentLength
-                                                    android.util.Log.d("StarSkyScreen", "下载进度: ${sound.id} = $percent")
+                                                    Logger.d("StarSkyScreen", "下载进度: ${sound.id} = $percent")
                                                     // 收到第一个进度更新，从"正在下载但还没有进度"集合中移除
                                                     downloadingButNoProgress = downloadingButNoProgress - sound.id
                                                     downloadingSounds = downloadingSounds.toMutableMap().apply {
@@ -803,7 +806,7 @@ fun StarSkyScreen(
                                                     }
                                                 }
                                                 is org.xmsleep.app.audio.DownloadProgress.Success -> {
-                                                    android.util.Log.d("StarSkyScreen", "下载完成: ${sound.id}")
+                                                    Logger.d("StarSkyScreen", "下载完成: ${sound.id}")
                                                     downloadingButNoProgress = downloadingButNoProgress - sound.id
                                                     downloadingSounds = downloadingSounds.toMutableMap().apply {
                                                         remove(sound.id)
@@ -816,13 +819,13 @@ fun StarSkyScreen(
                                                         audioManager.playRemoteSound(context, sound, uri)
                                                         playingSounds = playingSounds + sound.id
                                                     } else {
-                                                        android.util.Log.e("StarSkyScreen", "下载完成后无法获取URI: ${sound.id}")
+                                                        Logger.e("StarSkyScreen", "下载完成后无法获取URI: ${sound.id}")
                                                         Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
                                                     }
                                                     return@collect
                                                 }
                                                 is org.xmsleep.app.audio.DownloadProgress.Error -> {
-                                                    android.util.Log.e("StarSkyScreen", "下载失败: ${sound.id} - ${progress.exception.message}")
+                                                    Logger.e("StarSkyScreen", "下载失败: ${sound.id} - ${progress.exception.message}")
                                                     downloadingButNoProgress = downloadingButNoProgress - sound.id
                                                     downloadingSounds = downloadingSounds.toMutableMap().apply {
                                                         remove(sound.id)
@@ -839,12 +842,12 @@ fun StarSkyScreen(
                                             audioManager.playRemoteSound(context, sound, uri)
                                             playingSounds = playingSounds + sound.id
                                         } else {
-                                            android.util.Log.e("StarSkyScreen", "无法获取URI: ${sound.id}")
+                                            Logger.e("StarSkyScreen", "无法获取URI: ${sound.id}")
                                             Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 } catch (e: Exception) {
-                                    android.util.Log.e("StarSkyScreen", "播放失败: ${e.message}")
+                                    Logger.e("StarSkyScreen", "播放失败: ${e.message}")
                                     Toast.makeText(context, "播放失败: ${e.message}", Toast.LENGTH_SHORT).show()
                                 }
                             }
@@ -913,8 +916,8 @@ fun StarSkyScreen(
                                         } else {
                                             newSet.add(sound.id)
                                             remotePinned = newSet
-                                            android.util.Log.d("StarSkyScreen", "保存到预设 $activePreset: ${sound.id}")
-                                            android.util.Log.d("StarSkyScreen", "添加到第二个固定位置")
+                                            Logger.d("StarSkyScreen", "保存到预设 $activePreset: ${sound.id}")
+                                            Logger.d("StarSkyScreen", "添加到第二个固定位置")
                                             org.xmsleep.app.preferences.PreferencesManager.savePresetRemotePinned(context, activePreset, newSet)
                                         }
                                     }
@@ -958,7 +961,7 @@ fun StarSkyScreen(
                                                 when (progress) {
                                                     is org.xmsleep.app.audio.DownloadProgress.Progress -> {
                                                         val percent = progress.bytesRead.toFloat() / progress.contentLength
-                                                        android.util.Log.d("StarSkyScreen", "下载进度: ${sound.id} = $percent")
+                                                        Logger.d("StarSkyScreen", "下载进度: ${sound.id} = $percent")
                                                         // 收到第一个进度更新，从"正在下载但还没有进度"集合中移除
                                                         downloadingButNoProgress = downloadingButNoProgress - sound.id
                                                         downloadingSounds = downloadingSounds.toMutableMap().apply {
@@ -966,7 +969,7 @@ fun StarSkyScreen(
                                                         }
                                                     }
                                                     is org.xmsleep.app.audio.DownloadProgress.Success -> {
-                                                        android.util.Log.d("StarSkyScreen", "下载完成: ${sound.id}")
+                                                        Logger.d("StarSkyScreen", "下载完成: ${sound.id}")
                                                         downloadingButNoProgress = downloadingButNoProgress - sound.id
                                                         downloadingSounds = downloadingSounds.toMutableMap().apply {
                                                             remove(sound.id)
@@ -979,14 +982,14 @@ fun StarSkyScreen(
                                                             audioManager.playRemoteSound(context, sound, uri)
                                                             playingSounds = playingSounds + sound.id
                                                         } else {
-                                                            android.util.Log.e("StarSkyScreen", "下载完成后无法获取URI: ${sound.id}")
+                                                            Logger.e("StarSkyScreen", "下载完成后无法获取URI: ${sound.id}")
                                                             Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
                                                         }
                                                         return@collect
                                                     }
                                                     is org.xmsleep.app.audio.DownloadProgress.Error -> {
                                                         downloadingButNoProgress = downloadingButNoProgress - sound.id
-                                                        android.util.Log.e("StarSkyScreen", "下载失败: ${sound.id} - ${progress.exception.message}")
+                                                        Logger.e("StarSkyScreen", "下载失败: ${sound.id} - ${progress.exception.message}")
                                                         downloadingSounds = downloadingSounds.toMutableMap().apply {
                                                             remove(sound.id)
                                                         }
@@ -1002,12 +1005,12 @@ fun StarSkyScreen(
                                                 audioManager.playRemoteSound(context, sound, uri)
                                                 playingSounds = playingSounds + sound.id
                                             } else {
-                                                android.util.Log.e("StarSkyScreen", "无法获取URI: ${sound.id}")
+                                                Logger.e("StarSkyScreen", "无法获取URI: ${sound.id}")
                                                 Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                     } catch (e: Exception) {
-                                        android.util.Log.e("StarSkyScreen", "播放失败: ${e.message}")
+                                        Logger.e("StarSkyScreen", "播放失败: ${e.message}")
                                         Toast.makeText(context, "播放失败: ${e.message}", Toast.LENGTH_SHORT).show()
                                     }
                                 }

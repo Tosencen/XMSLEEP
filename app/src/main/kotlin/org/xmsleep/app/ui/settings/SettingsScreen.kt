@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -47,6 +48,7 @@ import org.xmsleep.app.ui.BackgroundSelection
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.update.UpdateDialog
 import org.xmsleep.app.ui.starsky.WeatherEditDialog
+import org.xmsleep.app.utils.Logger
 import org.xmsleep.app.utils.*
 
 /**
@@ -381,7 +383,7 @@ fun SettingsScreen(
                     onClick = { showLanguageDialog = true }
                 ),
                 SettingsCategoryItem(
-                    icon = Icons.Default.Cloud,
+                    icon = Icons.Outlined.Cloud,
                     title = { Text(context.getString(R.string.weather_smart_recommend)) },
                     description = {
                         Text(
@@ -584,7 +586,7 @@ fun SettingsScreen(
                                 modifier = Modifier.fillMaxSize()
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Cloud,
+                                    imageVector = Icons.Outlined.Cloud,
                                     contentDescription = "天气设置",
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.size(24.dp)
@@ -766,9 +768,9 @@ fun SettingsScreen(
                                 }
                                 // 实时应用到所有远程声音（繁星页面）
                                 val remoteSoundIds = audioManager.getPlayingRemoteSoundIds()
-                                android.util.Log.d("VolumeDialog", "正在播放的远程音频数量: ${remoteSoundIds.size}, IDs: $remoteSoundIds")
+                                Logger.d("VolumeDialog", "正在播放的远程音频数量: ${remoteSoundIds.size}, IDs: $remoteSoundIds")
                                 remoteSoundIds.forEach { soundId ->
-                                    android.util.Log.d("VolumeDialog", "设置远程音频音量: $soundId = $volume")
+                                    Logger.d("VolumeDialog", "设置远程音频音量: $soundId = $volume")
                                     audioManager.setRemoteVolume(soundId, volume)
                                 }
                                 // 实时更新显示的音量数值
@@ -863,25 +865,25 @@ fun SettingsScreen(
             // 跟踪临时选择
             var tempSelection by remember { mutableStateOf(backgroundSelection) }
             
-            android.util.Log.d("SettingsScreen", "打开背景对话框，当前选择: $backgroundSelection")
+            Logger.d("SettingsScreen", "打开背景对话框，当前选择: $backgroundSelection")
             
             BackgroundSelectionDialog(
                 currentSelection = tempSelection,
                 onSelectionChange = { selection ->
                     // 实时预览：只更新临时选择和UI显示
-                    android.util.Log.d("SettingsScreen", "选择变化（预览）: $selection")
+                    Logger.d("SettingsScreen", "选择变化（预览）: $selection")
                     tempSelection = selection
                     onBackgroundSelectionChange(selection) // 实时预览
                 },
                 onDismiss = {
                     // 取消时恢复原始选择
-                    android.util.Log.d("SettingsScreen", "取消，恢复原始选择: $originalSelection")
+                    Logger.d("SettingsScreen", "取消，恢复原始选择: $originalSelection")
                     onBackgroundSelectionChange(originalSelection)
                     showBackgroundDialog = false
                 },
                 onConfirm = {
                     // 确认时：确保状态和持久化都更新
-                    android.util.Log.d("SettingsScreen", "确认，保存选择: $tempSelection")
+                    Logger.d("SettingsScreen", "确认，保存选择: $tempSelection")
                     // 注意：onBackgroundSelectionChange 内部已经调用了 saveBackgroundSelection
                     // 所以这里只需要调用一次即可
                     onBackgroundSelectionChange(tempSelection)

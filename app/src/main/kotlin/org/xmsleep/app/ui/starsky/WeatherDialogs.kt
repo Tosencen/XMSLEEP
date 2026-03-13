@@ -51,21 +51,37 @@ fun WeatherEditDialog(
         "walk-in-snow" -> R.string.weather_sound_walk_in_snow
         "night-village" -> R.string.weather_sound_night
         "crickets" -> R.string.weather_sound_crickets
+        "field" -> R.string.weather_sound_field
+        "lake" -> R.string.weather_sound_lake
+        "kitchen" -> R.string.weather_sound_kitchen
+        "wind-chimes" -> R.string.weather_sound_wind_chimes
+        "light-piano" -> R.string.weather_sound_light_piano
+        "rain-on-car-roof" -> R.string.weather_sound_rain_on_car_roof
+        "rain-on-umbrella" -> R.string.weather_sound_rain_on_umbrella
+        "rain-on-tent" -> R.string.weather_sound_rain_on_tent
+        "rain-on-leaves" -> R.string.weather_sound_rain_on_leaves
+        "rain-on-raincoat" -> R.string.weather_sound_rain_on_raincoat
+        "rain-on-windowsill" -> R.string.weather_sound_rain_on_windowsill
+        "rain-on-wooden-house" -> R.string.weather_sound_rain_on_wooden_house
+        "rain-while-driving" -> R.string.weather_sound_rain_while_driving
+        "rain-on-empty-street" -> R.string.weather_sound_rain_on_empty_street
+        "rain-on-eaves" -> R.string.weather_sound_rain_on_eaves
+        "heavy-rain-on-glass" -> R.string.weather_sound_heavy_rain_on_glass
         else -> R.string.weather_sound_rain
     }
+    
+    // 可用音频列表（按分类组织）
+    val availableSoundsMap = mapOf(
+        ctx.getString(R.string.weather_category_nature) to listOf("field", "lake", "wind", "birds", "river", "jungle", "campfire", "waves", "night-village", "crickets", "walk-in-snow"),
+        ctx.getString(R.string.weather_category_rain) to listOf("rain", "light-rain", "heavy-rain", "drizzle", "thunderstorm", "rain-on-car-roof", "rain-on-umbrella", "rain-on-tent", "rain-on-leaves", "rain-on-raincoat", "rain-on-windowsill", "rain-on-wooden-house", "rain-while-driving", "rain-on-empty-street", "rain-on-eaves", "heavy-rain-on-glass"),
+        ctx.getString(R.string.weather_category_other) to listOf("kitchen", "wind-chimes", "light-piano")
+    )
     
     var mappings by remember {
         mutableStateOf(WeatherSoundMapper.getMappings(context))
     }
     var selectedWeatherType by remember {
         mutableStateOf(WeatherCodeMapper.toWeatherType(weatherCode))
-    }
-    var availableSounds by remember {
-        mutableStateOf(listOf(
-            "rain", "light-rain", "heavy-rain", "thunderstorm", "wind",
-            "birds", "river", "jungle", "campfire", "waves",
-            "drizzle", "walk-in-snow", "night-village", "crickets"
-        ))
     }
     
     val detailedWeatherTypes = listOf(
@@ -116,7 +132,7 @@ fun WeatherEditDialog(
             ) {
                 val weatherDescription = WeatherCodeMapper.toDescription(weatherCode, ctx)
                 Text(
-                    text = "${ctx.getString(R.string.weather_current)}: $weatherDescription",
+                    text = "${ctx.getString(R.string.weather_current)} $weatherDescription",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary
                 )
@@ -159,34 +175,43 @@ fun WeatherEditDialog(
                 Column(
                     modifier = Modifier.verticalScroll(rememberScrollState())
                 ) {
-                    availableSounds.forEach { soundId ->
-                        val isSelected = selectedSoundIdsList.contains(soundId)
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
-                                    selectedSoundIdsList = if (isSelected) {
-                                        selectedSoundIdsList - soundId
-                                    } else {
-                                        selectedSoundIdsList + soundId
+                    availableSoundsMap.forEach { (category, soundIds) ->
+                        Text(
+                            text = category,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                        soundIds.forEach { soundId ->
+                            val isSelected = selectedSoundIdsList.contains(soundId)
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable {
+                                        selectedSoundIdsList = if (isSelected) {
+                                            selectedSoundIdsList - soundId
+                                        } else {
+                                            selectedSoundIdsList + soundId
+                                        }
                                     }
-                                }
-                                .padding(vertical = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Checkbox(
-                                checked = isSelected,
-                                onCheckedChange = { checked ->
-                                    selectedSoundIdsList = if (checked) {
-                                        selectedSoundIdsList + soundId
-                                    } else {
-                                        selectedSoundIdsList - soundId
+                                    .padding(vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = isSelected,
+                                    onCheckedChange = { checked ->
+                                        selectedSoundIdsList = if (checked) {
+                                            selectedSoundIdsList + soundId
+                                        } else {
+                                            selectedSoundIdsList - soundId
+                                        }
                                     }
-                                }
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(ctx.getString(getSoundNameResId(soundId)))
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(ctx.getString(getSoundNameResId(soundId)))
+                            }
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }

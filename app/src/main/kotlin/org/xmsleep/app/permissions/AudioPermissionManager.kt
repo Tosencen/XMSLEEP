@@ -10,6 +10,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import org.xmsleep.app.utils.Logger
 
 /**
  * 权限状态枚举
@@ -92,17 +93,17 @@ class AudioPermissionManager(private val context: Context) {
      */
     fun requestStoragePermission(activity: Activity, callback: PermissionCallback) {
         val permission = getRequiredPermission()
-        android.util.Log.d("AudioPermissionManager", "开始请求权限: $permission")
-        android.util.Log.d("AudioPermissionManager", "Activity: $activity")
+        Logger.d("AudioPermissionManager", "开始请求权限: $permission")
+        Logger.d("AudioPermissionManager", "Activity: $activity")
         
         // 记录已经请求过权限（用于判断永久拒绝状态）
         val sharedPrefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         sharedPrefs.edit().putBoolean(KEY_HAS_REQUESTED, true).apply()
-        android.util.Log.d("AudioPermissionManager", "已记录权限请求历史")
+        Logger.d("AudioPermissionManager", "已记录权限请求历史")
         
         // 存储回调以便在结果中使用
         permissionCallback = callback
-        android.util.Log.d("AudioPermissionManager", "已存储回调")
+        Logger.d("AudioPermissionManager", "已存储回调")
         
         // 发起权限请求
         try {
@@ -111,9 +112,9 @@ class AudioPermissionManager(private val context: Context) {
                 arrayOf(permission),
                 AUDIO_PERMISSION_REQUEST_CODE
             )
-            android.util.Log.d("AudioPermissionManager", "权限请求已发起")
+            Logger.d("AudioPermissionManager", "权限请求已发起")
         } catch (e: Exception) {
-            android.util.Log.e("AudioPermissionManager", "权限请求失败", e)
+            Logger.e("AudioPermissionManager", "权限请求失败", e)
             throw e
         }
     }

@@ -35,6 +35,7 @@ import org.xmsleep.app.audio.AudioCacheManager
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.utils.ToastUtils
+import org.xmsleep.app.utils.Logger
 import android.widget.Toast
 import android.content.ContentUris
 import android.os.Build
@@ -221,7 +222,7 @@ fun FavoriteScreen(
             val sounds = resourceManager.getRemoteSounds()
             remoteSounds = sounds
         } catch (e: Exception) {
-            android.util.Log.e("FavoriteScreen", "加载远程音频失败: ${e.message}")
+            Logger.e("FavoriteScreen", "加载远程音频失败: ${e.message}")
         }
     }
     
@@ -286,7 +287,7 @@ fun FavoriteScreen(
                     localAudioFiles = audioFiles
                 }
             } catch (e: Exception) {
-                android.util.Log.e("FavoriteScreen", "扫描本地音频文件失败", e)
+                Logger.e("FavoriteScreen", "扫描本地音频文件失败", e)
             }
         }
     }

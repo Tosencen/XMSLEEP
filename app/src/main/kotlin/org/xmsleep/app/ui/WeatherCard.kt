@@ -47,6 +47,22 @@ private fun getSoundNameResId(soundId: String, context: android.content.Context)
     "walk-in-snow" -> R.string.weather_sound_walk_in_snow
     "night-village" -> R.string.weather_sound_night
     "crickets" -> R.string.weather_sound_crickets
+    "field" -> R.string.weather_sound_field
+    "lake" -> R.string.weather_sound_lake
+    "kitchen" -> R.string.weather_sound_kitchen
+    "wind-chimes" -> R.string.weather_sound_wind_chimes
+    "light-piano" -> R.string.weather_sound_light_piano
+    "rain-on-car-roof" -> R.string.weather_sound_rain_on_car_roof
+    "rain-on-umbrella" -> R.string.weather_sound_rain_on_umbrella
+    "rain-on-tent" -> R.string.weather_sound_rain_on_tent
+    "rain-on-leaves" -> R.string.weather_sound_rain_on_leaves
+    "rain-on-raincoat" -> R.string.weather_sound_rain_on_raincoat
+    "rain-on-windowsill" -> R.string.weather_sound_rain_on_windowsill
+    "rain-on-wooden-house" -> R.string.weather_sound_rain_on_wooden_house
+    "rain-while-driving" -> R.string.weather_sound_rain_while_driving
+    "rain-on-empty-street" -> R.string.weather_sound_rain_on_empty_street
+    "rain-on-eaves" -> R.string.weather_sound_rain_on_eaves
+    "heavy-rain-on-glass" -> R.string.weather_sound_heavy_rain_on_glass
     else -> R.string.weather_sound_rain
 }
 
@@ -65,7 +81,7 @@ fun WeatherCard(
     if (currentWeather == null) {
         Surface(
             modifier = modifier.fillMaxWidth(),
-            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.6f),
+            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0f),
             shape = RoundedCornerShape(16.dp)
         ) {
             Column(
@@ -113,27 +129,99 @@ fun WeatherCard(
                 .padding(horizontal = 32.dp, vertical = 60.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 标语
-            val weatherQuote = remember { 
-                HealingQuoteManager.getRandomQuote(context) 
+            // 天气大图标 + 播放按钮
+            Box(
+                contentAlignment = Alignment.BottomEnd
+            ) {
+                Text(
+                    text = currentWeather.icon,
+                    style = MaterialTheme.typography.displayLarge,
+                    modifier = Modifier.graphicsLayer(scaleX = 1.5f, scaleY = 1.5f)
+                )
+                
+                // 播放/停止按钮（只显示图标，在天气图标右下角）
+                if (recommendedSounds.isNotEmpty()) {
+                    val audioManager = remember { AudioManager.getInstance() }
+                    val resourceManager = remember { AudioResourceManager.getInstance(context) }
+                    val cacheManager = remember { AudioCacheManager.getInstance(context) }
+                    var isDownloading by remember { mutableStateOf(false) }
+                    var hasStartedPlaying by remember { mutableStateOf(false) }
+                    
+                    var isAnyPlaying by remember { mutableStateOf(false) }
+                    LaunchedEffect(recommendedSounds) {
+                        while (true) {
+                            isAnyPlaying = recommendedSounds.any { sound ->
+                                audioManager.isPlayingRemoteSound(sound.id)
+                            }
+                            delay(500)
+                        }
+                    }
+                    
+                    FilledIconButton(
+                        onClick = {
+                            if (isAnyPlaying || hasStartedPlaying) {
+                                audioManager.stopAllSounds()
+                                hasStartedPlaying = false
+                            } else if (!isDownloading) {
+                                hasStartedPlaying = true
+                                scope.launch {
+                                    isDownloading = true
+                                    try {
+                                        recommendedSounds.forEach { sound ->
+                                            val cached = cacheManager.getCachedFile(sound.id)
+                                            if (cached == null || !cached.exists()) {
+                                                withContext(Dispatchers.IO) {
+                                                    resourceManager.ensureSoundDownloaded(sound)
+                                                }
+                                            }
+                                        }
+                                        recommendedSounds.forEach { sound ->
+                                            val uri = withContext(Dispatchers.IO) {
+                                                resourceManager.getSoundUri(sound)
+                                            }
+                                            uri?.let { audioManager.playRemoteSound(context, sound, it) }
+                                        }
+                                    } catch (e: Exception) {
+                                        hasStartedPlaying = false
+                                        android.widget.Toast.makeText(
+                                            context,
+                                            "${context.getString(R.string.download_failed)}: ${e.message}",
+                                            android.widget.Toast.LENGTH_SHORT
+                                        ).show()
+                                    } finally {
+                                        isDownloading = false
+                                    }
+                                }
+                            }
+                        },
+                        enabled = !isDownloading,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .offset(x = 10.dp)
+                    ) {
+                        if (isDownloading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp
+                            )
+                        } else if (isAnyPlaying || hasStartedPlaying) {
+                            Icon(
+                                imageVector = Icons.Default.Stop,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+                }
             }
-            Text(
-                text = weatherQuote,
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                textAlign = TextAlign.Center
-            )
             
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            // 天气大图标
-            Text(
-                text = currentWeather.icon,
-                style = MaterialTheme.typography.displayLarge,
-                modifier = Modifier.graphicsLayer(scaleX = 1.5f, scaleY = 1.5f)
-            )
-            
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             
             // 温度和天气描述
             val weatherDescription = WeatherCodeMapper.toDescription(currentWeather.weatherCode, context)
@@ -166,6 +254,19 @@ fun WeatherCard(
                 }
             }
             
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // 标语
+            val weatherQuote = remember { 
+                HealingQuoteManager.getRandomQuote(context) 
+            }
+            Text(
+                text = weatherQuote,
+                style = MaterialTheme.typography.headlineMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                textAlign = TextAlign.Center
+            )
+            
             // 推荐音频区域 - 展示所有推荐音频名称（可横向滚动）
             if (recommendedSounds.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(32.dp))
@@ -191,85 +292,6 @@ fun WeatherCard(
                                 color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                             )
-                        }
-                    }
-                }
-                
-                Spacer(modifier = Modifier.height(24.dp))
-                
-                // 播放/停止按钮
-                val audioManager = remember { AudioManager.getInstance() }
-                val resourceManager = remember { AudioResourceManager.getInstance(context) }
-                val cacheManager = remember { AudioCacheManager.getInstance(context) }
-                var isDownloading by remember { mutableStateOf(false) }
-                
-                // 定期检测推荐音频的播放状态
-                var isAnyPlaying by remember { mutableStateOf(false) }
-                LaunchedEffect(recommendedSounds) {
-                    while (true) {
-                        isAnyPlaying = recommendedSounds.any { sound ->
-                            audioManager.isPlayingRemoteSound(sound.id)
-                        }
-                        delay(500)
-                    }
-                }
-                
-                when {
-                    isDownloading -> {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp
-                        )
-                    }
-                    else -> {
-                        Button(
-                            onClick = {
-                                if (isAnyPlaying) {
-                                    // 停止播放
-                                    audioManager.stopAllSounds()
-                                } else {
-                                    // 下载并播放
-                                    scope.launch {
-                                        isDownloading = true
-                                        try {
-                                            // 下载未缓存的音频
-                                            recommendedSounds.forEach { sound ->
-                                                val cached = cacheManager.getCachedFile(sound.id)
-                                                if (cached == null || !cached.exists()) {
-                                                    withContext(Dispatchers.IO) {
-                                                        resourceManager.ensureSoundDownloaded(sound)
-                                                    }
-                                                }
-                                            }
-                                            isDownloading = false
-                                            // 播放所有推荐音频
-                                            recommendedSounds.forEach { sound ->
-                                                val uri = withContext(Dispatchers.IO) {
-                                                    resourceManager.getSoundUri(sound)
-                                                }
-                                                uri?.let { audioManager.playRemoteSound(context, sound, it) }
-                                            }
-                                        } catch (e: Exception) {
-                                            isDownloading = false
-                                            android.widget.Toast.makeText(
-                                                context,
-                                                "${context.getString(R.string.download_failed)}: ${e.message}",
-                                                android.widget.Toast.LENGTH_SHORT
-                                            ).show()
-                                        }
-                                    }
-                                }
-                            }
-                        ) {
-                            if (isAnyPlaying) {
-                                Icon(imageVector = Icons.Default.Stop, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(context.getString(R.string.stop_all))
-                            } else {
-                                Icon(imageVector = Icons.Default.PlayArrow, contentDescription = null)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(context.getString(R.string.play_recommended))
-                            }
                         }
                     }
                 }

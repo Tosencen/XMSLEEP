@@ -8,6 +8,7 @@
     <string name="language_english">English</string>
     <string name="select_language">Select Language</string>
     <string name="white_noise">White Noise</string>
+    <string name="breathing">Breathing</string>
     <string name="star_sky">Star Sky</string>
     <string name="star_sky_more_sounds_hint">More sounds will appear here</string>
     <string name="settings">Settings</string>
@@ -290,7 +291,7 @@ If you have any questions, please contact us through the in-app contact method.<
         <item>A new day, a new beginning</item>
         <item>Dawn breaks, beauty arrives as promised</item>
         <item>Greet the new day with a smile</item>
-        <item>Morning sunshine warms your heart</item>
+        <item>Morning dew, crystal clear</item>
         <item>Stay energized today</item>
         <item>The early bird catches the worm</item>
         <item>A beautiful day starts now</item>
@@ -300,7 +301,7 @@ If you have any questions, please contact us through the in-app contact method.<
         <item>A new day, full of possibilities</item>
         <item>Morning breeze brings good mood</item>
         <item>Stay happy and joyful today</item>
-        <item>The first ray of sunshine belongs to you</item>
+        <item>Good morning, my friend</item>
         <item>Start a beautiful day with good mood</item>
         <item>Good morning, may you always smile</item>
         <item>Morning light glimmers, time stands still</item>
@@ -321,34 +322,34 @@ If you have any questions, please contact us through the in-app contact method.<
     <!-- Healing Quotes - Afternoon -->
     <string-array name="healing_quotes_afternoon">
         <item>Afternoon time, enjoy the peace</item>
-        <item>Perfect sunshine, gentle breeze</item>
+        <item>Be a quiet person</item>
         <item>Slow down, feel life\'s beauty</item>
-        <item>Afternoon sunshine, warm and cozy</item>
+        <item>It\'s noon, time for a nap?</item>
         <item>Give yourself a moment to relax</item>
         <item>Tea time, enjoy the leisure</item>
-        <item>Afternoon serenity, let your soul rest</item>
-        <item>Sunshine falls, time stands still</item>
+        <item>Drink more hot water, get moving</item>
+        <item>What are you thinking about right now?</item>
         <item>Slow living is true living</item>
-        <item>Afternoon breeze caresses the soul</item>
+        <item>Did you eat well today?</item>
         <item>Give yourself a hug</item>
         <item>Good afternoon, remember to rest</item>
         <item>Afternoon time, gentle and beautiful</item>
-        <item>Bright sunshine, pleasant mood</item>
+        <item>What a wonderful spring, better than a dream</item>
         <item>Take it slow, everything will come</item>
-        <item>Afternoon leisure, worth cherishing</item>
+        <item>Think sincerely, discern right from wrong</item>
         <item>Give your soul a break</item>
-        <item>Afternoon sunshine heals everything</item>
-        <item>Afternoon time, quietly enjoy</item>
-        <item>Perfect sunshine, seize the moment</item>
+        <item>Did you forget to take a break?</item>
+        <item>Did you do the eye exercises?</item>
+        <item>I want to take you to my grandmother\'s house to watch the sunset together</item>
         <item>Slow your pace, feel the present</item>
-        <item>Afternoon warmth, refreshing</item>
+        <item>When was the last time you bought flowers?</item>
         <item>Give yourself time to unwind</item>
         <item>Good afternoon, stay relaxed</item>
-        <item>Afternoon serenity brings peace</item>
-        <item>Sunshine on body, warmth in heart</item>
-        <item>Slow living, slow enjoying</item>
+        <item>Let me tell you a secret, my shoes don\'t have lift pads</item>
+        <item>Did you save a fox on a snowy mountain?</item>
+        <item>Neck sore? Do some neck circles</item>
         <item>Afternoon time, beautiful and serene</item>
-        <item>Bright sunshine, peaceful time</item>
+        <item>Hahahahahahaha</item>
         <item>Give your tired soul a rest</item>
     </string-array>
     
@@ -413,8 +414,27 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="weather_sound_jungle">Jungle</string>
     <string name="weather_sound_drizzle">Drizzle</string>
     <string name="weather_sound_walk_in_snow">Walk in Snow</string>
-    <string name="weather_sound_night">Night</string>
+    <string name="weather_sound_night">Night Village</string>
     <string name="weather_sound_crickets">Crickets</string>
+    <string name="weather_sound_field">Field</string>
+    <string name="weather_sound_lake">Lake</string>
+    <string name="weather_sound_kitchen">Kitchen Cooking</string>
+    <string name="weather_sound_wind_chimes">Wind Chimes</string>
+    <string name="weather_sound_light_piano">Light Piano</string>
+    <string name="weather_sound_rain_on_car_roof">Rain on Car Roof</string>
+    <string name="weather_sound_rain_on_umbrella">Rain on Umbrella</string>
+    <string name="weather_sound_rain_on_tent">Rain on Tent</string>
+    <string name="weather_sound_rain_on_leaves">Rain on Leaves</string>
+    <string name="weather_sound_rain_on_raincoat">Rain on Raincoat</string>
+    <string name="weather_sound_rain_on_windowsill">Rain on Windowsill</string>
+    <string name="weather_sound_rain_on_wooden_house">Rain on Wooden House</string>
+    <string name="weather_sound_rain_while_driving">Rain While Driving</string>
+    <string name="weather_sound_rain_on_empty_street">Rain on Empty Street</string>
+    <string name="weather_sound_rain_on_eaves">Rain on Eaves</string>
+    <string name="weather_sound_heavy_rain_on_glass">Heavy Rain on Glass</string>
+    <string name="weather_category_nature">Nature</string>
+    <string name="weather_category_rain">Rain</string>
+    <string name="weather_category_other">Other</string>
     <string name="weather_sunny_clear">Clear</string>
     <string name="weather_sunny_night">Clear Night</string>
     <string name="weather_cloudy_partly">Partly Cloudy</string>
@@ -450,7 +470,30 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="downloading">Downloading</string>
     <string name="tap_to_download_and_play">Tap to download and play</string>
     <string name="playing">Playing</string>
-    <string name="play_recommended">Play Recommended</string>
+    <string name="play_recommended">Play Recommended Audio</string>
     <string name="download_and_play">Download and Play</string>
     <string name="weather_location_required">Location permission required</string>
+    
+    <!-- Breathing Exercise -->
+    <string name="breathing_exercise">Breathing Exercise</string>
+    <string name="tap_to_start">Tap to Start</string>
+    <string name="inhale">Inhale...</string>
+    <string name="hold">Hold...</string>
+    <string name="exhale">Exhale...</string>
+    <string name="breath_count">Breath %1$d</string>
+    
+    <!-- Breathing Guide -->
+    <string name="breathing_guide_title">Breathing Exercise Guide</string>
+    <string name="breathing_guide_step1">1. Click the play button below to start</string>
+    <string name="breathing_guide_step2">2. Inhale (4s): Follow the expanding circle</string>
+    <string name="breathing_guide_step3">3. Hold (4s): Keep at maximum size</string>
+    <string name="breathing_guide_step4">4. Exhale (4s): Follow the shrinking circle</string>
+    <string name="breathing_guide_step5">5. Duration: 5 minutes, stops automatically</string>
+    <string name="got_it">Got it</string>
+    
+    <!-- Bottom Navigation Tabs -->
+    <string name="tab_white_noise">Noise</string>
+    <string name="tab_starsky">Stars</string>
+    <string name="tab_breathing">Breathe</string>
+    <string name="tab_settings">Settings</string>
 </resources>
