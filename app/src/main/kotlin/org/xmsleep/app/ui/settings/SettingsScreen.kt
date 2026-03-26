@@ -17,7 +17,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material3.*
@@ -83,7 +82,6 @@ fun SettingsScreen(
     var isClearingCache by remember { mutableStateOf(false) }
     var cacheSize by remember { mutableStateOf(0L) }
     var isCalculatingCache by remember { mutableStateOf(false) }
-    var showVolumeDialog by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
     var showUpdateDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
@@ -137,33 +135,14 @@ fun SettingsScreen(
             "1.0.0"
         }
     }
-    
-    // 实时音量状态（用于显示当前音量）
-    var currentVolumeDisplay by remember { mutableStateOf(0f) }
-    
-    // 定期更新缓存大小和音量显示
+
+    // 定期更新缓存大小
     LaunchedEffect(Unit) {
         while (true) {
             isCalculatingCache = true
             cacheSize = calculateCacheSize(context)
             isCalculatingCache = false
-            
-            // 更新音量显示：获取第一个正在播放的声音的音量，优先检查本地音频，然后检查远程音频
-            val playingSounds = audioManager.getPlayingSounds()
-            val playingRemoteSounds = audioManager.getPlayingRemoteSoundIds()
-            currentVolumeDisplay = when {
-                playingSounds.isNotEmpty() -> {
-                    audioManager.getVolume(playingSounds.first())
-                }
-                playingRemoteSounds.isNotEmpty() -> {
-                    audioManager.getRemoteVolume(playingRemoteSounds.first())
-                }
-                else -> {
-                    // 如果没有正在播放的音频，保持当前显示值不变（不重置为0）
-                    currentVolumeDisplay
-                }
-            }
-            
+
             // 检查缓存是否超过200M (200 * 1024 * 1024 字节)
             val thresholdBytes = 200L * 1024 * 1024
             if (cacheSize > thresholdBytes && !isClearingCache) {
@@ -183,30 +162,12 @@ fun SettingsScreen(
                     }
                 }
             }
-            
-            // 每5秒更新一次缓存大小和音量
+
+            // 每5秒更新一次缓存大小
             delay(5000)
         }
     }
-    
-    // 实时监听音量变化（更频繁的更新）
-    LaunchedEffect(Unit) {
-        while (true) {
-            val playingSounds = audioManager.getPlayingSounds()
-            val playingRemoteSounds = audioManager.getPlayingRemoteSoundIds()
-            // 只在有音频播放时才更新显示，避免覆盖用户设置的值
-            when {
-                playingSounds.isNotEmpty() -> {
-                    currentVolumeDisplay = audioManager.getVolume(playingSounds.first())
-                }
-                playingRemoteSounds.isNotEmpty() -> {
-                    currentVolumeDisplay = audioManager.getRemoteVolume(playingRemoteSounds.first())
-                }
-                // 如果没有正在播放的音频，保持当前显示值不变
-            }
-            delay(300) // 每300ms更新一次音量显示
-        }
-    }
+
     // 灯泡功能状态
     var isContentHidden by remember { mutableStateOf(false) }
     var showPullRing by remember { mutableStateOf(false) }
@@ -400,25 +361,6 @@ fun SettingsScreen(
                         )
                     },
                     onClick = { onWeatherToggle(!weatherEnabled) }
-                ),
-                SettingsCategoryItem(
-                    icon = Icons.AutoMirrored.Filled.VolumeUp,
-                    title = { Text(context.getString(R.string.adjust_all_volume)) },
-                    description = {
-                        Text(
-                            context.getString(R.string.unified_adjust_all_sound_volume),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    trailingContent = {
-                        Text(
-                            "${(currentVolumeDisplay * 100).toInt()}%",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    onClick = { showVolumeDialog = true }
                 ),
                 SettingsCategoryItem(
                     icon = Icons.Default.Timer,
@@ -741,126 +683,7 @@ fun SettingsScreen(
                 isClearing = isClearingCache
             )
         }
-        
-        // 一键调整音量对话框
-        var volume by remember { 
-            mutableStateOf(
-                // 获取第一个正在播放的声音的音量作为默认值，优先检查本地音频，然后检查远程音频
-                audioManager.getPlayingSounds().firstOrNull()?.let { 
-                    audioManager.getVolume(it) 
-                } ?: audioManager.getPlayingRemoteSoundIds().firstOrNull()?.let {
-                    audioManager.getRemoteVolume(it)
-                } ?: 0.5f
-            )
-        }
-        
-        if (showVolumeDialog) {
-            AlertDialog(
-                onDismissRequest = { showVolumeDialog = false },
-                title = { Text(context.getString(R.string.adjust_all_volume)) },
-                text = {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Text(
-                            context.getString(R.string.apply_to_all_playing_sounds),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        
-                        // 音量滑块
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                        Slider(
-                            value = volume,
-                            onValueChange = { 
-                                volume = it
-                                // 实时应用到所有本地声音
-                                val localSounds = audioManager.getPlayingSounds()
-                                localSounds.forEach { sound ->
-                                    audioManager.setVolume(sound, volume)
-                                }
-                                // 实时应用到所有远程声音（繁星页面）
-                                val remoteSoundIds = audioManager.getPlayingRemoteSoundIds()
-                                Logger.d("VolumeDialog", "正在播放的远程音频数量: ${remoteSoundIds.size}, IDs: $remoteSoundIds")
-                                remoteSoundIds.forEach { soundId ->
-                                    Logger.d("VolumeDialog", "设置远程音频音量: $soundId = $volume")
-                                    audioManager.setRemoteVolume(soundId, volume)
-                                }
-                                // 实时更新显示的音量数值
-                                currentVolumeDisplay = volume
-                            },
-                                modifier = Modifier.fillMaxWidth(),
-                                valueRange = 0f..1f,
-                                steps = 19  // 0到100，步长5%
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = "0%",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "${(volume * 100).toInt()}%",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "100%",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = { 
-                        // 应用到所有本地声音（包括未播放的，以便下次播放时使用）
-                        listOf(
-                            org.xmsleep.app.audio.AudioManager.Sound.UMBRELLA_RAIN,
-                            org.xmsleep.app.audio.AudioManager.Sound.ROWING,
-                            org.xmsleep.app.audio.AudioManager.Sound.OFFICE,
-                            org.xmsleep.app.audio.AudioManager.Sound.LIBRARY,
-                            org.xmsleep.app.audio.AudioManager.Sound.HEAVY_RAIN,
-                            org.xmsleep.app.audio.AudioManager.Sound.TYPEWRITER,
-                            org.xmsleep.app.audio.AudioManager.Sound.THUNDER,
-                            org.xmsleep.app.audio.AudioManager.Sound.CLOCK,
-                            org.xmsleep.app.audio.AudioManager.Sound.FOREST_BIRDS,
-                            org.xmsleep.app.audio.AudioManager.Sound.DRIFTING,
-                            org.xmsleep.app.audio.AudioManager.Sound.CAMPFIRE,
-                            org.xmsleep.app.audio.AudioManager.Sound.WIND,
-                            org.xmsleep.app.audio.AudioManager.Sound.KEYBOARD,
-                            org.xmsleep.app.audio.AudioManager.Sound.SNOW_WALKING
-                        ).forEach { sound ->
-                            audioManager.setVolume(sound, volume)
-                        }
-                        // 应用到所有正在播放的远程声音（繁星页面）
-                        val remoteSoundIds = audioManager.getPlayingRemoteSoundIds()
-                        remoteSoundIds.forEach { soundId ->
-                            audioManager.setRemoteVolume(soundId, volume)
-                        }
-                        // 更新显示的音量数值
-                        currentVolumeDisplay = volume
-                        showVolumeDialog = false
-                        Toast.makeText(context, context.getString(R.string.volume_set_to, (volume * 100).toInt()), Toast.LENGTH_SHORT).show()
-                    }) {
-                        Text(context.getString(R.string.ok))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showVolumeDialog = false }) {
-                        Text(context.getString(R.string.cancel))
-                    }
-                }
-            )
-        }
-        
+
         // 语言选择弹窗
         if (showLanguageDialog) {
             LanguageSelectionDialog(

@@ -107,7 +107,6 @@ fun FloatingPlayButtonNew(
     onAddToPreset: (localSounds: List<AudioManager.Sound>, remoteSoundIds: List<String>) -> Unit = { _, _ -> }, // 添加到预设的回调
     forceCollapse: Boolean = false, // 强制收缩悬浮播放按钮
     onExpandStateChange: (Boolean) -> Unit = {}, // 展开状态变化回调
-    weatherEnabled: Boolean = false // 天气推荐是否开启
 ) {
     val context = LocalContext.current
     val configuration = LocalConfiguration.current
@@ -117,11 +116,6 @@ fun FloatingPlayButtonNew(
     val scope = rememberCoroutineScope()
     val isDarkTheme = isSystemInDarkTheme()
     val density = LocalDensity.current
-    
-    // 天气推荐开启时隐藏悬浮按钮
-    if (weatherEnabled) {
-        return
-    }
     
     // 尺寸配置（需要在使用前定义）
     val collapsedWidth = 32.dp      // 收起时的宽度（增加到32dp，更容易点击）

@@ -1114,7 +1114,7 @@ fun StarSkyScreen(
                 confirmButton = {
                     TextButton(onClick = { 
                         showVolumeDialog = false
-                        Toast.makeText(context, context.getString(R.string.volume_set_to, (volume * 100).toInt()), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "音量已调节", Toast.LENGTH_SHORT).show()
                     }) {
                         Text(context.getString(R.string.ok))
                     }

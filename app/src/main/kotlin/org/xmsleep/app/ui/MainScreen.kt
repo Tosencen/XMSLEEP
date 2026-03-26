@@ -840,7 +840,6 @@ fun MainScreen(
             shouldCollapse = shouldCollapseFloatingButton, // 传递收缩标志
             activePreset = activePreset,
             forceCollapse = forceCollapseFloatingButton, // 传递强制收缩标志
-            weatherEnabled = weatherEnabled, // 天气推荐是否开启
             onExpandStateChange = { isExpanded ->
                 // 当悬浮按钮展开时，收缩底部预设弹窗
                 if (isExpanded) {
