@@ -390,7 +390,7 @@ fun SettingsScreen(
                     onClick = { showAutoCountdownDialog = true }
                 ),
                 SettingsCategoryItem(
-                    icon = Icons.Default.Timer,
+                    icon = Icons.Default.AccessTime,
                     title = { Text(context.getString(R.string.flip_clock)) },
                     description = {
                         Text(

@@ -216,7 +216,11 @@
     <string name="added_to_preset">已添加 %1$d 個聲音到預設 %2$d</string>
     <string name="preset_full">預設 %1$d 已滿（最多10個）</string>
     <string name="no_playing_sounds">當前沒有正在播放的聲音</string>
-    
+
+    <!-- Flip Clock -->
+    <string name="flip_clock">大時鐘</string>
+    <string name="flip_clock_description">此功能需要保持電量充足</string>
+
     <!-- 預設模組 -->
     <string name="preset_1">預設 1</string>
     <string name="preset_2">預設 2</string>

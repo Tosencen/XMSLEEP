@@ -210,8 +210,8 @@
     <string name="countdown_60_minutes">60分钟</string>
     <string name="countdown_1_hour">1小时</string>
     <string name="countdown_2_hours">2小时</string>
-    <string name="flip_clock">翻页时钟</string>
-    <string name="flip_clock_description">全屏翻页时钟显示，背景透明</string>
+    <string name="flip_clock">大时钟</string>
+    <string name="flip_clock_description">此功能需要保持电量充足</string>
     <string name="current_setting">当前设置</string>
     
     <!-- 浮动播放按钮 -->

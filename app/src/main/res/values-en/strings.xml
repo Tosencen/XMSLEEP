@@ -500,4 +500,8 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="tomato_start">Start</string>
     <string name="tomato_pause">Pause</string>
     <string name="tomato_reset">Reset</string>
+
+    <!-- Flip Clock -->
+    <string name="flip_clock">Big Clock</string>
+    <string name="flip_clock_description">This feature requires sufficient battery</string>
 </resources>
