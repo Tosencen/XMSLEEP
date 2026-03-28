@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <!-- Bebas Neue - 极粗体，机场航班显示屏风格 -->
+    <font
+        android:font="@font/bebas_neue"
+        android:fontStyle="normal"
+        android:fontWeight="400"
+        app:font="@font/bebas_neue"
+        app:fontStyle="normal"
+        app:fontWeight="400" />
+    
+    <!-- JetBrains Mono ExtraBold - 程序员风格，科技感 -->
+    <font
+        android:font="@font/jetbrains_mono_extrabold"
+        android:fontStyle="normal"
+        android:fontWeight="800"
+        app:font="@font/jetbrains_mono_extrabold"
+        app:fontStyle="normal"
+        app:fontWeight="800" />
+    
+    <!-- Inter Black - 现代UI标准，超粗体 -->
+    <font
+        android:font="@font/inter_black"
+        android:fontStyle="normal"
+        android:fontWeight="900"
+        app:font="@font/inter_black"
+        app:fontStyle="normal"
+        app:fontWeight="900" />
+    
+    <!-- Space Grotesk Bold - 几何现代感 -->
+    <font
+        android:font="@font/space_grotesk_bold"
+        android:fontStyle="normal"
+        android:fontWeight="700"
+        app:font="@font/space_grotesk_bold"
+        app:fontStyle="normal"
+        app:fontWeight="700" />
+    
+    <!-- Oswald Bold - 工业复古风 -->
+    <font
+        android:font="@font/oswald_bold"
+        android:fontStyle="normal"
+        android:fontWeight="700"
+        app:font="@font/oswald_bold"
+        app:fontStyle="normal"
+        app:fontWeight="700" />
+    
+</font-family>
