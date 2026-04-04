@@ -313,6 +313,43 @@ class LocalAudioPlayer private constructor() {
     }
     
     /**
+     * 获取指定音频的当前播放位置和总时长
+     * @return Pair<当前位置(ms), 总时长(ms)>，如果音频未播放返回 null
+     */
+    fun getAudioProgress(audioId: Long): Pair<Int, Int>? {
+        return try {
+            val mediaPlayer = mediaPlayers[audioId]
+            if (mediaPlayer?.isPlaying == true) {
+                Pair(mediaPlayer.currentPosition, mediaPlayer.duration)
+            } else {
+                null
+            }
+        } catch (e: Exception) {
+            Logger.e(TAG, "获取播放进度失败: audioId=$audioId", e)
+            null
+        }
+    }
+
+    /**
+     * 跳转到指定播放位置
+     * @param audioId 音频ID
+     * @param positionMs 目标位置（毫秒）
+     */
+    fun seekTo(audioId: Long, positionMs: Int) {
+        try {
+            val mediaPlayer = mediaPlayers[audioId]
+            mediaPlayer?.let {
+                if (it.isPlaying) {
+                    it.seekTo(positionMs.coerceIn(0, it.duration))
+                    Logger.d(TAG, "跳转到位置: audioId=$audioId, position=$positionMs")
+                }
+            }
+        } catch (e: Exception) {
+            Logger.e(TAG, "跳转失败: audioId=$audioId, position=$positionMs", e)
+        }
+    }
+
+    /**
      * 更新正在播放的音频ID列表
      */
     private fun updatePlayingAudioIds() {

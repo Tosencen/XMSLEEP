@@ -42,6 +42,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.xmsleep.app.R
@@ -433,14 +434,14 @@ fun LocalAudioScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.background,
+                    containerColor = androidx.compose.ui.graphics.Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.onBackground
                 ),
                 windowInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout)
                     .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
             )
         },
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = androidx.compose.ui.graphics.Color.Transparent
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -909,6 +910,26 @@ fun LocalAudioItem(
     onLongPress: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val localAudioPlayer = remember { LocalAudioPlayer.getInstance() }
+
+    // 播放进度状态
+    var currentProgress by remember { mutableIntStateOf(0) }
+    var totalDuration by remember { mutableIntStateOf(audio.duration.toInt()) }
+
+    // 定时更新播放进度
+    LaunchedEffect(isPlaying) {
+        if (isPlaying) {
+            while (true) {
+                val progress = localAudioPlayer.getAudioProgress(audio.id)
+                if (progress != null) {
+                    currentProgress = progress.first
+                    totalDuration = progress.second
+                }
+                delay(500) // 每500ms更新一次
+            }
+        }
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -967,30 +988,67 @@ fun LocalAudioItem(
                     }
                 }
             }
-            
+
             if (isPlaying) {
                 Spacer(modifier = Modifier.height(12.dp))
+
+                // 进度滑块
+                val progressFraction = if (totalDuration > 0) {
+                    currentProgress.toFloat() / totalDuration.toFloat()
+                } else {
+                    0f
+                }
+
+                Slider(
+                    value = progressFraction,
+                    onValueChange = { newProgress ->
+                        val newPosition = (newProgress * totalDuration).toInt()
+                        localAudioPlayer.seekTo(audio.id, newPosition)
+                        currentProgress = newPosition
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.primary,
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(4.dp))
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    AudioVisualizer(
-                        isPlaying = isPlaying,
-                        modifier = Modifier.size(24.dp, 16.dp),
-                        color = MaterialTheme.colorScheme.primary
+                    // 当前播放时间
+                    Text(
+                        text = formatDuration(currentProgress.toLong()),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
-                    IconButton(
-                        onClick = onVolumeClick,
-                        modifier = Modifier.size(40.dp)
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                            contentDescription = "调节音量",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(24.dp)
+                        AudioVisualizer(
+                            isPlaying = isPlaying,
+                            modifier = Modifier.size(24.dp, 16.dp),
+                            color = MaterialTheme.colorScheme.primary
                         )
+
+                        IconButton(
+                            onClick = onVolumeClick,
+                            modifier = Modifier.size(40.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
+                                contentDescription = "调节音量",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 }
             }

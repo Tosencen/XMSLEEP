@@ -757,10 +757,10 @@ private fun AddToPresetButton(
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
-            .padding(vertical = 12.dp), // 上下都有间距
+            .height(56.dp)
+            .padding(top = 12.dp), // 只保留顶部间距，与列表分隔
         color = buttonBackgroundColor,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(12.dp),
         shadowElevation = 0.dp
     ) {
         Row(
