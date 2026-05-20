@@ -184,10 +184,18 @@ fun FloatingPlayButtonNew(
     var remoteSounds by remember { mutableStateOf<List<SoundMetadata>>(emptyList()) }
     
     LaunchedEffect(Unit) {
+        // 先尝试从缓存获取（同步）
+        val cached = resourceManager.getCachedManifest()
+        if (cached != null) {
+            remoteSounds = cached.sounds
+        }
+        
+        // 异步加载最新清单
         val manifest = resourceManager.loadRemoteManifest()
         if (manifest != null) {
             remoteSounds = manifest.sounds
         } else {
+            // 如果网络加载失败，使用 getRemoteSounds() 作为备用
             remoteSounds = resourceManager.getRemoteSounds()
         }
     }
