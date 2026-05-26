@@ -6,6 +6,9 @@
     <string name="language_simplified_chinese">簡體中文</string>
     <string name="language_traditional_chinese">繁體中文</string>
     <string name="language_english">English</string>
+    <string name="language_korean">韓語</string>
+    <string name="language_japanese">日語</string>
+    <string name="language_russian">俄語</string>
     <string name="select_language">選擇語言</string>
     <string name="white_noise">白噪音</string>
     <string name="breathing">呼吸</string>

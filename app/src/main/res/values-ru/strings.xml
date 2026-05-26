@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XMSLEEP</string>
+    <string name="language">Язык</string>
+    <string name="language_description">Выберите язык отображения</string>
+    <string name="language_simplified_chinese">简体中文</string>
+    <string name="language_traditional_chinese">繁體中文</string>
+    <string name="language_english">English</string>
+    <string name="language_korean">한국어</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_russian">Русский</string>
+    <string name="select_language">Выберите язык</string>
+    <string name="white_noise">Белый шум</string>
+    <string name="breathing">Дыхание</string>
+    <string name="star_sky">Звёздное небо</string>
+    <string name="star_sky_more_sounds_hint">Здесь появятся другие звуки</string>
+    <string name="settings">Настройки</string>
+    <string name="theme_and_colors">Тема и цвета</string>
+    <string name="clear_cache">Очистить кэш</string>
+    <string name="software_update">Обновление ПО</string>
+    <string name="about_xmsleep">О XMSLEEP</string>
+    <string name="ok">ОК</string>
+    <string name="cancel">Отмена</string>
+    <string name="color_palette">Цветовая палитра</string>
+    <string name="confirm_clear_cache">Вы уверены, что хотите очистить все данные кэша?</string>
+    <string name="appearance">Функции</string>
+    <string name="system">Система</string>
+    <string name="other">Другое</string>
+    <string name="appearance_mode_theme_color">Режим, цвет темы</string>
+    <string name="feature_settings">Настройки функций</string>
+    <string name="feature_settings_description">Настройте параметры функций</string>
+    <string name="feature_dialog_title">Функции</string>
+
+    <string name="clear_app_cache_data">Очистить данные кэша приложения</string>
+    <string name="check_and_update_to_latest_version">Проверить и обновить до последней версии</string>
+    <string name="view_app_info_version_copyright">Информация о приложении, версия и авторские права</string>
+    <string name="clearing">Очистка…</string>
+    <string name="this_will_clear_all_cache_data">Это приведёт к удалению всех кэшированных данных приложения, включая изображения, видео, временные файлы и т.д.</string>
+    <string name="version">Версия: %1$s (Сборка %2$d)</string>
+    <string name="app_description_title">Описание приложения</string>
+    <string name="app_description">XMSLEEP — профессиональное приложение для воспроизведения белого шума и природных звуков, созданное для высококачественного аудио. Приложение содержит множество тщательно подобранных звуков природы, включая дождь, гром, костёр, пение птиц и другие, чтобы помочь вам расслабиться, улучшить концентрацию и качество сна.\n\nПриложение выполнено в соответствии со спецификациями Material Design 3 с чистым и красивым интерфейсом, а также плавным и интуитивным управлением. Поддерживает множество функций: переключение языков, настройка темы, независимая регулировка громкости, закреплённая область звуков, избранное и многое другое, позволяя вам наслаждаться индивидуальным звуковым опытом.</string>
+    <string name="usage_instructions_title">Инструкция по использованию</string>
+    <string name="usage_instructions">• Нажмите на карточку звука, чтобы начать воспроизведение, нажмите снова, чтобы остановить
+• Нажмите на значок громкости, чтобы отрегулировать громкость каждого звука отдельно
+• Нажмите на заголовок, чтобы закрепить звук или добавить в избранное
+• Нажмите на значок булавки, чтобы выбрать несколько звуков для добавления в закреплённую область
+• Используйте функцию таймера для автоматической остановки воспроизведения
+• В настройках вы можете менять темы, скрывать анимации, переключать макеты и т.д.</string>
+    <string name="sound_usage_title">Инструкция по использованию звуков</string>
+    <string name="sound_usage">• Встроенные звуки: не требуют подключения к сети, воспроизводятся напрямую
+• Сетевые звуки: требуется загрузка при первом использовании, после загрузки доступны офлайн
+• Закреплённая область: можно добавить до 3 звуков, поддерживается смешанное использование локальных и сетевых звуков
+• Избранное: можно добавлять звуки в список избранного для быстрого доступа
+• Регулировка громкости: каждый звук регулируется независимо, точное управление от 0 до 100%%
+• Таймер: можно установить длительность воспроизведения, по истечении времени все звуки автоматически останавливаются</string>
+    <string name="sound_source_title">Информация об источниках звуков</string>
+    <string name="sound_source">Все аудиоматериалы, предоставленные этим приложением, взяты из общедоступных библиотек аудиоресурсов, включая, но не ограничиваясь:
+
+• Встроенные звуки: звуковые файлы, встроенные в приложение, взяты из библиотек аудиоресурсов с открытым исходным кодом, тщательно отобраны и оптимизированы для обеспечения чистого звука, подходящего для длительного прослушивания.
+
+• Сетевые звуки: звуковые ресурсы, загружаемые через сеть, взяты из проекта moodist (https://github.com/remvze/moodist) — проекта с открытым исходным кодом. Все ресурсы распространяются по лицензии MIT.
+
+• Уведомление об авторских правах: это приложение предоставляет только функции воспроизведения аудио и не владеет авторскими правами на какой-либо аудиоконтент. Весь аудиоконтент предназначен только для личного обучения и развлечения и не должен использоваться в коммерческих целях. Если вы обнаружили, что какой-либо аудиоконтент нарушает ваши авторские права, пожалуйста, свяжитесь с нами, и мы незамедлительно примем меры.</string>
+    <string name="technical_info_title">Техническая информация</string>
+    <string name="copyright">© XMSLEEP. Все права защищены.\n\nАудиоматериалы, предоставляемые этим приложением, предназначены только для личного обучения и развлечения.\nПожалуйста, уважайте авторские права соответствующих аудиоресурсов и не используйте их в коммерческих целях.</string>
+    <string name="hide_animation">Скрыть WebP-анимацию</string>
+    <string name="hide_lottie_animation_in_sound_cards">Скрыть WebP-анимацию в карточках звуков</string>
+    <string name="background_settings">Настройки фона</string>
+    <string name="background_animation">Анимация фона</string>
+    <string name="select_background">Выбрать фон</string>
+    <string name="no_background">Без фона</string>
+    <string name="background_1">Фон 1</string>
+    <string name="background_2">Фон 2</string>
+    <string name="background_3">Фон 3</string>
+    <string name="background_4">Фон 4</string>
+    <string name="background_5">Фон 5</string>
+    <string name="background_6">Фон 6</string>
+    <string name="background_7">Фон 7</string>
+    <string name="theme_color">Цвет темы</string>
+    <string name="theme_color_disabled_hint">Выберите «Без фона», чтобы изменить цвет темы</string>
+    <string name="background_preview">Предпросмотр фона</string>
+    <string name="white_noise_cards">Карточки белого шума</string>
+    <string name="builtin_sounds_offline_hint">Встроенные звуки, не требуют подключения к сети</string>
+    <string name="selected_count">Выбрано (%1$d)</string>
+    <string name="max_select_hint">В закреплённую область можно добавить не более 3 звуков</string>
+    <string name="batch_select_default">Выбрать несколько по умолчанию</string>
+    <string name="cancel_batch_select">Отменить выбор нескольких</string>
+    <string name="default_playback_area">Закреплённая область</string>
+    <string name="click_play_button_to_play_all">Удобное воспроизведение звуков</string>
+    <string name="play_preset">Воспроизвести пресет</string>
+    <string name="pause_preset">Поставить на паузу</string>
+    <string name="preset">Пресет</string>
+    <string name="done">Готово</string>
+    <string name="max_3_sounds_limit">В закреплённую область можно добавить не более 3 звуков</string>
+    <string name="default_area_updated">Закреплённая область обновлена</string>
+    <string name="selected">Выбрано</string>
+    <string name="unselected">Не выбрано</string>
+    <string name="switch_to_light_mode">Переключиться на светлый режим</string>
+    <string name="switch_to_dark_mode">Переключиться на тёмный режим</string>
+    <string name="switch_to_3_columns">Переключиться на 3 столбца</string>
+    <string name="switch_to_2_columns">Переключиться на 2 столбца</string>
+    <string name="pause">Пауза</string>
+    <string name="play">Воспроизвести</string>
+    <string name="now_playing">Сейчас играет</string>
+    <string name="edit">Редактировать</string>
+    <string name="remove">Удалить</string>
+    <string name="adjust_volume">Регулировка громкости</string>
+    <string name="set_countdown">Установить таймер</string>
+    <string name="countdown_ended_stopped">Таймер завершён, воспроизведение остановлено</string>
+    <string name="countdown_set_minutes">Таймер установлен на %1$d мин.</string>
+    <string name="countdown_cancelled">Таймер отменён</string>
+    <string name="adjust_volume_for">Регулировка громкости — %1$s</string>
+    <string name="cancel_countdown">Отменить таймер</string>
+    <string name="minutes">%1$d мин.</string>
+    <string name="set_as_default">Добавить в пресет</string>
+    <string name="cancel_default">Удалить из пресета</string>
+    <string name="favorite">В избранное</string>
+    <string name="cancel_favorite">Убрать из избранного</string>
+    <string name="pinned_success">Добавлено в пресет</string>
+    <string name="unpinned_success">Удалено из пресета</string>
+    <string name="favorited_success">Добавлено в избранное</string>
+    <string name="unfavorited_success">Удалено из избранного</string>
+    <string name="current_countdown">Текущий таймер: %1$s</string>
+    <string name="please_play_sound_before_timer">Пожалуйста, включите звук перед установкой таймера</string>
+    <string name="quick_select">Быстрый выбор</string>
+    <string name="tab_builtin">Встроенные</string>
+    <string name="tab_favorite">Избранное</string>
+    <string name="go_back">Назад</string>
+    <string name="tab_online">Онлайн</string>
+    <string name="no_online_content">Нет онлайн-контента</string>
+    <string name="online_sounds_will_show_here">Онлайн-звуки будут отображаться здесь</string>
+    <string name="dynamic_color">Динамический цвет</string>
+    <string name="use_wallpaper_color_as_theme">Использовать цвет обоев как цвет темы</string>
+    <string name="high_contrast">Высокая контрастность</string>
+    <string name="use_pure_black_background_in_dark_mode">Использовать чёрный фон в тёмном режиме</string>
+    <string name="lottie_animation">Lottie-анимация</string>
+    <string name="cache_auto_cleared">Кэш превысил 200 МБ, автоматически очищен</string>
+    <string name="must_download_before_pin">Пожалуйста, загрузите аудио перед добавлением в закреплённую область</string>
+    <string name="auto_clear_failed">Автоочистка не удалась: %1$s</string>
+    <string name="downloaded">Загружено</string>
+    <string name="cloud_audio">Облачное аудио</string>
+    <string name="light_mode">Светлая</string>
+    <string name="dark_mode">Тёмная</string>
+    <string name="auto_mode">Авто</string>
+    <string name="no_favorites">Нет избранного</string>
+    <string name="favorites_will_show_here">Избранные звуки будут отображаться здесь</string>
+    <string name="hours">ч</string>
+    <string name="hours_minutes">%1$d ч %2$d мин.</string>
+    <string name="minutes_only">%1$d мин.</string>
+    <string name="five_minutes">5 минут</string>
+    <string name="three_hours">3 часа</string>
+    <string name="checking_update">Проверка обновлений…</string>
+    <string name="up_to_date">Уже обновлено</string>
+    <string name="current_version">Текущая версия: %1$s</string>
+    <string name="new_version_found">Найдена новая версия</string>
+    <string name="version_name">Версия %1$s</string>
+    <string name="update_content">Содержание обновления</string>
+    <string name="update_now">Обновить сейчас</string>
+    <string name="later">Позже</string>
+    <string name="check_update_failed">Не удалось проверить обновления</string>
+    <string name="retry">Повторить</string>
+    <string name="downloading_update">Загрузка обновления</string>
+    <string name="downloaded_percent">Загружено %1$d%%</string>
+    <string name="download_complete">Загрузка завершена</string>
+    <string name="download_complete_message">Пакет обновления загружен. Установить сейчас?</string>
+    <string name="install_now">Установить сейчас</string>
+    <string name="download_failed">Загрузка не удалась</string>
+    <string name="installing">Установка</string>
+    <string name="starting_installer">Запуск установщика…</string>
+    <string name="install_failed">Установка не удалась</string>
+    <string name="join_group">Сообщество</string>
+    <string name="join_group_description">Подпишитесь на новости</string>
+    <string name="community_dialog_title">Сообщество</string>
+    <string name="open_github">GitHub</string>
+    <string name="open_github_description">Исходный код проекта</string>
+    <string name="join_telegram">Telegram</string>
+    <string name="join_telegram_description">Поделитесь своими мыслями</string>
+    <string name="load_failed">Ошибка загрузки: %1$s</string>
+    <string name="all_categories">Все</string>
+    <string name="privacy_policy_title">Политика конфиденциальности</string>
+    <string name="privacy_policy">Это приложение уделяет большое внимание защите вашей конфиденциальности.
+
+• Сбор данных: это приложение не собирает никакую личную информацию и не отслеживает действия пользователей.
+
+• Разрешения: это приложение запрашивает только необходимые разрешения для воспроизведения аудио и не будет получать доступ к вашим контактам, местоположению или другой конфиденциальной информации.
+
+• Безопасность данных: мы используем отраслевые стандарты безопасности для защиты ваших данных, включая шифрование данных и контроль доступа.
+
+Если у вас есть вопросы, пожалуйста, свяжитесь с нами через контактную информацию в приложении.</string>
+    <string name="wish_good_sleep">~ Сладких снов ~</string>
+    
+    <!-- Auto Countdown -->
+    <string name="auto_countdown">Автотаймер</string>
+    <string name="auto_countdown_description">Автоматически запускать таймер при воспроизведении пресета</string>
+    <string name="select_countdown_time">Выберите время таймера</string>
+    <string name="no_countdown">Без таймера</string>
+    <string name="countdown_30_minutes">30 минут</string>
+    <string name="countdown_45_minutes">45 минут</string>
+    <string name="countdown_60_minutes">60 минут</string>
+    <string name="countdown_1_hour">1 час</string>
+    <string name="countdown_2_hours">2 часа</string>
+    <string name="current_setting">Текущая настройка</string>
+    
+    <!-- Floating Play Button -->
+    <string name="collapse">Свернуть</string>
+    <string name="expand">Развернуть</string>
+    <string name="playing_title">Сейчас играет (%1$d)</string>
+    <string name="stop_all">Остановить всё</string>
+    <string name="stop_all_confirm_title">Остановить всё</string>
+    <string name="stop_all_confirm_message">Вы уверены, что хотите остановить всё воспроизведение?</string>
+    <string name="stop">Стоп</string>
+    <string name="volume">Громкость</string>
+    <string name="drag_to_stop_play">Перетащите сюда, чтобы остановить воспроизведение</string>
+    <string name="add_to_preset">Добавить в пресет</string>
+    <string name="added_to_preset">Добавлено %1$d звуков в пресет %2$d</string>
+    <string name="preset_full">Пресет %1$d заполнен (макс. 10)</string>
+    <string name="no_playing_sounds">Нет воспроизводимых звуков</string>
+    
+    <!-- Preset Module -->
+    <string name="preset_1">Пресет 1</string>
+    <string name="preset_2">Пресет 2</string>
+    <string name="preset_3">Пресет 3</string>
+    <string name="preset_max_reached">Текущий пресет достиг максимума — 10 звуков</string>
+    
+    <!-- Local Sound Names -->
+    <string name="sound_umbrella_rain">Дождь по зонту</string>
+    <string name="sound_rowing">Гребля</string>
+    <string name="sound_office">Офис</string>
+    <string name="sound_library">Библиотека</string>
+    <string name="sound_heavy_rain">Сильный дождь</string>
+    <string name="sound_typewriter">Печатная машинка</string>
+    <string name="sound_thunder">Гром</string>
+    <string name="sound_clock">Часы</string>
+    <string name="sound_forest_birds">Лесные птицы</string>
+    <string name="sound_drifting">Дрейф</string>
+    <string name="sound_campfire">Костёр</string>
+    <string name="sound_wind">Ветер</string>
+    <string name="sound_keyboard">Клавиатура</string>
+    <string name="sound_snow_walking">Прогулка по снегу</string>
+    <string name="sound_morning_coffee">Утренний кофе</string>
+    <string name="sound_windmill">Мельница</string>
+    <string name="sound_default">Звук</string>
+    
+    <!-- Preset Empty State Hint -->
+    <string name="preset_empty_hint">Долгое нажатие на карточку для добавления</string>
+    <string name="close">Закрыть</string>
+    
+    <!-- Local Audio Permissions -->
+    <string name="storage_permission_required">Требуется разрешение на хранилище</string>
+    <string name="permission_denied_hint">Для доступа к локальным аудиофайлам требуется разрешение на хранилище</string>
+    <string name="request_permission">Предоставить разрешение</string>
+    <string name="local_audio">Локальное аудио</string>
+    <string name="search_audio">Поиск аудио</string>
+    <string name="no_search_results">Аудио не найдено</string>
+    <string name="no_audio_files_found">На устройстве не найдено аудиофайлов</string>
+    <string name="grant_storage_permission_hint">Пожалуйста, предоставьте разрешение на хранилище в настройках для доступа к локальному аудио</string>
+    <string name="grant_permission">Предоставить разрешение</string>
+    <string name="rename">Переименовать</string>
+    <string name="permission_permanently_denied_hint">Разрешение отклонено. Пожалуйста, вручную предоставьте разрешение на хранилище в настройках</string>
+    <string name="renaming">Переименование...</string>
+    <string name="rename_success">Успешно переименовано</string>
+    <string name="rename_failed">Ошибка переименования или отменено</string>
+    <string name="new_name">Новое имя</string>
+    <string name="delete">Удалить</string>
+    <string name="delete_success">Успешно удалено</string>
+    <string name="delete_cancelled">Удаление отменено</string>
+    <string name="confirm_delete">Подтверждение удаления</string>
+    <string name="confirm_delete_message">Вы уверены, что хотите удалить «%1$s»? Это действие нельзя отменить.</string>
+    <string name="add_to_favorite">Добавить в избранное</string>
+    <string name="remove_from_favorite">Удалить из избранного</string>
+    <string name="added_to_favorite">Добавлено в избранное</string>
+    <string name="removed_from_favorite">Удалено из избранного</string>
+    <string name="scanning_local_audio">Сканирование локальных аудиофайлов...</string>
+    
+    <!-- Daily Quote Feature -->
+    <string name="daily_quote">Цитата дня</string>
+    <string name="daily_quote_description">Просмотр истории цитат</string>
+    <string name="quote_history">История цитат</string>
+    <string name="no_quote_history">Нет истории</string>
+    <string name="no_quote_history_hint">Просмотренные цитаты появятся здесь</string>
+    <string name="clear_history">Очистить историю</string>
+    <string name="clear_history_confirm">Вы уверены, что хотите очистить всю историю? Это действие нельзя отменить.</string>
+    <string name="clear">Очистить</string>
+    <string name="share">Поделиться</string>
+    <string name="save_image">Сохранить изображение</string>
+    <string name="sharing">Отправка...</string>
+    <string name="saving">Сохранение...</string>
+    <string name="loading_quote">Загрузка цитаты...</string>
+    <string name="refresh_quote">Обновить</string>
+    
+    <!-- Recent Play -->
+    <string name="recent_play">Недавнее</string>
+    <string name="tap_to_play">Нажмите, чтобы воспроизвести</string>
+    <string name="refresh_success">Обновление успешно</string>
+    <string name="refresh_failed">Ошибка обновления</string>
+    
+    <!-- Healing Quotes - Morning -->
+    <string-array name="healing_quotes_morning">
+        <item>Доброе утро, пусть ваш день будет полон энергии</item>
+        <item>Новый день — новое начало</item>
+        <item>Рассвет наступает, красота приходит как обещано</item>
+        <item>Встречайте новый день с улыбкой</item>
+        <item>Утренняя роса, прозрачная как хрусталь</item>
+        <item>Будьте сегодня полны энергии</item>
+        <item>Кто рано встаёт, тому Бог подаёт</item>
+        <item>Прекрасный день начинается прямо сейчас</item>
+        <item>Пусть каждое утро будет полно надежды</item>
+        <item>Рассвет встаёт, всё оживает</item>
+        <item>Доброе утро, будьте лучшей версией себя</item>
+        <item>Новый день, полный возможностей</item>
+        <item>Утренний ветерок приносит хорошее настроение</item>
+        <item>Будьте сегодня счастливы и радостны</item>
+        <item>Доброе утро, мой друг</item>
+        <item>Начните прекрасный день с хорошего настроения</item>
+        <item>Доброе утро, пусть вы всегда улыбаетесь</item>
+        <item>Утренний свет мерцает, время замирает</item>
+        <item>Новый день, новые ожидания</item>
+        <item>Вставай рано, сияй ярко</item>
+        <item>Утренняя роса, прозрачная как хрусталь</item>
+        <item>Доброе утро, живите своей жизнью в полную силу</item>
+        <item>Утренний ветерок, освежающее настроение</item>
+        <item>Новый день, полный надежды</item>
+        <item>Утреннее пение птиц, приятно для слуха</item>
+        <item>Встречайте трудности с позитивным настроем</item>
+        <item>Доброе утро, пусть всё идёт хорошо</item>
+        <item>Рассвет встаёт, тепло как всегда</item>
+        <item>Сохраняйте хорошее настроение сегодня</item>
+        <item>Утренняя безмятежность приносит душевный покой</item>
+    </string-array>
+    
+    <!-- Healing Quotes - Afternoon -->
+    <string-array name="healing_quotes_afternoon">
+        <item>Это мир цветов</item>
+        <item>Будьте спокойным человеком</item>
+        <item>Замедлитесь, почувствуйте красоту жизни</item>
+        <item>Полдень, не пора ли вздремнуть?</item>
+        <item>Позвольте себе мгновение отдыха</item>
+        <item>Время чая, наслаждайтесь досугом</item>
+        <item>Пейте больше тёплой воды, двигайтесь</item>
+        <item>О чём вы сейчас думаете?</item>
+        <item>Медленная жизнь — это настоящая жизнь</item>
+        <item>Вы сегодня хорошо поели?</item>
+        <item>Обнимите себя</item>
+        <item>Добрый день, не забывайте отдыхать</item>
+        <item>Скажите нет 996</item>
+        <item>Какая чудесная весна, лучше любого сна</item>
+        <item>Не торопитесь, всё придёт</item>
+        <item>Думайте искренне, отличайте правильное от неправильного</item>
+        <item>Дайте своей душе отдохнуть</item>
+        <item>Вы забыли сделать перерыв?</item>
+        <item>Вы сделали гимнастику для глаз?</item>
+        <item>Хочу отвезти тебя к бабушке смотреть закат вместе</item>
+        <item>Замедлите шаг, почувствуйте настоящее</item>
+        <item>Когда вы в последний раз покупали цветы?</item>
+        <item>Дайте себе время расслабиться</item>
+        <item>Добрый день, оставайтесь расслабленными</item>
+        <item>Скажу вам по секрету, в моих туфлях нет стелек</item>
+        <item>Вы спасли лису на заснеженной горе?</item>
+        <item>Шея болит? Покрутите головой</item>
+        <item>Посадите подсолнух у двери</item>
+        <item>Хахахахахахаха</item>
+        <item>Дайте своей уставшей душе отдохнуть</item>
+    </string-array>
+    
+    <!-- Healing Quotes - Evening -->
+    <string-array name="healing_quotes_evening">
+        <item>Который сейчас час?</item>
+        <item>Уже поздно, пора отдыхать</item>
+        <item>Звёзды не спрашивают путников, время вознаграждает преданных</item>
+        <item>Долго работал сегодня, укройся одеялом и сладко спи</item>
+        <item>Вы сегодня счастливы? В любом случае, выспитесь хорошо</item>
+        <item>Спите хорошо сегодня ночью, завтра проснётесь полными сил</item>
+        <item>Следите за питанием, избегайте жирной пищи</item>
+        <item>Спокойной ночи, сладких снов</item>
+        <item>Ночь нежна, и вы тоже</item>
+        <item>Оставьте сегодняшние заботы, отдохните</item>
+        <item>Спокойной ночи, пусть мир будет к вам добр</item>
+        <item>Глубокая ночь — отличное время очистить разум</item>
+        <item>Звёзды зажигаются, освещая ваши сны</item>
+        <item>Вечерний ветерок приносит хорошее настроение</item>
+        <item>Ночная тишина исцеляет всё</item>
+        <item>Пусть вам ничего не снится до рассвета</item>
+        <item>Вы сегодня хорошо помечтали?</item>
+        <item>Спокойной ночи, завтра снова прекрасный день</item>
+        <item>Не волнуйтесь, сделайте несколько глубоких вдохов</item>
+        <item>Расслабьтесь, наслаждайтесь безмятежностью ночи</item>
+        <item>Спокойной ночи, крепкого сна</item>
+        <item>Уже поздно, дайте душе отдохнуть</item>
+        <item>Там, где вы, сегодня видны звёзды?</item>
+        <item>Вечерний ветерок уже пришёл?</item>
+        <item>Ночная нежность принадлежит вам</item>
+        <item>Спите хорошо сегодня, завтра будет лучше</item>
+        <item>Скажу вам секрет... тссс...</item>
+        <item>Спокойной ночи, будьте собой</item>
+        <item>Хорошо ешьте, хорошо спите</item>
+        <item>Оставьте усталость, встретьте сладкие сны</item>
+    </string-array>
+    
+    <!-- Weather Smart Recommend -->
+    <string name="weather_smart_recommend">Умные рекомендации по погоде</string>
+    <string name="weather_smart_recommend_desc">Автоматически рекомендовать белый шум на основе погоды</string>
+    <string name="weather_quote">Подарите себе мгновение тишины</string>
+    <string name="weather_sound_mapping">Сопоставление звуков с погодой</string>
+    <string name="save">Сохранить</string>
+    <string name="weather_edit_title">Сопоставление звуков с погодой</string>
+    <string name="weather_refresh">Обновить погоду</string>
+    <string name="weather_current">Текущая погода: %1$s</string>
+    <string name="weather_select_type">Выберите тип погоды</string>
+    <string name="weather_select_sound">Выберите белый шум для воспроизведения</string>
+    <string name="weather_loading">Получение данных о погоде…</string>
+    <string name="weather_manual_select">Выбор погоды вручную</string>
+    <string name="weather_location_failed">Ошибка определения местоположения. Пожалуйста, выберите текущую погоду вручную:</string>
+    <string name="weather_sound_rain">Дождь</string>
+    <string name="weather_sound_light_rain">Лёгкий дождь</string>
+    <string name="weather_sound_heavy_rain">Сильный дождь</string>
+    <string name="weather_sound_thunder">Гром</string>
+    <string name="weather_sound_wind">Ветер</string>
+    <string name="weather_sound_birds">Птицы</string>
+    <string name="weather_sound_river">Река</string>
+    <string name="weather_sound_forest">Лес</string>
+    <string name="weather_sound_fireplace">Костёр</string>
+    <string name="weather_sound_waves">Волны</string>
+    <string name="weather_sound_jungle">Джунгли</string>
+    <string name="weather_sound_drizzle">Морось</string>
+    <string name="weather_sound_walk_in_snow">Прогулка по снегу</string>
+    <string name="weather_sound_night">Ночная деревня</string>
+    <string name="weather_sound_crickets">Сверчки</string>
+    <string name="weather_sound_field">Поле</string>
+    <string name="weather_sound_lake">Озеро</string>
+    <string name="weather_sound_kitchen">Готовка на кухне</string>
+    <string name="weather_sound_wind_chimes">Колокольчики ветра</string>
+    <string name="weather_sound_light_piano">Лёгкое пианино</string>
+    <string name="weather_sound_rain_on_car_roof">Дождь по крыше машины</string>
+    <string name="weather_sound_rain_on_umbrella">Дождь по зонту</string>
+    <string name="weather_sound_rain_on_tent">Дождь по палатке</string>
+    <string name="weather_sound_rain_on_leaves">Дождь по листьям</string>
+    <string name="weather_sound_rain_on_raincoat">Дождь по плащу</string>
+    <string name="weather_sound_rain_on_windowsill">Дождь по подоконнику</string>
+    <string name="weather_sound_rain_on_wooden_house">Дождь по деревянному дому</string>
+    <string name="weather_sound_rain_while_driving">Дождь во время вождения</string>
+    <string name="weather_sound_rain_on_empty_street">Дождь на пустой улице</string>
+    <string name="weather_sound_rain_on_eaves">Дождь по карнизу</string>
+    <string name="weather_sound_heavy_rain_on_glass">Сильный дождь по стеклу</string>
+    <string name="weather_category_nature">Природа</string>
+    <string name="weather_category_rain">Дождь</string>
+    <string name="weather_category_other">Другое</string>
+    <string name="weather_sunny_clear">Ясно</string>
+    <string name="weather_sunny_night">Ясная ночь</string>
+    <string name="weather_cloudy_partly">Переменная облачность</string>
+    <string name="weather_cloudy_overcast">Пасмурно</string>
+    <string name="weather_foggy">Туман</string>
+    <string name="weather_foggy_drizzle">Морось</string>
+    <string name="weather_rain_light">Лёгкий дождь</string>
+    <string name="weather_rain_moderate">Умеренный дождь</string>
+    <string name="weather_rain_heavy">Сильный дождь</string>
+    <string name="weather_rain_shower">Ливень</string>
+    <string name="weather_snow_light">Лёгкий снег</string>
+    <string name="weather_snow_moderate">Умеренный снег</string>
+    <string name="weather_snow_heavy">Сильный снегопад</string>
+    <string name="weather_snow_sleet">Мокрый снег</string>
+    <string name="weather_clear">Ясно</string>
+    <string name="weather_partly_cloudy">Переменная облачность</string>
+    <string name="weather_cloudy">Облачно</string>
+    <string name="weather_overcast">Пасмурно</string>
+    <string name="weather_fog">Туман</string>
+    <string name="weather_drizzle">Морось</string>
+    <string name="weather_freezing_fog">Ледяной туман</string>
+    <string name="weather_rain">Дождь</string>
+    <string name="weather_freezing_rain">Ледяной дождь</string>
+    <string name="weather_snow">Снег</string>
+    <string name="weather_snow_grains">Снежная крупа</string>
+    <string name="weather_shower">Ливень</string>
+    <string name="weather_snow_shower">Снегопад</string>
+    <string name="weather_thunderstorm">Гроза</string>
+    <string name="weather_thunderstorm_hail">Гроза с градом</string>
+    <string name="wind_speed">Ветер</string>
+    <string name="humidity">Влажность</string>
+    <string name="feels_like">Ощущается как</string>
+    <string name="downloading">Загрузка</string>
+    <string name="tap_to_download_and_play">Нажмите, чтобы загрузить и воспроизвести</string>
+    <string name="playing">Воспроизводится</string>
+    <string name="play_recommended">Воспроизвести рекомендуемое</string>
+    <string name="download_and_play">Загрузить и воспроизвести</string>
+    <string name="weather_location_required">Требуется разрешение на определение местоположения</string>
+    
+    <!-- Breathing Exercise -->
+    <string name="breathing_exercise">Дыхание</string>
+    <string name="tap_to_start">Нажмите, чтобы начать</string>
+    <string name="inhale">Вдох...</string>
+    <string name="hold">Задержка...</string>
+    <string name="exhale">Выдох...</string>
+    <string name="breath_count">Дыхание %1$d</string>
+    
+    <!-- Breathing Guide -->
+    <string name="breathing_guide_title">Инструкция по дыхательной гимнастике</string>
+    <string name="breathing_guide_step1">1. Нажмите кнопку воспроизведения ниже, чтобы начать</string>
+    <string name="breathing_guide_step2">2. Вдох (4 с): следуйте за расширяющимся кругом</string>
+    <string name="breathing_guide_step3">3. Задержка (4 с): удерживайте на максимальном размере</string>
+    <string name="breathing_guide_step4">4. Выдох (4 с): следуйте за сжимающимся кругом</string>
+    <string name="breathing_guide_step5">5. Длительность: 5 минут, автоматическая остановка</string>
+    <string name="got_it">Понятно</string>
+    
+    <!-- Bottom Navigation Tabs -->
+    <string name="tab_white_noise">Шум</string>
+    <string name="tab_starsky">Звёзды</string>
+    <string name="tab_breathing">Дыхание</string>
+    <string name="tab_settings">Настройки</string>
+    
+    <!-- Tomato Timer -->
+    <string name="tomato_timer_title">Таймер фокуса</string>
+    <string name="tomato_today_completed">Сегодня: %1$d помидоров</string>
+    <string name="tomato_focus">Фокус</string>
+    <string name="tomato_break">Перерыв</string>
+    <string name="tomato_start">Старт</string>
+    <string name="tomato_pause">Пауза</string>
+    <string name="tomato_reset">Сброс</string>
+
+    <!-- Flip Clock -->
+    <string name="flip_clock">Большие часы</string>
+    <string name="flip_clock_description">Эта функция требует достаточного заряда батареи</string>
+    <string name="flip_clock_back">Назад</string>
+    <string name="flip_clock_countdown">Таймер</string>
+    <string name="flip_clock_cancel_countdown">Отменить таймер</string>
+    <string name="flip_clock_font">Шрифт</string>
+    <string name="flip_clock_set_countdown">Установить таймер</string>
+    <string name="flip_clock_minutes_format">%1$d мин</string>
+    <string name="flip_clock_start">Старт</string>
+    <string name="flip_clock_cancel">Отмена</string>
+    <string name="flip_clock_select_font">Выбрать шрифт</string>
+    <string name="flip_clock_font_bebas_neue_desc">Стиль табло аэропорта, сверхжирный</string>
+    <string name="flip_clock_font_oswald_desc">Индустриальный винтажный стиль</string>
+    
+    <!-- Widget -->
+    <string name="add_quote_widget">Добавить виджет</string>
+    <string name="add_quote_widget_description">Добавить виджет цитаты дня на главный экран</string>
+    <string name="widget_add_hint">Зажмите пустую область на главном экране, выберите «Виджеты», найдите XMSLEEP, чтобы добавить виджет цитаты</string>
+    <string name="widget_add_hint_manual">Зажмите пустую область на главном экране, выберите «Виджеты», найдите XMSLEEP, чтобы добавить виджет цитаты</string>
+    <string name="widget_add_failed">Не удалось открыть главный экран. Пожалуйста, добавьте виджет вручную</string>
+    <string name="widget_description">Цитата дня — вдохновляющие цитаты</string>
+    <string name="widget_default_quote">Жизнь — это не только настоящее, но и поэзия и далёкие края.</string>
+    <string name="widget_default_author">Неизвестно</string>
+    <string name="widget_loading">Загрузка...</string>
+    <string name="widget_refresh_failed">Ошибка обновления</string>
+
+    <!-- Recent play dialog settings -->
+    <string name="show_recent_play_dialog">Недавнее</string>
+    <string name="show_recent_play_dialog_description">Показывать окно недавнего при запуске</string>
+    <string name="auto_play_on_start">Автовоспроизведение при запуске</string>
+    <string name="auto_play_on_start_description">Автоматически воспроизводить последний использованный пресет при запуске приложения</string>
+    <string name="auto_play_need_preset_tip">Пожалуйста, сначала добавьте аудио в пресет</string>
+    <string name="tip">Подсказка</string>
+</resources>

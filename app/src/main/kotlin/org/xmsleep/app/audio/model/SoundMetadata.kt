@@ -1,6 +1,7 @@
 package org.xmsleep.app.audio.model
 
 import com.google.gson.annotations.SerializedName
+import org.xmsleep.app.i18n.LanguageManager
 
 /**
  * 音频来源类型
@@ -34,6 +35,9 @@ data class SoundMetadata(
     val name: String,                  // 显示名称（简体中文）
     val nameEn: String? = null,        // 英文名称（可选）
     val nameZhTW: String? = null,     // 繁体中文名称（可选）
+    val nameKo: String? = null,       // 韩语名称（可选）
+    val nameJa: String? = null,       // 日语名称（可选）
+    val nameRu: String? = null,       // 俄语名称（可选）
     val category: String,              // 分类（如 "Nature", "Rain"）
     val icon: String? = null,          // 图标（emoji或资源ID）
     
@@ -60,7 +64,18 @@ data class SoundMetadata(
     // 显示控制
     val isVisible: Boolean = true,      // 是否显示
     val order: Int = 0                  // 显示顺序
-)
+) {
+    fun getLocalizedName(language: LanguageManager.Language): String {
+        return when (language) {
+            LanguageManager.Language.ENGLISH -> nameEn ?: name
+            LanguageManager.Language.TRADITIONAL_CHINESE -> nameZhTW ?: name
+            LanguageManager.Language.KOREAN -> nameKo ?: nameEn ?: name
+            LanguageManager.Language.JAPANESE -> nameJa ?: nameEn ?: name
+            LanguageManager.Language.RUSSIAN -> nameRu ?: nameEn ?: name
+            LanguageManager.Language.SIMPLIFIED_CHINESE -> name
+        }
+    }
+}
 
 /**
  * 音频分类
@@ -70,9 +85,23 @@ data class SoundCategory(
     val name: String,                  // 分类名称（简体中文）
     val nameEn: String? = null,        // 英文名称（可选）
     val nameZhTW: String? = null,      // 繁体中文名称（可选）
+    val nameKo: String? = null,       // 韩语名称（可选）
+    val nameJa: String? = null,       // 日语名称（可选）
+    val nameRu: String? = null,       // 俄语名称（可选）
     val icon: String? = null,         // 图标（emoji或资源ID）
     val order: Int = 0                 // 显示顺序
-)
+) {
+    fun getLocalizedName(language: LanguageManager.Language): String {
+        return when (language) {
+            LanguageManager.Language.ENGLISH -> nameEn ?: name
+            LanguageManager.Language.TRADITIONAL_CHINESE -> nameZhTW ?: name
+            LanguageManager.Language.KOREAN -> nameKo ?: nameEn ?: name
+            LanguageManager.Language.JAPANESE -> nameJa ?: nameEn ?: name
+            LanguageManager.Language.RUSSIAN -> nameRu ?: nameEn ?: name
+            LanguageManager.Language.SIMPLIFIED_CHINESE -> name
+        }
+    }
+}
 
 /**
  * 音频清单

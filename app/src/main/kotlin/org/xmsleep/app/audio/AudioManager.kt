@@ -93,6 +93,9 @@ class AudioManager private constructor() {
     // 网络音频的元数据（用于恢复播放）
     private val remoteMetadataCache = java.util.concurrent.ConcurrentHashMap<String, Pair<org.xmsleep.app.audio.model.SoundMetadata, android.net.Uri>>()
     
+    // 标记是否只是暂停状态（用于倒计时保持）
+    private var isPausedState = false
+    
     // 网络音频的循环信息（用于无缝循环）
     private val remoteLoopInfo = java.util.concurrent.ConcurrentHashMap<String, Pair<Long, Long>>() // soundId -> (loopStart, loopEnd) in milliseconds
     
@@ -633,6 +636,7 @@ class AudioManager private constructor() {
     // =========================================================================
 
     fun playSound(context: Context, sound: Sound) {
+        isPausedState = false  // 清除暂停标志（开始播放新音频）
         Logger.d(TAG, "playSound 被调用: ${sound.name}")
         try {
             if (applicationContext == null) {
@@ -844,6 +848,7 @@ class AudioManager private constructor() {
      * 暂停所有声音
      */
     fun pauseAllSounds() {
+        isPausedState = true  // 设置暂停标志
         try {
             // 关键修复：在暂停之前保存最近播放的声音列表
             // 此时 playingStates 还是 true，可以正确保存
@@ -913,6 +918,7 @@ class AudioManager private constructor() {
      * 立即停止所有声音播放（包括本地声音、远程声音和本地音频文件）
      */
     fun stopAllSounds() {
+        isPausedState = false  // 清除暂停标志
         try {
             Logger.d(TAG, "开始停止所有声音...")
             
@@ -1369,8 +1375,18 @@ class AudioManager private constructor() {
     
     /**
      * 检查是否有任何声音正在播放（本地+远程+本地音频文件）
+     * 如果是暂停状态（有音频被暂停但可恢复），也返回 true
      */
     fun hasAnyPlayingSounds(): Boolean {
+        // 如果只是暂停状态（有音频被暂停），返回 true（保持倒计时）
+        if (isPausedState) {
+            val hasAnyAudio = playingStates.values.any { it == true } || 
+                             remotePlayingStates.values.any { it == true } ||
+                             LocalAudioPlayer.getInstance().hasActiveAudio()
+            Logger.d(TAG, "hasAnyPlayingSounds [暂停状态]: $hasAnyAudio")
+            return hasAnyAudio
+        }
+        
         // 检查本地声音
         val hasLocalPlaying = playingStates.values.any { it == true }
         // 检查远程声音
@@ -1500,6 +1516,7 @@ class AudioManager private constructor() {
         metadata: org.xmsleep.app.audio.model.SoundMetadata,
         uri: android.net.Uri
     ) {
+        isPausedState = false  // 清除暂停标志（开始播放新音频）
         try {
             if (applicationContext == null) {
                 applicationContext = context.applicationContext
@@ -1628,43 +1645,9 @@ class AudioManager private constructor() {
                 val loopStartMs = metadata.loopStart ?: 0L
                 val loopEndMs = metadata.loopEnd ?: 0L
                 
-                // 如果 loopStart 和 loopEnd 都为 0，说明是完整播放整个音频，不需要 ClippingMediaSource
-                val finalMediaSource = if (loopStartMs == 0L && loopEndMs == 0L) {
-                    // 完整播放，直接使用原始 MediaSource，避免 ClippingMediaSource 导致的循环问题
-                    Logger.d(TAG, "$soundId 使用完整音频循环")
-                    mediaSource
-                } else {
-                    // 计算优化的循环起始点：提前1秒，但不小于0
-                    val optimizedLoopStartMs = maxOf(0, loopStartMs - 1000)
-                    
-                    // 如果 loopEnd 为 0，使用 C.TIME_END_OF_SOURCE 让 ExoPlayer 自动检测文件长度
-                    val endPositionUs = if (loopEndMs > 0) {
-                        loopEndMs * 1000
-                    } else {
-                        C.TIME_END_OF_SOURCE
-                    }
-                    
-                    // 为远程音频创建优化的媒体源
-                    val clippingMediaSource = if (uri.scheme == "file" && uri.path?.contains("/cache/") == true) {
-                        // 缓存文件：使用提前循环优化
-                        ClippingMediaSource.Builder(mediaSource)
-                            .setStartPositionUs(optimizedLoopStartMs * 1000)
-                            .setEndPositionUs(endPositionUs)
-                            .build()
-                    } else {
-                        // 网络文件：使用原始循环点，避免预加载过多数据
-                        ClippingMediaSource.Builder(mediaSource)
-                            .setStartPositionUs(loopStartMs * 1000)
-                            .setEndPositionUs(endPositionUs)
-                            .build()
-                    }
-                    
-                    Logger.d(TAG, "$soundId 循环优化: 原始起始 ${loopStartMs}ms -> 优化起始 ${optimizedLoopStartMs}ms，结束 ${loopEndMs}ms")
-                    clippingMediaSource
-                }
-                
-                // 针对网络音频的优化设置
-                player.setMediaSource(finalMediaSource)
+                // 远程音频：无论 loopStart/loopEnd 是否为 0，都使用 REPEAT_MODE_ONE 让 ExoPlayer 自动处理
+                // 不使用 ClippingMediaSource，避免重置播放的问题
+                player.setMediaSource(mediaSource)
                 player.repeatMode = Player.REPEAT_MODE_ONE
                 player.volume = remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME
                 

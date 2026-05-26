@@ -7,56 +7,80 @@
       "name": "自然",
       "nameEn": "Nature",
       "order": 1,
-      "nameZhTW": "自然"
+      "nameZhTW": "自然",
+      "nameKo": "자연",
+      "nameJa": "自然",
+      "nameRu": "Природа"
     },
     {
       "id": "rain",
       "name": "雨声",
       "nameEn": "Rain",
       "order": 2,
-      "nameZhTW": "雨聲"
+      "nameZhTW": "雨聲",
+      "nameKo": "비",
+      "nameJa": "雨",
+      "nameRu": "Дождь"
     },
     {
       "id": "animals",
       "name": "动物",
       "nameEn": "Animals",
       "order": 9,
-      "nameZhTW": "動物"
+      "nameZhTW": "動物",
+      "nameKo": "동물",
+      "nameJa": "動物",
+      "nameRu": "Животные"
     },
     {
       "id": "urban",
       "name": "城市",
       "nameEn": "Urban",
       "order": 4,
-      "nameZhTW": "城市"
+      "nameZhTW": "城市",
+      "nameKo": "도시",
+      "nameJa": "都市",
+      "nameRu": "Город"
     },
     {
       "id": "places",
       "name": "场所",
       "nameEn": "Places",
       "order": 5,
-      "nameZhTW": "場所"
+      "nameZhTW": "場所",
+      "nameKo": "장소",
+      "nameJa": "場所",
+      "nameRu": "Места"
     },
     {
       "id": "transport",
       "name": "交通",
       "nameEn": "Transport",
       "order": 6,
-      "nameZhTW": "交通"
+      "nameZhTW": "交通",
+      "nameKo": "교통",
+      "nameJa": "交通",
+      "nameRu": "Транспорт"
     },
     {
       "id": "things",
       "name": "物品",
       "nameEn": "Things",
       "order": 7,
-      "nameZhTW": "物品"
+      "nameZhTW": "物品",
+      "nameKo": "물건",
+      "nameJa": "物",
+      "nameRu": "Предметы"
     },
     {
       "id": "noise",
       "name": "噪音",
       "nameEn": "Noise",
       "order": 8,
-      "nameZhTW": "噪音"
+      "nameZhTW": "噪音",
+      "nameKo": "소음",
+      "nameJa": "ノイズ",
+      "nameRu": "Шум"
     }
   ],
   "sounds": [
@@ -72,7 +96,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 1,
-      "nameZhTW": "河流"
+      "nameZhTW": "河流",
+      "nameKo": "강",
+      "nameJa": "川",
+      "nameRu": "Река"
     },
     {
       "id": "waves",
@@ -86,7 +113,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 2,
-      "nameZhTW": "海浪"
+      "nameZhTW": "海浪",
+      "nameKo": "파도",
+      "nameJa": "波",
+      "nameRu": "Волны"
     },
     {
       "id": "campfire",
@@ -100,7 +130,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 3,
-      "nameZhTW": "篝火"
+      "nameZhTW": "篝火",
+      "nameKo": "모닥불",
+      "nameJa": "キャンプファイヤー",
+      "nameRu": "Костёр"
     },
     {
       "id": "wind",
@@ -114,7 +147,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 4,
-      "nameZhTW": "風聲"
+      "nameZhTW": "風聲",
+      "nameKo": "바람",
+      "nameJa": "風",
+      "nameRu": "Ветер"
     },
     {
       "id": "howling-wind",
@@ -128,7 +164,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 5,
-      "nameZhTW": "呼嘯的風"
+      "nameZhTW": "呼嘯的風",
+      "nameKo": "울부짖는 바람",
+      "nameJa": "吠える風",
+      "nameRu": "Воющий ветер"
     },
     {
       "id": "wind-in-trees",
@@ -142,7 +181,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 6,
-      "nameZhTW": "樹間風聲"
+      "nameZhTW": "樹間風聲",
+      "nameKo": "나무 사이 바람",
+      "nameJa": "木々の風",
+      "nameRu": "Ветер в деревьях"
     },
     {
       "id": "waterfall",
@@ -156,7 +198,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 7,
-      "nameZhTW": "瀑布"
+      "nameZhTW": "瀑布",
+      "nameKo": "폭포",
+      "nameJa": "滝",
+      "nameRu": "Водопад"
     },
     {
       "id": "walk-in-snow",
@@ -170,7 +215,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 8,
-      "nameZhTW": "雪中行走"
+      "nameZhTW": "雪中行走",
+      "nameKo": "눈 속 걷기",
+      "nameJa": "雪の中を歩く",
+      "nameRu": "Ходьба по снегу"
     },
     {
       "id": "walk-on-leaves",
@@ -184,7 +232,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 9,
-      "nameZhTW": "踩踏樹葉"
+      "nameZhTW": "踩踏樹葉",
+      "nameKo": "낙엽 밟기",
+      "nameJa": "落ち葉を踏む",
+      "nameRu": "Ходьба по листьям"
     },
     {
       "id": "walk-on-gravel",
@@ -198,7 +249,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 10,
-      "nameZhTW": "踩踏碎石"
+      "nameZhTW": "踩踏碎石",
+      "nameKo": "자갈길 걷기",
+      "nameJa": "砂利道を歩く",
+      "nameRu": "Ходьба по гравию"
     },
     {
       "id": "droplets",
@@ -212,7 +266,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 11,
-      "nameZhTW": "水滴"
+      "nameZhTW": "水滴",
+      "nameKo": "물방울",
+      "nameJa": "水滴",
+      "nameRu": "Капли"
     },
     {
       "id": "jungle",
@@ -226,7 +283,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 12,
-      "nameZhTW": "丛林"
+      "nameZhTW": "丛林",
+      "nameKo": "정글",
+      "nameJa": "ジャングル",
+      "nameRu": "Джунгли"
     },
     {
       "id": "field",
@@ -240,7 +300,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 13,
-      "nameZhTW": "田野"
+      "nameZhTW": "田野",
+      "nameKo": "들판",
+      "nameJa": "野原",
+      "nameRu": "Поле"
     },
     {
       "id": "lake",
@@ -254,7 +317,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 14,
-      "nameZhTW": "湖泊"
+      "nameZhTW": "湖泊",
+      "nameKo": "호수",
+      "nameJa": "湖",
+      "nameRu": "Озеро"
     },
     {
       "id": "light-rain",
@@ -268,7 +334,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 1,
-      "nameZhTW": "小雨"
+      "nameZhTW": "小雨",
+      "nameKo": "약한 비",
+      "nameJa": "小雨",
+      "nameRu": "Мелкий дождь"
     },
     {
       "id": "heavy-rain",
@@ -282,7 +351,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 2,
-      "nameZhTW": "大雨"
+      "nameZhTW": "大雨",
+      "nameKo": "폭우",
+      "nameJa": "大雨",
+      "nameRu": "Сильный дождь"
     },
     {
       "id": "rain-on-car-roof",
@@ -296,7 +368,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 5,
-      "nameZhTW": "車頂雨聲"
+      "nameZhTW": "車頂雨聲",
+      "nameKo": "차 지붕 빗소리",
+      "nameJa": "車の屋根に当たる雨",
+      "nameRu": "Дождь по крыше машины"
     },
     {
       "id": "rain-on-umbrella",
@@ -310,7 +385,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 6,
-      "nameZhTW": "傘上雨聲"
+      "nameZhTW": "傘上雨聲",
+      "nameKo": "우산 빗소리",
+      "nameJa": "傘に当たる雨",
+      "nameRu": "Дождь по зонту"
     },
     {
       "id": "rain-on-tent",
@@ -324,7 +402,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 7,
-      "nameZhTW": "帳篷雨聲"
+      "nameZhTW": "帳篷雨聲",
+      "nameKo": "텐트 빗소리",
+      "nameJa": "テントに当たる雨",
+      "nameRu": "Дождь по палатке"
     },
     {
       "id": "rain-on-leaves",
@@ -338,7 +419,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 8,
-      "nameZhTW": "葉上雨聲"
+      "nameZhTW": "葉上雨聲",
+      "nameKo": "나뭇잎 빗소리",
+      "nameJa": "葉に当たる雨",
+      "nameRu": "Дождь по листьям"
     },
     {
       "id": "rain-on-raincoat",
@@ -352,7 +436,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 9,
-      "nameZhTW": "雨落雨披"
+      "nameZhTW": "雨落雨披",
+      "nameKo": "우비 빗소리",
+      "nameJa": "レインコートに当たる雨",
+      "nameRu": "Дождь по плащу"
     },
     {
       "id": "rain-on-windowsill",
@@ -366,7 +453,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 10,
-      "nameZhTW": "雨打窗台"
+      "nameZhTW": "雨打窗台",
+      "nameKo": "창틀 빗소리",
+      "nameJa": "窓辺に当たる雨",
+      "nameRu": "Дождь на подоконник"
     },
     {
       "id": "rain-on-wooden-house",
@@ -380,7 +470,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 11,
-      "nameZhTW": "雨敲木屋"
+      "nameZhTW": "雨敲木屋",
+      "nameKo": "나무 집 빗소리",
+      "nameJa": "木造家屋に当たる雨",
+      "nameRu": "Дождь по деревянному дому"
     },
     {
       "id": "thunderstorm",
@@ -394,7 +487,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 12,
-      "nameZhTW": "雷雨聲"
+      "nameZhTW": "雷雨聲",
+      "nameKo": "뇌우",
+      "nameJa": "雷雨",
+      "nameRu": "Гроза"
     },
     {
       "id": "rain-while-driving",
@@ -408,7 +504,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 13,
-      "nameZhTW": "開車時遇雨"
+      "nameZhTW": "開車時遇雨",
+      "nameKo": "운전 중 빗소리",
+      "nameJa": "運転中の雨",
+      "nameRu": "Дождь во время вождения"
     },
     {
       "id": "rain-on-empty-street",
@@ -422,7 +521,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 14,
-      "nameZhTW": "空蕩街道的雨"
+      "nameZhTW": "空蕩街道的雨",
+      "nameKo": "텅 빈 거리의 빗소리",
+      "nameJa": "誰もいない通りの雨",
+      "nameRu": "Дождь на пустой улице"
     },
     {
       "id": "drizzle",
@@ -436,7 +538,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 15,
-      "nameZhTW": "綿綿細雨"
+      "nameZhTW": "綿綿細雨",
+      "nameKo": "이슬비",
+      "nameJa": "霧雨",
+      "nameRu": "Морось"
     },
     {
       "id": "rain-on-eaves",
@@ -450,7 +555,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 16,
-      "nameZhTW": "屋簷落雨"
+      "nameZhTW": "屋簷落雨",
+      "nameKo": "처마 빗소리",
+      "nameJa": "軒先に当たる雨",
+      "nameRu": "Дождь по карнизу"
     },
     {
       "id": "heavy-rain-on-glass",
@@ -464,7 +572,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 17,
-      "nameZhTW": "大雨落玻璃"
+      "nameZhTW": "大雨落玻璃",
+      "nameKo": "유리창 폭우",
+      "nameJa": "窓ガラスに打ちつける大雨",
+      "nameRu": "Сильный дождь по стеклу"
     },
     {
       "id": "birds",
@@ -478,7 +589,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 1,
-      "nameZhTW": "鳥鳴"
+      "nameZhTW": "鳥鳴",
+      "nameKo": "새소리",
+      "nameJa": "鳥のさえずり",
+      "nameRu": "Птицы"
     },
     {
       "id": "seagulls",
@@ -492,7 +606,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 2,
-      "nameZhTW": "海鷗"
+      "nameZhTW": "海鷗",
+      "nameKo": "갈매기",
+      "nameJa": "カモメ",
+      "nameRu": "Чайки"
     },
     {
       "id": "crickets",
@@ -506,7 +623,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 3,
-      "nameZhTW": "蟋蟀"
+      "nameZhTW": "蟋蟀",
+      "nameKo": "귀뚜라미",
+      "nameJa": "コオロギ",
+      "nameRu": "Сверчки"
     },
     {
       "id": "wolf",
@@ -520,7 +640,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 4,
-      "nameZhTW": "狼嚎"
+      "nameZhTW": "狼嚎",
+      "nameKo": "늑대",
+      "nameJa": "狼",
+      "nameRu": "Волк"
     },
     {
       "id": "owl",
@@ -534,7 +657,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 5,
-      "nameZhTW": "貓頭鷹"
+      "nameZhTW": "貓頭鷹",
+      "nameKo": "올빼미",
+      "nameJa": "フクロウ",
+      "nameRu": "Сова"
     },
     {
       "id": "frog",
@@ -548,7 +674,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 6,
-      "nameZhTW": "青蛙"
+      "nameZhTW": "青蛙",
+      "nameKo": "개구리",
+      "nameJa": "カエル",
+      "nameRu": "Лягушка"
     },
     {
       "id": "dog-barking",
@@ -562,7 +691,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 7,
-      "nameZhTW": "狗叫"
+      "nameZhTW": "狗叫",
+      "nameKo": "개 짖는 소리",
+      "nameJa": "犬の鳴き声",
+      "nameRu": "Лай собаки"
     },
     {
       "id": "horse-gallop",
@@ -576,7 +708,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 8,
-      "nameZhTW": "馬奔騰"
+      "nameZhTW": "馬奔騰",
+      "nameKo": "말 질주",
+      "nameJa": "馬の駆け足",
+      "nameRu": "Галоп лошади"
     },
     {
       "id": "cat-purring",
@@ -590,7 +725,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 9,
-      "nameZhTW": "貓咪呼嚕"
+      "nameZhTW": "貓咪呼嚕",
+      "nameKo": "고양이 가르릉",
+      "nameJa": "猫のゴロゴロ",
+      "nameRu": "Мурлыканье кота"
     },
     {
       "id": "crows",
@@ -604,7 +742,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 10,
-      "nameZhTW": "烏鴉"
+      "nameZhTW": "烏鴉",
+      "nameKo": "까마귀",
+      "nameJa": "カラス",
+      "nameRu": "Вороны"
     },
     {
       "id": "whale",
@@ -618,7 +759,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 11,
-      "nameZhTW": "鯨魚"
+      "nameZhTW": "鯨魚",
+      "nameKo": "고래",
+      "nameJa": "クジラ",
+      "nameRu": "Кит"
     },
     {
       "id": "beehive",
@@ -632,7 +776,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 12,
-      "nameZhTW": "蜂巢"
+      "nameZhTW": "蜂巢",
+      "nameKo": "벌집",
+      "nameJa": "蜂の巣",
+      "nameRu": "Улей"
     },
     {
       "id": "woodpecker",
@@ -646,7 +793,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 13,
-      "nameZhTW": "啄木鳥"
+      "nameZhTW": "啄木鳥",
+      "nameKo": "딱따구리",
+      "nameJa": "キツツキ",
+      "nameRu": "Дятел"
     },
     {
       "id": "chickens",
@@ -660,7 +810,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 14,
-      "nameZhTW": "雞"
+      "nameZhTW": "雞",
+      "nameKo": "닭",
+      "nameJa": "ニワトリ",
+      "nameRu": "Куры"
     },
     {
       "id": "cows",
@@ -674,7 +827,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 15,
-      "nameZhTW": "牛"
+      "nameZhTW": "牛",
+      "nameKo": "소",
+      "nameJa": "牛",
+      "nameRu": "Коровы"
     },
     {
       "id": "sheep",
@@ -688,7 +844,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 16,
-      "nameZhTW": "羊"
+      "nameZhTW": "羊",
+      "nameKo": "양",
+      "nameJa": "羊",
+      "nameRu": "Овцы"
     },
     {
       "id": "highway",
@@ -702,7 +861,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 1,
-      "nameZhTW": "高速公路"
+      "nameZhTW": "高速公路",
+      "nameKo": "고속도로",
+      "nameJa": "高速道路",
+      "nameRu": "Автострада"
     },
     {
       "id": "road",
@@ -716,7 +878,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 2,
-      "nameZhTW": "道路"
+      "nameZhTW": "道路",
+      "nameKo": "도로",
+      "nameJa": "道路",
+      "nameRu": "Дорога"
     },
     {
       "id": "ambulance-siren",
@@ -730,7 +895,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 3,
-      "nameZhTW": "救護車警笛"
+      "nameZhTW": "救護車警笛",
+      "nameKo": "구급차 사이렌",
+      "nameJa": "救急車のサイレン",
+      "nameRu": "Сирена скорой помощи"
     },
     {
       "id": "busy-street",
@@ -744,7 +912,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 4,
-      "nameZhTW": "繁忙街道"
+      "nameZhTW": "繁忙街道",
+      "nameKo": "번화가",
+      "nameJa": "賑やかな通り",
+      "nameRu": "Оживлённая улица"
     },
     {
       "id": "crowd",
@@ -758,7 +929,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 5,
-      "nameZhTW": "人群"
+      "nameZhTW": "人群",
+      "nameKo": "군중",
+      "nameJa": "人混み",
+      "nameRu": "Толпа"
     },
     {
       "id": "traffic",
@@ -772,7 +946,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 6,
-      "nameZhTW": "交通"
+      "nameZhTW": "交通",
+      "nameKo": "교통 소음",
+      "nameJa": "交通騒音",
+      "nameRu": "Трафик"
     },
     {
       "id": "fireworks",
@@ -786,7 +963,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 7,
-      "nameZhTW": "煙花"
+      "nameZhTW": "煙花",
+      "nameKo": "불꽃놀이",
+      "nameJa": "花火",
+      "nameRu": "Фейерверк"
     },
     {
       "id": "cafe",
@@ -800,7 +980,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 1,
-      "nameZhTW": "咖啡廳"
+      "nameZhTW": "咖啡廳",
+      "nameKo": "카페",
+      "nameJa": "カフェ",
+      "nameRu": "Кафе"
     },
     {
       "id": "airport",
@@ -814,7 +997,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 2,
-      "nameZhTW": "機場"
+      "nameZhTW": "機場",
+      "nameKo": "공항",
+      "nameJa": "空港",
+      "nameRu": "Аэропорт"
     },
     {
       "id": "church",
@@ -828,7 +1014,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 3,
-      "nameZhTW": "教堂"
+      "nameZhTW": "教堂",
+      "nameKo": "교회",
+      "nameJa": "教会",
+      "nameRu": "Церковь"
     },
     {
       "id": "temple",
@@ -842,7 +1031,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 4,
-      "nameZhTW": "寺廟"
+      "nameZhTW": "寺廟",
+      "nameKo": "사찰",
+      "nameJa": "寺院",
+      "nameRu": "Храм"
     },
     {
       "id": "construction-site",
@@ -856,7 +1048,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 5,
-      "nameZhTW": "建築工地"
+      "nameZhTW": "建築工地",
+      "nameKo": "공사 현장",
+      "nameJa": "建設現場",
+      "nameRu": "Стройка"
     },
     {
       "id": "underwater",
@@ -870,7 +1065,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 6,
-      "nameZhTW": "水下"
+      "nameZhTW": "水下",
+      "nameKo": "수중",
+      "nameJa": "水中",
+      "nameRu": "Под водой"
     },
     {
       "id": "crowded-bar",
@@ -884,7 +1082,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 7,
-      "nameZhTW": "擁擠酒吧"
+      "nameZhTW": "擁擠酒吧",
+      "nameKo": "붐비는 술집",
+      "nameJa": "混雑したバー",
+      "nameRu": "Шумный бар"
     },
     {
       "id": "night-village",
@@ -898,7 +1099,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 8,
-      "nameZhTW": "夜晚村莊"
+      "nameZhTW": "夜晚村莊",
+      "nameKo": "밤의 마을",
+      "nameJa": "夜の村",
+      "nameRu": "Ночная деревня"
     },
     {
       "id": "subway-station",
@@ -912,7 +1116,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 9,
-      "nameZhTW": "地鐵站"
+      "nameZhTW": "地鐵站",
+      "nameKo": "지하철역",
+      "nameJa": "地下鉄駅",
+      "nameRu": "Станция метро"
     },
     {
       "id": "office",
@@ -926,7 +1133,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 10,
-      "nameZhTW": "辦公室"
+      "nameZhTW": "辦公室",
+      "nameKo": "사무실",
+      "nameJa": "オフィス",
+      "nameRu": "Офис"
     },
     {
       "id": "supermarket",
@@ -940,7 +1150,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 11,
-      "nameZhTW": "超市"
+      "nameZhTW": "超市",
+      "nameKo": "슈퍼마켓",
+      "nameJa": "スーパーマーケット",
+      "nameRu": "Супермаркет"
     },
     {
       "id": "carousel",
@@ -954,7 +1167,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 12,
-      "nameZhTW": "旋轉木馬"
+      "nameZhTW": "旋轉木馬",
+      "nameKo": "회전목마",
+      "nameJa": "メリーゴーラウンド",
+      "nameRu": "Карусель"
     },
     {
       "id": "laboratory",
@@ -968,7 +1184,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 13,
-      "nameZhTW": "實驗室"
+      "nameZhTW": "實驗室",
+      "nameKo": "연구실",
+      "nameJa": "実験室",
+      "nameRu": "Лаборатория"
     },
     {
       "id": "laundry-room",
@@ -982,7 +1201,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 14,
-      "nameZhTW": "洗衣房"
+      "nameZhTW": "洗衣房",
+      "nameKo": "세탁실",
+      "nameJa": "ランドリールーム",
+      "nameRu": "Прачечная"
     },
     {
       "id": "restaurant",
@@ -996,7 +1218,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 15,
-      "nameZhTW": "餐廳"
+      "nameZhTW": "餐廳",
+      "nameKo": "레스토랑",
+      "nameJa": "レストラン",
+      "nameRu": "Ресторан"
     },
     {
       "id": "library",
@@ -1010,7 +1235,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 16,
-      "nameZhTW": "圖書館"
+      "nameZhTW": "圖書館",
+      "nameKo": "도서관",
+      "nameJa": "図書館",
+      "nameRu": "Библиотека"
     },
     {
       "id": "kitchen",
@@ -1024,7 +1252,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 17,
-      "nameZhTW": "廚房烹飪"
+      "nameZhTW": "廚房烹飪",
+      "nameKo": "주방",
+      "nameJa": "キッチン",
+      "nameRu": "Кухня"
     },
     {
       "id": "train",
@@ -1038,7 +1269,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 1,
-      "nameZhTW": "火車"
+      "nameZhTW": "火車",
+      "nameKo": "기차",
+      "nameJa": "電車",
+      "nameRu": "Поезд"
     },
     {
       "id": "inside-a-train",
@@ -1052,7 +1286,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 2,
-      "nameZhTW": "火車內"
+      "nameZhTW": "火車內",
+      "nameKo": "기차 안",
+      "nameJa": "電車内",
+      "nameRu": "Внутри поезда"
     },
     {
       "id": "airplane",
@@ -1066,7 +1303,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 3,
-      "nameZhTW": "飛機"
+      "nameZhTW": "飛機",
+      "nameKo": "비행기",
+      "nameJa": "飛行機",
+      "nameRu": "Самолёт"
     },
     {
       "id": "submarine",
@@ -1080,7 +1320,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 4,
-      "nameZhTW": "潛艇"
+      "nameZhTW": "潛艇",
+      "nameKo": "잠수함",
+      "nameJa": "潜水艦",
+      "nameRu": "Подводная лодка"
     },
     {
       "id": "sailboat",
@@ -1094,7 +1337,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 5,
-      "nameZhTW": "帆船"
+      "nameZhTW": "帆船",
+      "nameKo": "범선",
+      "nameJa": "ヨット",
+      "nameRu": "Парусник"
     },
     {
       "id": "rowing-boat",
@@ -1108,7 +1354,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 6,
-      "nameZhTW": "划船"
+      "nameZhTW": "划船",
+      "nameKo": "노젓기",
+      "nameJa": "手漕ぎボート",
+      "nameRu": "Гребная лодка"
     },
     {
       "id": "keyboard",
@@ -1122,7 +1371,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 1,
-      "nameZhTW": "鍵盤"
+      "nameZhTW": "鍵盤",
+      "nameKo": "키보드",
+      "nameJa": "キーボード",
+      "nameRu": "Клавиатура"
     },
     {
       "id": "typewriter",
@@ -1136,7 +1388,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 2,
-      "nameZhTW": "打字機"
+      "nameZhTW": "打字機",
+      "nameKo": "타자기",
+      "nameJa": "タイプライター",
+      "nameRu": "Печатная машинка"
     },
     {
       "id": "paper",
@@ -1150,7 +1405,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 3,
-      "nameZhTW": "紙張"
+      "nameZhTW": "紙張",
+      "nameKo": "종이",
+      "nameJa": "紙",
+      "nameRu": "Бумага"
     },
     {
       "id": "clock",
@@ -1164,7 +1422,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 4,
-      "nameZhTW": "時鐘"
+      "nameZhTW": "時鐘",
+      "nameKo": "시계",
+      "nameJa": "時計",
+      "nameRu": "Часы"
     },
     {
       "id": "wind-chimes",
@@ -1178,7 +1439,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 5,
-      "nameZhTW": "風鈴"
+      "nameZhTW": "風鈴",
+      "nameKo": "풍경",
+      "nameJa": "風鈴",
+      "nameRu": "Колокольчики ветра"
     },
     {
       "id": "singing-bowl",
@@ -1192,7 +1456,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 6,
-      "nameZhTW": "頌缽"
+      "nameZhTW": "頌缽",
+      "nameKo": "명상 그릇",
+      "nameJa": "シンギングボウル",
+      "nameRu": "Поющая чаша"
     },
     {
       "id": "ceiling-fan",
@@ -1206,7 +1473,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 7,
-      "nameZhTW": "吊扇"
+      "nameZhTW": "吊扇",
+      "nameKo": "천장 선풍기",
+      "nameJa": "シーリングファン",
+      "nameRu": "Потолочный вентилятор"
     },
     {
       "id": "dryer",
@@ -1220,7 +1490,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 8,
-      "nameZhTW": "烘乾機"
+      "nameZhTW": "烘乾機",
+      "nameKo": "건조기",
+      "nameJa": "乾燥機",
+      "nameRu": "Сушилка"
     },
     {
       "id": "slide-projector",
@@ -1234,7 +1507,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 9,
-      "nameZhTW": "幻燈機"
+      "nameZhTW": "幻燈機",
+      "nameKo": "슬라이드 프로젝터",
+      "nameJa": "スライドプロジェクター",
+      "nameRu": "Слайд-проектор"
     },
     {
       "id": "boiling-water",
@@ -1248,7 +1524,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 10,
-      "nameZhTW": "沸水"
+      "nameZhTW": "沸水",
+      "nameKo": "끓는 물",
+      "nameJa": "沸騰したお湯",
+      "nameRu": "Кипящая вода"
     },
     {
       "id": "bubbles",
@@ -1262,7 +1541,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 11,
-      "nameZhTW": "氣泡"
+      "nameZhTW": "氣泡",
+      "nameKo": "거품",
+      "nameJa": "泡",
+      "nameRu": "Пузырьки"
     },
     {
       "id": "tuning-radio",
@@ -1276,7 +1558,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 12,
-      "nameZhTW": "調頻收音機"
+      "nameZhTW": "調頻收音機",
+      "nameKo": "라디오 채널 돌리기",
+      "nameJa": "ラジオチューニング",
+      "nameRu": "Настройка радио"
     },
     {
       "id": "morse-code",
@@ -1290,7 +1575,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 13,
-      "nameZhTW": "摩爾斯電碼"
+      "nameZhTW": "摩爾斯電碼",
+      "nameKo": "모스 부호",
+      "nameJa": "モールス信号",
+      "nameRu": "Азбука Морзе"
     },
     {
       "id": "washing-machine",
@@ -1304,7 +1592,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 14,
-      "nameZhTW": "洗衣機"
+      "nameZhTW": "洗衣機",
+      "nameKo": "세탁기",
+      "nameJa": "洗濯機",
+      "nameRu": "Стиральная машина"
     },
     {
       "id": "vinyl-effect",
@@ -1318,7 +1609,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 15,
-      "nameZhTW": "黑膠效果"
+      "nameZhTW": "黑膠效果",
+      "nameKo": "바이닐 효과",
+      "nameJa": "レコード効果",
+      "nameRu": "Эффект винила"
     },
     {
       "id": "windshield-wipers",
@@ -1332,7 +1626,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 16,
-      "nameZhTW": "雨刷"
+      "nameZhTW": "雨刷",
+      "nameKo": "와이퍼",
+      "nameJa": "ワイパー",
+      "nameRu": "Стеклоочистители"
     },
     {
       "id": "ear-cleaning-1",
@@ -1346,7 +1643,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 17,
-      "nameZhTW": "掏耳朵1"
+      "nameZhTW": "掏耳朵1",
+      "nameKo": "귀 청소 1",
+      "nameJa": "耳かき1",
+      "nameRu": "Чистка ушей 1"
     },
     {
       "id": "ear-cleaning-2",
@@ -1360,7 +1660,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 18,
-      "nameZhTW": "掏耳朵2"
+      "nameZhTW": "掏耳朵2",
+      "nameKo": "귀 청소 2",
+      "nameJa": "耳かき2",
+      "nameRu": "Чистка ушей 2"
     },
     {
       "id": "guitar",
@@ -1374,7 +1677,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 19,
-      "nameZhTW": "吉他"
+      "nameZhTW": "吉他",
+      "nameKo": "기타",
+      "nameJa": "ギター",
+      "nameRu": "Гитара"
     },
     {
       "id": "light-piano",
@@ -1388,7 +1694,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 20,
-      "nameZhTW": "輕鋼琴"
+      "nameZhTW": "輕鋼琴",
+      "nameKo": "가벼운 피아노",
+      "nameJa": "軽やかなピアノ",
+      "nameRu": "Лёгкое пианино"
     },
     {
       "id": "guzheng",
@@ -1402,7 +1711,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 21,
-      "nameZhTW": "古箏"
+      "nameZhTW": "古箏",
+      "nameKo": "구정",
+      "nameJa": "古筝",
+      "nameRu": "Гучжэн"
     },
     {
       "id": "elegant-piano",
@@ -1416,7 +1728,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 22,
-      "nameZhTW": "優雅鋼琴"
+      "nameZhTW": "優雅鋼琴",
+      "nameKo": "우아한 피아노",
+      "nameJa": "エレガントピアノ",
+      "nameRu": "Элегантное пианино"
     },
     {
       "id": "meditation-harp",
@@ -1430,7 +1745,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 23,
-      "nameZhTW": "冥想琴音"
+      "nameZhTW": "冥想琴音",
+      "nameKo": "명상 하프",
+      "nameJa": "瞑想ハープ",
+      "nameRu": "Медитативная арфа"
     },
     {
       "id": "daydream",
@@ -1444,7 +1762,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 24,
-      "nameZhTW": "發呆音"
+      "nameZhTW": "發呆音",
+      "nameKo": "멍때리기",
+      "nameJa": "ぼんやり",
+      "nameRu": "Мечтание"
     },
     {
       "id": "fan",
@@ -1458,7 +1779,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 25,
-      "nameZhTW": "風扇"
+      "nameZhTW": "風扇",
+      "nameKo": "선풍기",
+      "nameJa": "扇風機",
+      "nameRu": "Вентилятор"
     },
     {
       "id": "white-noise",
@@ -1472,7 +1796,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 1,
-      "nameZhTW": "白噪音"
+      "nameZhTW": "白噪音",
+      "nameKo": "백색 소음",
+      "nameJa": "ホワイトノイズ",
+      "nameRu": "Белый шум"
     },
     {
       "id": "pink-noise",
@@ -1486,7 +1813,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 2,
-      "nameZhTW": "粉紅噪音"
+      "nameZhTW": "粉紅噪音",
+      "nameKo": "핑크 노이즈",
+      "nameJa": "ピンクノイズ",
+      "nameRu": "Розовый шум"
     },
     {
       "id": "brown-noise",
@@ -1500,7 +1830,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 3,
-      "nameZhTW": "棕噪音"
+      "nameZhTW": "棕噪音",
+      "nameKo": "브라운 노이즈",
+      "nameJa": "ブラウンノイズ",
+      "nameRu": "Коричневый шум"
     },
     {
       "id": "study",
@@ -1514,7 +1847,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 4,
-      "nameZhTW": "學習"
+      "nameZhTW": "學習",
+      "nameKo": "공부",
+      "nameJa": "勉強",
+      "nameRu": "Учёба"
     },
     {
       "id": "eating-chips",
@@ -1528,7 +1864,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 5,
-      "nameZhTW": "吃薯片"
+      "nameZhTW": "吃薯片",
+      "nameKo": "과자 먹는 소리",
+      "nameJa": "ポテトチップスを食べる",
+      "nameRu": "Хруст чипсов"
     },
     {
       "id": "piano",
@@ -1542,7 +1881,10 @@
       "isSeamless": true,
       "format": "ogg",
       "order": 6,
-      "nameZhTW": "鋼琴聲"
+      "nameZhTW": "鋼琴聲",
+      "nameKo": "피아노",
+      "nameJa": "ピアノ",
+      "nameRu": "Пианино"
     }
   ]
 }

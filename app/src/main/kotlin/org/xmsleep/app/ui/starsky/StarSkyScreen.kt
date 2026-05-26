@@ -59,18 +59,14 @@ fun StarSkyScreen(
     
     // 获取当前语言（不使用remember，确保语言切换后能更新）
     val currentLanguage = org.xmsleep.app.i18n.LanguageManager.getCurrentLanguage(context)
-    val isEnglish = currentLanguage == org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH
-    val isTraditionalChinese = currentLanguage == org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE
-    
-    // 音频资源管理器
-    val resourceManager = remember { 
-        org.xmsleep.app.audio.AudioResourceManager.getInstance(context) 
-    }
     val audioManager = remember { 
         org.xmsleep.app.audio.AudioManager.getInstance() 
     }
     val cacheManager = remember { 
         org.xmsleep.app.audio.AudioCacheManager.getInstance(context) 
+    }
+    val resourceManager = remember { 
+        org.xmsleep.app.audio.AudioResourceManager.getInstance(context) 
     }
     
     // 状态 - 初始化时从缓存加载，避免切换tab时重复加载
@@ -80,6 +76,89 @@ fun StarSkyScreen(
     }
     var remoteCategories by remember { 
         mutableStateOf(initialCachedManifest?.categories ?: emptyList())
+    }
+    
+    // 获取分类显示名称的辅助函数
+    fun getCategoryDisplayName(categoryId: String): String {
+        val category = remoteCategories.find { it.id == categoryId }
+        if (category != null) {
+            return category.getLocalizedName(currentLanguage)
+        }
+        
+        // 如果找不到分类，使用后备映射（确保不会显示英文）
+        val fallbackMap = mapOf(
+            "nature" to when (currentLanguage) {
+                org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE -> "自然"
+                org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH -> "Nature"
+                org.xmsleep.app.i18n.LanguageManager.Language.KOREAN -> "자연"
+                org.xmsleep.app.i18n.LanguageManager.Language.JAPANESE -> "自然"
+                org.xmsleep.app.i18n.LanguageManager.Language.RUSSIAN -> "Природа"
+                else -> "自然"
+            },
+            "rain" to when (currentLanguage) {
+                org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE -> "雨聲"
+                org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH -> "Rain"
+                org.xmsleep.app.i18n.LanguageManager.Language.KOREAN -> "비"
+                org.xmsleep.app.i18n.LanguageManager.Language.JAPANESE -> "雨"
+                org.xmsleep.app.i18n.LanguageManager.Language.RUSSIAN -> "Дождь"
+                else -> "雨声"
+            },
+            "urban" to when (currentLanguage) {
+                org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE -> "城市"
+                org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH -> "Urban"
+                org.xmsleep.app.i18n.LanguageManager.Language.KOREAN -> "도시"
+                org.xmsleep.app.i18n.LanguageManager.Language.JAPANESE -> "都市"
+                org.xmsleep.app.i18n.LanguageManager.Language.RUSSIAN -> "Город"
+                else -> "城市"
+            },
+            "places" to when (currentLanguage) {
+                org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE -> "場所"
+                org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH -> "Places"
+                org.xmsleep.app.i18n.LanguageManager.Language.KOREAN -> "장소"
+                org.xmsleep.app.i18n.LanguageManager.Language.JAPANESE -> "場所"
+                org.xmsleep.app.i18n.LanguageManager.Language.RUSSIAN -> "Места"
+                else -> "场所"
+            },
+            "transport" to when (currentLanguage) {
+                org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE -> "交通"
+                org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH -> "Transport"
+                org.xmsleep.app.i18n.LanguageManager.Language.KOREAN -> "교통"
+                org.xmsleep.app.i18n.LanguageManager.Language.JAPANESE -> "交通"
+                org.xmsleep.app.i18n.LanguageManager.Language.RUSSIAN -> "Транспорт"
+                else -> "交通"
+            },
+            "things" to when (currentLanguage) {
+                org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE -> "物品"
+                org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH -> "Things"
+                org.xmsleep.app.i18n.LanguageManager.Language.KOREAN -> "물건"
+                org.xmsleep.app.i18n.LanguageManager.Language.JAPANESE -> "物"
+                org.xmsleep.app.i18n.LanguageManager.Language.RUSSIAN -> "Предметы"
+                else -> "物品"
+            },
+            "noise" to when (currentLanguage) {
+                org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE -> "噪音"
+                org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH -> "Noise"
+                org.xmsleep.app.i18n.LanguageManager.Language.KOREAN -> "소음"
+                org.xmsleep.app.i18n.LanguageManager.Language.JAPANESE -> "ノイズ"
+                org.xmsleep.app.i18n.LanguageManager.Language.RUSSIAN -> "Шум"
+                else -> "噪音"
+            },
+            "animals" to when (currentLanguage) {
+                org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE -> "動物"
+                org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH -> "Animals"
+                org.xmsleep.app.i18n.LanguageManager.Language.KOREAN -> "동물"
+                org.xmsleep.app.i18n.LanguageManager.Language.JAPANESE -> "動物"
+                org.xmsleep.app.i18n.LanguageManager.Language.RUSSIAN -> "Животные"
+                else -> "动物"
+            },
+        )
+        
+        return fallbackMap[categoryId] ?: categoryId
+    }
+    
+    // 获取音频显示名称的辅助函数
+    fun getSoundDisplayName(sound: org.xmsleep.app.audio.model.SoundMetadata): String {
+        return sound.getLocalizedName(currentLanguage)
     }
     
     // 调试：记录5个问题音频的状态
@@ -291,43 +370,6 @@ fun StarSkyScreen(
                 addDebugLog("⚠ 后台刷新失败（不影响显示）: ${e.message}")
                 Logger.e("StarSkyScreen", "后台刷新音频清单失败: ${e.message}")
             }
-        }
-    }
-    
-    // 获取分类显示名称的辅助函数
-    fun getCategoryDisplayName(categoryId: String): String {
-        val category = remoteCategories.find { it.id == categoryId }
-        if (category != null) {
-            return when {
-                isEnglish && category.nameEn != null -> category.nameEn
-                isTraditionalChinese && category.nameZhTW != null -> category.nameZhTW
-                isTraditionalChinese -> category.name // 如果没有繁体中文，使用简体中文
-                else -> category.name
-            }
-        }
-        
-        // 如果找不到分类，使用后备映射（确保不会显示英文）
-        val fallbackMap = mapOf(
-            "nature" to if (isTraditionalChinese) "自然" else if (isEnglish) "Nature" else "自然",
-            "rain" to if (isTraditionalChinese) "雨聲" else if (isEnglish) "Rain" else "雨声",
-            "urban" to if (isTraditionalChinese) "城市" else if (isEnglish) "Urban" else "城市",
-            "places" to if (isTraditionalChinese) "場所" else if (isEnglish) "Places" else "场所",
-            "transport" to if (isTraditionalChinese) "交通" else if (isEnglish) "Transport" else "交通",
-            "things" to if (isTraditionalChinese) "物品" else if (isEnglish) "Things" else "物品",
-            "noise" to if (isTraditionalChinese) "噪音" else if (isEnglish) "Noise" else "噪音",
-            "animals" to if (isTraditionalChinese) "動物" else if (isEnglish) "Animals" else "动物",
-        )
-        
-        return fallbackMap[categoryId] ?: categoryId
-    }
-    
-    // 获取音频显示名称的辅助函数
-    fun getSoundDisplayName(sound: org.xmsleep.app.audio.model.SoundMetadata): String {
-        return when {
-            isEnglish && sound.nameEn != null -> sound.nameEn
-            isTraditionalChinese && sound.nameZhTW != null -> sound.nameZhTW
-            isTraditionalChinese -> sound.name // 如果没有繁体中文，使用简体中文
-            else -> sound.name
         }
     }
     

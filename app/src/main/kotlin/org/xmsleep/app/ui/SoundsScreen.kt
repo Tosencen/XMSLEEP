@@ -437,16 +437,10 @@ fun SoundsScreen(
     
     // 获取当前语言
     val currentLanguage = org.xmsleep.app.i18n.LanguageManager.getCurrentLanguage(context)
-    val isEnglish = currentLanguage == org.xmsleep.app.i18n.LanguageManager.Language.ENGLISH
-    val isTraditionalChinese = currentLanguage == org.xmsleep.app.i18n.LanguageManager.Language.TRADITIONAL_CHINESE
     
     // 获取音频显示名称的辅助函数
     fun getSoundDisplayName(sound: org.xmsleep.app.audio.model.SoundMetadata): String {
-        return when {
-            isTraditionalChinese && !sound.nameZhTW.isNullOrEmpty() -> sound.nameZhTW
-            isEnglish && !sound.nameEn.isNullOrEmpty() -> sound.nameEn
-            else -> sound.name
-        }
+        return sound.getLocalizedName(currentLanguage)
     }
     
     // 加载远程音频列表

@@ -14,7 +14,7 @@ android {
         minSdk = 26
         targetSdk = 35
 		versionCode = 38
-		versionName = "2.2.2"
+		versionName = "2.2.3"
         
         // 只保留 arm64-v8a 架构以减小 APK 体积（现代设备都支持）
         ndk {

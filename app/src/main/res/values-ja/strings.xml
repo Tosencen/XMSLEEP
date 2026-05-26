@@ -1,0 +1,552 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XMSLEEP</string>
+    <string name="language">言語</string>
+    <string name="language_description">表示言語を選択</string>
+    <string name="language_simplified_chinese">简体中文</string>
+    <string name="language_traditional_chinese">繁體中文</string>
+    <string name="language_english">English</string>
+    <string name="language_korean">한국어</string>
+    <string name="language_japanese">日本語</string>
+    <string name="language_russian">Русский</string>
+    <string name="select_language">言語を選択</string>
+    <string name="white_noise">ホワイトノイズ</string>
+    <string name="breathing">呼吸</string>
+    <string name="star_sky">星空</string>
+    <string name="star_sky_more_sounds_hint">ここにさらにサウンドが表示されます</string>
+    <string name="settings">設定</string>
+    <string name="theme_and_colors">テーマと色</string>
+    <string name="clear_cache">キャッシュを消去</string>
+    <string name="software_update">ソフトウェア更新</string>
+    <string name="about_xmsleep">XMSLEEPについて</string>
+    <string name="ok">OK</string>
+    <string name="cancel">キャンセル</string>
+    <string name="color_palette">カラーパレット</string>
+    <string name="confirm_clear_cache">すべてのキャッシュデータを消去してもよろしいですか？</string>
+    <string name="appearance">機能</string>
+    <string name="system">システム</string>
+    <string name="other">その他</string>
+    <string name="appearance_mode_theme_color">モード、テーマカラー</string>
+    <string name="feature_settings">機能設定</string>
+    <string name="feature_settings_description">機能設定をカスタマイズ</string>
+    <string name="feature_dialog_title">機能</string>
+
+    <string name="clear_app_cache_data">アプリのキャッシュデータを消去</string>
+    <string name="check_and_update_to_latest_version">最新バージョンを確認して更新</string>
+    <string name="view_app_info_version_copyright">アプリ情報、バージョン、著作権を表示</string>
+    <string name="clearing">消去中…</string>
+    <string name="this_will_clear_all_cache_data">画像、動画、一時ファイルなどのアプリのキャッシュデータをすべて消去します。</string>
+    <string name="version">バージョン: %1$s (ビルド %2$d)</string>
+    <string name="app_description_title">アプリの説明</string>
+    <string name="app_description">XMSLEEPは、プロ仕様のホワイトノイズ＆自然音再生アプリで、高品質なオーディオ体験を提供します。雨、雷、キャンプファイヤー、鳥のさえずりなど、厳選された自然音を多数収録し、リラックス、集中力向上、睡眠の質の向上をサポートします。\n\n本アプリはMaterial Design 3を採用し、クリーンで美しいインターフェースとスムーズで直感的な操作を実現。多言語対応、テーマカスタマイズ、個別音量調整、ピン留め、お気に入りなど、豊富な機能でパーソナライズされたサウンド体験をお楽しみいただけます。</string>
+    <string name="usage_instructions_title">使い方</string>
+    <string name="usage_instructions">• サウンドカードをタップして再生、再度タップで停止
+• 音量アイコンをタップして各サウンドの音量を個別調整
+• タイトルをタップしてピン留めエリアやお気に入りを設定
+• ピンマークアイコンをタップして複数選択し、ピン留めエリアに追加
+• カウントダウン機能で自動停止時間を設定
+• 設定でテーマの変更、アニメーション非表示、レイアウト切替など</string>
+    <string name="sound_usage_title">サウンドの使い方</string>
+    <string name="sound_usage">• 内蔵サウンド: ネットワーク不要で直接再生可能
+• ネットワークサウンド: 初回ダウンロードが必要、ダウンロード後はオフライン再生可
+• ピン留めエリア: 最大3つまで追加可能、ローカルとネットワークの併用可
+• お気に入り: 好きなサウンドをお気に入りリストに追加してすぐにアクセス
+• 音量調整: 各サウンドを個別に調整可能、0〜100%%の精密調整に対応
+• カウントダウン機能: 再生時間を設定でき、時間になると全サウンドが自動停止</string>
+    <string name="sound_source_title">サウンドソース情報</string>
+    <string name="sound_source">本アプリが提供するすべてのオーディオコンテンツは、公開されているオーディオリソースライブラリから提供されています。これには以下が含まれますが、これに限定されません：
+\n
+• 内蔵サウンド: アプリに内蔵されているサウンドファイルは、オープンソースのオーディオリソースライブラリから提供され、厳選・最適化されており、長時間の再生に適したクリアな音質を保証しています。
+\n
+• ネットワークサウンド: ネットワーク経由で読み込まれるサウンドリソースは、moodistプロジェクト（https://github.com/remvze/moodist）から提供されています。これはオープンソースの環境音プロジェクトであり、すべてのリソースはMITオープンソースライセンスに従います。
+\n
+• 著作権について: 本アプリはオーディオ再生機能のみを提供し、オーディオコンテンツの著作権を所有しません。すべてのオーディオコンテンツは個人の学習および娯楽のみを目的としており、商業目的での使用は禁止されています。著作権を侵害するコンテンツを見つけた場合は、ご連絡ください。迅速に対応いたします。</string>
+    <string name="technical_info_title">技術情報</string>
+    <string name="copyright">© XMSLEEP. All rights reserved.\n\n本アプリが提供するオーディオコンテンツは、個人の学習および娯楽のみを目的としています。\n関連するオーディオリソースの著作権を尊重し、商業目的での使用はご遠慮ください。</string>
+    <string name="hide_animation">WebPアニメーションを非表示</string>
+    <string name="hide_lottie_animation_in_sound_cards">サウンドカードのWebPアニメーションを非表示</string>
+    <string name="background_settings">背景設定</string>
+    <string name="background_animation">背景アニメーション</string>
+    <string name="select_background">背景を選択</string>
+    <string name="no_background">背景なし</string>
+    <string name="background_1">背景 1</string>
+    <string name="background_2">背景 2</string>
+    <string name="background_3">背景 3</string>
+    <string name="background_4">背景 4</string>
+    <string name="background_5">背景 5</string>
+    <string name="background_6">背景 6</string>
+    <string name="background_7">背景 7</string>
+    <string name="theme_color">テーマカラー</string>
+    <string name="theme_color_disabled_hint">「背景なし」を選択するとテーマカラーが変更できます</string>
+    <string name="background_preview">背景をプレビュー</string>
+    <string name="white_noise_cards">ホワイトノイズカード</string>
+    <string name="builtin_sounds_offline_hint">内蔵サウンド、ネットワーク不要</string>
+    <string name="selected_count">選択中 (%1$d)</string>
+    <string name="max_select_hint">ピン留めエリアに追加できるのは最大3つまでです</string>
+    <string name="batch_select_default">デフォルトを一括選択</string>
+    <string name="cancel_batch_select">一括選択をキャンセル</string>
+    <string name="default_playback_area">ピン留めエリア</string>
+    <string name="click_play_button_to_play_all">便利なサウンド再生</string>
+    <string name="play_preset">プリセットを再生</string>
+    <string name="pause_preset">プリセットを一時停止</string>
+    <string name="preset">プリセット</string>
+    <string name="done">完了</string>
+    <string name="max_3_sounds_limit">ピン留めエリアに追加できるのは最大3つまでです</string>
+    <string name="default_area_updated">ピン留めエリアを更新しました</string>
+    <string name="selected">選択済み</string>
+    <string name="unselected">未選択</string>
+    <string name="switch_to_light_mode">ライトモードに切替</string>
+    <string name="switch_to_dark_mode">ダークモードに切替</string>
+    <string name="switch_to_3_columns">3列に切替</string>
+    <string name="switch_to_2_columns">2列に切替</string>
+    <string name="pause">一時停止</string>
+    <string name="play">再生</string>
+    <string name="now_playing">再生中</string>
+    <string name="edit">編集</string>
+    <string name="remove">削除</string>
+    <string name="adjust_volume">音量調整</string>
+    <string name="set_countdown">カウントダウン設定</string>
+    <string name="countdown_ended_stopped">カウントダウン終了、再生を停止しました</string>
+    <string name="countdown_set_minutes">%1$d分のカウントダウンを設定しました</string>
+    <string name="countdown_cancelled">カウントダウンをキャンセルしました</string>
+    <string name="adjust_volume_for">音量調整 - %1$s</string>
+    <string name="cancel_countdown">カウントダウンをキャンセル</string>
+    <string name="minutes">%1$d分</string>
+    <string name="set_as_default">プリセットに追加</string>
+    <string name="cancel_default">プリセットから削除</string>
+    <string name="favorite">お気に入り</string>
+    <string name="cancel_favorite">お気に入り解除</string>
+    <string name="pinned_success">プリセットに追加しました</string>
+    <string name="unpinned_success">プリセットから削除しました</string>
+    <string name="favorited_success">お気に入りに追加しました</string>
+    <string name="unfavorited_success">お気に入り解除しました</string>
+    <string name="current_countdown">現在のカウントダウン: %1$s</string>
+    <string name="please_play_sound_before_timer">カウントダウンを設定する前にサウンドを再生してください</string>
+    <string name="quick_select">クイック選択</string>
+    <string name="tab_builtin">内蔵</string>
+    <string name="tab_favorite">お気に入り</string>
+    <string name="go_back">戻る</string>
+    <string name="tab_online">オンライン</string>
+    <string name="no_online_content">オンラインコンテンツがありません</string>
+    <string name="online_sounds_will_show_here">オンラインサウンドがここに表示されます</string>
+    <string name="dynamic_color">ダイナミックカラー</string>
+    <string name="use_wallpaper_color_as_theme">壁紙の色をテーマカラーとして使用</string>
+    <string name="high_contrast">ハイコントラスト</string>
+    <string name="use_pure_black_background_in_dark_mode">ダークモードで純粋な黒背景を使用</string>
+    <string name="lottie_animation">Lottieアニメーション</string>
+    <string name="cache_auto_cleared">キャッシュが200Mを超えたため、自動的に消去しました</string>
+    <string name="must_download_before_pin">ピン留めエリアに追加する前にオーディオをダウンロードしてください</string>
+    <string name="auto_clear_failed">自動消去に失敗しました: %1$s</string>
+    <string name="downloaded">ダウンロード済み</string>
+    <string name="cloud_audio">クラウドオーディオ</string>
+    <string name="light_mode">ライト</string>
+    <string name="dark_mode">ダーク</string>
+    <string name="auto_mode">自動</string>
+    <string name="no_favorites">お気に入りはありません</string>
+    <string name="favorites_will_show_here">お気に入りに追加したサウンドがここに表示されます</string>
+    <string name="hours">時間</string>
+    <string name="hours_minutes">%1$d時間%2$d分</string>
+    <string name="minutes_only">%1$d分</string>
+    <string name="five_minutes">5分</string>
+    <string name="three_hours">3時間</string>
+    <string name="checking_update">更新を確認中…</string>
+    <string name="up_to_date">最新です</string>
+    <string name="current_version">現在のバージョン: %1$s</string>
+    <string name="new_version_found">新しいバージョンが見つかりました</string>
+    <string name="version_name">バージョン%1$s</string>
+    <string name="update_content">更新内容</string>
+    <string name="update_now">今すぐ更新</string>
+    <string name="later">後で</string>
+    <string name="check_update_failed">更新の確認に失敗しました</string>
+    <string name="retry">再試行</string>
+    <string name="downloading_update">アップデートをダウンロード中</string>
+    <string name="downloaded_percent">%1$d%%ダウンロード済み</string>
+    <string name="download_complete">ダウンロード完了</string>
+    <string name="download_complete_message">更新パッケージをダウンロードしました。今すぐインストールしますか？</string>
+    <string name="install_now">今すぐインストール</string>
+    <string name="download_failed">ダウンロードに失敗しました</string>
+    <string name="installing">インストール中</string>
+    <string name="starting_installer">インストーラーを起動中…</string>
+    <string name="install_failed">インストールに失敗しました</string>
+    <string name="join_group">コミュニティ</string>
+    <string name="join_group_description">最新情報をフォロー</string>
+    <string name="community_dialog_title">コミュニティ</string>
+    <string name="open_github">GitHub</string>
+    <string name="open_github_description">プロジェクトのソースコードを表示</string>
+    <string name="join_telegram">Telegramグループに参加</string>
+    <string name="join_telegram_description">ご意見をお聞かせください</string>
+    <string name="load_failed">読み込みに失敗しました: %1$s</string>
+    <string name="all_categories">すべて</string>
+    <string name="privacy_policy_title">プライバシーポリシー</string>
+    <string name="privacy_policy">本アプリはお客様のプライバシー保護を重視しています。
+\n
+• データ収集: 本アプリは個人を特定できる情報を一切収集せず、ユーザー活動の追跡も行いません。
+\n
+• 許可: 本アプリは必要なオーディオ再生許可のみを要求し、連絡先、位置情報、その他の機密情報にはアクセスしません。
+\n
+• データセキュリティ: データ暗号化やアクセス制御など、業界標準のセキュリティ対策を採用してデータを保護します。
+\n
+ご質問がある場合は、アプリ内のお問い合わせ方法からご連絡ください。</string>
+    <string name="wish_good_sleep">〜いい夢が見られますように〜</string>
+    
+    <!-- Auto Countdown -->
+    <string name="auto_countdown">自動カウントダウン</string>
+    <string name="auto_countdown_description">プリセット再生時に自動でタイマーを開始</string>
+    <string name="select_countdown_time">カウントダウン時間を選択</string>
+    <string name="no_countdown">カウントダウンなし</string>
+    <string name="countdown_30_minutes">30分</string>
+    <string name="countdown_45_minutes">45分</string>
+    <string name="countdown_60_minutes">60分</string>
+    <string name="countdown_1_hour">1時間</string>
+    <string name="countdown_2_hours">2時間</string>
+    <string name="current_setting">現在の設定</string>
+    
+    <!-- Floating Play Button -->
+    <string name="collapse">折りたたむ</string>
+    <string name="expand">展開</string>
+    <string name="playing_title">再生中 (%1$d)</string>
+    <string name="stop_all">すべて停止</string>
+    <string name="stop_all_confirm_title">すべての再生を停止</string>
+    <string name="stop_all_confirm_message">再生中のオーディオをすべて停止してもよろしいですか？</string>
+    <string name="stop">停止</string>
+    <string name="volume">音量</string>
+    <string name="drag_to_stop_play">ここにドラッグして再生を停止</string>
+    <string name="add_to_preset">プリセットに追加</string>
+    <string name="added_to_preset">%1$d個のサウンドをプリセット%2$dに追加しました</string>
+    <string name="preset_full">プリセット%1$dがいっぱいです（最大10）</string>
+    <string name="no_playing_sounds">現在再生中のサウンドはありません</string>
+    
+    <!-- Preset Module -->
+    <string name="preset_1">プリセット 1</string>
+    <string name="preset_2">プリセット 2</string>
+    <string name="preset_3">プリセット 3</string>
+    <string name="preset_max_reached">現在のプリセットは最大10個のサウンドに達しました</string>
+    
+    <!-- Local Sound Names -->
+    <string name="sound_umbrella_rain">傘に当たる雨</string>
+    <string name="sound_rowing">漕ぐ音</string>
+    <string name="sound_office">オフィス</string>
+    <string name="sound_library">図書館</string>
+    <string name="sound_heavy_rain">大雨</string>
+    <string name="sound_typewriter">タイプライター</string>
+    <string name="sound_thunder">雷</string>
+    <string name="sound_clock">時計</string>
+    <string name="sound_forest_birds">森の鳥</string>
+    <string name="sound_drifting">漂流</string>
+    <string name="sound_campfire">キャンプファイヤー</string>
+    <string name="sound_wind">風</string>
+    <string name="sound_keyboard">キーボード</string>
+    <string name="sound_snow_walking">雪の中を歩く</string>
+    <string name="sound_morning_coffee">モーニングコーヒー</string>
+    <string name="sound_windmill">風車</string>
+    <string name="sound_default">サウンド</string>
+    
+    <!-- Preset Empty State Hint -->
+    <string name="preset_empty_hint">サウンドカードを長押しして追加</string>
+    <string name="close">閉じる</string>
+    
+    <!-- Local Audio Permissions -->
+    <string name="storage_permission_required">ストレージ権限が必要です</string>
+    <string name="permission_denied_hint">ローカルオーディオファイルにアクセスするにはストレージ権限が必要です</string>
+    <string name="request_permission">権限を許可</string>
+    <string name="local_audio">ローカルオーディオ</string>
+    <string name="search_audio">オーディオを検索</string>
+    <string name="no_search_results">該当するオーディオが見つかりません</string>
+    <string name="no_audio_files_found">端末にオーディオファイルが見つかりません</string>
+    <string name="grant_storage_permission_hint">設定からストレージ権限を許可してローカルオーディオにアクセスしてください</string>
+    <string name="grant_permission">権限を許可</string>
+    <string name="rename">名前変更</string>
+    <string name="permission_permanently_denied_hint">権限が永続的に拒否されました。設定から手動でストレージ権限を許可してください</string>
+    <string name="renaming">名前変更中…</string>
+    <string name="rename_success">名前を変更しました</string>
+    <string name="rename_failed">名前変更に失敗したかキャンセルされました</string>
+    <string name="new_name">新しい名前</string>
+    <string name="delete">削除</string>
+    <string name="delete_success">削除しました</string>
+    <string name="delete_cancelled">削除をキャンセルしました</string>
+    <string name="confirm_delete">削除の確認</string>
+    <string name="confirm_delete_message">「%1$s」を削除してもよろしいですか？この操作は元に戻せません。</string>
+    <string name="add_to_favorite">お気に入りに追加</string>
+    <string name="remove_from_favorite">お気に入りから削除</string>
+    <string name="added_to_favorite">お気に入りに追加しました</string>
+    <string name="removed_from_favorite">お気に入りから削除しました</string>
+    <string name="scanning_local_audio">ローカルオーディオファイルをスキャン中…</string>
+    
+    <!-- Daily Quote Feature -->
+    <string name="daily_quote">日替わり名言</string>
+    <string name="daily_quote_description">名言の履歴を表示</string>
+    <string name="quote_history">名言履歴</string>
+    <string name="no_quote_history">履歴なし</string>
+    <string name="no_quote_history_hint">閲覧した名言がここに表示されます</string>
+    <string name="clear_history">履歴を消去</string>
+    <string name="clear_history_confirm">すべての履歴を消去してもよろしいですか？この操作は元に戻せません。</string>
+    <string name="clear">消去</string>
+    <string name="share">共有</string>
+    <string name="save_image">画像を保存</string>
+    <string name="sharing">共有中…</string>
+    <string name="saving">保存中…</string>
+    <string name="loading_quote">名言を読み込み中…</string>
+    <string name="refresh_quote">更新</string>
+    
+    <!-- Recent Play -->
+    <string name="recent_play">最近再生したもの</string>
+    <string name="tap_to_play">タップして再生</string>
+    <string name="refresh_success">更新成功</string>
+    <string name="refresh_failed">更新失敗</string>
+    
+    <!-- Healing Quotes - Morning -->
+    <string-array name="healing_quotes_morning">
+        <item>おはようございます、素敵な一日になりますように</item>
+        <item>新しい一日、新しい始まり</item>
+        <item>夜明けが訪れ、美しさが約束どおりにやってくる</item>
+        <item>笑顔で新しい一日を迎えましょう</item>
+        <item>朝露、透き通って</item>
+        <item>今日も元気に過ごしましょう</item>
+        <item>早起きは三文の徳</item>
+        <item>素晴らしい一日は今始まる</item>
+        <item>毎朝が希望に満ちていますように</item>
+        <item>夜明け、万物がよみがえる</item>
+        <item>おはようございます、最高の自分でいましょう</item>
+        <item>新しい一日、可能性に満ちて</item>
+        <item>朝の風が良い気分を運んでくる</item>
+        <item>今日も楽しく幸せに過ごしましょう</item>
+        <item>おはようございます、友よ</item>
+        <item>良い気分で素敵な一日を始めましょう</item>
+        <item>おはようございます、いつも笑顔で</item>
+        <item>朝の光がきらめき、時が止まる</item>
+        <item>新しい一日、新しい期待</item>
+        <item>早起きして、輝こう</item>
+        <item>朝露、透き通って</item>
+        <item>おはようございます、人生を大切に</item>
+        <item>朝の風、爽やかな気分</item>
+        <item>新しい一日、希望に満ちて</item>
+        <item>朝の鳥のさえずり、心地よい</item>
+        <item>前向きな姿勢で挑戦に立ち向かおう</item>
+        <item>おはようございます、すべてがうまくいきますように</item>
+        <item>夜明け、いつものように温かい</item>
+        <item>今日も良い気分で過ごしましょう</item>
+        <item>朝の静けさが心の平和をもたらす</item>
+    </string-array>
+    
+    <!-- Healing Quotes - Afternoon -->
+    <string-array name="healing_quotes_afternoon">
+        <item>ここは花の世界</item>
+        <item>静かな人になりましょう</item>
+        <item>立ち止まって、人生の美しさを感じて</item>
+        <item>お昼ですね、ちょっとお昼寝はいかが？</item>
+        <item>自分にリラックスの時間を</item>
+        <item>ティータイム、ゆったりとしたひとときを</item>
+        <item>お湯をたくさん飲んで、体を動かしましょう</item>
+        <item>今、何を考えていますか？</item>
+        <item>スローライフこそ本当の暮らし</item>
+        <item>今日はちゃんと食べましたか？</item>
+        <item>自分をぎゅっと抱きしめて</item>
+        <item>こんにちは、休憩するのを忘れずに</item>
+        <item>過酷な労働にノーと言おう</item>
+        <item>なんて素敵な春でしょう、夢よりも</item>
+        <item>ゆっくりでいい、すべてはやってくる</item>
+        <item>心を込めて考え、善悪を見極める</item>
+        <item>心を休めてあげて</item>
+        <item>休憩するのを忘れていませんか？</item>
+        <item>目の体操はやりましたか？</item>
+        <item>一緒に祖母の家で夕日を見に行きたい</item>
+        <item>歩みを緩めて、今を感じて</item>
+        <item>最後に花を買ったのはいつですか？</item>
+        <item>リラックスする時間を自分に与えて</item>
+        <item>こんにちは、リラックスして過ごしましょう</item>
+        <item>秘密を教えます、私の靴には中敷きが入っていません</item>
+        <item>雪山でキツネを助けたことはありますか？</item>
+        <item>首が痛い？首を回してみましょう</item>
+        <item>玄関にひまわりを植えましょう</item>
+        <item>ははははははは</item>
+        <item>疲れた心を休ませてあげて</item>
+    </string-array>
+    
+    <!-- Healing Quotes - Evening -->
+    <string-array name="healing_quotes_evening">
+        <item>今、何時ですか？</item>
+        <item>遅い時間です、そろそろ休みましょう</item>
+        <item>星は旅人に問わず、時は努力する者を裏切らない</item>
+        <item>一日お疲れさまでした、布団に入ってぐっすり眠って</item>
+        <item>今日は幸せでしたか？どちらにせよ今夜はゆっくり休んで</item>
+        <item>今夜はぐっすり眠って、明日は元気いっぱいに目覚めよう</item>
+        <item>今日は食事に気をつけて、油っこいものは控えめに</item>
+        <item>おやすみなさい、いい夢を</item>
+        <item>夜は優しい、あなたも</item>
+        <item>今日の悩みは手放して、ゆっくり休んで</item>
+        <item>おやすみなさい、世界が優しくありますように</item>
+        <item>深夜、頭を空っぽにするのにぴったり</item>
+        <item>星が輝き、あなたの夢を照らす</item>
+        <item>夕風が良い気分を運んでくる</item>
+        <item>夜の静けさがすべてを癒す</item>
+        <item>夢も見ずに朝までぐっすり眠れますように</item>
+        <item>今日はいい夢を見ましたか？</item>
+        <item>おやすみなさい、明日もまた素敵な一日</item>
+        <item>心配しないで、深呼吸してみて</item>
+        <item>リラックスして、夜の静けさを楽しんで</item>
+        <item>おやすみなさい、よく眠って</item>
+        <item>遅い時間です、心を休めましょう</item>
+        <item>今夜、あなたのところには星が出ていますか？</item>
+        <item>夕風は届きましたか？</item>
+        <item>夜の優しさはあなたのもの</item>
+        <item>今夜はぐっすり、明日はもっと良く</item>
+        <item>秘密を教えるね…しーっ…</item>
+        <item>おやすみなさい、自分らしく</item>
+        <item>しっかり食べて、しっかり眠って</item>
+        <item>疲れを手放して、素敵な夢を抱きしめて</item>
+    </string-array>
+    
+    <!-- Weather Smart Recommend -->
+    <string name="weather_smart_recommend">天気スマートレコメンド</string>
+    <string name="weather_smart_recommend_desc">天気に基づいてホワイトノイズを自動提案</string>
+    <string name="weather_quote">自分に静かなひとときを</string>
+    <string name="weather_sound_mapping">天気サウンドマッピング</string>
+    <string name="save">保存</string>
+    <string name="weather_edit_title">天気サウンドマッピング</string>
+    <string name="weather_refresh">天気を更新</string>
+    <string name="weather_current">現在の天気: %1$s</string>
+    <string name="weather_select_type">天気の種類を選択</string>
+    <string name="weather_select_sound">再生するホワイトノイズを選択</string>
+    <string name="weather_loading">天気を取得中…</string>
+    <string name="weather_manual_select">天気を手動選択</string>
+    <string name="weather_location_failed">位置情報の取得に失敗しました。現在の天気を手動で選択してください：</string>
+    <string name="weather_sound_rain">雨</string>
+    <string name="weather_sound_light_rain">小雨</string>
+    <string name="weather_sound_heavy_rain">大雨</string>
+    <string name="weather_sound_thunder">雷</string>
+    <string name="weather_sound_wind">風</string>
+    <string name="weather_sound_birds">鳥</string>
+    <string name="weather_sound_river">川</string>
+    <string name="weather_sound_forest">森</string>
+    <string name="weather_sound_fireplace">キャンプファイヤー</string>
+    <string name="weather_sound_waves">波</string>
+    <string name="weather_sound_jungle">ジャングル</string>
+    <string name="weather_sound_drizzle">霧雨</string>
+    <string name="weather_sound_walk_in_snow">雪の中を歩く</string>
+    <string name="weather_sound_night">夜の村</string>
+    <string name="weather_sound_crickets">コオロギ</string>
+    <string name="weather_sound_field">野原</string>
+    <string name="weather_sound_lake">湖</string>
+    <string name="weather_sound_kitchen">キッチン料理</string>
+    <string name="weather_sound_wind_chimes">風鈴</string>
+    <string name="weather_sound_light_piano">軽やかなピアノ</string>
+    <string name="weather_sound_rain_on_car_roof">車の屋根に当たる雨</string>
+    <string name="weather_sound_rain_on_umbrella">傘に当たる雨</string>
+    <string name="weather_sound_rain_on_tent">テントに当たる雨</string>
+    <string name="weather_sound_rain_on_leaves">葉に当たる雨</string>
+    <string name="weather_sound_rain_on_raincoat">レインコートに当たる雨</string>
+    <string name="weather_sound_rain_on_windowsill">窓辺に当たる雨</string>
+    <string name="weather_sound_rain_on_wooden_house">木造家屋に当たる雨</string>
+    <string name="weather_sound_rain_while_driving">運転中の雨</string>
+    <string name="weather_sound_rain_on_empty_street">誰もいない通りに降る雨</string>
+    <string name="weather_sound_rain_on_eaves">軒先に当たる雨</string>
+    <string name="weather_sound_heavy_rain_on_glass">窓ガラスに打ちつける大雨</string>
+    <string name="weather_category_nature">自然</string>
+    <string name="weather_category_rain">雨</string>
+    <string name="weather_category_other">その他</string>
+    <string name="weather_sunny_clear">晴れ</string>
+    <string name="weather_sunny_night">夜晴れ</string>
+    <string name="weather_cloudy_partly">薄曇り</string>
+    <string name="weather_cloudy_overcast">曇り</string>
+    <string name="weather_foggy">霧</string>
+    <string name="weather_foggy_drizzle">霧雨</string>
+    <string name="weather_rain_light">小雨</string>
+    <string name="weather_rain_moderate">中雨</string>
+    <string name="weather_rain_heavy">大雨</string>
+    <string name="weather_rain_shower">にわか雨</string>
+    <string name="weather_snow_light">小雪</string>
+    <string name="weather_snow_moderate">中雪</string>
+    <string name="weather_snow_heavy">大雪</string>
+    <string name="weather_snow_sleet">みぞれ</string>
+    <string name="weather_clear">晴れ</string>
+    <string name="weather_partly_cloudy">薄曇り</string>
+    <string name="weather_cloudy">曇り</string>
+    <string name="weather_overcast">曇り</string>
+    <string name="weather_fog">霧</string>
+    <string name="weather_drizzle">霧雨</string>
+    <string name="weather_freezing_fog">氷霧</string>
+    <string name="weather_rain">雨</string>
+    <string name="weather_freezing_rain">寒冷雨</string>
+    <string name="weather_snow">雪</string>
+    <string name="weather_snow_grains">細氷</string>
+    <string name="weather_shower">にわか雨</string>
+    <string name="weather_snow_shower">雪あられ</string>
+    <string name="weather_thunderstorm">雷雨</string>
+    <string name="weather_thunderstorm_hail">雷雨を伴う雹</string>
+    <string name="wind_speed">風</string>
+    <string name="humidity">湿度</string>
+    <string name="feels_like">体感温度</string>
+    <string name="downloading">ダウンロード中</string>
+    <string name="tap_to_download_and_play">タップしてダウンロード＆再生</string>
+    <string name="playing">再生中</string>
+    <string name="play_recommended">おすすめのオーディオを再生</string>
+    <string name="download_and_play">ダウンロードして再生</string>
+    <string name="weather_location_required">位置情報の許可が必要です</string>
+    
+    <!-- Breathing Exercise -->
+    <string name="breathing_exercise">呼吸</string>
+    <string name="tap_to_start">タップして開始</string>
+    <string name="inhale">吸う…</string>
+    <string name="hold">止める…</string>
+    <string name="exhale">吐く…</string>
+    <string name="breath_count">呼吸 %1$d</string>
+    
+    <!-- Breathing Guide -->
+    <string name="breathing_guide_title">呼吸法ガイド</string>
+    <string name="breathing_guide_step1">1. 下の再生ボタンをクリックして開始</string>
+    <string name="breathing_guide_step2">2. 吸う（4秒）：円が拡大するのに合わせて</string>
+    <string name="breathing_guide_step3">3. 止める（4秒）：最大サイズを維持</string>
+    <string name="breathing_guide_step4">4. 吐く（4秒）：円が縮小するのに合わせて</string>
+    <string name="breathing_guide_step5">5. 時間：5分間、自動的に停止</string>
+    <string name="got_it">わかりました</string>
+    
+    <!-- Bottom Navigation Tabs -->
+    <string name="tab_white_noise">ノイズ</string>
+    <string name="tab_starsky">星</string>
+    <string name="tab_breathing">呼吸</string>
+    <string name="tab_settings">設定</string>
+    
+    <!-- Tomato Timer -->
+    <string name="tomato_timer_title">集中タイマー</string>
+    <string name="tomato_today_completed">今日: %1$dポモドーロ</string>
+    <string name="tomato_focus">集中</string>
+    <string name="tomato_break">休憩</string>
+    <string name="tomato_start">開始</string>
+    <string name="tomato_pause">一時停止</string>
+    <string name="tomato_reset">リセット</string>
+
+    <!-- Flip Clock -->
+    <string name="flip_clock">大きな時計</string>
+    <string name="flip_clock_description">この機能は十分なバッテリー残量が必要です</string>
+    <string name="flip_clock_back">戻る</string>
+    <string name="flip_clock_countdown">カウントダウン</string>
+    <string name="flip_clock_cancel_countdown">カウントダウンをキャンセル</string>
+    <string name="flip_clock_font">フォント</string>
+    <string name="flip_clock_set_countdown">カウントダウン設定</string>
+    <string name="flip_clock_minutes_format">%1$d分</string>
+    <string name="flip_clock_start">開始</string>
+    <string name="flip_clock_cancel">キャンセル</string>
+    <string name="flip_clock_select_font">フォントを選択</string>
+    <string name="flip_clock_font_bebas_neue_desc">空港のフライト表示スタイル、極太</string>
+    <string name="flip_clock_font_oswald_desc">インダストリアルなビンテージスタイル</string>
+    
+    <!-- Widget -->
+    <string name="add_quote_widget">ウィジェットを追加</string>
+    <string name="add_quote_widget_description">ホーム画面に日替わり名言ウィジェットを追加</string>
+    <string name="widget_add_hint">ホーム画面の空きエリアを長押し、「ウィジェット」からXMSLEEPを選択して名言ウィジェットを追加</string>
+    <string name="widget_add_hint_manual">ホーム画面の空きエリアを長押し、「ウィジェット」からXMSLEEPを選択して名言ウィジェットを追加</string>
+    <string name="widget_add_failed">ホーム画面を開けません。手動でウィジェットを追加してください</string>
+    <string name="widget_description">日替わり名言 - 心に響く言葉</string>
+    <string name="widget_default_quote">人生とは現在だけではなく、詩と遠くの場所でもある。</string>
+    <string name="widget_default_author">不明</string>
+    <string name="widget_loading">読み込み中…</string>
+    <string name="widget_refresh_failed">更新に失敗しました</string>
+
+    <!-- Recent play dialog settings -->
+    <string name="show_recent_play_dialog">最近再生したもの</string>
+    <string name="show_recent_play_dialog_description">起動時に最近再生したポップアップを表示</string>
+    <string name="auto_play_on_start">起動時に自動再生</string>
+    <string name="auto_play_on_start_description">アプリ起動時に最後に使用したプリセット音声を自動再生</string>
+    <string name="auto_play_need_preset_tip">先にプリセットモジュールに音声を追加してください</string>
+    <string name="tip">ヒント</string>
+</resources>

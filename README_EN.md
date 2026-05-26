@@ -98,14 +98,14 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.2.2
+- **Version**: 2.2.3
 - **Version Code**: 38
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 
 ## 🆕 Latest Updates
 
-### v2.2.2
+### v2.2.3
 #### 🎨 New Features
 - **Daily Quote Widget**: Added home screen widget displaying time, daily quote, and refresh button
 

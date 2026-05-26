@@ -895,6 +895,20 @@ fun MainScreen(
                             audioManager.playSound(context, sound)
                         }
 
+                        // 播放远程预设声音（繁星页面音频）
+                        if (remotePinned.isNotEmpty()) {
+                            val resourceManager = org.xmsleep.app.audio.AudioResourceManager.getInstance(context)
+                            val cachedManifest = resourceManager.getCachedManifest()
+                            cachedManifest?.sounds?.filter { it.id in remotePinned }?.forEach { metadata ->
+                                scope.launch {
+                                    val uri = resourceManager.getSoundUri(metadata)
+                                    if (uri != null) {
+                                        audioManager.playRemoteSound(context, metadata, uri)
+                                    }
+                                }
+                            }
+                        }
+
                         // 检查是否设置了自动倒计时
                         val autoCountdownMinutes = org.xmsleep.app.preferences.PreferencesManager.getAutoCountdownMinutes(context)
                         if (autoCountdownMinutes > 0) {

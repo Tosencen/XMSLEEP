@@ -18,7 +18,10 @@ object LanguageManager {
     enum class Language(val code: String, val displayName: String, val locale: Locale) {
         SIMPLIFIED_CHINESE("zh_CN", "简体中文", Locale.SIMPLIFIED_CHINESE),
         TRADITIONAL_CHINESE("zh_TW", "繁體中文", Locale.TRADITIONAL_CHINESE),
-        ENGLISH("en", "English", Locale.ENGLISH);
+        ENGLISH("en", "English", Locale.ENGLISH),
+        KOREAN("ko", "한국어", Locale.KOREAN),
+        JAPANESE("ja", "日本語", Locale.JAPANESE),
+        RUSSIAN("ru", "Русский", Locale("ru"));
         
         companion object {
             fun fromCode(code: String): Language {
@@ -63,6 +66,9 @@ object LanguageManager {
             locale.language == "zh" && locale.country == "CN" -> Language.SIMPLIFIED_CHINESE
             locale.language == "zh" && (locale.country == "TW" || locale.country == "HK" || locale.country == "MO") -> Language.TRADITIONAL_CHINESE
             locale.language == "en" -> Language.ENGLISH
+            locale.language == "ko" -> Language.KOREAN
+            locale.language == "ja" -> Language.JAPANESE
+            locale.language == "ru" -> Language.RUSSIAN
             else -> Language.SIMPLIFIED_CHINESE
         }
     }
