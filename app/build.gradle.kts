@@ -153,6 +153,8 @@ dependencies {
     implementation("androidx.media3:media3-exoplayer:1.8.0")
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-common:1.8.0")
+    implementation("androidx.media3:media3-session:1.8.0")
+    implementation("androidx.media:media:1.7.0")
     
     // OkHttp - 用于网络请求和文件下载
     implementation("com.squareup.okhttp3:okhttp:4.12.0")

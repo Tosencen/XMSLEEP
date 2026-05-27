@@ -58,24 +58,24 @@ class AudioManager private constructor() {
     }
 
     // 声音类型枚举
-    enum class Sound {
-        NONE,
-        UMBRELLA_RAIN,
-        ROWING,
-        OFFICE,
-        LIBRARY,
-        HEAVY_RAIN,
-        TYPEWRITER,
-        THUNDER,
-        CLOCK,
-        FOREST_BIRDS,
-        DRIFTING,
-        CAMPFIRE,
-        WIND,
-        KEYBOARD,
-        SNOW_WALKING,
-        MORNING_COFFEE,
-        WINDMILL
+    enum class Sound(val displayName: String) {
+        NONE(""),
+        UMBRELLA_RAIN("伞上雨声"),
+        ROWING("划船"),
+        OFFICE("办公室"),
+        LIBRARY("图书馆"),
+        HEAVY_RAIN("大雨"),
+        TYPEWRITER("打字机"),
+        THUNDER("打雷"),
+        CLOCK("时钟"),
+        FOREST_BIRDS("森林鸟鸣"),
+        DRIFTING("漂流"),
+        CAMPFIRE("篝火"),
+        WIND("起风了"),
+        KEYBOARD("键盘"),
+        SNOW_WALKING("雪地徒步"),
+        MORNING_COFFEE("早晨咖啡"),
+        WINDMILL("风车")
     }
     
     // 网络音频播放器（使用soundId作为key）
@@ -1453,6 +1453,23 @@ class AudioManager private constructor() {
     }
     
     /**
+     * 获取当前活跃声音的描述列表（用于 MediaSession metadata）
+     */
+    fun getActiveSoundDescriptions(): List<String> {
+        val descriptions = mutableListOf<String>()
+        playingQueue.forEach { item ->
+            when (item) {
+                is PlayingItem.LocalSound -> descriptions.add(item.sound.displayName)
+                is PlayingItem.RemoteSound -> {
+                    val metadata = remoteMetadataCache[item.soundId]?.first
+                    descriptions.add(metadata?.name ?: item.soundId)
+                }
+            }
+        }
+        return descriptions
+    }
+
+    /**
      * 通知服务播放状态已改变
      */
     private fun notifyServicePlayingStateChanged() {
@@ -1461,8 +1478,9 @@ class AudioManager private constructor() {
             val localCount = playingStates.count { it.value }
             val remoteCount = remotePlayingStates.count { it.value }
             val totalCount = localCount + remoteCount
+            val descriptions = getActiveSoundDescriptions()
             
-            musicService?.updatePlayingState(isPlaying, totalCount)
+            musicService?.updatePlayingState(isPlaying, totalCount, descriptions)
             Logger.d(TAG, "通知服务状态: isPlaying=$isPlaying, count=$totalCount")
         } catch (e: Exception) {
             Logger.e(TAG, "通知服务播放状态失败: ${e.message}")

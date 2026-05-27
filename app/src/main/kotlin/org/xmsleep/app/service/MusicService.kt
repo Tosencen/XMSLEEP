@@ -4,14 +4,18 @@ import android.app.Service
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
-import org.xmsleep.app.utils.Logger
+import androidx.media3.common.Player
+import androidx.media3.session.MediaSession
+import androidx.media3.session.SessionResult
+import org.xmsleep.app.audio.AggregatePlayer
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.timer.TimerManager
+import org.xmsleep.app.utils.Logger
 import java.util.concurrent.TimeUnit
 
 /**
  * 音乐播放前台服务
- * 负责在通知栏显示播放控制和倒计时信息
+ * 负责在通知栏显示播放控制、倒计时信息，以及 MediaSession 集成
  */
 class MusicService : Service() {
     
@@ -34,6 +38,10 @@ class MusicService : Service() {
     
     private val audioManager by lazy { AudioManager.getInstance() }
     private val timerManager by lazy { TimerManager.getInstance() }
+    
+    // MediaSession 集成
+    private val aggregatePlayer = AggregatePlayer()
+    private var mediaSession: MediaSession? = null
     
     // 定时器监听器
     private val timerListener = object : TimerManager.TimerListener {
@@ -66,6 +74,23 @@ class MusicService : Service() {
     override fun onCreate() {
         super.onCreate()
         
+        // 初始化 MediaSession
+        mediaSession = MediaSession.Builder(this, aggregatePlayer)
+            .setCallback(object : MediaSession.Callback {
+                override fun onPlayerCommandRequest(
+                    session: MediaSession,
+                    controllerInfo: MediaSession.ControllerInfo,
+                    playerCommand: Int
+                ): Int {
+                    when (playerCommand) {
+                        Player.COMMAND_PLAY_PAUSE -> handlePlayPause()
+                        Player.COMMAND_STOP -> handleStop()
+                    }
+                    return SessionResult.RESULT_SUCCESS
+                }
+            })
+            .build()
+        
         // 注册定时器监听器
         timerManager.addListener(timerListener)
         
@@ -96,6 +121,10 @@ class MusicService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         
+        // 释放 MediaSession
+        mediaSession?.release()
+        mediaSession = null
+        
         // 移除定时器监听器
         timerManager.removeListener(timerListener)
         
@@ -111,7 +140,8 @@ class MusicService : Service() {
             context = this,
             isPlaying = isPlaying,
             playingSoundsCount = playingSoundsCount,
-            timeLeftText = timeLeftText
+            timeLeftText = timeLeftText,
+            mediaSession = mediaSession
         )
         startForeground(NotificationHelper.NOTIFICATION_ID, notification)
     }
@@ -124,7 +154,8 @@ class MusicService : Service() {
             context = this,
             isPlaying = isPlaying,
             playingSoundsCount = playingSoundsCount,
-            timeLeftText = timeLeftText
+            timeLeftText = timeLeftText,
+            mediaSession = mediaSession
         )
         
         val notificationManager = getSystemService(NOTIFICATION_SERVICE) as android.app.NotificationManager
@@ -134,7 +165,7 @@ class MusicService : Service() {
     /**
      * 更新播放状态
      */
-    fun updatePlayingState(playing: Boolean, soundsCount: Int) {
+    fun updatePlayingState(playing: Boolean, soundsCount: Int, soundDescriptions: List<String> = emptyList()) {
         // 如果正在停止服务，不再处理任何更新
         if (isStopping) {
             return
@@ -142,6 +173,9 @@ class MusicService : Service() {
         
         isPlaying = playing
         playingSoundsCount = soundsCount
+        
+        // 更新 MediaSession 播放状态
+        aggregatePlayer.onPlaybackChanged(playing, soundDescriptions)
         
         // 关键修复：恢复期间不要重新保存播放列表，避免覆盖之前保存的列表
         if (isRestoring) {
@@ -163,7 +197,7 @@ class MusicService : Service() {
             val timeLeft = timerManager.getTimeLeftMillis()
             if (timeLeft > 0) {
                 timeLeftText = formatTime(timeLeft)
-                // 如果倒计时处于暂停状态，在时间后加上“已暂停”标记
+                // 如果倒计时处于暂停状态，在时间后加上"已暂停"标记
                 if (timerManager.isTimerPaused.value) {
                     timeLeftText = "$timeLeftText (已暂停)"
                 }

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XMSLEEP - 自然声音助眠</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0d0d12;
+  --surface: #1a1a24;
+  --surface2: #242436;
+  --primary: #7c6ff0;
+  --text: #e4e4f0;
+  --text2: #9898b0;
+  --radius: 20px;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+
+/* Hero */
+.hero {
+  min-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px 0 60px;
+}
+.logo {
+  width: 88px; height: 88px;
+  background: linear-gradient(135deg, var(--primary), #b794f4);
+  border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 40px rgba(124, 111, 240, 0.25);
+}
+.logo svg { width: 48px; height: 48px; }
+.hero h1 { font-size: 3rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 16px; }
+.hero p { font-size: 1.15rem; color: var(--text2); max-width: 520px; margin-bottom: 40px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 16px 36px; border-radius: 14px;
+  font-size: 1.05rem; font-weight: 600; text-decoration: none;
+  transition: transform 0.15s, box-shadow 0.15s;
+  cursor: pointer; border: none;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), #b794f4);
+  color: #fff; box-shadow: 0 4px 24px rgba(124, 111, 240, 0.35);
+}
+.btn-primary:hover { box-shadow: 0 6px 32px rgba(124, 111, 240, 0.5); transform: translateY(-1px); }
+.btn-secondary {
+  background: var(--surface2); color: var(--text);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.download-info { margin-top: 14px; font-size: 0.85rem; color: var(--text2); }
+
+/* Features */
+.features { padding: 60px 0 80px; }
+.features h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 40px; text-align: center; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.card {
+  background: var(--surface); border-radius: var(--radius);
+  padding: 24px; border: 1px solid rgba(255,255,255,0.04);
+  transition: transform 0.15s;
+}
+.card:hover { transform: translateY(-2px); }
+.card .icon { font-size: 1.6rem; margin-bottom: 12px; display: block; }
+.card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+.card p { font-size: 0.9rem; color: var(--text2); line-height: 1.5; }
+
+/* Screenshots */
+.screenshots { padding: 60px 0; }
+.screenshots h2 { font-size: 1.75rem; font-weight: 700; margin-bottom: 40px; text-align: center; }
+.scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 16px; }
+.scroll::-webkit-scrollbar { height: 4px; }
+.scroll::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 4px; }
+.scroll img {
+  height: 480px; border-radius: 12px;
+  background: var(--surface); border: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+
+/* Footer */
+footer {
+  text-align: center; padding: 40px 0 60px;
+  color: var(--text2); font-size: 0.9rem;
+}
+footer a { color: var(--primary); text-decoration: none; }
+footer a:hover { text-decoration: underline; }
+
+@media (max-width: 600px) {
+  .hero h1 { font-size: 2rem; }
+  .hero p { font-size: 1rem; }
+  .grid { grid-template-columns: 1fr; }
+  .scroll img { height: 360px; }
+}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="logo">
+    <svg viewBox="0 0 96 96" fill="none">
+      <path fill="#fff" fill-rule="evenodd" d="M30.7383,77.1817C30.5203,77.9887 30.2952,78.8223 30.0601,79.6842C29.6411,81.2208 28.0557,82.1267 26.5192,81.7076C24.9826,81.2885 24.0767,79.7032 24.4958,78.1666C24.732,77.3007 24.9612,76.4483 25.1868,75.6094C26.9707,68.9752 28.5254,63.193 31.4818,58.3237C34.9482,52.6142 40.1974,48.3092 49.239,44.5418C50.7092,43.9292 52.3976,44.6245 53.0101,46.0946C53.6227,47.5648 52.9275,49.2532 51.4573,49.8657C43.1964,53.3078 39.0733,56.9333 36.4118,61.317C33.91,65.4377 32.5802,70.3616 30.7383,77.1817Z"/>
+      <path fill="#fff" d="M72.79,25.9924C54.5942,21.6412 39.1915,24.6287 30.0504,32.8903C21.2337,40.8587 18.9254,53.0927 24.7637,66.3094C25.8653,62.9356 27.1618,59.7422 28.9338,56.8291C32.8088,50.4586 38.6301,45.8157 48.0761,41.8873C51.0208,40.6626 54.4028,42.0525 55.6298,44.9918C56.8568,47.931 55.4642,51.3065 52.5194,52.5312C44.6373,55.8093 41.0716,59.0936 38.8089,62.8134C37.1338,65.5672 36.0205,68.7547 34.7856,73.069C50.11,72.4996 60.9505,69.0526 68.123,62.4686C75.5538,55.6475 78.5105,45.9592 79.0754,34.3612C79.2669,30.4296 76.6308,26.9108 72.79,25.9924Z"/>
+    </svg>
+  </div>
+  <h1>XMSLEEP</h1>
+  <p>多声道的自然声音与白噪音应用，帮助您放松心情、提高专注力、改善睡眠质量</p>
+  <a class="btn btn-primary" id="downloadBtn" href="https://github.com/Tosencen/XMSLEEP/releases/latest" target="_blank">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    下载 APK
+  </a>
+  <div class="download-info" id="downloadInfo">正在获取版本信息…</div>
+</section>
+
+<section class="features">
+  <div class="container">
+    <h2>主要功能</h2>
+    <div class="grid">
+      <div class="card"><span class="icon">🌧️</span><h3>16 种自然声音</h3><p>雨声、雷声、篝火、鸟鸣、键盘、雪花等，支持自由混音</p></div>
+      <div class="card"><span class="icon">🎚️</span><h3>独立音量调节</h3><p>每种声音可单独调节音量，打造属于你的专属声景</p></div>
+      <div class="card"><span class="icon">⏱️</span><h3>倒计时停止</h3><p>设置播放时长，到点自动停止，伴你安心入睡</p></div>
+      <div class="card"><span class="icon">🌤️</span><h3>天气联动</h3><p>根据实时天气自动推荐匹配的氛围声音</p></div>
+      <div class="card"><span class="icon">🎨</span><h3>Material You 主题</h3><p>完美适配动态取色，支持深色模式与自定义主题色</p></div>
+      <div class="card"><span class="icon">🔥</span><h3>在线音频库</h3><p>内置 Lottie 动画，支持导入本地音频文件</p></div>
+      <div class="card"><span class="icon">🫁</span><h3>呼吸练习</h3><p>4-4-4 呼吸法引导，配合语音提示与动画</p></div>
+      <div class="card"><span class="icon">🕐</span><h3>翻页时钟</h3><p>全屏翻转时钟，支持倒计时，精美的字体选择</p></div>
+      <div class="card"><span class="icon">🔒</span><h3>锁屏控制</h3><p>支持 MediaSession 锁屏播放控制与蓝牙设备控制</p></div>
+      <div class="card"><span class="icon">📦</span><h3>预设系统</h3><p>保存 3 套声音组合，一键切换，快速进入状态</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="screenshots">
+  <div class="container">
+    <h2>界面预览</h2>
+    <div class="scroll">
+      <img src="screenshots/1.png" alt="主界面" loading="lazy">
+      <img src="screenshots/2.png" alt="声音混音" loading="lazy">
+      <img src="screenshots/3.png" alt="声音页面" loading="lazy">
+      <img src="screenshots/4.png" alt="翻页时钟" loading="lazy">
+      <img src="screenshots/5.png" alt="呼吸练习" loading="lazy">
+      <img src="screenshots/6.png" alt="设置页面" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p><a href="https://github.com/Tosencen/XMSLEEP" target="_blank">GitHub 仓库</a> · 开源免费 · 无广告</p>
+    <p style="margin-top: 8px">Made with ❤️ for better sleep</p>
+  </div>
+</footer>
+
+<script>
+(async function() {
+  const info = document.getElementById('downloadInfo');
+  try {
+    const res = await fetch('https://api.github.com/repos/Tosencen/XMSLEEP/releases/latest');
+    if (!res.ok) throw new Error('no release');
+    const data = await res.json();
+    const asset = data.assets.find(a => a.name.endsWith('.apk'));
+    if (asset) {
+      document.getElementById('downloadBtn').href = asset.browser_download_url;
+      info.textContent = `v${data.tag_name.replace(/^v/,'')} · ${(asset.size / 1048576).toFixed(1)} MB`;
+    } else {
+      info.textContent = `v${data.tag_name} · 前往 Releases 页下载`;
+    }
+  } catch {
+    info.textContent = '前往 GitHub Releases 下载最新版本';
+  }
+})();
+</script>
+</body>
+</html>

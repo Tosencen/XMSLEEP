@@ -26,9 +26,8 @@ fun SettingsCategory(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp) // 减少水平padding，让卡片更宽
+            .padding(horizontal = 8.dp)
     ) {
-        // Section title
         title?.let {
             Text(
                 text = it,
@@ -38,7 +37,6 @@ fun SettingsCategory(
             )
         }
 
-        // Settings card
         Card(
             modifier = Modifier
                 .fillMaxWidth()
