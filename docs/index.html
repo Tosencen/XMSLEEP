@@ -6,6 +6,7 @@
 <title>XMSLEEP — 自然声音助眠</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -16,6 +17,7 @@
   --text:#fff;
   --text2:#888;
   --radius:16px;
+  --icon:#999;
 }
 html,body{height:100%}
 body{
@@ -25,21 +27,19 @@ body{
 }
 .container{max-width:1100px;margin:0 auto;padding:0 32px}
 
-/* lang toggle */
 .lang-toggle{
-  position:fixed;top:24px;right:32px;z-index:100;
+  position:fixed;top:20px;right:24px;z-index:100;
   display:flex;gap:0;background:var(--surface);
   border:1px solid var(--border);border-radius:8px;overflow:hidden;
 }
 .lang-btn{
-  padding:6px 14px;font-size:.82rem;border:none;
+  padding:5px 10px;font-size:.78rem;border:none;
   background:transparent;color:var(--text2);cursor:pointer;
   transition:all .15s;font-family:inherit;
 }
 .lang-btn.active{background:rgba(255,255,255,0.1);color:var(--text)}
 .lang-btn:hover{color:var(--text)}
 
-/* hero full-screen */
 .hero{
   min-height:100vh;display:flex;align-items:center;
   padding:80px 0;
@@ -49,43 +49,26 @@ body{
   width:100%;
 }
 
-/* left: phone */
 .hero-left{flex:0 0 auto;display:flex;flex-direction:column;align-items:center}
-.phone-wrapper{
-  position:relative;width:340px;height:700px;flex-shrink:0;
+.screen-box{
+  width:340px;height:700px;
+  overflow:hidden;flex-shrink:0;
 }
-.phone-frame{
-  position:absolute;inset:0;
-  border:2.5px solid rgba(255,255,255,0.12);
-  border-radius:48px;overflow:hidden;
-  background:#0a0a0a;
-  box-shadow:0 20px 80px rgba(0,0,0,.8);
+.screen-box img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  border-radius:28px;
+  transition:opacity .3s;
 }
-.phone-notch{
-  position:absolute;top:12px;left:50%;transform:translateX(-50%);
-  width:120px;height:28px;background:#000;
-  border-radius:0 0 16px 16px;z-index:2;
+.screen-dots{
+  display:flex;gap:8px;margin-top:16px;
 }
-.phone-screen{
-  position:absolute;inset:14px 6px 6px;overflow:hidden;
-  border-radius:36px;
-}
-.phone-screen img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s}
-.phone-indicator{
-  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
-  width:120px;height:4px;background:rgba(255,255,255,0.1);border-radius:2px;z-index:2;
-}
-.phone-dots{
-  display:flex;gap:8px;margin-top:20px;
-}
-.phone-dot{
+.screen-dot{
   width:8px;height:8px;border-radius:50%;border:none;
   background:rgba(255,255,255,0.2);cursor:pointer;
   transition:all .2s;padding:0;
 }
-.phone-dot.active{background:#fff;width:24px;border-radius:4px}
+.screen-dot.active{background:#fff;width:24px;border-radius:4px}
 
-/* right: text */
 .hero-right{flex:1;min-width:0}
 .hero-right h1{font-size:3.2rem;font-weight:700;letter-spacing:-.03em;line-height:1.2;margin-bottom:16px}
 .hero-right .sub{font-size:1.1rem;color:var(--text2);line-height:1.7;margin-bottom:36px}
@@ -109,7 +92,6 @@ body{
 .stat-num{font-size:1.5rem;font-weight:700}
 .stat-label{font-size:.82rem;color:var(--text2);margin-top:2px}
 
-/* sections */
 .section{padding:80px 0;border-top:1px solid var(--border)}
 .section h2{font-size:1.8rem;font-weight:600;letter-spacing:-.02em;margin-bottom:8px}
 .section .sub{color:var(--text2);font-size:1rem;max-width:520px;margin-bottom:40px;line-height:1.7}
@@ -121,16 +103,15 @@ body{
   transition:all .15s;
 }
 .feature-card:hover{background:var(--surface-hover)}
-.feature-icon{font-size:1.2rem;margin-bottom:8px}
+.feature-icon{
+  font-size:1.4rem;margin-bottom:10px;display:flex;
+  width:36px;height:36px;align-items:center;justify-content:center;
+  border-radius:8px;background:rgba(255,255,255,0.04);
+}
+.feature-icon .material-symbols-outlined{font-size:20px;color:var(--icon)}
 .feature-card h3{font-size:.95rem;font-weight:600;margin-bottom:2px}
 .feature-card p{font-size:.85rem;color:var(--text2);line-height:1.5}
 
-/* screenshot gallery */
-.screenshot-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
-.screenshot-grid img{width:100%;border-radius:10px;border:1px solid var(--border);display:block}
-@media(max-width:800px){.screenshot-grid{grid-template-columns:repeat(3,1fr)}}
-
-/* footer */
 footer{
   text-align:center;padding:48px 0 64px;
   color:var(--text2);font-size:.88rem;border-top:1px solid var(--border);
@@ -139,46 +120,45 @@ footer a{color:#fff;text-decoration:none}
 footer a:hover{text-decoration:underline}
 .footer-links{display:flex;gap:24px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
 .footer-links a{color:var(--text2);font-size:.85rem}
-.hb{display:none}
+
 @media(max-width:860px){
-  .hero-inner{flex-direction:column;gap:48px}
+  .hero-inner{flex-direction:column;gap:40px}
   .hero-left{order:-1}
-  .phone-wrapper{width:260px;height:540px}
+  .screen-box{width:260px;height:540px}
   .hero-right{text-align:center}
-  .hero-right h1{font-size:2.2rem}
+  .hero-right h1{font-size:2rem}
   .hero-btns,.stats{justify-content:center}
   .hero{padding:60px 0;min-height:auto}
-  .lang-toggle{top:16px;right:16px}
+  .lang-toggle{top:12px;right:12px}
+  .lang-btn{padding:4px 8px;font-size:.72rem}
 }
 </style>
 </head>
 <body>
 
 <div class="lang-toggle">
-  <button class="lang-btn active" data-lang="zh" onclick="switchLang('zh')">中</button>
+  <button class="lang-btn active" data-lang="zh" onclick="switchLang('zh')">简</button>
+  <button class="lang-btn" data-lang="tw" onclick="switchLang('tw')">繁</button>
   <button class="lang-btn" data-lang="en" onclick="switchLang('en')">EN</button>
+  <button class="lang-btn" data-lang="ko" onclick="switchLang('ko')">KO</button>
+  <button class="lang-btn" data-lang="ru" onclick="switchLang('ru')">RU</button>
+  <button class="lang-btn" data-lang="ja" onclick="switchLang('ja')">日</button>
 </div>
 
 <section class="hero">
   <div class="container hero-inner">
     <div class="hero-left">
-      <div class="phone-wrapper">
-        <div class="phone-frame">
-          <div class="phone-notch"></div>
-          <div class="phone-screen">
-            <img id="phoneImg" src="screenshots/1.png" alt="XMSLEEP">
-          </div>
-          <div class="phone-indicator"></div>
-        </div>
+      <div class="screen-box">
+        <img id="screenImg" src="screenshots/1.jpg" alt="XMSLEEP">
       </div>
-      <div class="phone-dots" id="phoneDots"></div>
+      <div class="screen-dots" id="screenDots"></div>
     </div>
     <div class="hero-right">
       <h1 lang-key="heroTitle">让你心绪变得宁静</h1>
       <p class="sub" lang-key="heroSub">自由混音 · 天气联动 · 呼吸引导 · 翻页时钟 · 开源免费</p>
       <div class="hero-btns">
         <a class="btn btn-primary" id="downloadBtn" href="https://github.com/Tosencen/XMSLEEP/releases/latest" target="_blank">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
           <span lang-key="download">下载 APK</span>
         </a>
         <a class="btn btn-secondary" href="https://github.com/Tosencen/XMSLEEP" target="_blank">
@@ -201,42 +181,18 @@ footer a:hover{text-decoration:underline}
     <h2 lang-key="featuresTitle">全方位的声音体验</h2>
     <p class="sub" lang-key="featuresSub">从助眠到专注，为你打造专属的声音空间</p>
     <div class="feature-grid">
-      <div class="feature-card"><div class="feature-icon">🌧️</div><h3 lang-key="f1t">16 种高品质声音</h3><p lang-key="f1d">雨声、篝火、鸟鸣、键盘、雪花等，全部无损循环播放</p></div>
-      <div class="feature-card"><div class="feature-icon">🎚️</div><h3 lang-key="f2t">独立音量 & 混音</h3><p lang-key="f2d">每种声音单独调节音量，叠加组合出专属声景</p></div>
-      <div class="feature-card"><div class="feature-icon">⏱️</div><h3 lang-key="f3t">智能倒计时</h3><p lang-key="f3d">设置播放时长，到点自动停止。支持自动和手动控制</p></div>
-      <div class="feature-card"><div class="feature-icon">🌤️</div><h3 lang-key="f4t">天气联动推荐</h3><p lang-key="f4d">根据实时天气自动匹配合适的声音</p></div>
-      <div class="feature-card"><div class="feature-icon">🎨</div><h3 lang-key="f5t">Material You 主题</h3><p lang-key="f5d">适配动态取色，深色模式、自定义主题色随心切换</p></div>
-      <div class="feature-card"><div class="feature-icon">📦</div><h3 lang-key="f6t">3 组预设保存</h3><p lang-key="f6d">保存多套声音组合，一键切换。支持在线和本地音频</p></div>
-      <div class="feature-card"><div class="feature-icon">🫁</div><h3 lang-key="f7t">呼吸练习引导</h3><p lang-key="f7d">4-4-4 呼吸法，配合语音提示和动画，快速放松身心</p></div>
-      <div class="feature-card"><div class="feature-icon">🕐</div><h3 lang-key="f8t">翻页时钟</h3><p lang-key="f8d">全屏翻转时钟，多款字体，支持倒计时功能</p></div>
-      <div class="feature-card"><div class="feature-icon">🔒</div><h3 lang-key="f9t">锁屏 & 蓝牙控制</h3><p lang-key="f9d">支持系统媒体面板、锁屏控制、蓝牙耳机按键</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container">
-    <h2 lang-key="screenshotsTitle">界面截图</h2>
-    <p class="sub" lang-key="screenshotsSub">简洁优雅的 Material Design 3 设计</p>
-    <div class="screenshot-grid">
-      <img src="screenshots/1.png" alt="Screenshot" loading="lazy">
-      <img src="screenshots/2.png" alt="Screenshot" loading="lazy">
-      <img src="screenshots/3.png" alt="Screenshot" loading="lazy">
-      <img src="screenshots/4.png" alt="Screenshot" loading="lazy">
-      <img src="screenshots/5.png" alt="Screenshot" loading="lazy">
-      <img src="screenshots/6.png" alt="Screenshot" loading="lazy">
-    </div>
-  </div>
-</section>
-
-<section class="section">
-  <div class="container">
-    <h2 lang-key="ossTitle">开源 · 透明 · 自由</h2>
-    <p class="sub" lang-key="ossSub">完全开源，无广告、无追踪、无隐私收集</p>
-    <div class="feature-grid" style="grid-template-columns:repeat(3,1fr)">
-      <div class="feature-card"><div class="feature-icon">📄</div><h3 lang-key="oss1t">MIT 许可证</h3><p lang-key="oss1d">代码完全开放，自由使用、修改、分发</p></div>
-      <div class="feature-card"><div class="feature-icon">🛡️</div><h3 lang-key="oss2t">无权限滥用</h3><p lang-key="oss2d">仅申请必要权限，不收集任何个人信息</p></div>
-      <div class="feature-card"><div class="feature-icon">🤝</div><h3 lang-key="oss3t">社区驱动</h3><p lang-key="oss3d">功能需求、Bug 反馈都在 GitHub 上开放讨论</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">music_note</span></div><h3 lang-key="f1t">16 种高品质声音</h3><p lang-key="f1d">雨声、篝火、鸟鸣、键盘、雪花等，全部无损循环播放</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">tune</span></div><h3 lang-key="f2t">独立音量 & 混音</h3><p lang-key="f2d">每种声音单独调节音量，叠加组合出专属声景</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">timer</span></div><h3 lang-key="f3t">智能倒计时</h3><p lang-key="f3d">设置播放时长，到点自动停止。支持自动和手动控制</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">partly_cloudy_day</span></div><h3 lang-key="f4t">天气联动推荐</h3><p lang-key="f4d">根据实时天气自动匹配合适的声音</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">palette</span></div><h3 lang-key="f5t">Material You 主题</h3><p lang-key="f5d">适配动态取色，深色模式、自定义主题色随心切换</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">bookmark</span></div><h3 lang-key="f6t">3 组预设保存</h3><p lang-key="f6d">保存多套声音组合，一键切换。支持在线和本地音频</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">self_improvement</span></div><h3 lang-key="f7t">呼吸练习引导</h3><p lang-key="f7d">4-4-4 呼吸法，配合语音提示和动画，快速放松身心</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">alarm</span></div><h3 lang-key="f8t">翻页时钟</h3><p lang-key="f8d">全屏翻转时钟，多款字体，支持倒计时功能</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">bluetooth</span></div><h3 lang-key="f9t">锁屏 & 蓝牙控制</h3><p lang-key="f9d">支持系统媒体面板、锁屏控制、蓝牙耳机按键</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">description</span></div><h3 lang-key="f10t">MIT 许可证</h3><p lang-key="f10d">代码完全开放，自由使用、修改、分发</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">security</span></div><h3 lang-key="f11t">无权限滥用</h3><p lang-key="f11d">仅申请必要权限，不收集任何个人信息</p></div>
+      <div class="feature-card"><div class="feature-icon"><span class="material-symbols-outlined">groups</span></div><h3 lang-key="f12t">社区驱动</h3><p lang-key="f12d">功能需求、Bug 反馈都在 GitHub 上开放讨论</p></div>
     </div>
   </div>
 </section>
@@ -251,116 +207,155 @@ footer a:hover{text-decoration:underline}
 </footer>
 
 <script>
-const SCREENS = ['1.png','2.png','3.png','4.png','5.png','6.png'];
-let currentScreen = 0;
+const SCREENS = ['1.jpg','2.jpg','3.jpg','4.jpg','5.jpg','6.jpg'];
+let currentScreen = 0, autoTimer;
 
 function renderDots(){
-  const container = document.getElementById('phoneDots');
-  container.innerHTML = '';
-  SCREENS.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.className = 'phone-dot' + (i === currentScreen ? ' active' : '');
-    dot.onclick = () => goToScreen(i);
-    container.appendChild(dot);
+  const c = document.getElementById('screenDots');
+  c.innerHTML = '';
+  SCREENS.forEach((_,i)=>{
+    const d = document.createElement('button');
+    d.className = 'screen-dot'+(i===currentScreen?' active':'');
+    d.onclick = ()=>goToScreen(i);
+    c.appendChild(d);
   });
 }
 
 function goToScreen(i){
   currentScreen = i;
-  document.getElementById('phoneImg').src = 'screenshots/' + SCREENS[i];
-  document.querySelectorAll('.phone-dot').forEach((d, j) => {
-    d.className = 'phone-dot' + (j === i ? ' active' : '');
-  });
+  document.getElementById('screenImg').src = 'screenshots/'+SCREENS[i];
+  document.querySelectorAll('.screen-dot').forEach((d,j)=>{d.className='screen-dot'+(j===i?' active':'')});
 }
 
-// auto rotate every 4s
-let autoTimer = setInterval(() => {
-  goToScreen((currentScreen + 1) % SCREENS.length);
-}, 4000);
-
-document.querySelector('.phone-wrapper').addEventListener('mouseenter', () => clearInterval(autoTimer));
-document.querySelector('.phone-wrapper').addEventListener('mouseleave', () => {
-  autoTimer = setInterval(() => {
-    goToScreen((currentScreen + 1) % SCREENS.length);
-  }, 4000);
-});
+function startAuto(){
+  if(autoTimer) clearInterval(autoTimer);
+  autoTimer = setInterval(()=>goToScreen((currentScreen+1)%SCREENS.length), 3500);
+}
 
 renderDots();
+startAuto();
 
-// multi-language
 const LANG = {
   zh: {
-    heroTitle: '让你心绪变得宁静',
-    heroSub: '自由混音 · 天气联动 · 呼吸引导 · 翻页时钟 · 开源免费',
-    download: '下载 APK',
-    fetching: '正在获取版本信息…',
-    statSounds: '自然声音',
-    statMix: '自由混音',
-    featuresTitle: '全方位的声音体验',
-    featuresSub: '从助眠到专注，为你打造专属的声音空间',
-    f1t: '16 种高品质声音', f1d: '雨声、篝火、鸟鸣、键盘、雪花等，全部无损循环播放',
-    f2t: '独立音量 & 混音', f2d: '每种声音单独调节音量，叠加组合出专属声景',
-    f3t: '智能倒计时', f3d: '设置播放时长，到点自动停止。支持自动和手动控制',
-    f4t: '天气联动推荐', f4d: '根据实时天气自动匹配合适的声音',
-    f5t: 'Material You 主题', f5d: '适配动态取色，深色模式、自定义主题色随心切换',
-    f6t: '3 组预设保存', f6d: '保存多套声音组合，一键切换。支持在线和本地音频',
-    f7t: '呼吸练习引导', f7d: '4-4-4 呼吸法，配合语音提示和动画，快速放松身心',
-    f8t: '翻页时钟', f8d: '全屏翻转时钟，多款字体，支持倒计时功能',
-    f9t: '锁屏 & 蓝牙控制', f9d: '支持系统媒体面板、锁屏控制、蓝牙耳机按键',
-    screenshotsTitle: '界面截图',
-    screenshotsSub: '简洁优雅的 Material Design 3 设计',
-    ossTitle: '开源 · 透明 · 自由',
-    ossSub: '完全开源，无广告、无追踪、无隐私收集',
-    oss1t: 'MIT 许可证', oss1d: '代码完全开放，自由使用、修改、分发',
-    oss2t: '无权限滥用', oss2d: '仅申请必要权限，不收集任何个人信息',
-    oss3t: '社区驱动', oss3d: '功能需求、Bug 反馈都在 GitHub 上开放讨论',
-    footerReleases: '所有版本',
-    footerFeedback: '反馈建议',
-    footerText: '用心打造更好的睡眠体验 · 开源免费 · 无广告',
+    heroTitle:'让你心绪变得宁静',heroSub:'自由混音 · 天气联动 · 呼吸引导 · 翻页时钟 · 开源免费',
+    download:'下载 APK',fetching:'正在获取版本信息…',statSounds:'自然声音',statMix:'自由混音',
+    featuresTitle:'全方位的声音体验',featuresSub:'从助眠到专注，为你打造专属的声音空间',
+    f1t:'16 种高品质声音',f1d:'雨声、篝火、鸟鸣、键盘、雪花等，全部无损循环播放',
+    f2t:'独立音量 & 混音',f2d:'每种声音单独调节音量，叠加组合出专属声景',
+    f3t:'智能倒计时',f3d:'设置播放时长，到点自动停止。支持自动和手动控制',
+    f4t:'天气联动推荐',f4d:'根据实时天气自动匹配合适的声音',
+    f5t:'Material You 主题',f5d:'适配动态取色，深色模式、自定义主题色随心切换',
+    f6t:'3 组预设保存',f6d:'保存多套声音组合，一键切换。支持在线和本地音频',
+    f7t:'呼吸练习引导',f7d:'4-4-4 呼吸法，配合语音提示和动画，快速放松身心',
+    f8t:'翻页时钟',f8d:'全屏翻转时钟，多款字体，支持倒计时功能',
+    f9t:'锁屏 & 蓝牙控制',f9d:'支持系统媒体面板、锁屏控制、蓝牙耳机按键',
+    f10t:'MIT 许可证',f10d:'代码完全开放，自由使用、修改、分发',
+    f11t:'无权限滥用',f11d:'仅申请必要权限，不收集任何个人信息',
+    f12t:'社区驱动',f12d:'功能需求、Bug 反馈都在 GitHub 上开放讨论',
+    footerReleases:'所有版本',footerFeedback:'反馈建议',footerText:'用心打造更好的睡眠体验 · 开源免费 · 无广告',
+  },
+  tw: {
+    heroTitle:'讓心緒回歸平靜',heroSub:'自由混音 · 天氣聯動 · 呼吸引導 · 翻頁時鐘 · 開源免費',
+    download:'下載 APK',fetching:'正在獲取版本資訊…',statSounds:'自然聲音',statMix:'自由混音',
+    featuresTitle:'全方位聲音體驗',featuresSub:'從助眠到專注，打造專屬的聲音空間',
+    f1t:'16 種高品質聲音',f1d:'雨聲、營火、鳥鳴、鍵盤、雪花等，無損循環播放',
+    f2t:'獨立音量 & 混音',f2d:'每種聲音單獨調節音量，疊加組合出專屬聲景',
+    f3t:'智能倒計時',f3d:'設定播放時長，到點自動停止。支援自動和手動控制',
+    f4t:'天氣聯動推薦',f4d:'根據即時天氣自動匹配適合的聲音',
+    f5t:'Material You 主題',f5d:'適配動態取色，深色模式、自訂主題色隨心切換',
+    f6t:'3 組預設儲存',f6d:'儲存多組聲音組合，一鍵切換。支援線上和本地音訊',
+    f7t:'呼吸練習引導',f7d:'4-4-4 呼吸法，配合語音提示和動畫，快速放鬆身心',
+    f8t:'翻頁時鐘',f8d:'全螢幕翻轉時鐘，多款字型，支援倒計時功能',
+    f9t:'鎖屏 & 藍牙控制',f9d:'支援系統媒體面板、鎖屏控制、藍牙耳機按鍵',
+    f10t:'MIT 許可證',f10d:'程式碼完全開放，自由使用、修改、散佈',
+    f11t:'無權限濫用',f11d:'僅申請必要權限，不收集任何個人資訊',
+    f12t:'社群驅動',f12d:'功能需求、Bug 回報都在 GitHub 上開放討論',
+    footerReleases:'所有版本',footerFeedback:'回饋建議',footerText:'用心打造更好的睡眠體驗 · 開源免費 · 無廣告',
   },
   en: {
-    heroTitle: 'Calm Your Mind',
-    heroSub: 'Sound Mixing · Weather Sync · Breathing Guide · Flip Clock · Open Source',
-    download: 'Download APK',
-    fetching: 'Fetching latest version…',
-    statSounds: 'Nature Sounds',
-    statMix: 'Free Mixing',
-    featuresTitle: 'Complete Sound Experience',
-    featuresSub: 'From sleep to focus, create your personal sound space',
-    f1t: '16 High-Quality Sounds', f1d: 'Rain, fire, birds, keyboard, snow & more — all lossless looping',
-    f2t: 'Independent Volume & Mix', f2d: 'Adjust each sound\'s volume and layer them into your perfect soundscape',
-    f3t: 'Smart Timer', f3d: 'Set playback duration and auto-stop. Supports auto and manual control',
-    f4t: 'Weather Integration', f4d: 'Automatically recommends sounds based on real-time weather',
-    f5t: 'Material You Theme', f5d: 'Dynamic color, dark mode, and custom theme colors',
-    f6t: '3 Preset Slots', f6d: 'Save and switch between sound combinations instantly',
-    f7t: 'Breathing Exercise', f7d: '4-4-4 breathing with voice guidance and animation',
-    f8t: 'Flip Clock', f8d: 'Full-screen flip clock with multiple fonts and countdown',
-    f9t: 'Lock Screen & Bluetooth', f9d: 'Media panel, lock screen controls, and Bluetooth headset support',
-    screenshotsTitle: 'Screenshots',
-    screenshotsSub: 'Clean Material Design 3 interface',
-    ossTitle: 'Open Source · Transparent · Free',
-    ossSub: 'Fully open source, no ads, no tracking, no data collection',
-    oss1t: 'MIT License', oss1d: 'Free to use, modify, and distribute',
-    oss2t: 'Privacy First', oss2d: 'Only essential permissions, no personal data collection',
-    oss3t: 'Community Driven', oss3d: 'Features and feedback discussed openly on GitHub',
-    footerReleases: 'Releases',
-    footerFeedback: 'Feedback',
-    footerText: 'Made for better sleep · Open Source · No Ads',
+    heroTitle:'Calm Your Mind',heroSub:'Sound Mixing · Weather Sync · Breathing Guide · Flip Clock · Open Source',
+    download:'Download APK',fetching:'Fetching latest version…',statSounds:'Nature Sounds',statMix:'Free Mixing',
+    featuresTitle:'Complete Sound Experience',featuresSub:'From sleep to focus, create your personal sound space',
+    f1t:'16 High-Quality Sounds',f1d:'Rain, campfire, birds, keyboard, snow & more — lossless looping',
+    f2t:'Independent Volume & Mix',f2d:'Adjust each sound and layer them into your perfect mix',
+    f3t:'Smart Timer',f3d:'Set playback duration with auto-stop. Supports auto and manual control',
+    f4t:'Weather Integration',f4d:'Automatically recommends sounds based on real-time weather',
+    f5t:'Material You Theme',f5d:'Dynamic color, dark mode, and custom theme colors',
+    f6t:'3 Preset Slots',f6d:'Save and instantly switch between sound combinations',
+    f7t:'Breathing Exercise',f7d:'4-4-4 breathing with voice guidance and animation',
+    f8t:'Flip Clock',f8d:'Full-screen flip clock with multiple fonts and countdown',
+    f9t:'Lock Screen & Bluetooth',f9d:'Media panel, lock screen controls, Bluetooth headset support',
+    f10t:'MIT License',f10d:'Free to use, modify, and distribute',
+    f11t:'Privacy First',f11d:'Only essential permissions, no personal data collected',
+    f12t:'Community Driven',f12d:'Features and feedback discussed openly on GitHub',
+    footerReleases:'Releases',footerFeedback:'Feedback',footerText:'Made for better sleep · Open Source · No Ads',
+  },
+  ko: {
+    heroTitle:'마음을 평온하게',heroSub:'자유로운 믹싱 · 날씨 연동 · 호흡 가이드 · 플립 시계 · 오픈 소스',
+    download:'APK 다운로드',fetching:'최신 버전 확인 중…',statSounds:'자연의 소리',statMix:'자유로운 믹싱',
+    featuresTitle:'완벽한 사운드 경험',featuresSub:'수면부터 집중까지, 나만의 사운드 공간',
+    f1t:'16가지 고음질 사운드',f1d:'빗소리, 모닥불, 새소리, 키보드, 눈 등 무손실 루프 재생',
+    f2t:'개별 볼륨 & 믹싱',f2d:'각 사운드를 개별 조절하여 나만의 사운드스케이프 생성',
+    f3t:'스마트 타이머',f3d:'재생 시간 설정 후 자동 종료. 자동 및 수동 제어 지원',
+    f4t:'날씨 연동',f4d:'실시간 날씨에 맞춰 자동으로 사운드 추천',
+    f5t:'Material You 테마',f5d:'다이내믹 컬러, 다크 모드, 맞춤 테마 컬러',
+    f6t:'3개 프리셋 저장',f6d:'사운드 조합을 저장하고 즉시 전환. 온라인 및 로컬 오디오 지원',
+    f7t:'호흡 운동',f7d:'4-4-4 호흡법, 음성 가이드 및 애니메이션',
+    f8t:'플립 시계',f8d:'전체 화면 플립 시계, 여러 폰트, 카운트다운 지원',
+    f9t:'잠금 화면 & 블루투스',f9d:'시스템 미디어 패널, 잠금 화면 제어, 블루투스 헤드셋 지원',
+    f10t:'MIT 라이선스',f10d:'자유롭게 사용, 수정, 배포 가능',
+    f11t:'개인정보 보호',f11d:'필수 권한만 사용, 개인정보 미수집',
+    f12t:'커뮤니티 중심',f12d:'GitHub에서 기능 요청 및 피드백 공개 논의',
+    footerReleases:'모든 버전',footerFeedback:'피드백',footerText:'더 나은 수면을 위해 · 오픈 소스 · 광고 없음',
+  },
+  ru: {
+    heroTitle:'Успокойте свой разум',heroSub:'Микширование · Погода · Дыхание · Часы · Открытый код',
+    download:'Скачать APK',fetching:'Получение информации…',statSounds:'Природные звуки',statMix:'Свободное микширование',
+    featuresTitle:'Полный звуковой опыт',featuresSub:'От сна до концентрации — создайте своё пространство',
+    f1t:'16 высококачественных звуков',f1d:'Дождь, костёр, птицы, клавиатура, снег — бесшовное воспроизведение',
+    f2t:'Индивидуальная громкость',f2d:'Регулируйте каждый звук и создавайте идеальную картину',
+    f3t:'Умный таймер',f3d:'Установите время с автоостановкой. Автоматическое и ручное управление',
+    f4t:'Интеграция с погодой',f4d:'Автоматически подбирает звуки по реальной погоде',
+    f5t:'Тема Material You',f5d:'Динамические цвета, тёмная тема, настраиваемые цвета',
+    f6t:'3 пресета',f6d:'Сохраняйте и мгновенно переключайте комбинации звуков',
+    f7t:'Дыхание',f7d:'Дыхание 4-4-4 с голосовым сопровождением и анимацией',
+    f8t:'Часы',f8d:'Полноэкранные часы с разными шрифтами и таймером',
+    f9t:'Экран блокировки',f9d:'Медиапанель, управление с экрана блокировки, Bluetooth',
+    f10t:'Лицензия MIT',f10d:'Свободное использование, модификация и распространение',
+    f11t:'Конфиденциальность',f11d:'Только необходимые разрешения, без сбора данных',
+    f12t:'Сообщество',f12d:'Обсуждение функций и отзывов на GitHub',
+    footerReleases:'Все версии',footerFeedback:'Связь',footerText:'Создано для лучшего сна · Открытый код · Без рекламы',
+  },
+  ja: {
+    heroTitle:'心を落ち着かせて',heroSub:'自由なミックス · 天気連動 · 呼吸ガイド · フリップ時計 · オープンソース',
+    download:'APK をダウンロード',fetching:'バージョン情報を取得中…',statSounds:'自然の音',statMix:'自由なミキシング',
+    featuresTitle:'サウンド体験',featuresSub:'睡眠から集中まで、あなただけのサウンド空間',
+    f1t:'16種類の高音質サウンド',f1d:'雨、焚き火、鳥、キーボード、雪など、ロスレスループ再生',
+    f2t:'個別音量 & ミックス',f2d:'各サウンドを個別に調整、自分だけのサウンドスケープ',
+    f3t:'スマートタイマー',f3d:'再生時間を設定して自動停止。自動・手動制御対応',
+    f4t:'天気連動',f4d:'リアルタイムの天気に合わせてサウンドを自動提案',
+    f5t:'Material You テーマ',f5d:'ダイナミックカラー、ダークモード、カスタムテーマカラー',
+    f6t:'3つのプリセット',f6d:'サウンドの組み合わせを保存してワンタッチ切替',
+    f7t:'呼吸エクササイズ',f7d:'4-4-4呼吸法、音声ガイダンスとアニメーション',
+    f8t:'フリップ時計',f8d:'全画面フリップ時計、複数フォント、カウントダウン対応',
+    f9t:'ロック画面 & Bluetooth',f9d:'メディアパネル、ロック画面制御、Bluetooth対応',
+    f10t:'MIT ライセンス',f10d:'自由に使用、修正、配布可能',
+    f11t:'プライバシー重視',f11d:'必要最小限の権限のみ、個人情報は収集しません',
+    f12t:'コミュニティ主導',f12d:'機能要望やフィードバックはGitHubで公開討論',
+    footerReleases:'全バージョン',footerFeedback:'フィードバック',footerText:'より良い睡眠のために · オープンソース · 広告なし',
   }
 };
 
 function switchLang(lang){
-  document.querySelectorAll('.lang-btn').forEach(b => {
-    b.className = 'lang-btn' + (b.dataset.lang === lang ? ' active' : '');
+  document.querySelectorAll('.lang-btn').forEach(b=>{b.className='lang-btn'+(b.dataset.lang===lang?' active':'')});
+  document.querySelectorAll('[lang-key]').forEach(el=>{
+    const k=el.getAttribute('lang-key');
+    if(LANG[lang]&&LANG[lang][k]) el.textContent=LANG[lang][k];
   });
-  document.querySelectorAll('[lang-key]').forEach(el => {
-    const key = el.getAttribute('lang-key');
-    if(LANG[lang] && LANG[lang][key]) el.textContent = LANG[lang][key];
-  });
-  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : 'en';
+  const m={zh:'zh-CN',tw:'zh-TW',en:'en',ko:'ko',ru:'ru',ja:'ja'};
+  document.documentElement.lang=m[lang]||'zh-CN';
 }
 
-// fetch release info
 (async()=>{
   const info=document.getElementById('downloadInfo');
   try{
