@@ -12,7 +12,7 @@ import androidx.media3.common.util.UnstableApi
 class AggregatePlayer : SimpleBasePlayer(Looper.getMainLooper()) {
 
     private var isPlaying = false
-    private var soundDescriptions: List<String> = emptyList()
+    private var subtitle: String = "XMSLEEP"
 
     private val availableCommands: Player.Commands = Player.Commands.Builder()
         .add(Player.COMMAND_PLAY_PAUSE)
@@ -26,20 +26,18 @@ class AggregatePlayer : SimpleBasePlayer(Looper.getMainLooper()) {
         .setDurationUs(C.TIME_UNSET)
         .build()
 
-    fun onPlaybackChanged(playing: Boolean, descriptions: List<String>) {
+    /**
+     * 更新播放状态
+     * @param playing 是否正在播放
+     * @param subtitle 已根据当前 locale 格式化好的副标题（由 MusicService 通过 string resource 生成）
+     */
+    fun onPlaybackChanged(playing: Boolean, subtitle: String) {
         isPlaying = playing
-        soundDescriptions = descriptions
+        this.subtitle = subtitle
         invalidateState()
     }
 
     override fun getState(): State {
-        val subtitle = when {
-            soundDescriptions.isEmpty() -> ""
-            soundDescriptions.size <= 2 -> soundDescriptions.joinToString(" + ")
-            soundDescriptions.size == 3 -> soundDescriptions.joinToString(" + ")
-            else -> "${soundDescriptions.take(2).joinToString(" + ")} + 其他 ${soundDescriptions.size - 2} 个"
-        }
-
         return State.Builder()
             .setAvailableCommands(availableCommands)
             .setPlayWhenReady(isPlaying, Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST)

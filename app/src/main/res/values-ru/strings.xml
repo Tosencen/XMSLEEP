@@ -549,4 +549,6 @@
     <string name="auto_play_on_start_description">Автоматически воспроизводить последний использованный пресет при запуске приложения</string>
     <string name="auto_play_need_preset_tip">Пожалуйста, сначала добавьте аудио в пресет</string>
     <string name="tip">Подсказка</string>
+    <!-- MediaSession aggregate subtitle -->
+    <string name="aggregate_others_format">и ещё %1$d</string>
 </resources>

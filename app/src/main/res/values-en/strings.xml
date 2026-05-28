@@ -549,4 +549,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="auto_play_on_start_description">Auto play the last used preset audio when app starts</string>
     <string name="auto_play_need_preset_tip">Please add audio in the preset module first</string>
     <string name="tip">Tip</string>
+
+    <!-- MediaSession aggregate subtitle -->
+    <string name="aggregate_others_format">+%1$d more</string>
 </resources>

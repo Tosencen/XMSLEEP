@@ -542,4 +542,6 @@
     <string name="auto_play_on_start_description">앱 시작 시 마지막으로 사용한 프리셋 오디오 자동 재생</string>
     <string name="auto_play_need_preset_tip">프리셋 모듈에 먼저 오디오를 추가해 주세요</string>
     <string name="tip">알림</string>
+    <!-- MediaSession 잠금화면 부제 -->
+    <string name="aggregate_others_format">외 %1$d개</string>
 </resources>

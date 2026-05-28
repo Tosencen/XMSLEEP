@@ -549,4 +549,6 @@
     <string name="auto_play_on_start_description">アプリ起動時に最後に使用したプリセット音声を自動再生</string>
     <string name="auto_play_need_preset_tip">先にプリセットモジュールに音声を追加してください</string>
     <string name="tip">ヒント</string>
+    <!-- MediaSession 集約サブタイトル -->
+    <string name="aggregate_others_format">他 %1$d 個</string>
 </resources>

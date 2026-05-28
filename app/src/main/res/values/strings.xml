@@ -576,4 +576,7 @@
     <string name="auto_play_on_start_description">应用启动时自动播放上次使用的预设音频</string>
     <string name="auto_play_need_preset_tip">请先在预设模块中添加音频</string>
     <string name="tip">提示</string>
+
+    <!-- MediaSession 锁屏副标题：超过 3 个声音时显示「其他 N 个」 -->
+    <string name="aggregate_others_format">其他 %1$d 个</string>
 </resources>

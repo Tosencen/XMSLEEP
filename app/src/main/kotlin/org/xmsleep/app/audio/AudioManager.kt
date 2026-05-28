@@ -46,7 +46,30 @@ class AudioManager private constructor() {
         private const val TAG = "AudioManager"
         private const val DEFAULT_VOLUME = 0.5f
         private const val MAX_CONCURRENT_SOUNDS = 10 // 最多同时播放10个音频
-        
+
+        // 内置声音类型 -> raw 资源 ID 的映射，避免为每个声音写一个 prepareXxxSound 包装方法。
+        // 所有内置音频统一使用自动检测文件长度（startPositionMs=0, endPositionMs=0），
+        // 避免 ClippingMediaSource 循环时只播放部分音频的问题。
+        private val SOUND_RAW_RES_MAP: Map<Sound, Int> = mapOf(
+                Sound.UMBRELLA_RAIN to R.raw.umbrella_rain,
+                Sound.ROWING to R.raw.rowing,
+                Sound.OFFICE to R.raw.office,
+                Sound.LIBRARY to R.raw.library,
+                Sound.HEAVY_RAIN to R.raw.heavy_rain,
+                Sound.TYPEWRITER to R.raw.typewriter,
+                Sound.THUNDER to R.raw.thunder,
+                Sound.CLOCK to R.raw.clock,
+                Sound.FOREST_BIRDS to R.raw.forest_birds,
+                Sound.DRIFTING to R.raw.drifting,
+                Sound.CAMPFIRE to R.raw.campfire,
+                Sound.WIND to R.raw.wind,
+                Sound.KEYBOARD to R.raw.keyboard,
+                Sound.SNOW_WALKING to R.raw.snow_walking,
+                Sound.MORNING_COFFEE to R.raw.morning_coffee,
+                Sound.WINDMILL to R.raw.windmill,
+            )
+        }
+
         @Volatile
         private var instance: AudioManager? = null
         
@@ -448,183 +471,6 @@ class AudioManager private constructor() {
     }
 
     /**
-     * 准备各种声音
-     * 所有音频都使用自动检测文件长度（endPositionMs = 0），避免循环时只播放部分音频的问题
-     */
-    private fun prepareUmbrellaRainSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.umbrella_rain,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "伞上雨声"
-        )
-    }
-
-    private fun prepareRowingSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.rowing,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "划船"
-        )
-    }
-
-    private fun prepareOfficeSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.office,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "办公室"
-        )
-    }
-
-    private fun prepareLibrarySound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.library,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "图书馆"
-        )
-    }
-
-    private fun prepareHeavyRainSound(context: Context, sound: Sound) {
-        try {
-            val dataSourceFactory = DefaultDataSource.Factory(context)
-            val uri = Uri.parse("android.resource://${context.packageName}/${R.raw.heavy_rain}")
-            val baseSource = ProgressiveMediaSource.Factory(dataSourceFactory)
-                .createMediaSource(MediaItem.fromUri(uri))
-
-            // 使用裁剪后的媒体源，起点0ms，终点由解码器自动检测
-            val clipped = ClippingMediaSource.Builder(baseSource)
-                .setStartPositionUs(0L)
-                .setEndPositionUs(C.TIME_END_OF_SOURCE)
-                .build()
-
-            if (players[sound] == null) {
-                initializePlayer(context, sound)
-            }
-            val player = players[sound] ?: return
-
-            try {
-                if (player.playbackState != Player.STATE_IDLE) {
-                    player.stop()
-                }
-                player.playWhenReady = false
-            } catch (e: Exception) {
-                Logger.w(TAG, "停止播放器时出错", e)
-            }
-
-            player.setMediaSource(clipped)
-            // 直接使用 REPEAT_MODE_ONE，让 ExoPlayer 自动循环
-            player.repeatMode = Player.REPEAT_MODE_ONE
-        } catch (e: Exception) {
-            Logger.e(TAG, "准备大雨音频 (AB 拼接) 失败", e)
-        }
-    }
-
-    private fun prepareTypewriterSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.typewriter,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "打字机"
-        )
-    }
-
-    private fun prepareThunderSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.thunder,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "打雷"
-        )
-    }
-
-    private fun prepareClockSound(context: Context, sound: Sound) {
-        // 时钟音频文件较小（90KB），可能只有几秒，必须使用自动检测
-        prepareSoundAudio(
-            context, sound,
-            R.raw.clock,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "时钟"
-        )
-    }
-
-    private fun prepareForestBirdsSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.forest_birds,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "森林鸟鸣"
-        )
-    }
-
-    private fun prepareDriftingSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.drifting,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "漂流"
-        )
-    }
-
-    private fun prepareCampfireSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.campfire,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "篝火"
-        )
-    }
-
-    private fun prepareWindSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.wind,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "起风了"
-        )
-    }
-
-    private fun prepareKeyboardSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.keyboard,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "键盘"
-        )
-    }
-
-    private fun prepareSnowWalkingSound(context: Context, sound: Sound) {
-        // 雪地徒步音频文件可能较短，使用C.TIME_UNSET让ExoPlayer自动检测文件实际长度
-        // 这样可以避免循环时只播放前几秒的问题
-        prepareSoundAudio(
-            context, sound,
-            R.raw.snow_walking,
-            0L, 0L, // 从0ms开始，自动检测文件实际长度
-            "雪地徒步"
-        )
-    }
-
-    private fun prepareMorningCoffeeSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.morning_coffee,
-            0L, 0L,
-            "早晨咖啡"
-        )
-    }
-
-    private fun prepareWindmillSound(context: Context, sound: Sound) {
-        prepareSoundAudio(
-            context, sound,
-            R.raw.windmill,
-            0L, 0L,
-            "风车"
-        )
-    }
-
-    /**
      * 播放指定类型的声音
      */
     // =========================================================================
@@ -727,30 +573,14 @@ class AudioManager private constructor() {
                 return
             }
 
-            // 设置媒体源
+            // 设置媒体源（统一通过 SOUND_RAW_RES_MAP 映射，所有音频都使用自动检测文件长度）
             try {
-                when (sound) {
-                    Sound.UMBRELLA_RAIN -> prepareUmbrellaRainSound(context, sound)
-                    Sound.ROWING -> prepareRowingSound(context, sound)
-                    Sound.OFFICE -> prepareOfficeSound(context, sound)
-                    Sound.LIBRARY -> prepareLibrarySound(context, sound)
-                    Sound.HEAVY_RAIN -> prepareHeavyRainSound(context, sound)
-                    Sound.TYPEWRITER -> prepareTypewriterSound(context, sound)
-                    Sound.THUNDER -> prepareThunderSound(context, sound)
-                    Sound.CLOCK -> prepareClockSound(context, sound)
-                    Sound.FOREST_BIRDS -> prepareForestBirdsSound(context, sound)
-                    Sound.DRIFTING -> prepareDriftingSound(context, sound)
-                    Sound.CAMPFIRE -> prepareCampfireSound(context, sound)
-                    Sound.WIND -> prepareWindSound(context, sound)
-                    Sound.KEYBOARD -> prepareKeyboardSound(context, sound)
-                    Sound.SNOW_WALKING -> prepareSnowWalkingSound(context, sound)
-                    Sound.MORNING_COFFEE -> prepareMorningCoffeeSound(context, sound)
-                    Sound.WINDMILL -> prepareWindmillSound(context, sound)
-                    else -> {
-                        Logger.e(TAG, "未知的声音类型: ${sound.name}")
-                        return
-                    }
+                val rawResId = SOUND_RAW_RES_MAP[sound]
+                if (rawResId == null) {
+                    Logger.e(TAG, "未知的声音类型: ${sound.name}")
+                    return
                 }
+                prepareSoundAudio(context, sound, rawResId, 0L, 0L, sound.displayName)
             } catch (e: Exception) {
                 Logger.e(TAG, "准备 ${sound.name} 音频源失败", e)
                 return

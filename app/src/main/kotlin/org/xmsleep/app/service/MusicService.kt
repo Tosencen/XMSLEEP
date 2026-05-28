@@ -7,6 +7,7 @@ import android.os.IBinder
 import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
 import androidx.media3.session.SessionResult
+import org.xmsleep.app.R
 import org.xmsleep.app.audio.AggregatePlayer
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.timer.TimerManager
@@ -174,8 +175,8 @@ class MusicService : Service() {
         isPlaying = playing
         playingSoundsCount = soundsCount
         
-        // 更新 MediaSession 播放状态
-        aggregatePlayer.onPlaybackChanged(playing, soundDescriptions)
+        // 更新 MediaSession 播放状态（使用 string resource 拼接副标题，跟随系统语言）
+        aggregatePlayer.onPlaybackChanged(playing, formatSubtitle(soundDescriptions))
         
         // 关键修复：恢复期间不要重新保存播放列表，避免覆盖之前保存的列表
         if (isRestoring) {
@@ -302,6 +303,24 @@ class MusicService : Service() {
         android.os.Process.killProcess(android.os.Process.myPid())
     }
     
+    /**
+     * 根据当前 locale 拼接 MediaSession 副标题。
+     * - 0 个：空
+     * - 1~3 个：使用 " + " 拼接
+     * - 超过 3 个：前 2 个 + 本地化的「其他 N 个」
+     */
+    private fun formatSubtitle(descriptions: List<String>): String {
+        return when {
+            descriptions.isEmpty() -> ""
+            descriptions.size <= 3 -> descriptions.joinToString(" + ")
+            else -> {
+                val first = descriptions.take(2).joinToString(" + ")
+                val others = getString(R.string.aggregate_others_format, descriptions.size - 2)
+                "$first + $others"
+            }
+        }
+    }
+
     /**
      * 格式化时间（毫秒转为可读格式）
      */

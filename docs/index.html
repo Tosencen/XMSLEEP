@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>XMSLEEP — 自然声音助眠</title>
+<title lang-key="pageTitle">XMSLEEP — 自然声音助眠</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
@@ -238,6 +238,7 @@ startAuto();
 
 const LANG = {
   zh: {
+    pageTitle:'XMSLEEP — 自然声音助眠',
     heroTitle:'让你心绪变得宁静',heroSub:'自由混音 · 天气联动 · 呼吸引导 · 翻页时钟 · 开源免费',
     download:'下载 APK',fetching:'正在获取版本信息…',statSounds:'总声音数',statMix:'自由混音',
     featuresTitle:'全方位的声音体验',featuresSub:'从助眠到专注，为你打造专属的声音空间',
@@ -256,6 +257,7 @@ const LANG = {
     footerReleases:'所有版本',footerFeedback:'反馈建议',footerText:'用心打造更好的睡眠体验 · 开源免费 · 无广告',
   },
   tw: {
+    pageTitle:'XMSLEEP — 自然聲音助眠',
     heroTitle:'讓心緒回歸平靜',heroSub:'自由混音 · 天氣聯動 · 呼吸引導 · 翻頁時鐘 · 開源免費',
     download:'下載 APK',fetching:'正在獲取版本資訊…',statSounds:'總聲音數',statMix:'自由混音',
     featuresTitle:'全方位聲音體驗',featuresSub:'從助眠到專注，打造專屬的聲音空間',
@@ -274,6 +276,7 @@ const LANG = {
     footerReleases:'所有版本',footerFeedback:'回饋建議',footerText:'用心打造更好的睡眠體驗 · 開源免費 · 無廣告',
   },
   en: {
+    pageTitle:'XMSLEEP — Natural Sounds for Sleep',
     heroTitle:'Calm Your Mind',heroSub:'Sound Mixing · Weather Sync · Breathing Guide · Flip Clock · Open Source',
     download:'Download APK',fetching:'Fetching latest version…',statSounds:'Total Sounds',statMix:'Free Mixing',
     featuresTitle:'Complete Sound Experience',featuresSub:'From sleep to focus, create your personal sound space',
@@ -292,6 +295,7 @@ const LANG = {
     footerReleases:'Releases',footerFeedback:'Feedback',footerText:'Made for better sleep · Open Source · No Ads',
   },
   ko: {
+    pageTitle:'XMSLEEP — 자연 사운드 수면 가이드',
     heroTitle:'마음을 평온하게',heroSub:'자유로운 믹싱 · 날씨 연동 · 호흡 가이드 · 플립 시계 · 오픈 소스',
     download:'APK 다운로드',fetching:'최신 버전 확인 중…',statSounds:'전체 사운드',statMix:'자유로운 믹싱',
     featuresTitle:'완벽한 사운드 경험',featuresSub:'수면부터 집중까지, 나만의 사운드 공간',
@@ -310,6 +314,7 @@ const LANG = {
     footerReleases:'모든 버전',footerFeedback:'피드백',footerText:'더 나은 수면을 위해 · 오픈 소스 · 광고 없음',
   },
   ru: {
+    pageTitle:'XMSLEEP — Звуки природы для сна',
     heroTitle:'Успокойте свой разум',heroSub:'Микширование · Погода · Дыхание · Часы · Открытый код',
     download:'Скачать APK',fetching:'Получение информации…',statSounds:'Всего звуков',statMix:'Свободное микширование',
     featuresTitle:'Полный звуковой опыт',featuresSub:'От сна до концентрации — создайте своё пространство',
@@ -328,6 +333,7 @@ const LANG = {
     footerReleases:'Все версии',footerFeedback:'Связь',footerText:'Создано для лучшего сна · Открытый код · Без рекламы',
   },
   ja: {
+    pageTitle:'XMSLEEP — 自然のサウンドで眠りを',
     heroTitle:'心を落ち着かせて',heroSub:'自由なミックス · 天気連動 · 呼吸ガイド · フリップ時計 · オープンソース',
     download:'APK をダウンロード',fetching:'バージョン情報を取得中…',statSounds:'全サウンド数',statMix:'自由なミキシング',
     featuresTitle:'サウンド体験',featuresSub:'睡眠から集中まで、あなただけのサウンド空間',
@@ -347,27 +353,64 @@ const LANG = {
   }
 };
 
+const LANG_KEY = 'xmsleep_lang_v1';
+const HTML_LANG_MAP = {zh:'zh-CN',tw:'zh-TW',en:'en',ko:'ko',ru:'ru',ja:'ja'};
+
 function switchLang(lang){
+  if(!LANG[lang]) return;
   document.querySelectorAll('.lang-btn').forEach(b=>{b.className='lang-btn'+(b.dataset.lang===lang?' active':'')});
   document.querySelectorAll('[lang-key]').forEach(el=>{
     const k=el.getAttribute('lang-key');
-    if(LANG[lang]&&LANG[lang][k]) el.textContent=LANG[lang][k];
+    if(LANG[lang][k]) el.textContent=LANG[lang][k];
   });
-  const m={zh:'zh-CN',tw:'zh-TW',en:'en',ko:'ko',ru:'ru',ja:'ja'};
-  document.documentElement.lang=m[lang]||'zh-CN';
+  // 同步 <title> 与 <html lang>，提升 SEO 与浏览器标签可读性
+  if(LANG[lang].pageTitle) document.title = LANG[lang].pageTitle;
+  document.documentElement.lang = HTML_LANG_MAP[lang] || 'zh-CN';
+  // 持久化语言选择
+  try { localStorage.setItem(LANG_KEY, lang); } catch(_) {}
+}
+
+// 启动时恢复用户上次选择的语言
+(function restoreLang(){
+  try {
+    const saved = localStorage.getItem(LANG_KEY);
+    if(saved && LANG[saved]) switchLang(saved);
+  } catch(_) {}
+})();
+
+// GitHub API 信息：1 小时 localStorage 缓存，避免触发 60 次/小时 IP 限制
+const GH_CACHE_KEY = 'xmsleep_gh_cache_v1';
+const GH_CACHE_TTL_MS = 60 * 60 * 1000;
+
+async function loadGithubInfo(){
+  // 先读缓存
+  try {
+    const raw = localStorage.getItem(GH_CACHE_KEY);
+    if(raw){
+      const obj = JSON.parse(raw);
+      if(obj && obj.ts && (Date.now() - obj.ts < GH_CACHE_TTL_MS) && obj.data){
+        return obj.data;
+      }
+    }
+  } catch(_) {}
+  // 缓存未命中，请求网络
+  const [rel, repo] = await Promise.all([
+    fetch('https://api.github.com/repos/Tosencen/XMSLEEP/releases/latest').then(r=>r.ok?r.json():Promise.reject()),
+    fetch('https://api.github.com/repos/Tosencen/XMSLEEP').then(r=>r.ok?r.json():Promise.reject())
+  ]);
+  const data = {rel, repo};
+  try { localStorage.setItem(GH_CACHE_KEY, JSON.stringify({ts: Date.now(), data})); } catch(_) {}
+  return data;
 }
 
 (async()=>{
   const info=document.getElementById('downloadInfo');
   try{
-    const [rel,repo]=await Promise.all([
-      fetch('https://api.github.com/repos/Tosencen/XMSLEEP/releases/latest').then(r=>r.ok?r.json():Promise.reject()),
-      fetch('https://api.github.com/repos/Tosencen/XMSLEEP').then(r=>r.ok?r.json():Promise.reject())
-    ]);
-    const asset=rel.assets.find(a=>a.name.endsWith('.apk'));
+    const {rel, repo} = await loadGithubInfo();
+    const asset=rel.assets && rel.assets.find(a=>a.name.endsWith('.apk'));
     const dl=document.getElementById('downloadBtn');
     if(asset){dl.href=asset.browser_download_url;info.textContent='v'+rel.tag_name.replace(/^v/,'')+' · '+(asset.size/1048576).toFixed(1)+' MB'}
-    else{info.textContent='v'+rel.tag_name}
+    else if(rel.tag_name){info.textContent='v'+rel.tag_name}
     document.getElementById('starCount').textContent=repo.stargazers_count||'—';
   }catch{
     info.textContent='GitHub Releases';

@@ -531,4 +531,6 @@
     <string name="auto_play_on_start_description">應用啟動時自動播放上次使用的預設音頻</string>
     <string name="auto_play_need_preset_tip">請先在預設模組中添加音頻</string>
     <string name="tip">提示</string>
+    <!-- MediaSession 鎖屏副標題 -->
+    <string name="aggregate_others_format">其他 %1$d 個</string>
 </resources>
