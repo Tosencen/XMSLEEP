@@ -6,11 +6,16 @@ import android.os.Build
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.*
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Favorite // explicit for icon resolution
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -179,6 +184,9 @@ fun MainScreen(
     
     // 用于强制收缩悬浮播放按钮的状态（当底部预设模块展开时）
     var forceCollapseFloatingButton by remember { mutableStateOf(false) }
+
+    // 开发者来信弹窗
+    var showDeveloperLetter by remember { mutableStateOf(false) }
     
     // 设置页面内容隐藏状态（用于隐藏底部导航栏）
     var isSettingsContentHidden by remember { mutableStateOf(false) }
@@ -396,7 +404,7 @@ fun MainScreen(
     // 监听当前路由，判断是否在二级页面
     val currentBackStackEntry by navigator.navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    val isInSecondaryPage = currentRoute in listOf("theme", "local_audio", "quoteHistory", "flipclock", "tomato_timer")
+    val isInSecondaryPage = currentRoute in listOf("theme", "local_audio", "quoteHistory", "flipclock", "tomato_timer", "diary")
     val isMainRoute = !isInSecondaryPage  // 主页面 = 不在二级页面
     val isFlipClockPage = currentRoute == "flipclock"
     
@@ -551,6 +559,7 @@ fun MainScreen(
                                         forceCollapseFloatingButton = false
                                     }
                                 },
+                                onShowDeveloperLetter = { showDeveloperLetter = true },
                                 updateViewModel = updateViewModel,
                                 soundsViewModel = soundsViewModel
                             )
@@ -631,11 +640,15 @@ fun MainScreen(
                                 onNavigateToFlipClock = {
                                     navigator.navigateToFlipClock()
                                 },
+                                onNavigateToDiary = {
+                                    navigator.navigateToDiary()
+                                },
                                 pinnedSounds = pinnedSounds,
                                 locationPermissionLauncher = locationPermissionLauncher,
                                 onContentHiddenChange = { isHidden ->
                                     isSettingsContentHidden = isHidden
-                                }
+                                },
+                                onShowDeveloperLetter = { showDeveloperLetter = true }
                             )
                         }
                         else -> { /* 不应该到达这里 */ }
@@ -694,6 +707,15 @@ fun MainScreen(
                     onBack = { navigator.popBackStack() }
                 )
             }
+
+            composable("diary") {
+                org.xmsleep.app.diary.DiaryScreen(
+                    onBack = { navigator.popBackStack() },
+                    onScrollDetected = {
+                        shouldCollapseFloatingButton = true
+                    }
+                )
+            }
         }
                 }
             }
@@ -744,8 +766,9 @@ fun MainScreen(
                         NavigationBarItem(
                             selected = selectedItem == 1,
                             onClick = { selectedItem = 1 },
+                            onLongClick = { showDeveloperLetter = true },
                             icon = Icons.Default.LocalFlorist,
-                            label = context.getString(R.string.tab_white_noise) // 显示文字
+                            label = context.getString(R.string.tab_white_noise)
                         )
                         
                         // 繁星 Tab
@@ -954,7 +977,6 @@ fun MainScreen(
                         onClick = {
                             Logger.d("MainScreen", "点击授予权限按钮")
                             showPermissionDialog = false
-                            // 使用从 MainActivity 传递的 audioPermissionLauncher 请求权限
                             audioPermissionLauncher.launch(requiredPermission)
                             permissionGrantedPending = true
                             onAudioPermissionGranted()
@@ -971,18 +993,24 @@ fun MainScreen(
                 }
             )
         }
+
+        // 开发者来信弹窗
+        if (showDeveloperLetter) {
+            DeveloperLetterDialog(
+                onDismiss = { showDeveloperLetter = false }
+            )
+        }
     }
 }
 
-/**
- * 自定义导航栏项目组件
- */
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun NavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
+    onLongClick: (() -> Unit)? = null,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String?, // 改为可空类型
+    label: String?,
     modifier: Modifier = Modifier
 ) {
     val iconColor = if (selected) {
@@ -990,7 +1018,7 @@ private fun NavigationBarItem(
     } else {
         MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
     }
-    
+
     val scale by androidx.compose.animation.core.animateFloatAsState(
         targetValue = if (selected) 1f else 0.95f,
         animationSpec = androidx.compose.animation.core.spring(
@@ -999,11 +1027,14 @@ private fun NavigationBarItem(
         ),
         label = "nav_item_scale"
     )
-    
+
     Column(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .clickable(onClick = onClick)
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = onLongClick
+            )
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .graphicsLayer {
                 scaleX = scale
@@ -1018,8 +1049,7 @@ private fun NavigationBarItem(
             modifier = Modifier.size(24.dp),
             tint = iconColor
         )
-        
-        // 只在 label 不为空时显示文字
+
         if (label != null) {
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -1032,3 +1062,44 @@ private fun NavigationBarItem(
 }
 
 private var hasCheckedRecentPlayOnLaunch = false
+
+@Composable
+private fun DeveloperLetterDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = {
+            Icon(
+                Icons.Default.Favorite,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        title = {
+            Text(
+                text = context.getString(R.string.developer_letter_title),
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
+        text = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 400.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = context.getString(R.string.developer_letter_content),
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(context.getString(R.string.ok))
+            }
+        }
+    )
+}

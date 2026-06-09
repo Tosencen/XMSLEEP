@@ -328,7 +328,7 @@ fun LocalAudioScreen(
         object : TimerManager.TimerListener {
             override fun onTimerTick(timeLeftMillis: Long) {}
             
-            override fun onTimerFinished() {
+            override fun onTimerFinished(durationMinutes: Int) {
                 localAudioPlayer.stopAllAudios()
                 if (!audioManager.hasAnyPlayingSounds()) {
                     audioManager.stopMusicService(context)

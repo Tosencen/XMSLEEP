@@ -44,13 +44,20 @@ class TimerManager private constructor() {
     // 倒计时监听器列表（线程安全，使用 CopyOnWriteArraySet 避免并发修改问题）
     private val listeners = CopyOnWriteArraySet<TimerListener>()
 
+    // 在通知监听器之前执行的回调（用于声音日记等需要提前捕获状态的场景）
+    private var beforeFinishCallback: ((Int) -> Unit)? = null
+
+    fun setBeforeFinishCallback(callback: ((Int) -> Unit)?) {
+        beforeFinishCallback = callback
+    }
+
     /**
      * 倒计时监听器接口
      */
     interface TimerListener {
         fun onTimerTick(timeLeftMillis: Long)
-        fun onTimerFinished()  // 倒计时自然结束（需要停止播放）
-        fun onTimerCancelled() {} // 倒计时被取消（默认不做任何事，不停止播放）
+        fun onTimerFinished(durationMinutes: Int = 0)
+        fun onTimerCancelled() {}
     }
 
     /**
@@ -235,19 +242,21 @@ class TimerManager private constructor() {
      * 完成倒计时
      */
     private fun finishTimer() {
+        val completedDuration = currentTimerMinutes
+
+        beforeFinishCallback?.invoke(completedDuration)
+
         _isTimerActive.value = false
         currentTimerMinutes = 0
         timerEndTime = 0
         _timeLeftMillis.value = 0
 
-        // 在主线程上通知所有监听器倒计时结束，确保UI操作在主线程执行
         scope.launch(Dispatchers.Main) {
             try {
-                // 使用快照避免在遍历时修改列表
                 val listenersSnapshot = listeners.toList()
                 for (listener in listenersSnapshot) {
                     try {
-                        listener.onTimerFinished()
+                        listener.onTimerFinished(completedDuration)
                     } catch (e: Exception) {
                         Logger.e(TAG, "通知监听器倒计时结束失败: ${e.message}", e)
                     }

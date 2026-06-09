@@ -589,4 +589,24 @@
     <string name="weather_option_heavy_snow">❄️ 강한 눈</string>
     <string name="weather_option_shower">🌧️ 소나기</string>
     <string name="weather_option_thunderstorm">⛈️ 천둥번개</string>
+
+    <!-- 청음 기록 -->
+    <string name="diary">청음 기록</string>
+    <string name="diary_description">청취 기록 및 주간 요약 보기</string>
+    <string name="diary_empty">아직 기록이 없습니다</string>
+    <string name="diary_empty_hint">카운트다운 타이머로 사운드를 재생하면 자동으로 기록됩니다</string>
+    <string name="diary_clear_history_confirm">모든 청음 기록을 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.</string>
+    <string name="diary_summary_high_freq">이번 주 %1$d회 휴식했습니다 (총 %2$s)</string>
+    <string name="diary_summary_medium_freq">이번 주 %1$d회 휴식했습니다 (총 %2$s)</string>
+    <string name="diary_summary_low_freq">이번 주 %1$d회 휴식했습니다 (총 %2$s)</string>
+    <string name="diary_summary_top_sound">, "%1$s"이/가 가장 좋아하는 사운드입니다</string>
+    <string name="diary_duration_hours">%1$d시간 %2$d분</string>
+    <string name="diary_duration_minutes">%1$d분</string>
+    <string name="diary_stat_sessions">세션</string>
+    <string name="diary_stat_duration">시간</string>
+    <string name="diary_stat_favorite">즐겨찾기</string>
+
+    <!-- 개발자 편지 -->
+    <string name="developer_letter_title">개발자가 보내는 편지</string>
+    <string name="developer_letter_content">친애하는 친구에게,\n\n이 편지를 발견했다면, 제가 코드 속에 숨겨둔 마음이 전해졌기를 바랍니다.\n\nXMSLEEP는 단순한 기술 프로젝트가 아니었습니다. 빗소리, 모닥불, 키보드 소리를 들으며 보낸 수많은 밤, 당신을 위해 만들어낸 작은 안식처였습니다.\n\n삶은 때로 시끄럽고, 일은 바쁘고, 감정은 무거울 수 있습니다. 이 소리들이 당신에게 단 한 순간이라도 평화를 가져다줄 수 있다면, 그 모든 것이 가치 있었습니다.\n\nXMSLEEP를 사용해 주셔서 감사합니다. 이 작은 세상에 의미를 주셔서 감사합니다.\n\n오늘 밤 좋은 꿈 꾸세요.\n\n—— Tosencen</string>
 </resources>

@@ -596,4 +596,24 @@
     <string name="weather_option_heavy_snow">❄️ Сильный снег</string>
     <string name="weather_option_shower">🌧️ Ливень</string>
     <string name="weather_option_thunderstorm">⛈️ Гроза</string>
+
+    <!-- Дневник прослушивания -->
+    <string name="diary">Дневник прослушивания</string>
+    <string name="diary_description">Просмотр истории прослушивания и еженедельной сводки</string>
+    <string name="diary_empty">Ещё нет записей</string>
+    <string name="diary_empty_hint">После использования таймера для воспроизведения звуков, записи будут добавляться сюда автоматически</string>
+    <string name="diary_clear_history_confirm">Вы уверены, что хотите очистить дневник прослушивания? Это действие нельзя отменить.</string>
+    <string name="diary_summary_high_freq">На этой неделе вы расслабились %1$d раз (всего %2$s)</string>
+    <string name="diary_summary_medium_freq">На этой неделе вы расслабились %1$d раз (всего %2$s)</string>
+    <string name="diary_summary_low_freq">На этой неделе вы расслабились %1$d раз (всего %2$s)</string>
+    <string name="diary_summary_top_sound">, «%1$s» — ваш любимый звук</string>
+    <string name="diary_duration_hours">%1$dч %2$dмин</string>
+    <string name="diary_duration_minutes">%1$dмин</string>
+    <string name="diary_stat_sessions">Сеансы</string>
+    <string name="diary_stat_duration">Время</string>
+    <string name="diary_stat_favorite">Любимый</string>
+
+    <!-- Письмо разработчика -->
+    <string name="developer_letter_title">Письмо от разработчика</string>
+    <string name="developer_letter_content">Дорогой друг,\n\nЕсли ты нашёл это письмо, я надеюсь, ты чувствуешь тепло, которое я спрятал в коде.\n\nXMSLEEP никогда не был просто техническим проектом. Это маленькое убежище, которое я создавал для тебя бессчётными ночами, слушая звуки дождя, костра и клавиатуры.\n\nЖизнь бывает шумной. Работа — занятой. Эмоции — тяжёлыми. Если эти звуки смогут подарить тебе мгновение покоя — хотя бы несколько секунд — то всё это было не зря.\n\nСпасибо, что используешь XMSLEEP. Спасибо, что придаёшь этому маленькому миру смысл.\n\nЖелаю тебе спокойной ночи.\n\n—— Tosencen</string>
 </resources>

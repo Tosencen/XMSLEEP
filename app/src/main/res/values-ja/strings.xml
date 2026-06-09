@@ -596,4 +596,24 @@
     <string name="weather_option_heavy_snow">❄️ 大雪</string>
     <string name="weather_option_shower">🌧️ にわか雨</string>
     <string name="weather_option_thunderstorm">⛈️ 雷雨</string>
+
+    <!-- 聴音記録 -->
+    <string name="diary">聴音記録</string>
+    <string name="diary_description">聴取履歴と週間サマリーを表示</string>
+    <string name="diary_empty">まだ記録がありません</string>
+    <string name="diary_empty_hint">カウントダウンタイマーで音声を再生すると、ここに自動的に記録されます</string>
+    <string name="diary_clear_history_confirm">すべての聴音記録を消去してもよろしいですか？この操作は元に戻せません。</string>
+    <string name="diary_summary_high_freq">今週 %1$d 回リラックスしました（合計 %2$s）</string>
+    <string name="diary_summary_medium_freq">今週 %1$d 回リラックスしました（合計 %2$s）</string>
+    <string name="diary_summary_low_freq">今週 %1$d 回リラックスしました（合計 %2$s）</string>
+    <string name="diary_summary_top_sound">、「%1$s」が一番のお気に入りです</string>
+    <string name="diary_duration_hours">%1$d時間%2$d分</string>
+    <string name="diary_duration_minutes">%1$d分</string>
+    <string name="diary_stat_sessions">回数</string>
+    <string name="diary_stat_duration">時間</string>
+    <string name="diary_stat_favorite">お気に入り</string>
+
+    <!-- 開発者からの手紙 -->
+    <string name="developer_letter_title">開発者からの手紙</string>
+    <string name="developer_letter_content">親愛なるあなたへ\n\nこの手紙を見つけたとき、コードの中に隠した私の想いが届いていれば嬉しいです。\n\nXMSLEEP は、決して単なる技術プロジェクトではありませんでした。雨音やキャンプファイヤー、キーボードの音を聴きながら、数えきれない夜更かしの中で、あなたのために作り上げた小さな避難所です。\n\n人生は時に騒がしく、仕事は忙しく、心は重くなることもあります。もしこれらの音が、一瞬でも、ほんの数秒でも、あなたに安らぎをもたらすなら、それだけで全てに意味があります。\n\nXMSLEEP を使ってくれてありがとう。この小さな世界に意味をくれてありがとう。\n\nどうか今夜は良い眠りを。\n\n—— Tosencen</string>
 </resources>

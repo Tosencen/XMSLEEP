@@ -420,8 +420,7 @@ fun StarSkyScreen(
             Text(
                 text = context.getString(R.string.star_sky),
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.clickable { showDebugPanel = !showDebugPanel }
+                fontWeight = FontWeight.Bold
             )
             
             // 右侧按钮组

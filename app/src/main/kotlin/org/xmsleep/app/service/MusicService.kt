@@ -51,12 +51,10 @@ class MusicService : Service() {
             updateNotification()
         }
         
-        override fun onTimerFinished() {
-            // 倒计时结束，停止所有音频播放
+        override fun onTimerFinished(durationMinutes: Int) {
             audioManager.stopAllSounds()
             timeLeftText = null
             updateNotification()
-            // 停止服务
             stopForeground(true)
             stopSelf()
         }

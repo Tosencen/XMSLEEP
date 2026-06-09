@@ -51,6 +51,13 @@ interface XMSleepNavigator {
     fun navigateToFlipClock() {
         navController.navigate("flipclock")
     }
+
+    /**
+     * 导航到声音日记页面
+     */
+    fun navigateToDiary() {
+        navController.navigate("diary")
+    }
     
     /**
      * 导航到番茄时钟页面

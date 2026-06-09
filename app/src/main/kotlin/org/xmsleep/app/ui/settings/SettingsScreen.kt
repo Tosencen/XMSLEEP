@@ -72,10 +72,12 @@ fun SettingsScreen(
     onNavigateToSounds: () -> Unit = {},
     onNavigateToQuoteHistory: () -> Unit = {},
     onNavigateToFlipClock: () -> Unit = {},
+    onNavigateToDiary: () -> Unit = {},
     pinnedSounds: MutableState<MutableSet<AudioManager.Sound>>,
     locationPermissionLauncher: androidx.activity.compose.ManagedActivityResultLauncher<String, Boolean>,
     onScrollDetected: () -> Unit = {},
-    onContentHiddenChange: (Boolean) -> Unit = {}
+    onContentHiddenChange: (Boolean) -> Unit = {},
+    onShowDeveloperLetter: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -417,6 +419,26 @@ fun SettingsScreen(
                         )
                     },
                     onClick = onNavigateToQuoteHistory
+                ),
+                SettingsCategoryItem(
+                    icon = Icons.Default.GraphicEq,
+                    title = { Text(context.getString(R.string.diary)) },
+                    description = {
+                        Text(
+                            context.getString(R.string.diary_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    trailingContent = {
+                        Icon(
+                            Icons.Default.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    },
+                    onClick = { onNavigateToDiary() }
                 ),
                 SettingsCategoryItem(
                     icon = Icons.Default.SystemUpdate,
@@ -874,11 +896,12 @@ fun SettingsScreen(
 
         // 关于对话框
         if (showAboutDialog) {
-            AboutDialog(
-                onDismiss = { showAboutDialog = false },
-                currentLanguage = currentLanguage,
-                context = context
-            )
+                AboutDialog(
+                    onDismiss = { showAboutDialog = false },
+                    currentLanguage = currentLanguage,
+                    context = context,
+                    onShowDeveloperLetter = onShowDeveloperLetter
+                )
         }
     
         // 语言选择弹窗

@@ -3,6 +3,8 @@ package org.xmsleep.app.ui.components
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
@@ -15,6 +17,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import org.xmsleep.app.R
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.utils.Logger
@@ -26,7 +29,8 @@ import org.xmsleep.app.utils.Logger
 fun AboutDialog(
     onDismiss: () -> Unit,
     currentLanguage: LanguageManager.Language,
-    context: Context
+    context: Context,
+    onShowDeveloperLetter: () -> Unit = {}
 ) {
     val composeContext = LocalContext.current
     
@@ -57,6 +61,15 @@ fun AboutDialog(
         }
     }
     
+    var xmsleepTapCount by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(xmsleepTapCount) {
+        if (xmsleepTapCount > 0) {
+            delay(500)
+            xmsleepTapCount = 0
+        }
+    }
+
     // 使用key确保语言变化时重新组合
     key(currentLanguage) {
         AlertDialog(
@@ -76,7 +89,17 @@ fun AboutDialog(
                         Text(
                             "XMSLEEP",
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.clickable(
+                                interactionSource = remember { MutableInteractionSource() },
+                                indication = null
+                            ) {
+                                xmsleepTapCount++
+                                if (xmsleepTapCount >= 2) {
+                                    xmsleepTapCount = 0
+                                    onShowDeveloperLetter()
+                                }
+                            }
                         )
                         Text(
                             composeContext.getString(R.string.version, versionName, versionCodeInt),

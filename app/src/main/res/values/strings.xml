@@ -616,4 +616,24 @@
 
     <!-- MediaSession 锁屏副标题：超过 3 个声音时显示「其他 N 个」 -->
     <string name="aggregate_others_format">其他 %1$d 个</string>
+
+    <!-- 声音日记 -->
+    <string name="diary">声音日记</string>
+    <string name="diary_description">查看你的听音记录和每周总结</string>
+    <string name="diary_empty">还没有记录</string>
+    <string name="diary_empty_hint">设置倒计时播放声音后，会自动记录在这里</string>
+    <string name="diary_clear_history_confirm">确定要清空所有声音日记吗？此操作不可恢复。</string>
+    <string name="diary_summary_high_freq">这周你放松了 %1$d 次，共计 %2$s</string>
+    <string name="diary_summary_medium_freq">这周你放松了 %1$d 次，共计 %2$s</string>
+    <string name="diary_summary_low_freq">这周你放松了 %1$d 次，共计 %2$s</string>
+    <string name="diary_summary_top_sound">，「%1$s」是你的最爱</string>
+    <string name="diary_duration_hours">%1$d小时%2$d分钟</string>
+    <string name="diary_duration_minutes">%1$d分钟</string>
+    <string name="diary_stat_sessions">放松</string>
+    <string name="diary_stat_duration">时长</string>
+    <string name="diary_stat_favorite">最爱</string>
+
+    <!-- 开发者来信 -->
+    <string name="developer_letter_title">来自开发者的信</string>
+    <string name="developer_letter_content">亲爱的朋友：\n\n当你发现这封信时，希望你能感受到我藏在代码里的一点心意。\n\nXMSLEEP 从一开始就不只是一个技术项目。它是我在无数个深夜，听着雨声、篝火声、键盘声时，想要为你建造的一个小小的避风港。\n\n生活有时候很吵，工作很忙，情绪也会低落。如果这些声音能让你在某个瞬间感到平静，哪怕只是几秒钟，那这一切就是值得的。\n\n谢谢你使用 XMSLEEP，谢谢你让这个小小的世界有了意义。\n\n愿你今夜好眠。\n\n—— Tosencen</string>
 </resources>

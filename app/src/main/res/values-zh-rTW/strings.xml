@@ -578,4 +578,24 @@
     <string name="weather_option_heavy_snow">❄️ 大雪</string>
     <string name="weather_option_shower">🌧️ 陣雨</string>
     <string name="weather_option_thunderstorm">⛈️ 雷暴</string>
+
+    <!-- 聲音日記 -->
+    <string name="diary">聲音日記</string>
+    <string name="diary_description">查看你的聽音記錄和每週總結</string>
+    <string name="diary_empty">還沒有記錄</string>
+    <string name="diary_empty_hint">設定倒數計時播放聲音後，會自動記錄在這裡</string>
+    <string name="diary_clear_history_confirm">確定要清空所有聲音日記嗎？此操作不可恢復。</string>
+    <string name="diary_summary_high_freq">這週你放鬆了 %1$d 次，共計 %2$s</string>
+    <string name="diary_summary_medium_freq">這週你放鬆了 %1$d 次，共計 %2$s</string>
+    <string name="diary_summary_low_freq">這週你放鬆了 %1$d 次，共計 %2$s</string>
+    <string name="diary_summary_top_sound">，「%1$s」是你的最愛</string>
+    <string name="diary_duration_hours">%1$d小時%2$d分鐘</string>
+    <string name="diary_duration_minutes">%1$d分鐘</string>
+    <string name="diary_stat_sessions">放鬆</string>
+    <string name="diary_stat_duration">時長</string>
+    <string name="diary_stat_favorite">最愛</string>
+
+    <!-- 開發者來信 -->
+    <string name="developer_letter_title">來自開發者的信</string>
+    <string name="developer_letter_content">親愛的朋友：\n\n當你發現這封信時，希望你能感受到我藏在程式碼裡的一點心意。\n\nXMSLEEP 從一開始就不只是一個技術專案。它是我在無數個深夜，聽著雨聲、營火聲、鍵盤聲時，想要為你建造的一個小小的避風港。\n\n生活有時候很吵，工作很忙，情緒也會低落。如果這些聲音能讓你在某個瞬間感到平靜，哪怕只是幾秒鐘，那這一切都是值得的。\n\n謝謝你使用 XMSLEEP，謝謝你讓這個小小的世界有了意義。\n\n願你今夜好眠。\n\n—— Tosencen</string>
 </resources>

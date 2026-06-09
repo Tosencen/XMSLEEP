@@ -596,4 +596,24 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="weather_option_heavy_snow">❄️ Heavy Snow</string>
     <string name="weather_option_shower">🌧️ Shower</string>
     <string name="weather_option_thunderstorm">⛈️ Thunderstorm</string>
+
+    <!-- Listening Diary -->
+    <string name="diary">Listening Diary</string>
+    <string name="diary_description">View your listening history and weekly summary</string>
+    <string name="diary_empty">No entries yet</string>
+    <string name="diary_empty_hint">After using the countdown timer to play sounds, entries will be recorded here automatically</string>
+    <string name="diary_clear_history_confirm">Are you sure you want to clear all diary entries? This action cannot be undone.</string>
+    <string name="diary_summary_high_freq">This week you relaxed %1$d times, totaling %2$s</string>
+    <string name="diary_summary_medium_freq">This week you relaxed %1$d times, totaling %2$s</string>
+    <string name="diary_summary_low_freq">This week you relaxed %1$d times, totaling %2$s</string>
+    <string name="diary_summary_top_sound">, "%1$s" is your favorite</string>
+    <string name="diary_duration_hours">%1$dh %2$dm</string>
+    <string name="diary_duration_minutes">%1$dm</string>
+    <string name="diary_stat_sessions">Sessions</string>
+    <string name="diary_stat_duration">Duration</string>
+    <string name="diary_stat_favorite">Favorite</string>
+
+    <!-- Developer's Letter -->
+    <string name="developer_letter_title">A Letter from the Developer</string>
+    <string name="developer_letter_content">Dear friend,\n\nIf you\'ve found this letter, I hope you can feel the warmth I\'ve hidden in the code.\n\nXMSLEEP was never just a technical project. It was a little sanctuary I built for you during countless late nights, listening to rain, campfires, and the sound of keyboards.\n\nLife can be noisy. Work can be busy. Emotions can feel heavy. If these sounds can bring you even a moment of peace — just a few seconds — then all of this has been worth it.\n\nThank you for using XMSLEEP. Thank you for giving this little world meaning.\n\nWishing you a peaceful night.\n\n—— Tosencen</string>
 </resources>

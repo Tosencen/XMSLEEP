@@ -383,6 +383,7 @@ fun SoundsScreen(
     onNavigateToFlipClock: () -> Unit = {},
     onScrollDetected: () -> Unit = {},
     onQuickPlayExpand: () -> Unit = {},
+    onShowDeveloperLetter: () -> Unit = {},
     updateViewModel: UpdateViewModel? = null,
     hazeState: dev.chrisbanes.haze.HazeState? = null,
     contentAlpha: Float = 1f, // 内容透明度（用于禁用点击）
@@ -689,12 +690,9 @@ fun SoundsScreen(
                 // 状态已通过StateFlow更新，这里不需要额外操作
             }
             
-            override fun onTimerFinished() {
-                // 倒计时自然结束，立即停止所有声音播放（本地和远程）
-                // 使用 runBlocking 确保在主线程同步执行，避免异步延迟导致的问题
+            override fun onTimerFinished(durationMinutes: Int) {
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
                     try {
-                        // 停止所有声音（同步执行，确保立即生效）
                         audioManager.stopAllSounds()
                         
                         // 立即更新所有本地声音播放状态
@@ -811,7 +809,11 @@ fun SoundsScreen(
                 Text(
                     text = healingQuote,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    modifier = Modifier.clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) { onShowDeveloperLetter() }
                 )
             }
             
@@ -905,7 +907,8 @@ fun SoundsScreen(
                             currentWeather = currentWeather,
                             remoteSounds = remoteSounds,
                             context = context,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            onQuoteClick = onShowDeveloperLetter
                         )
                     }
                 }

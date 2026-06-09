@@ -1,5 +1,7 @@
 package org.xmsleep.app.ui
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.horizontalScroll
@@ -38,7 +40,8 @@ fun WeatherCard(
     currentWeather: WeatherData?,
     remoteSounds: List<SoundMetadata>,
     context: android.content.Context,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onQuoteClick: () -> Unit = {}
 ) {
     // 加载中占位状态
     if (currentWeather == null) {
@@ -227,7 +230,11 @@ fun WeatherCard(
                 text = weatherQuote,
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSecondaryContainer,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                modifier = Modifier.clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null
+                ) { onQuoteClick() }
             )
             
             // 推荐音频区域 - 展示所有推荐音频名称（可横向滚动）
