@@ -215,20 +215,20 @@ fun ManualWeatherSelectorDialog(
 ) {
     val context = LocalContext.current
     val weatherOptions = listOf(
-        0 to "☀️ 晴天",
-        1 to "⛅ 晴间多云",
-        2 to "⛅ 多云",
-        3 to "☁️ 阴",
-        45 to "🌫️ 雾",
-        51 to "🌧️ 小雾",
-        61 to "🌧️ 小雨",
-        63 to "🌧️ 中雨",
-        65 to "🌧️ 大雨",
-        71 to "❄️ 小雪",
-        73 to "❄️ 中雪",
-        75 to "❄️ 大雪",
-        80 to "🌧️ 阵雨",
-        95 to "⛈️ 雷暴"
+        0 to context.getString(R.string.weather_option_sunny),
+        1 to context.getString(R.string.weather_option_partly_cloudy),
+        2 to context.getString(R.string.weather_option_cloudy),
+        3 to context.getString(R.string.weather_option_overcast),
+        45 to context.getString(R.string.weather_option_foggy),
+        51 to context.getString(R.string.weather_option_light_drizzle),
+        61 to context.getString(R.string.weather_option_light_rain),
+        63 to context.getString(R.string.weather_option_moderate_rain),
+        65 to context.getString(R.string.weather_option_heavy_rain),
+        71 to context.getString(R.string.weather_option_light_snow),
+        73 to context.getString(R.string.weather_option_moderate_snow),
+        75 to context.getString(R.string.weather_option_heavy_snow),
+        80 to context.getString(R.string.weather_option_shower),
+        95 to context.getString(R.string.weather_option_thunderstorm)
     )
     
     AlertDialog(

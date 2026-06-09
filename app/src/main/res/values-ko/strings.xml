@@ -96,6 +96,7 @@
     <string name="switch_to_dark_mode">다크 모드로 전환</string>
     <string name="switch_to_3_columns">3열로 전환</string>
     <string name="switch_to_2_columns">2열로 전환</string>
+    <string name="switch_to_slide_layout">슬라이드 레이아웃으로 전환</string>
     <string name="pause">일시 정지</string>
     <string name="play">재생</string>
     <string name="now_playing">현재 재생 중</string>
@@ -172,6 +173,8 @@
     <string name="open_github_description">프로젝트 소스 코드 보기</string>
     <string name="join_telegram">Telegram 그룹 참여</string>
     <string name="join_telegram_description">의견 공유하기</string>
+    <string name="join_qq">QQ 그룹 가입</string>
+    <string name="join_qq_description">QQ 그룹에서 피드백 공유</string>
     <string name="load_failed">로드 실패: %1$s</string>
     <string name="all_categories">전체</string>
     <string name="privacy_policy_title">개인정보 처리방침</string>
@@ -542,6 +545,48 @@
     <string name="auto_play_on_start_description">앱 시작 시 마지막으로 사용한 프리셋 오디오 자동 재생</string>
     <string name="auto_play_need_preset_tip">프리셋 모듈에 먼저 오디오를 추가해 주세요</string>
     <string name="tip">알림</string>
+
     <!-- MediaSession 잠금화면 부제 -->
     <string name="aggregate_others_format">외 %1$d개</string>
+
+    <!-- Keep screen on -->
+    <string name="keep_screen_on">화면 켜기 유지</string>
+    <string name="screen_on_enabled">화면 켜기 활성화됨</string>
+    <string name="screen_on_disabled">화면 켜기 비활성화됨</string>
+    <string name="screen_on_description">호흡 운동 중 화면 자동 잠금 방지</string>
+    <string name="tutorial">튜토리얼</string>
+    
+    <!-- Common prompts -->
+    <string name="volume_adjusted">볼륨 조절됨</string>
+    <string name="play_failed_no_audio_file">재생 실패: 오디오 파일을 가져올 수 없습니다</string>
+    <string name="play_failed">재생 실패: %1$s</string>
+    <string name="load_quote_failed">명언 로드 실패</string>
+    <string name="log_copied_to_clipboard">로그가 클립보드에 복사됨</string>
+    <string name="share_failed">공유 실패: %1$s</string>
+    <string name="save_failed">저장 실패: %1$s</string>
+    <string name="storage_permission_required_for_save">이미지를 저장하려면 저장소 권한이 필요합니다</string>
+    <string name="saved_to_gallery">갤러리에 저장됨</string>
+    <string name="unable_to_open_link">링크를 열 수 없습니다</string>
+    <string name="unable_to_open_link_check_telegram">링크를 열 수 없습니다. Telegram이나 브라우저가 설치되어 있는지 확인하세요</string>
+    
+    <!-- Audio import permission dialog -->
+    <string name="audio_file_access_permission_title">오디오 파일 접근 권한 필요</string>
+    <string name="audio_file_access_permission_description">자신만의 오디오 파일을 가져와 사용하려면 앱이 기기의 오디오 파일에 접근해야 합니다.\n\n귀하의 개인정보는 중요하며, 선택하신 오디오 파일만 접근합니다.</string>
+    <string name="cd_import_audio">오디오 가져오기</string>
+    
+    <!-- Weather manual selection -->
+    <string name="weather_option_sunny">☀️ 맑음</string>
+    <string name="weather_option_partly_cloudy">⛅ 구름 조금</string>
+    <string name="weather_option_cloudy">⛅ 흐림</string>
+    <string name="weather_option_overcast">☁️ 흐림</string>
+    <string name="weather_option_foggy">🌫️ 안개</string>
+    <string name="weather_option_light_drizzle">🌧️ 가벼운 이슬비</string>
+    <string name="weather_option_light_rain">🌧️ 가벼운 비</string>
+    <string name="weather_option_moderate_rain">🌧️ 보통 비</string>
+    <string name="weather_option_heavy_rain">🌧️ 강한 비</string>
+    <string name="weather_option_light_snow">❄️ 가벼운 눈</string>
+    <string name="weather_option_moderate_snow">❄️ 보통 눈</string>
+    <string name="weather_option_heavy_snow">❄️ 강한 눈</string>
+    <string name="weather_option_shower">🌧️ 소나기</string>
+    <string name="weather_option_thunderstorm">⛈️ 천둥번개</string>
 </resources>

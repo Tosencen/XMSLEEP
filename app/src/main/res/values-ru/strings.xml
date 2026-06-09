@@ -12,7 +12,7 @@
     <string name="select_language">Выберите язык</string>
     <string name="white_noise">Белый шум</string>
     <string name="breathing">Дыхание</string>
-    <string name="star_sky">Звёздное небо</string>
+    <string name="star_sky">Звёзды</string>
     <string name="star_sky_more_sounds_hint">Здесь появятся другие звуки</string>
     <string name="settings">Настройки</string>
     <string name="theme_and_colors">Тема и цвета</string>
@@ -99,6 +99,7 @@
     <string name="switch_to_dark_mode">Переключиться на тёмный режим</string>
     <string name="switch_to_3_columns">Переключиться на 3 столбца</string>
     <string name="switch_to_2_columns">Переключиться на 2 столбца</string>
+    <string name="switch_to_slide_layout">Переключиться на слайд-макет</string>
     <string name="pause">Пауза</string>
     <string name="play">Воспроизвести</string>
     <string name="now_playing">Сейчас играет</string>
@@ -175,6 +176,8 @@
     <string name="open_github_description">Исходный код проекта</string>
     <string name="join_telegram">Telegram</string>
     <string name="join_telegram_description">Поделитесь своими мыслями</string>
+    <string name="join_qq">Вступить в QQ группу</string>
+    <string name="join_qq_description">Присоединяйтесь к нашей QQ группе</string>
     <string name="load_failed">Ошибка загрузки: %1$s</string>
     <string name="all_categories">Все</string>
     <string name="privacy_policy_title">Политика конфиденциальности</string>
@@ -549,6 +552,48 @@
     <string name="auto_play_on_start_description">Автоматически воспроизводить последний использованный пресет при запуске приложения</string>
     <string name="auto_play_need_preset_tip">Пожалуйста, сначала добавьте аудио в пресет</string>
     <string name="tip">Подсказка</string>
+
     <!-- MediaSession aggregate subtitle -->
     <string name="aggregate_others_format">и ещё %1$d</string>
+
+    <!-- Keep screen on -->
+    <string name="keep_screen_on">Экран включён</string>
+    <string name="screen_on_enabled">Экран включён</string>
+    <string name="screen_on_disabled">Экран выключен</string>
+    <string name="screen_on_description">Держать экран включённым во время дыхательных упражнений</string>
+    <string name="tutorial">Руководство</string>
+    
+    <!-- Common prompts -->
+    <string name="volume_adjusted">Громкость отрегулирована</string>
+    <string name="play_failed_no_audio_file">Ошибка воспроизведения: не удалось получить аудиофайл</string>
+    <string name="play_failed">Ошибка воспроизведения: %1$s</string>
+    <string name="load_quote_failed">Не удалось загрузить цитату</string>
+    <string name="log_copied_to_clipboard">Журнал скопирован в буфер обмена</string>
+    <string name="share_failed">Ошибка отправки: %1$s</string>
+    <string name="save_failed">Ошибка сохранения: %1$s</string>
+    <string name="storage_permission_required_for_save">Для сохранения изображения необходимо разрешение на хранение</string>
+    <string name="saved_to_gallery">Сохранено в галерею</string>
+    <string name="unable_to_open_link">Не удалось открыть ссылку</string>
+    <string name="unable_to_open_link_check_telegram">Не удалось открыть ссылку, проверьте, установлен ли Telegram или браузер</string>
+    
+    <!-- Audio import permission dialog -->
+    <string name="audio_file_access_permission_title">Требуется разрешение на доступ к аудиофайлам</string>
+    <string name="audio_file_access_permission_description">Для импорта и использования собственных аудиофайлов приложению необходим доступ к аудиофайлам на вашем устройстве.\n\nВаша конфиденциальность важна, мы обращаемся только к аудиофайлам, которые вы выбираете.</string>
+    <string name="cd_import_audio">Импорт аудио</string>
+    
+    <!-- Weather manual selection -->
+    <string name="weather_option_sunny">☀️ Солнечно</string>
+    <string name="weather_option_partly_cloudy">⛅ Переменная облачность</string>
+    <string name="weather_option_cloudy">⛅ Облачно</string>
+    <string name="weather_option_overcast">☁️ Пасмурно</string>
+    <string name="weather_option_foggy">🌫️ Туман</string>
+    <string name="weather_option_light_drizzle">🌧️ Лёгкая морось</string>
+    <string name="weather_option_light_rain">🌧️ Небольшой дождь</string>
+    <string name="weather_option_moderate_rain">🌧️ Умеренный дождь</string>
+    <string name="weather_option_heavy_rain">🌧️ Сильный дождь</string>
+    <string name="weather_option_light_snow">❄️ Небольшой снег</string>
+    <string name="weather_option_moderate_snow">❄️ Умеренный снег</string>
+    <string name="weather_option_heavy_snow">❄️ Сильный снег</string>
+    <string name="weather_option_shower">🌧️ Ливень</string>
+    <string name="weather_option_thunderstorm">⛈️ Гроза</string>
 </resources>

@@ -101,6 +101,7 @@
     <string name="switch_to_dark_mode">切换到深色模式</string>
     <string name="switch_to_3_columns">切换为3列</string>
     <string name="switch_to_2_columns">切换为2列</string>
+    <string name="switch_to_slide_layout">切换为滑动布局</string>
     <string name="pause">暂停</string>
     <string name="play">播放</string>
     <string name="now_playing">正在播放</string>
@@ -198,6 +199,8 @@
     <string name="open_github_description">查看项目源码</string>
     <string name="join_telegram">加入Telegram群聊</string>
     <string name="join_telegram_description">来表达你的想法</string>
+    <string name="join_qq">加入QQ群</string>
+    <string name="join_qq_description">加入QQ群交流反馈</string>
     <string name="load_failed">加载失败: %1$s</string>
     <string name="all_categories">全部</string>
     <string name="privacy_policy_title">隐私政策</string>
@@ -576,6 +579,40 @@
     <string name="auto_play_on_start_description">应用启动时自动播放上次使用的预设音频</string>
     <string name="auto_play_need_preset_tip">请先在预设模块中添加音频</string>
     <string name="tip">提示</string>
+
+    <!-- 通用提示 -->
+    <string name="volume_adjusted">音量已调节</string>
+    <string name="play_failed_no_audio_file">播放失败: 无法获取音频文件</string>
+    <string name="play_failed">播放失败: %1$s</string>
+    <string name="load_quote_failed">加载名句失败</string>
+    <string name="log_copied_to_clipboard">日志已复制到剪贴板</string>
+    <string name="share_failed">分享失败: %1$s</string>
+    <string name="save_failed">保存失败: %1$s</string>
+    <string name="storage_permission_required_for_save">需要存储权限才能保存图片</string>
+    <string name="saved_to_gallery">已保存到相册</string>
+    <string name="unable_to_open_link">无法打开链接</string>
+    <string name="unable_to_open_link_check_telegram">无法打开链接，请检查是否安装了Telegram或浏览器</string>
+    
+    <!-- 音频导入权限弹窗 -->
+    <string name="audio_file_access_permission_title">需要音频文件访问权限</string>
+    <string name="audio_file_access_permission_description">为了让您能够导入和使用自己的音频文件，应用需要访问您设备上的音频文件。\n\n您的隐私很重要，我们只会访问您主动选择的音频文件。</string>
+    <string name="cd_import_audio">导入音频</string>
+
+    <!-- 天气手动选择 -->
+    <string name="weather_option_sunny">☀️ 晴天</string>
+    <string name="weather_option_partly_cloudy">⛅ 晴间多云</string>
+    <string name="weather_option_cloudy">⛅ 多云</string>
+    <string name="weather_option_overcast">☁️ 阴</string>
+    <string name="weather_option_foggy">🌫️ 雾</string>
+    <string name="weather_option_light_drizzle">🌧️ 小雾</string>
+    <string name="weather_option_light_rain">🌧️ 小雨</string>
+    <string name="weather_option_moderate_rain">🌧️ 中雨</string>
+    <string name="weather_option_heavy_rain">🌧️ 大雨</string>
+    <string name="weather_option_light_snow">❄️ 小雪</string>
+    <string name="weather_option_moderate_snow">❄️ 中雪</string>
+    <string name="weather_option_heavy_snow">❄️ 大雪</string>
+    <string name="weather_option_shower">🌧️ 阵雨</string>
+    <string name="weather_option_thunderstorm">⛈️ 雷暴</string>
 
     <!-- MediaSession 锁屏副标题：超过 3 个声音时显示「其他 N 个」 -->
     <string name="aggregate_others_format">其他 %1$d 个</string>

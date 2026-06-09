@@ -443,7 +443,7 @@ fun StarSkyScreen(
                                 val quoteManager = org.xmsleep.app.quote.QuoteManager.getInstance(context)
                                 dailyQuote = quoteManager.getTodayQuote()
                             } catch (e: Exception) {
-                                Toast.makeText(context, "加载名句失败", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.load_quote_failed), Toast.LENGTH_SHORT).show()
                                 showDailyQuoteDialog = false
                             } finally {
                                 isLoadingQuote = false
@@ -522,7 +522,7 @@ fun StarSkyScreen(
                                 val clipboardManager = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                                 val clip = android.content.ClipData.newPlainText("调试日志", debugLogs.joinToString("\n"))
                                 clipboardManager.setPrimaryClip(clip)
-                                Toast.makeText(context, "日志已复制到剪贴板", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(context, context.getString(R.string.log_copied_to_clipboard), Toast.LENGTH_SHORT).show()
                             },
                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
                         ) {
@@ -852,7 +852,7 @@ fun StarSkyScreen(
                                                         playingSounds = playingSounds + sound.id
                                                     } else {
                                                         Logger.e("StarSkyScreen", "下载完成后无法获取URI: ${sound.id}")
-                                                        Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
+                                                        Toast.makeText(context, context.getString(R.string.play_failed_no_audio_file), Toast.LENGTH_SHORT).show()
                                                     }
                                                     return@collect
                                                 }
@@ -880,7 +880,7 @@ fun StarSkyScreen(
                                     }
                                 } catch (e: Exception) {
                                     Logger.e("StarSkyScreen", "播放失败: ${e.message}")
-                                    Toast.makeText(context, "播放失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, context.getString(R.string.play_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
                                 }
                             }
                                             },
@@ -1005,7 +1005,7 @@ fun StarSkyScreen(
                                                             playingSounds = playingSounds + sound.id
                                                         } else {
                                                             Logger.e("StarSkyScreen", "下载完成后无法获取URI: ${sound.id}")
-                                                            Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
+                                                            Toast.makeText(context, context.getString(R.string.play_failed_no_audio_file), Toast.LENGTH_SHORT).show()
                                                         }
                                                         return@collect
                                                     }
@@ -1033,7 +1033,7 @@ fun StarSkyScreen(
                                         }
                                     } catch (e: Exception) {
                                         Logger.e("StarSkyScreen", "播放失败: ${e.message}")
-                                        Toast.makeText(context, "播放失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.play_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
                                     }
                                 }
                             },
@@ -1136,7 +1136,7 @@ fun StarSkyScreen(
                 confirmButton = {
                     TextButton(onClick = { 
                         showVolumeDialog = false
-                        Toast.makeText(context, "音量已调节", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, context.getString(R.string.volume_adjusted), Toast.LENGTH_SHORT).show()
                     }) {
                         Text(context.getString(R.string.ok))
                     }

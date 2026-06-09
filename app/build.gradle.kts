@@ -3,6 +3,9 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.google.dagger.hilt.android")
+    id("org.jetbrains.kotlin.kapt")
+    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -13,8 +16,8 @@ android {
         applicationId = "org.xmsleep.app"
         minSdk = 26
         targetSdk = 35
-		versionCode = 38
-		versionName = "2.2.3"
+		versionCode = 39
+		versionName = "2.2.4"
         
         // 只保留 arm64-v8a 架构以减小 APK 体积（现代设备都支持）
         ndk {
@@ -109,6 +112,10 @@ android {
         // Disables dependency metadata when building Android App Bundles (for Google Play)
         includeInBundle = false
     }
+    
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
 }
 
 dependencies {
@@ -133,6 +140,11 @@ dependencies {
     
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    
+    // Hilt - 依赖注入
+    implementation("com.google.dagger:hilt-android:2.53.1")
+    kapt("com.google.dagger:hilt-android-compiler:2.53.1")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
     
     // MaterialKolor - 动态主题色生成
     implementation("com.materialkolor:material-kolor:2.0.2")
@@ -173,6 +185,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    testImplementation("com.google.dagger:hilt-android-testing:2.53.1")
+    kaptTest("com.google.dagger:hilt-android-compiler:2.53.1")
     
     // Android Testing
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -180,5 +194,7 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
+    androidTestImplementation("com.google.dagger:hilt-android-testing:2.53.1")
+    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.53.1")
 }
 

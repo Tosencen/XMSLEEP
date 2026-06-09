@@ -96,6 +96,7 @@
     <string name="switch_to_dark_mode">切換到深色模式</string>
     <string name="switch_to_3_columns">切換為3列</string>
     <string name="switch_to_2_columns">切換為2列</string>
+    <string name="switch_to_slide_layout">切換為滑動佈局</string>
     <string name="pause">暫停</string>
     <string name="play">播放</string>
     <string name="now_playing">正在播放</string>
@@ -191,6 +192,8 @@
     <string name="open_github_description">查看項目原始碼</string>
     <string name="join_telegram">加入Telegram群聊</string>
     <string name="join_telegram_description">來表達你的想法</string>
+    <string name="join_qq">加入QQ群</string>
+    <string name="join_qq_description">加入QQ群交流反饋</string>
     <string name="load_failed">載入失敗: %1$s</string>
     <string name="all_categories">全部</string>
     <string name="privacy_policy_title">隱私政策</string>
@@ -531,6 +534,48 @@
     <string name="auto_play_on_start_description">應用啟動時自動播放上次使用的預設音頻</string>
     <string name="auto_play_need_preset_tip">請先在預設模組中添加音頻</string>
     <string name="tip">提示</string>
+
     <!-- MediaSession 鎖屏副標題 -->
     <string name="aggregate_others_format">其他 %1$d 個</string>
+
+    <!-- Keep screen on -->
+    <string name="keep_screen_on">保持螢幕常亮</string>
+    <string name="screen_on_enabled">螢幕常亮已開啟</string>
+    <string name="screen_on_disabled">螢幕常亮已關閉</string>
+    <string name="screen_on_description">呼吸練習期間保持螢幕常亮，避免自動鎖屏</string>
+    <string name="tutorial">教程</string>
+    
+    <!-- Common prompts -->
+    <string name="volume_adjusted">音量已調節</string>
+    <string name="play_failed_no_audio_file">播放失敗：無法取得音訊檔案</string>
+    <string name="play_failed">播放失敗：%1$s</string>
+    <string name="load_quote_failed">載入名言失敗</string>
+    <string name="log_copied_to_clipboard">日誌已複製到剪貼簿</string>
+    <string name="share_failed">分享失敗：%1$s</string>
+    <string name="save_failed">儲存失敗：%1$s</string>
+    <string name="storage_permission_required_for_save">儲存圖片需要儲存權限</string>
+    <string name="saved_to_gallery">已儲存到相簿</string>
+    <string name="unable_to_open_link">無法開啟連結</string>
+    <string name="unable_to_open_link_check_telegram">無法開啟連結，請檢查是否安裝了 Telegram 或瀏覽器</string>
+    
+    <!-- Audio import permission dialog -->
+    <string name="audio_file_access_permission_title">需要音訊檔案存取權限</string>
+    <string name="audio_file_access_permission_description">為了讓您能夠匯入和使用自己的音訊檔案，應用需要存取您裝置上的音訊檔案。\n\n您的隱私很重要，我們只會存取您主動選擇的音訊檔案。</string>
+    <string name="cd_import_audio">匯入音訊</string>
+    
+    <!-- Weather manual selection -->
+    <string name="weather_option_sunny">☀️ 晴天</string>
+    <string name="weather_option_partly_cloudy">⛅ 晴時多雲</string>
+    <string name="weather_option_cloudy">⛅ 多雲</string>
+    <string name="weather_option_overcast">☁️ 陰天</string>
+    <string name="weather_option_foggy">🌫️ 霧</string>
+    <string name="weather_option_light_drizzle">🌧️ 輕霧</string>
+    <string name="weather_option_light_rain">🌧️ 小雨</string>
+    <string name="weather_option_moderate_rain">🌧️ 中雨</string>
+    <string name="weather_option_heavy_rain">🌧️ 大雨</string>
+    <string name="weather_option_light_snow">❄️ 小雪</string>
+    <string name="weather_option_moderate_snow">❄️ 中雪</string>
+    <string name="weather_option_heavy_snow">❄️ 大雪</string>
+    <string name="weather_option_shower">🌧️ 陣雨</string>
+    <string name="weather_option_thunderstorm">⛈️ 雷暴</string>
 </resources>

@@ -82,16 +82,17 @@ object LanguageManager {
     
     /**
      * 创建语言化的Context（用于实时更新语言）
+     * 使用 Application Context 的配置作为基础，避免嵌套 ConfigurationContext 带来的资源缓存问题
      */
     fun createLocalizedContext(context: Context, language: Language): Context {
-        val config = Configuration(context.resources.configuration)
-        config.setLocale(language.locale)
+        val appConfig = Configuration(context.applicationContext.resources.configuration)
+        appConfig.setLocale(language.locale)
         
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context.createConfigurationContext(config)
+            context.createConfigurationContext(appConfig)
         } else {
             @Suppress("DEPRECATION")
-            context.resources.updateConfiguration(config, context.resources.displayMetrics)
+            context.resources.updateConfiguration(appConfig, context.resources.displayMetrics)
             context
         }
     }

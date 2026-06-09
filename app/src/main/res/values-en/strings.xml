@@ -99,6 +99,7 @@
     <string name="switch_to_dark_mode">Switch to Dark Mode</string>
     <string name="switch_to_3_columns">Switch to 3 Columns</string>
     <string name="switch_to_2_columns">Switch to 2 Columns</string>
+    <string name="switch_to_slide_layout">Switch to Slide Layout</string>
     <string name="pause">Pause</string>
     <string name="play">Play</string>
     <string name="now_playing">Now Playing</string>
@@ -175,6 +176,8 @@
     <string name="open_github_description">View project source code</string>
     <string name="join_telegram">Join Telegram Group</string>
     <string name="join_telegram_description">Share your thoughts</string>
+    <string name="join_qq">Join QQ Group</string>
+    <string name="join_qq_description">Join our QQ group for feedback</string>
     <string name="load_failed">Load failed: %1$s</string>
     <string name="all_categories">All</string>
     <string name="privacy_policy_title">Privacy Policy</string>
@@ -552,4 +555,45 @@ If you have any questions, please contact us through the in-app contact method.<
 
     <!-- MediaSession aggregate subtitle -->
     <string name="aggregate_others_format">+%1$d more</string>
+
+    <!-- Keep screen on -->
+    <string name="keep_screen_on">Keep Screen On</string>
+    <string name="screen_on_enabled">Screen On Enabled</string>
+    <string name="screen_on_disabled">Screen On Disabled</string>
+    <string name="screen_on_description">Keep screen on during breathing exercises to prevent auto lock</string>
+    <string name="tutorial">Tutorial</string>
+    
+    <!-- Common prompts -->
+    <string name="volume_adjusted">Volume Adjusted</string>
+    <string name="play_failed_no_audio_file">Play failed: Unable to get audio file</string>
+    <string name="play_failed">Play failed: %1$s</string>
+    <string name="load_quote_failed">Failed to load quote</string>
+    <string name="log_copied_to_clipboard">Log copied to clipboard</string>
+    <string name="share_failed">Share failed: %1$s</string>
+    <string name="save_failed">Save failed: %1$s</string>
+    <string name="storage_permission_required_for_save">Storage permission required to save image</string>
+    <string name="saved_to_gallery">Saved to gallery</string>
+    <string name="unable_to_open_link">Unable to open link</string>
+    <string name="unable_to_open_link_check_telegram">Unable to open link, please check if Telegram or browser is installed</string>
+    
+    <!-- Audio import permission dialog -->
+    <string name="audio_file_access_permission_title">Audio File Access Permission Required</string>
+    <string name="audio_file_access_permission_description">To import and use your own audio files, the app needs to access audio files on your device.\n\nYour privacy is important, we only access audio files you actively select.</string>
+    <string name="cd_import_audio">Import Audio</string>
+    
+    <!-- Weather manual selection -->
+    <string name="weather_option_sunny">☀️ Sunny</string>
+    <string name="weather_option_partly_cloudy">⛅ Partly Cloudy</string>
+    <string name="weather_option_cloudy">⛅ Cloudy</string>
+    <string name="weather_option_overcast">☁️ Overcast</string>
+    <string name="weather_option_foggy">🌫️ Foggy</string>
+    <string name="weather_option_light_drizzle">🌧️ Light Drizzle</string>
+    <string name="weather_option_light_rain">🌧️ Light Rain</string>
+    <string name="weather_option_moderate_rain">🌧️ Moderate Rain</string>
+    <string name="weather_option_heavy_rain">🌧️ Heavy Rain</string>
+    <string name="weather_option_light_snow">❄️ Light Snow</string>
+    <string name="weather_option_moderate_snow">❄️ Moderate Snow</string>
+    <string name="weather_option_heavy_snow">❄️ Heavy Snow</string>
+    <string name="weather_option_shower">🌧️ Shower</string>
+    <string name="weather_option_thunderstorm">⛈️ Thunderstorm</string>
 </resources>

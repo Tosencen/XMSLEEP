@@ -32,12 +32,17 @@ import org.xmsleep.app.utils.ThemeColorExtractor
 import org.xmsleep.app.crash.CrashHandler
 import org.xmsleep.app.crash.getCrashInfo
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import org.xmsleep.app.ui.viewmodel.MainViewModel
+import org.xmsleep.app.ui.viewmodel.SoundsViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * XMSLEEP 主Activity
  * 负责应用启动、权限请求和主题配置
  */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     
     override fun attachBaseContext(newBase: Context?) {
@@ -271,6 +276,10 @@ fun XMSLEEPApp() {
         useDynamicColor = useDynamicColor,
         useBlackBackground = useBlackBackground
     ) {
+        // 在 CompositionLocalProvider 之前创建 ViewModel，保留 Activity context
+        val mainViewModel: MainViewModel = hiltViewModel()
+        val soundsViewModel: SoundsViewModel = hiltViewModel()
+        
         // 使用CompositionLocalProvider提供语言化的Context和Configuration
         CompositionLocalProvider(
             LocalContext provides localizedContext,
@@ -366,7 +375,9 @@ fun XMSLEEPApp() {
                         soundCardsColumnsCount = it
                         org.xmsleep.app.preferences.PreferencesManager.saveSoundCardsColumnsCount(context, it)
                     },
-                    paletteColors = paletteColors
+                    paletteColors = paletteColors,
+                    mainViewModel = mainViewModel,
+                    soundsViewModel = soundsViewModel
                 )
             }
         }

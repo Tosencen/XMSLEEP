@@ -6,6 +6,9 @@ import androidx.compose.ui.graphics.Color
 import org.xmsleep.app.Constants
 import org.xmsleep.app.theme.DarkModeOption
 import org.xmsleep.app.utils.Logger
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * 应用偏好设置管理器
@@ -48,6 +51,37 @@ object PreferencesManager {
     private val KEY_SHOW_RECENT_PLAY_DIALOG = Constants.PrefsKeys.SHOW_RECENT_PLAY_DIALOG
     private val KEY_AUTO_PLAY_ON_START = Constants.PrefsKeys.AUTO_PLAY_ON_START
     private val KEY_QUOTE_WIDGET_ADDED = Constants.PrefsKeys.QUOTE_WIDGET_ADDED
+
+    // 响应式状态：预设远程固定列表
+    private val _preset1RemotePinned = MutableStateFlow<Set<String>>(emptySet())
+    val preset1RemotePinned: StateFlow<Set<String>> = _preset1RemotePinned.asStateFlow()
+
+    private val _preset2RemotePinned = MutableStateFlow<Set<String>>(emptySet())
+    val preset2RemotePinned: StateFlow<Set<String>> = _preset2RemotePinned.asStateFlow()
+
+    private val _preset3RemotePinned = MutableStateFlow<Set<String>>(emptySet())
+    val preset3RemotePinned: StateFlow<Set<String>> = _preset3RemotePinned.asStateFlow()
+
+    /**
+     * 初始化响应式状态（应在应用启动时调用）
+     */
+    fun initialize(context: Context) {
+        _preset1RemotePinned.value = getPresetRemotePinned(context, 1)
+        _preset2RemotePinned.value = getPresetRemotePinned(context, 2)
+        _preset3RemotePinned.value = getPresetRemotePinned(context, 3)
+    }
+
+    /**
+     * 获取指定预设的响应式状态
+     */
+    fun getPresetRemotePinnedState(presetIndex: Int): StateFlow<Set<String>> {
+        return when (presetIndex) {
+            1 -> _preset1RemotePinned
+            2 -> _preset2RemotePinned
+            3 -> _preset3RemotePinned
+            else -> _preset1RemotePinned
+        }
+    }
     
     /**
      * 从旧版本迁移数据（如果存在）
@@ -370,6 +404,12 @@ object PreferencesManager {
             else -> return
         }
         prefs.edit().putStringSet(key, soundIds).apply()
+        // 更新响应式状态
+        when (presetIndex) {
+            1 -> _preset1RemotePinned.value = soundIds
+            2 -> _preset2RemotePinned.value = soundIds
+            3 -> _preset3RemotePinned.value = soundIds
+        }
     }
     
     /**

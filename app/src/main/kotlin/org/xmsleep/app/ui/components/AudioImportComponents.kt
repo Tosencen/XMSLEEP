@@ -99,7 +99,7 @@ fun ImportAudioButton(
         } else {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "导入音频",
+                contentDescription = context.getString(R.string.cd_import_audio),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -162,7 +162,7 @@ fun PermissionRequestDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "需要音频文件访问权限",
+                    text = context.getString(R.string.audio_file_access_permission_title),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center
@@ -171,7 +171,7 @@ fun PermissionRequestDialog(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = "为了让您能够导入和使用自己的音频文件，应用需要访问您设备上的音频文件。\n\n您的隐私很重要，我们只会访问您主动选择的音频文件。",
+                    text = context.getString(R.string.audio_file_access_permission_description),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center
                 )

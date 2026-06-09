@@ -75,7 +75,7 @@ fun DailyQuoteDialog(
                             )
                             Spacer(modifier = Modifier.height(16.dp))
                             Text(
-                                text = "正在获取名句...",
+                                text = context.getString(R.string.loading_quote),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -158,7 +158,7 @@ fun DailyQuoteDialog(
                                         } catch (e: Exception) {
                                             Logger.e("DailyQuoteDialog", "分享失败", e)
                                             withContext(Dispatchers.Main) {
-                                                Toast.makeText(context, "分享失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.share_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
                                             }
                                         } finally {
                                             isSharing = false
@@ -174,15 +174,15 @@ fun DailyQuoteDialog(
                                         color = MaterialTheme.colorScheme.onPrimary
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("分享中...")
+                                    Text(context.getString(R.string.sharing))
                                 } else {
                                     Icon(
                                         imageVector = Icons.Default.Share,
-                                        contentDescription = "分享",
+                                        contentDescription = context.getString(R.string.share),
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("分享")
+                                    Text(context.getString(R.string.share))
                                 }
                             }
                             
@@ -199,7 +199,7 @@ fun DailyQuoteDialog(
                                         ) == android.content.pm.PackageManager.PERMISSION_GRANTED
                                         
                                         if (!hasPermission) {
-                                            Toast.makeText(context, "需要存储权限才能保存图片", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, context.getString(R.string.storage_permission_required_for_save), Toast.LENGTH_SHORT).show()
                                             return@OutlinedButton
                                         }
                                     }
@@ -215,16 +215,16 @@ fun DailyQuoteDialog(
                                             val result = ShareUtils.saveImageToGallery(context, bitmap)
                                             withContext(Dispatchers.Main) {
                                                 if (result.isSuccess) {
-                                                    Toast.makeText(context, "已保存到相册", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, context.getString(R.string.saved_to_gallery), Toast.LENGTH_SHORT).show()
                                                 } else {
-                                                    Toast.makeText(context, "保存失败: ${result.exceptionOrNull()?.message}", Toast.LENGTH_SHORT).show()
+                                                    Toast.makeText(context, context.getString(R.string.save_failed, result.exceptionOrNull()?.message ?: ""), Toast.LENGTH_SHORT).show()
                                                 }
                                             }
                                             Logger.d("DailyQuoteDialog", "保存完成")
                                         } catch (e: Exception) {
                                             Logger.e("DailyQuoteDialog", "保存失败", e)
                                             withContext(Dispatchers.Main) {
-                                                Toast.makeText(context, "保存失败: ${e.message}", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.save_failed, e.message ?: ""), Toast.LENGTH_SHORT).show()
                                             }
                                         } finally {
                                             isSaving = false
@@ -239,15 +239,15 @@ fun DailyQuoteDialog(
                                         strokeWidth = 2.dp
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("保存中...")
+                                    Text(context.getString(R.string.saving))
                                 } else {
                                     Icon(
                                         imageVector = Icons.Default.Save,
-                                        contentDescription = "保存",
+                                        contentDescription = context.getString(R.string.save),
                                         modifier = Modifier.size(18.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
-                                    Text("保存图片")
+                                    Text(context.getString(R.string.save_image))
                                 }
                             }
                         }
@@ -277,7 +277,7 @@ fun DailyQuoteDialog(
                     ) {
                         Icon(
                             Icons.Default.Refresh,
-                            contentDescription = "换一句",
+                            contentDescription = context.getString(R.string.refresh_quote),
                             modifier = Modifier.size(20.dp),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer
                         )

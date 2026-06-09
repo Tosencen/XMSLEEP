@@ -95,6 +95,10 @@ class MusicService : Service() {
         // 注册定时器监听器
         timerManager.addListener(timerListener)
         
+        // 查询当前实际播放状态，确保初始通知正确
+        isPlaying = audioManager.hasAnyPlayingSounds()
+        playingSoundsCount = audioManager.getPlayingSounds().size + audioManager.getPlayingRemoteSoundIds().size
+        
         // 启动前台服务
         startForegroundService()
     }

@@ -734,18 +734,18 @@ fun SettingsScreen(
                         modifier = Modifier.padding(vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // GitHub 按钮
+                        // QQ 按钮
                         Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable {
                                     showCommunityDialog = false
                                     try {
-                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.GITHUB_URL))
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse("mqqapi://card/show_pslcard?src_type=internal&version=1&card_type=group&uin=805606877"))
                                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                         context.startActivity(intent)
                                     } catch (e: Exception) {
-                                        Toast.makeText(context, "无法打开链接", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.unable_to_open_link), Toast.LENGTH_SHORT).show()
                                     }
                                 },
                             shape = RoundedCornerShape(12.dp),
@@ -758,18 +758,18 @@ fun SettingsScreen(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    painter = painterResource(R.drawable.ic_github),
+                                    painter = painterResource(R.drawable.ic_qq),
                                     contentDescription = null,
                                     modifier = Modifier.size(24.dp)
                                 )
                                 Spacer(modifier = Modifier.width(16.dp))
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = context.getString(R.string.open_github),
+                                        text = context.getString(R.string.join_qq),
                                         style = MaterialTheme.typography.bodyLarge
                                     )
                                     Text(
-                                        text = context.getString(R.string.open_github_description),
+                                        text = context.getString(R.string.join_qq_description),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )
@@ -788,7 +788,7 @@ fun SettingsScreen(
                                         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                         context.startActivity(intent)
                                     } catch (e: Exception) {
-                                        Toast.makeText(context, "无法打开链接，请检查是否安装了Telegram或浏览器", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, context.getString(R.string.unable_to_open_link_check_telegram), Toast.LENGTH_SHORT).show()
                                     }
                                 },
                             shape = RoundedCornerShape(12.dp),
@@ -813,6 +813,49 @@ fun SettingsScreen(
                                     )
                                     Text(
                                         text = context.getString(R.string.join_telegram_description),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                        
+                        // GitHub 按钮
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    showCommunityDialog = false
+                                    try {
+                                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(Constants.GITHUB_URL))
+                                        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                        context.startActivity(intent)
+                                    } catch (e: Exception) {
+                                        Toast.makeText(context, context.getString(R.string.unable_to_open_link), Toast.LENGTH_SHORT).show()
+                                    }
+                                },
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.ic_github),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                Spacer(modifier = Modifier.width(16.dp))
+                                Column(modifier = Modifier.weight(1f)) {
+                                    Text(
+                                        text = context.getString(R.string.open_github),
+                                        style = MaterialTheme.typography.bodyLarge
+                                    )
+                                    Text(
+                                        text = context.getString(R.string.open_github_description),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant
                                     )

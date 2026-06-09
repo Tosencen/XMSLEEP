@@ -102,5 +102,11 @@
     <string name="refresh_quote">换一句</string>
     <!-- MediaSession 锁屏副标题 -->
     <string name="aggregate_others_format">其他 %1$d 个</string>
+    <string name="set_as_default">添加预设</string>
+    <string name="cancel_default">取消预设</string>
+    <string name="pinned_success">已添加预设</string>
+    <string name="unpinned_success">已取消预设</string>
+    <string name="join_qq">加入QQ群</string>
+    <string name="join_qq_description">加入QQ群交流反馈</string>
 </resources>
 

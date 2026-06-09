@@ -2,6 +2,7 @@ package org.xmsleep.app.ui
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -9,6 +10,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
@@ -16,6 +18,8 @@ import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -25,7 +29,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -53,8 +60,6 @@ internal fun DefaultArea(
     context: android.content.Context,
     isEditMode: Boolean,
     onEditModeChange: (Boolean) -> Unit,
-    defaultAreaHasSounds: Boolean,
-    defaultAreaSoundsPlaying: Boolean,
     isExpanded: Boolean = true,
     activePreset: Int = 1,
     onActivePresetChange: (Int) -> Unit = {},
@@ -390,82 +395,187 @@ internal fun BuiltInSoundsContent(
 ) {
     val scope = rememberCoroutineScope()
     val colorScheme = MaterialTheme.colorScheme
-    Column(modifier = Modifier.fillMaxSize()) {
-        if (soundItems.isNotEmpty()) {
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(columnsCount),
-                contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 140.dp, top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                state = scrollState,
-                modifier = Modifier.weight(1f)
+    
+    // 水平滑动布局（columnsCount == 1）
+    if (columnsCount == 1 && soundItems.isNotEmpty()) {
+        // 循环滑动：通过重复列表实现无限滚动效果
+        val infiniteItemCount = if (soundItems.size > 1) soundItems.size * 100 else soundItems.size
+        val initialPage = if (soundItems.size > 1) soundItems.size * 50 else 0
+        
+        val pagerState = rememberPagerState(
+            initialPage = initialPage,
+            pageCount = { infiniteItemCount }
+        )
+        
+        Column(modifier = Modifier.fillMaxSize()) {
+            // 水平滑动卡片区域（垂直居中）
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.TopCenter
             ) {
-                items(soundItems) { item ->
+                HorizontalPager(
+                    state = pagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(0.55f)
+                        .padding(top = 24.dp),
+                    contentPadding = PaddingValues(horizontal = 56.dp),
+                    pageSpacing = 16.dp
+                ) { pageIndex ->
+                    // 循环滑动：取模获取实际索引
+                    val actualIndex = if (soundItems.size > 1) pageIndex % soundItems.size else pageIndex
+                    val item = soundItems[actualIndex]
                     var showVolumeDialog by remember { mutableStateOf(false) }
-                    SoundCard(
-                        item = item,
-                        isPlaying = playingStates[item.sound] ?: false,
-                        hideAnimation = hideAnimation,
-                        columnsCount = columnsCount,
-                        isPinned = pinnedSounds.value.contains(item.sound),
-                        onToggle = { sound ->
-                            onEditModeReset()
-                            val wasPlaying = audioManager.isPlayingSound(sound)
-                            if (wasPlaying) {
-                                audioManager.pauseSound(sound)
-                                playingStates[sound] = false
-                            } else {
-                                playingStates[sound] = true
-                                audioManager.playSound(context, sound)
-                                scope.launch {
-                                    delay(200)
-                                    playingStates[sound] = audioManager.isPlayingSound(sound)
+                    
+                    // 根据与当前页的距离计算透明度和缩放
+                    val pageOffset = (pagerState.currentPage - pageIndex) + pagerState.currentPageOffsetFraction
+                    val absOffset = kotlin.math.abs(pageOffset)
+                    val alpha = (1f - absOffset * 0.4f).coerceIn(0.5f, 1f)
+                    val scale = (1f - absOffset * 0.08f).coerceIn(0.88f, 1f)
+                    
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight() // 填满pager高度
+                                .graphicsLayer {
+                                    this.alpha = alpha
+                                    this.scaleX = scale
+                                    this.scaleY = scale
                                 }
+                        ) {
+                            // 使用专门的水平滑动卡片组件
+                            HorizontalSoundCard(
+                                item = item,
+                                isPlaying = playingStates[item.sound] ?: false,
+                                hideAnimation = hideAnimation,
+                                isPinned = pinnedSounds.value.contains(item.sound),
+                                onToggle = { sound ->
+                                onEditModeReset()
+                                val wasPlaying = audioManager.isPlayingSound(sound)
+                                if (wasPlaying) {
+                                    audioManager.pauseSound(sound)
+                                    playingStates[sound] = false
+                                } else {
+                                    playingStates[sound] = true
+                                    audioManager.playSound(context, sound)
+                                    scope.launch {
+                                        delay(200)
+                                        playingStates[sound] = audioManager.isPlayingSound(sound)
+                                    }
+                                }
+                            },
+                            onVolumeClick = { showVolumeDialog = true },
+                            onTitleClick = { },
+                            onPinnedChange = { isPinned ->
+                                val currentSet = pinnedSounds.value.toMutableSet()
+                                if (isPinned) {
+                                    currentSet.add(item.sound)
+                                    playingStates[item.sound] = audioManager.isPlayingSound(item.sound)
+                                } else {
+                                    currentSet.remove(item.sound)
+                                }
+                                pinnedSounds.value = currentSet
+                                onPinnedChange(item.sound, isPinned)
                             }
-                        },
-                        onVolumeClick = { showVolumeDialog = true },
-                        onTitleClick = { },
-                        onPinnedChange = { isPinned ->
-                            val currentSet = pinnedSounds.value.toMutableSet()
-                            if (isPinned) {
-                                currentSet.add(item.sound)
-                                playingStates[item.sound] = audioManager.isPlayingSound(item.sound)
-                            } else {
-                                currentSet.remove(item.sound)
-                            }
-                            pinnedSounds.value = currentSet
-                            onPinnedChange(item.sound, isPinned)
-                        }
-                    )
-                    if (showVolumeDialog) {
-                        VolumeDialog(
-                            sound = item.sound,
-                            currentVolume = audioManager.getVolume(item.sound),
-                            onDismiss = { showVolumeDialog = false },
-                            onVolumeChange = { audioManager.setVolume(item.sound, it) }
                         )
+                        if (showVolumeDialog) {
+                            VolumeDialog(
+                                sound = item.sound,
+                                currentVolume = audioManager.getVolume(item.sound),
+                                onDismiss = { showVolumeDialog = false },
+                                onVolumeChange = { audioManager.setVolume(item.sound, it) }
+                            )
+                        }
                     }
                 }
-                // XMSLEEP 品牌文字
-                item(span = { GridItemSpan(columnsCount) }) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 32.dp),
-                        contentAlignment = Alignment.CenterStart
-                    ) {
-                        Column(horizontalAlignment = Alignment.Start) {
-                            Text(
-                                text = "XMSLEEP",
-                                style = MaterialTheme.typography.displaySmall.copy(fontSize = 28.sp),
-                                fontWeight = FontWeight.Bold,
-                                color = colorScheme.primary.copy(alpha = 0.6f),
-                                letterSpacing = 2.sp
+            }
+        }
+        }
+    } else {
+        // 网格布局（columnsCount == 2 或 3）
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (soundItems.isNotEmpty()) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(columnsCount),
+                    contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 140.dp, top = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    state = scrollState,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    items(soundItems) { item ->
+                        var showVolumeDialog by remember { mutableStateOf(false) }
+                        SoundCard(
+                            item = item,
+                            isPlaying = playingStates[item.sound] ?: false,
+                            hideAnimation = hideAnimation,
+                            columnsCount = columnsCount,
+                            isPinned = pinnedSounds.value.contains(item.sound),
+                            onToggle = { sound ->
+                                onEditModeReset()
+                                val wasPlaying = audioManager.isPlayingSound(sound)
+                                if (wasPlaying) {
+                                    audioManager.pauseSound(sound)
+                                    playingStates[sound] = false
+                                } else {
+                                    playingStates[sound] = true
+                                    audioManager.playSound(context, sound)
+                                    scope.launch {
+                                        delay(200)
+                                        playingStates[sound] = audioManager.isPlayingSound(sound)
+                                    }
+                                }
+                            },
+                            onVolumeClick = { showVolumeDialog = true },
+                            onTitleClick = { },
+                            onPinnedChange = { isPinned ->
+                                val currentSet = pinnedSounds.value.toMutableSet()
+                                if (isPinned) {
+                                    currentSet.add(item.sound)
+                                    playingStates[item.sound] = audioManager.isPlayingSound(item.sound)
+                                } else {
+                                    currentSet.remove(item.sound)
+                                }
+                                pinnedSounds.value = currentSet
+                                onPinnedChange(item.sound, isPinned)
+                            }
+                        )
+                        if (showVolumeDialog) {
+                            VolumeDialog(
+                                sound = item.sound,
+                                currentVolume = audioManager.getVolume(item.sound),
+                                onDismiss = { showVolumeDialog = false },
+                                onVolumeChange = { audioManager.setVolume(item.sound, it) }
                             )
-                            Text(
-                                text = stringResource(R.string.wish_good_sleep),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                                modifier = Modifier.padding(top = 2.dp)
-                            )
+                        }
+                    }
+                    // XMSLEEP 品牌文字
+                    item(span = { GridItemSpan(columnsCount) }) {
+                        Box(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 32.dp),
+                            contentAlignment = Alignment.CenterStart
+                        ) {
+                            Column(horizontalAlignment = Alignment.Start) {
+                                Text(
+                                    text = "XMSLEEP",
+                                    style = MaterialTheme.typography.displaySmall.copy(fontSize = 28.sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = colorScheme.primary.copy(alpha = 0.6f),
+                                    letterSpacing = 2.sp
+                                )
+                                Text(
+                                    text = stringResource(R.string.wish_good_sleep),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                                    modifier = Modifier.padding(top = 2.dp)
+                                )
+                            }
                         }
                     }
                 }

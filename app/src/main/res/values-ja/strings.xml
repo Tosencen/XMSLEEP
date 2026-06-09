@@ -99,6 +99,7 @@
     <string name="switch_to_dark_mode">ダークモードに切替</string>
     <string name="switch_to_3_columns">3列に切替</string>
     <string name="switch_to_2_columns">2列に切替</string>
+    <string name="switch_to_slide_layout">スライドレイアウトに切り替え</string>
     <string name="pause">一時停止</string>
     <string name="play">再生</string>
     <string name="now_playing">再生中</string>
@@ -175,6 +176,8 @@
     <string name="open_github_description">プロジェクトのソースコードを表示</string>
     <string name="join_telegram">Telegramグループに参加</string>
     <string name="join_telegram_description">ご意見をお聞かせください</string>
+    <string name="join_qq">QQグループに参加</string>
+    <string name="join_qq_description">QQグループでフィードバック</string>
     <string name="load_failed">読み込みに失敗しました: %1$s</string>
     <string name="all_categories">すべて</string>
     <string name="privacy_policy_title">プライバシーポリシー</string>
@@ -549,6 +552,48 @@
     <string name="auto_play_on_start_description">アプリ起動時に最後に使用したプリセット音声を自動再生</string>
     <string name="auto_play_need_preset_tip">先にプリセットモジュールに音声を追加してください</string>
     <string name="tip">ヒント</string>
+
     <!-- MediaSession 集約サブタイトル -->
     <string name="aggregate_others_format">他 %1$d 個</string>
+
+    <!-- Keep screen on -->
+    <string name="keep_screen_on">画面をオンに保つ</string>
+    <string name="screen_on_enabled">画面オン有効</string>
+    <string name="screen_on_disabled">画面オン無効</string>
+    <string name="screen_on_description">呼吸練習中は画面の自動ロックを防ぐ</string>
+    <string name="tutorial">チュートリアル</string>
+    
+    <!-- Common prompts -->
+    <string name="volume_adjusted">音量を調整しました</string>
+    <string name="play_failed_no_audio_file">再生失敗: オーディオファイルを取得できません</string>
+    <string name="play_failed">再生失敗: %1$s</string>
+    <string name="load_quote_failed">名言の読み込みに失敗しました</string>
+    <string name="log_copied_to_clipboard">ログがクリップボードにコピーされました</string>
+    <string name="share_failed">共有失敗: %1$s</string>
+    <string name="save_failed">保存失敗: %1$s</string>
+    <string name="storage_permission_required_for_save">画像を保存するにはストレージの権限が必要です</string>
+    <string name="saved_to_gallery">ギャラリーに保存しました</string>
+    <string name="unable_to_open_link">リンクを開けません</string>
+    <string name="unable_to_open_link_check_telegram">リンクを開けません。Telegramまたはブラウザがインストールされているか確認してください</string>
+    
+    <!-- Audio import permission dialog -->
+    <string name="audio_file_access_permission_title">オーディオファイルへのアクセス権限が必要です</string>
+    <string name="audio_file_access_permission_description">独自のオーディオファイルをインポートして使用するために、アプリはデバイス上のオーディオファイルへのアクセスが必要です。\n\nお客様のプライバシーは重要であり、選択したオーディオファイルのみにアクセスします。</string>
+    <string name="cd_import_audio">オーディオをインポート</string>
+    
+    <!-- Weather manual selection -->
+    <string name="weather_option_sunny">☀️ 晴れ</string>
+    <string name="weather_option_partly_cloudy">⛅ 晴れ時々曇り</string>
+    <string name="weather_option_cloudy">⛅ 曇り</string>
+    <string name="weather_option_overcast">☁️ 曇り</string>
+    <string name="weather_option_foggy">🌫️ 霧</string>
+    <string name="weather_option_light_drizzle">🌧️ 軽い霧雨</string>
+    <string name="weather_option_light_rain">🌧️ 小雨</string>
+    <string name="weather_option_moderate_rain">🌧️ 中程度の雨</string>
+    <string name="weather_option_heavy_rain">🌧️ 大雨</string>
+    <string name="weather_option_light_snow">❄️ 小雪</string>
+    <string name="weather_option_moderate_snow">❄️ 中程度の雪</string>
+    <string name="weather_option_heavy_snow">❄️ 大雪</string>
+    <string name="weather_option_shower">🌧️ にわか雨</string>
+    <string name="weather_option_thunderstorm">⛈️ 雷雨</string>
 </resources>

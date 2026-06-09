@@ -4,6 +4,9 @@ import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.xmsleep.app.R
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 object WeatherSoundMapper {
     private const val KEY_WEATHER_SOUND_MAPPING = "weather_sound_mapping"
@@ -21,6 +24,17 @@ object WeatherSoundMapper {
     private const val WEATHER_CACHE_DURATION_MS = 30 * 60 * 1000L
 
     private val gson = Gson()
+
+    // 响应式状态：天气功能是否启用
+    private val _weatherEnabled = MutableStateFlow(false)
+    val weatherEnabled: StateFlow<Boolean> = _weatherEnabled.asStateFlow()
+
+    /**
+     * 初始化响应式状态（应在应用启动时调用）
+     */
+    fun initialize(context: Context) {
+        _weatherEnabled.value = isEnabled(context)
+    }
 
     data class SoundMapping(
         val weatherTypes: List<WeatherType>,
@@ -121,6 +135,7 @@ object WeatherSoundMapper {
     fun setEnabled(context: Context, enabled: Boolean) {
         val prefs = context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE)
         prefs.edit().putBoolean(KEY_WEATHER_ENABLED, enabled).apply()
+        _weatherEnabled.value = enabled
     }
 
     fun isEnabled(context: Context): Boolean {

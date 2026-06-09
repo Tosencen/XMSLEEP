@@ -41,8 +41,6 @@ import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.CloudDownload
 import androidx.compose.material.icons.filled.Storage
 import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.ViewAgenda
 import androidx.compose.material.icons.outlined.ViewAgenda
 import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.filled.DarkMode
@@ -102,6 +100,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
@@ -155,6 +154,8 @@ import org.xmsleep.app.weather.WeatherData
 import org.xmsleep.app.weather.WeatherService
 import org.xmsleep.app.weather.WeatherSoundMapper
 import org.xmsleep.app.utils.Logger
+import org.xmsleep.app.ui.viewmodel.SoundsViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * 自定义颜色回调，根据原颜色的亮度和饱和度动态映射到主题色系或灰色系
@@ -384,7 +385,8 @@ fun SoundsScreen(
     onQuickPlayExpand: () -> Unit = {},
     updateViewModel: UpdateViewModel? = null,
     hazeState: dev.chrisbanes.haze.HazeState? = null,
-    contentAlpha: Float = 1f // 内容透明度（用于禁用点击）
+    contentAlpha: Float = 1f, // 内容透明度（用于禁用点击）
+    soundsViewModel: SoundsViewModel = hiltViewModel()
 ) {
     // 预设弹窗显示状态
     var showPresetDialog by remember { mutableStateOf(false) }
@@ -457,14 +459,13 @@ fun SoundsScreen(
     var weatherEnabled by remember { mutableStateOf(WeatherSoundMapper.isEnabled(context)) }
     var currentWeather by remember { mutableStateOf<WeatherData?>(null) }
     
-    // 定期检查天气开关状态（用户可能在设置页面更改）
+    // 使用 ViewModel 的响应式状态替代轮询
     LaunchedEffect(Unit) {
-        while (true) {
-            val enabled = WeatherSoundMapper.isEnabled(context)
-            if (enabled != weatherEnabled) {
-                weatherEnabled = enabled
+        soundsViewModel.weatherEnabled.collect { enabled ->
+            weatherEnabled = enabled
+            if (!enabled) {
+                currentWeather = null
             }
-            delay(1000)
         }
     }
     
@@ -508,26 +509,13 @@ fun SoundsScreen(
         }
     }
     
-    // 监听远程音频置顶状态变化（从 PreferencesManager 读取）
-    LaunchedEffect(Unit) {
-        while (true) {
-            delay(500) // 每500ms检查一次
-            val savedPinned = org.xmsleep.app.preferences.PreferencesManager.getPresetRemotePinned(context, activePreset).toMutableSet()
-            // 比较内容是否相同（使用 toSet() 进行比较）
-            if (savedPinned.toSet() != remotePinned.toSet()) {
-                remotePinned = savedPinned
-            }
-        }
+    // 监听远程音频置顶状态变化（使用 ViewModel 的响应式状态）
+    LaunchedEffect(activePreset) {
+        soundsViewModel.updatePresetRemotePinned(activePreset)
     }
-    
-    // 监听远程音频播放状态
     LaunchedEffect(Unit) {
-        while (true) {
-            delay(100) // 缩短到100ms，提高远程音频状态响应速度
-            val currentlyPlaying = remoteSounds.filter { sound ->
-                remotePinned.contains(sound.id) && audioManager.isPlayingRemoteSound(sound.id)
-            }.map { it.id }.toSet()
-            playingRemoteSounds = currentlyPlaying
+        soundsViewModel.presetRemotePinned.collect { pinned ->
+            remotePinned = pinned.toMutableSet()
         }
     }
     
@@ -670,34 +658,27 @@ fun SoundsScreen(
         }
     }
     
-    // 定期更新播放状态（立即启动，确保状态同步）
+    // 使用 ViewModel 的响应式状态替代本地播放状态轮询
     LaunchedEffect(Unit) {
-        while (true) {
-            delay(100) // 进一步缩短到100ms，提高本地音频状态响应速度
-            soundItems.forEach { item ->
-                // 从AudioManager获取实际播放状态并同步
-                val actualPlaying = audioManager.isPlayingSound(item.sound)
-                // 只有当状态确实发生变化时才更新，避免不必要的重组
-                if (playingStates[item.sound] != actualPlaying) {
-                    playingStates[item.sound] = actualPlaying
+        soundsViewModel.playingStates.collect { states ->
+            states.forEach { (sound, isPlaying) ->
+                if (playingStates[sound] != isPlaying) {
+                    playingStates[sound] = isPlaying
                 }
             }
         }
     }
     
-    // 检查是否有任何声音在播放（本地+远程+本地音频文件）
+    // 检查是否有任何声音在播放（使用 ViewModel 的响应式状态）
     var hasAnyPlayingSounds by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
-        while (true) {
-            // 使用 AudioManager 的统一方法检查所有音频
-            hasAnyPlayingSounds = audioManager.hasAnyPlayingSounds()
+        soundsViewModel.hasAnyPlayingSounds.collect { hasPlaying ->
+            hasAnyPlayingSounds = hasPlaying
             
             // 如果没有声音在播放且倒计时是激活状态，自动取消倒计时
-            if (!hasAnyPlayingSounds && isTimerActive) {
+            if (!hasPlaying && isTimerActive) {
                 timerManager.cancelTimer()
             }
-            
-            delay(500) // 每500ms检查一次
         }
     }
     
@@ -968,25 +949,39 @@ fun SoundsScreen(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.grass_24px),
-                                    contentDescription = "预设",
+                                    contentDescription = context.getString(R.string.preset),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }
                         
-                        // 布局切换按钮（2列/3列）
+                        // 布局切换按钮（2列/3列/滑动）
                         IconButton(
                             onClick = { 
                                 // 点击布局切换按钮时退出编辑模式
                                 isDefaultAreaEditMode = false
-                                val newCount = if (columnsCount == 2) 3 else 2
+                                // 循环切换：2 -> 3 -> 1 -> 2
+                                val newCount = when (columnsCount) {
+                                    2 -> 3
+                                    3 -> 1
+                                    else -> 2
+                                }
                                 onColumnsCountChange(newCount)
                             }
                         ) {
+                            // 线性风格图标
+                            val iconPainter = when (columnsCount) {
+                                1 -> rememberVectorPainter(Icons.Outlined.ViewAgenda)
+                                2 -> painterResource(R.drawable.grid_2col_24px)
+                                else -> painterResource(R.drawable.view_apps_24px)
+                            }
                             Icon(
-                                // 3列时使用线性图标ViewAgenda，2列时使用填充图标GridView
-                                imageVector = if (columnsCount == 2) Icons.Default.GridView else Icons.Outlined.ViewAgenda,
-                                contentDescription = if (columnsCount == 2) context.getString(R.string.switch_to_3_columns) else context.getString(R.string.switch_to_2_columns),
+                                painter = iconPainter,
+                                contentDescription = when (columnsCount) {
+                                    1 -> context.getString(R.string.switch_to_slide_layout)
+                                    2 -> context.getString(R.string.switch_to_3_columns)
+                                    else -> context.getString(R.string.switch_to_2_columns)
+                                },
                                 tint = MaterialTheme.colorScheme.primary
                             )
                         }
@@ -1029,27 +1024,16 @@ fun SoundsScreen(
         } // end if (!weatherEnabled || currentWeather == null) - 内置声音模块
         }
         
-        // 快捷播放是否有声音（包括本地和远程）
-        val defaultAreaHasSounds = pinnedSounds.value.isNotEmpty() || defaultRemoteSounds.isNotEmpty()
-        
-        // 实时检测快捷播放的播放状态（包括本地和远程）
+        // 实时检测快捷播放的播放状态（使用 ViewModel 的响应式状态）
         var defaultAreaSoundsPlaying by remember { mutableStateOf(false) }
-        LaunchedEffect(activePreset, pinnedSounds.value, defaultRemoteSounds, playingStates, playingRemoteSounds) {
-            // 立即检查一次状态
-            val localPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
-            val remotePlaying = defaultRemoteSounds.any { audioManager.isPlayingRemoteSound(it.id) }
-            defaultAreaSoundsPlaying = localPlaying || remotePlaying
-            
-            // 然后定期更新
-            while (true) {
-                delay(300) // 每300ms检查一次
-                val currentLocalPlaying = pinnedSounds.value.any { audioManager.isPlayingSound(it) }
-                val currentRemotePlaying = defaultRemoteSounds.any { audioManager.isPlayingRemoteSound(it.id) }
-                val newState = currentLocalPlaying || currentRemotePlaying
-                if (defaultAreaSoundsPlaying != newState) {
-                    defaultAreaSoundsPlaying = newState
-                }
+        LaunchedEffect(Unit) {
+            soundsViewModel.defaultAreaSoundsPlaying.collect { playing ->
+                defaultAreaSoundsPlaying = playing
             }
+        }
+        LaunchedEffect(activePreset, pinnedSounds.value, defaultRemoteSounds) {
+            soundsViewModel.updatePinnedSounds(pinnedSounds.value.toSet())
+            soundsViewModel.updateDefaultRemoteSounds(defaultRemoteSounds)
         }
         
         // 预设弹窗
@@ -1129,8 +1113,6 @@ fun SoundsScreen(
                                 context = context,
                                 isEditMode = isDefaultAreaEditMode,
                                 onEditModeChange = { isDefaultAreaEditMode = it },
-                                defaultAreaHasSounds = defaultAreaHasSounds,
-                                defaultAreaSoundsPlaying = defaultAreaSoundsPlaying,
                                 isExpanded = true, // 弹窗中始终展开
                                 activePreset = activePreset,
                                 onActivePresetChange = onActivePresetChange,

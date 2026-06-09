@@ -64,6 +64,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import org.xmsleep.app.weather.WeatherSoundMapper
+import org.xmsleep.app.ui.viewmodel.MainViewModel
+import org.xmsleep.app.ui.viewmodel.SoundsViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 /**
  * 主屏幕 - 包含底部导航和页面切换
@@ -90,7 +93,9 @@ fun MainScreen(
     onHideAnimationChange: (Boolean) -> Unit,
     onBackgroundSelectionChange: (org.xmsleep.app.ui.BackgroundSelection) -> Unit,
     onSoundCardsColumnsCountChange: (Int) -> Unit,
-    paletteColors: List<androidx.compose.ui.graphics.Color>
+    paletteColors: List<androidx.compose.ui.graphics.Color>,
+    mainViewModel: MainViewModel = hiltViewModel(),
+    soundsViewModel: SoundsViewModel = hiltViewModel()
 ) {
     // 使用Navigator接口来管理导航
     val navigator = rememberXMSleepNavigator()
@@ -248,14 +253,10 @@ fun MainScreen(
     // 天气推荐是否开启
     var weatherEnabled by remember { mutableStateOf(WeatherSoundMapper.isEnabled(context)) }
     
-    // 定期检查天气开关状态
+    // 使用 ViewModel 的响应式状态替代轮询
     LaunchedEffect(Unit) {
-        while (true) {
-            val enabled = WeatherSoundMapper.isEnabled(context)
-            if (enabled != weatherEnabled) {
-                weatherEnabled = enabled
-            }
-            delay(1000)
+        mainViewModel.weatherEnabled.collect { enabled ->
+            weatherEnabled = enabled
         }
     }
     
@@ -315,10 +316,9 @@ fun MainScreen(
     // 监听播放状态，自动启动/停止MusicService
     val hasPlayingSounds = remember { mutableStateOf(false) }
     
+    // 使用 ViewModel 的响应式状态替代轮询
     LaunchedEffect(Unit) {
-        // 实时监听播放状态
-        while (true) {
-            val isPlaying = audioManager.hasAnyPlayingSounds()
+        mainViewModel.hasPlayingSounds.collect { isPlaying ->
             if (isPlaying != hasPlayingSounds.value) {
                 hasPlayingSounds.value = isPlaying
                 
@@ -331,7 +331,6 @@ fun MainScreen(
                     Logger.d("MainScreen", "所有音频已停止")
                 }
             }
-            delay(1000) // 每秒检查一次
         }
     }
     
@@ -366,37 +365,32 @@ fun MainScreen(
         Logger.d("MainScreen", "预设模块显示状态变化: $defaultAreaHasSounds, 本地预设1=${preset1Sounds.value.size}, 预设2=${preset2Sounds.value.size}, 预设3=${preset3Sounds.value.size}, 远程固定=${allRemotePinned.size}")
     }
     
-    // 实时监听所有预设的远程音频固定状态变化
+    // 实时监听所有预设的远程音频固定状态变化（使用 ViewModel 的响应式状态）
     LaunchedEffect(Unit) {
-        while (true) {
-            delay(200) // 提高检查频率到200ms
-            val newPreset1RemotePinned = preferencesManager.getPresetRemotePinned(context, 1)
-            val newPreset2RemotePinned = preferencesManager.getPresetRemotePinned(context, 2)
-            val newPreset3RemotePinned = preferencesManager.getPresetRemotePinned(context, 3)
-            val newAllRemotePinned = newPreset1RemotePinned + newPreset2RemotePinned + newPreset3RemotePinned
-            
-            if (newAllRemotePinned != allRemotePinned) {
-                Logger.d("MainScreen", "所有预设远程音频固定状态变化: ${allRemotePinned.size} -> ${newAllRemotePinned.size}")
-                preset1RemotePinned = newPreset1RemotePinned
-                preset2RemotePinned = newPreset2RemotePinned
-                preset3RemotePinned = newPreset3RemotePinned
-            }
+        mainViewModel.preset1RemotePinned.collect { pinned ->
+            preset1RemotePinned = pinned
+        }
+    }
+    LaunchedEffect(Unit) {
+        mainViewModel.preset2RemotePinned.collect { pinned ->
+            preset2RemotePinned = pinned
+        }
+    }
+    LaunchedEffect(Unit) {
+        mainViewModel.preset3RemotePinned.collect { pinned ->
+            preset3RemotePinned = pinned
         }
     }
     
-    // 实时检测快捷播放的播放状态（使用LaunchedEffect定期更新）
-    var defaultAreaSoundsPlaying by remember { mutableStateOf(false) }
-    LaunchedEffect(preset1Sounds.value, preset2Sounds.value, preset3Sounds.value, activePreset, Unit) {
-        while (true) {
-            val currentPresetSounds = when (activePreset) {
-                1 -> preset1Sounds.value
-                2 -> preset2Sounds.value
-                3 -> preset3Sounds.value
-                else -> preset1Sounds.value
-            }
-            defaultAreaSoundsPlaying = currentPresetSounds.any { audioManager.isPlayingSound(it) }
-            delay(300) // 每300ms检查一次
+    // 响应式更新当前预设的声音列表，驱动默认区域播放状态
+    LaunchedEffect(activePreset, preset1Sounds.value, preset2Sounds.value, preset3Sounds.value) {
+        val currentPresetSounds = when (activePreset) {
+            1 -> preset1Sounds.value
+            2 -> preset2Sounds.value
+            3 -> preset3Sounds.value
+            else -> preset1Sounds.value
         }
+        mainViewModel.updatePresetSounds(currentPresetSounds)
     }
     
     // 监听当前路由，判断是否在二级页面
@@ -557,7 +551,8 @@ fun MainScreen(
                                         forceCollapseFloatingButton = false
                                     }
                                 },
-                                updateViewModel = updateViewModel
+                                updateViewModel = updateViewModel,
+                                soundsViewModel = soundsViewModel
                             )
                         }
                         2 -> {
