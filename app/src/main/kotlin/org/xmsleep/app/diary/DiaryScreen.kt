@@ -19,10 +19,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmsleep.app.R
@@ -52,8 +55,22 @@ fun DiaryScreen(
         remoteSoundsCache = sounds.associateBy { it.id }
     }
 
-    val weeklySummary = remember(remoteSoundsCache) {
-        diaryManager.generateWeeklySummaryRaw(context, remoteSoundsCache)
+    var weeklySummary by remember(remoteSoundsCache) {
+        mutableStateOf(diaryManager.generateWeeklySummaryRaw(context, remoteSoundsCache))
+    }
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                history = diaryManager.getHistory(context)
+                weeklySummary = diaryManager.generateWeeklySummaryRaw(context, remoteSoundsCache)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     LaunchedEffect(scrollState.isScrollInProgress) {
@@ -138,9 +155,10 @@ fun DiaryScreen(
                 contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 140.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                if (weeklySummary != null) {
+                val summary = weeklySummary
+                if (summary != null) {
                     item {
-                        WeeklySummaryCard(summary = weeklySummary, context = context)
+                        WeeklySummaryCard(summary = summary, context = context)
                     }
                 }
 
@@ -296,9 +314,16 @@ private fun DiaryEntryCard(entry: DiaryEntry, context: android.content.Context, 
                 if (entry.durationMinutes > 0) {
                     Text(
                         text = if (entry.durationMinutes >= 60) {
-                            "${entry.durationMinutes / 60}h${entry.durationMinutes % 60}m"
+                            context.getString(
+                                R.string.diary_duration_hours,
+                                entry.durationMinutes / 60,
+                                entry.durationMinutes % 60
+                            )
                         } else {
-                            "${entry.durationMinutes}min"
+                            context.getString(
+                                R.string.diary_duration_minutes,
+                                entry.durationMinutes
+                            )
                         },
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant

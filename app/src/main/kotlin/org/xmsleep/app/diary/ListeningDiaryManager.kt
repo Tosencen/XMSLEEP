@@ -1,6 +1,7 @@
 package org.xmsleep.app.diary
 
 import android.content.Context
+import android.widget.Toast
 import com.google.gson.Gson
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.audio.model.SoundMetadata
@@ -76,12 +77,12 @@ object ListeningDiaryManager {
 
     private fun recordSession(durationMinutes: Int) {
         val ctx = context ?: return
+        if (durationMinutes <= 0) return
+
         val audioManager = AudioManager.getInstance()
         val localSounds = audioManager.getPlayingSounds().map { it.name }
         val remoteIds = audioManager.getPlayingRemoteSoundIds()
         val allSounds = localSounds + remoteIds
-
-        if (allSounds.isEmpty() && durationMinutes <= 0) return
 
         val entry = DiaryEntry(
             timestamp = System.currentTimeMillis(),
