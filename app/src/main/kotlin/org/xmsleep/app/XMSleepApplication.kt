@@ -8,6 +8,7 @@ class XMSleepApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        org.xmsleep.app.weather.WeatherSoundMapper.initialize(this)
         org.xmsleep.app.diary.ListeningDiaryManager.init(this)
     }
 }
