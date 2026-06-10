@@ -33,6 +33,9 @@ class MusicService : Service() {
     // 恢复播放标志：恢复期间不要更新保存的播放列表
     private var isRestoring = false
     
+    // 暂停标志：暂停期间（逐个暂停触发回调时）不要覆盖保存的播放列表
+    private var isPausing = false
+    
     // 标志位：是否正在停止服务（避免在停止时被重新启动）
     private var isStopping = false
     
@@ -176,8 +179,8 @@ class MusicService : Service() {
             return
         }
         
-        // 如果有音频播放，保存当前播放列表
-        if (playing && soundsCount > 0) {
+        // 如果有音频播放，保存当前播放列表（暂停中不覆盖，避免 pauseAllSounds 回调串扰）
+        if (!isPausing && playing && soundsCount > 0) {
             lastPlayingLocalSounds.clear()
             lastPlayingLocalSounds.addAll(audioManager.getPlayingSounds())
             
@@ -213,13 +216,18 @@ class MusicService : Service() {
             lastPlayingRemoteSoundIds.clear()
             lastPlayingRemoteSoundIds.addAll(audioManager.getPlayingRemoteSoundIds())
             
-            audioManager.pauseAllSounds()
-            
-            // 暂停倒计时
-            if (timerManager.isTimerActive.value) {
-                timerManager.pauseTimer()
+            isPausing = true
+            try {
+                audioManager.pauseAllSounds()
+
+                // 暂停倒计时
+                if (timerManager.isTimerActive.value) {
+                    timerManager.pauseTimer()
+                }
+            } finally {
+                isPausing = false
             }
-            
+
             isPlaying = false
         } else {
             // 当前已暂停，恢复上次播放的音频
