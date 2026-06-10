@@ -662,7 +662,7 @@ object PreferencesManager {
      */
     fun getShowRecentPlayDialog(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getBoolean(KEY_SHOW_RECENT_PLAY_DIALOG, true)
+        return prefs.getBoolean(KEY_SHOW_RECENT_PLAY_DIALOG, false)
     }
 
     /**

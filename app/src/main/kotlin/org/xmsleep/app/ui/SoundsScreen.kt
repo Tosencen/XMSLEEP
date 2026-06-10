@@ -1185,6 +1185,7 @@ fun SoundsScreen(
                                                             val uri = resourceManager.getSoundUri(sound)
                                                             if (uri != null) {
                                                                 audioManager.playRemoteSound(context, sound, uri)
+                                                                playingRemoteSounds = playingRemoteSounds + sound.id
                                                             }
                                                             return@collect
                                                         }
@@ -1200,8 +1201,10 @@ fun SoundsScreen(
                                                 if (uri != null) {
                                                     if (audioManager.isPlayingRemoteSound(sound.id)) {
                                                         audioManager.pauseRemoteSound(sound.id)
+                                                        playingRemoteSounds = playingRemoteSounds - sound.id
                                                     } else {
                                                         audioManager.playRemoteSound(context, sound, uri)
+                                                        playingRemoteSounds = playingRemoteSounds + sound.id
                                                     }
                                                 }
                                             }
@@ -1239,6 +1242,7 @@ fun SoundsScreen(
                                         defaultRemoteSounds.forEach { sound ->
                                             if (audioManager.isPlayingRemoteSound(sound.id)) {
                                                 audioManager.pauseRemoteSound(sound.id)
+                                                playingRemoteSounds = playingRemoteSounds - sound.id
                                             }
                                         }
                                     } else {
@@ -1258,6 +1262,7 @@ fun SoundsScreen(
                                                     val uri = resourceManager.getSoundUri(sound)
                                                     if (uri != null) {
                                                         audioManager.playRemoteSound(context, sound, uri)
+                                                        playingRemoteSounds = playingRemoteSounds + sound.id
                                                     }
                                                 }
                                             }
