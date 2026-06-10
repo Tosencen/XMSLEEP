@@ -6,7 +6,6 @@ import android.os.Binder
 import android.os.IBinder
 import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
-import androidx.media3.session.SessionResult
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AggregatePlayer
 import org.xmsleep.app.audio.AudioManager
@@ -73,21 +72,12 @@ class MusicService : Service() {
     override fun onCreate() {
         super.onCreate()
         
+        // 聚合播放器的命令回调
+        aggregatePlayer.onPlayPauseRequested = ::handlePlayPause
+        aggregatePlayer.onStopRequested = ::handleStop
+        
         // 初始化 MediaSession
         mediaSession = MediaSession.Builder(this, aggregatePlayer)
-            .setCallback(object : MediaSession.Callback {
-                override fun onPlayerCommandRequest(
-                    session: MediaSession,
-                    controllerInfo: MediaSession.ControllerInfo,
-                    playerCommand: Int
-                ): Int {
-                    when (playerCommand) {
-                        Player.COMMAND_PLAY_PAUSE -> handlePlayPause()
-                        Player.COMMAND_STOP -> handleStop()
-                    }
-                    return SessionResult.RESULT_SUCCESS
-                }
-            })
             .build()
         
         // 注册定时器监听器

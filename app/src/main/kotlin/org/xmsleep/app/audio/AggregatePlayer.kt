@@ -7,12 +7,16 @@ import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
 import androidx.media3.common.SimpleBasePlayer
 import androidx.media3.common.util.UnstableApi
+import com.google.common.util.concurrent.ListenableFuture
 
 @UnstableApi
 class AggregatePlayer : SimpleBasePlayer(Looper.getMainLooper()) {
 
     private var isPlaying = false
     private var subtitle: String = "XMSLEEP"
+
+    var onPlayPauseRequested: (() -> Unit)? = null
+    var onStopRequested: (() -> Unit)? = null
 
     private val availableCommands: Player.Commands = Player.Commands.Builder()
         .add(Player.COMMAND_PLAY_PAUSE)
@@ -52,5 +56,15 @@ class AggregatePlayer : SimpleBasePlayer(Looper.getMainLooper()) {
                     .build()
             )
             .build()
+    }
+
+    override fun handleSetPlayWhenReady(playWhenReady: Boolean): ListenableFuture<*> {
+        onPlayPauseRequested?.invoke()
+        return com.google.common.util.concurrent.Futures.immediateFuture(getState())
+    }
+
+    override fun handleStop(): ListenableFuture<*> {
+        onStopRequested?.invoke()
+        return com.google.common.util.concurrent.Futures.immediateFuture(getState())
     }
 }
