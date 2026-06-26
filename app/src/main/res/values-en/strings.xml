@@ -524,6 +524,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="recommended">Recommended</string>
     <string name="more_live">More Live</string>
     <string name="no_live">No live rooms</string>
+    <string name="room_not_live">This room is not currently live</string>
     <string name="show_radio_tab">Radio Tab</string>
     <string name="show_radio_tab_description">Show radio tab in the bottom navigation bar</string>
     <string name="show_breathing_tab">Breathing Tab</string>

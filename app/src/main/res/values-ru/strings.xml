@@ -635,6 +635,7 @@
     <string name="recommended">Рекомендуемые</string>
     <string name="more_live">Больше эфиров</string>
     <string name="no_live">Нет прямых эфиров</string>
+    <string name="room_not_live">Эта комната не транслирует в данный момент</string>
     <string name="show_radio_tab">Вкладка радио</string>
     <string name="show_radio_tab_description">Показывать вкладку радио в нижней панели навигации</string>
     <string name="show_breathing_tab">Вкладка дыхания</string>

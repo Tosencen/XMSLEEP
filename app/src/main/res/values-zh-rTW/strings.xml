@@ -616,6 +616,7 @@
     <string name="recommended">白噪音置頂</string>
     <string name="more_live">更多直播</string>
     <string name="no_live">暫無直播</string>
+    <string name="room_not_live">該房間目前沒有開啟直播</string>
     <string name="show_radio_tab">電台 Tab</string>
     <string name="show_radio_tab_description">在底部導航欄顯示電台標籤</string>
     <string name="show_breathing_tab">呼吸 Tab</string>

@@ -628,6 +628,7 @@
     <string name="recommended">추천</string>
     <string name="more_live">더 많은 라이브</string>
     <string name="no_live">현재 라이브 방송이 없습니다</string>
+    <string name="room_not_live">이 방송국은 현재 라이브 중이 아닙니다</string>
     <string name="show_radio_tab">라디오 탭</string>
     <string name="show_radio_tab_description">하단 탐색 표시줄에 라디오 탭 표시</string>
     <string name="show_breathing_tab">호흡 탭</string>

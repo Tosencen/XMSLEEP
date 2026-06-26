@@ -6,7 +6,7 @@
 A white noise and natural sound player app to help you relax, focus, and sleep better.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Kotlin](https://img.shields.io/badge/Kotlin-1.9.0-blue.svg)](https://kotlinlang.org/)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.1.0-blue.svg)](https://kotlinlang.org/)
 [![Android](https://img.shields.io/badge/Android-8.0%2B-green.svg)](https://www.android.com/)
 
 [Download](#download) • [Features](#features) • [Usage](#usage)
@@ -66,6 +66,7 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 - **Volume Control**: Support for independent volume adjustment for each sound, or one-click adjustment for all sounds
 - **Volume Persistence**: Volume settings are automatically saved and restored on app restart
 - **Bluetooth Headset Support**: Automatically pauses playback when Bluetooth headset disconnects
+- **Bilibili Live Radio**: Search and play Bilibili live streaming rooms, pin favorite rooms for quick access
 
 ### 🎨 Interface & Experience
 - **Beautiful Animations**: Built-in sounds come with WebP animations to enhance visual experience
@@ -95,15 +96,26 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 - **WebP** - Animation support (sound card animations)
 - **MaterialKolor** - Dynamic theme color generation
 - **Accompanist** - Pull-to-refresh support
+- **Hilt** - Dependency injection framework
+- **Lottie** - High-quality animation rendering
 
 ## 📦 Current Version
 
-- **Version**: 2.2.3
-- **Version Code**: 38
+- **Version**: 2.2.6
+- **Version Code**: 41
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 
 ## 🆕 Latest Updates
+
+### v2.2.6
+#### 🎨 New Features
+- **Bilibili Live Radio**: Added Bilibili live streaming radio feature, search for study rooms, white noise, and more categories
+- **Pin Rooms**: Favorite frequently used live rooms for quick switching; non-live rooms are automatically grayed out
+
+#### ✨ Improvements
+- **Edit Mode Optimization**: Auto-close pin edit mode when dismissing the bottom sheet to prevent accidental operations
+- **Preset Dialog Improvement**: Reset edit state when closing the preset name edit dialog
 
 ### v2.2.3
 #### 🎨 New Features
@@ -158,7 +170,7 @@ Latest version available on [GitHub Releases](https://github.com/Tosencen/XMSLEE
 
 ## 📋 Build Requirements
 
-- **Android Studio**: Hedgehog | 2023.1.1 or higher
+- **Android Studio**: Ladybug | 2024.2.1 or higher
 - **JDK**: 17 or higher
 - **Android SDK**: API 33 or higher
 - **Gradle**: 8.0 or higher
@@ -195,11 +207,12 @@ Latest version available on [GitHub Releases](https://github.com/Tosencen/XMSLEE
 5. **Custom Settings**: Adjust theme colors, hide animations, etc. in settings page
 6. **Preset Management**: Tap sound card title, select "Pin" to add sound to preset area; supports up to 3 preset configurations, swipe left/right to switch
 7. **Favorites**: Tap sound card title, select "Favorite" to add sound to favorites list
+8. **Bilibili Radio**: Tap the search button on the radio page to search Bilibili live rooms by category, tap the pin icon to favorite frequently used rooms
 
 ### Advanced Features
-8. **Global Floating Button**: When sounds are playing, a floating button appears, tap to expand and view currently playing sounds
-9. **Long Press Drag to Stop**: Long press floating button to drag, drag to bottom red area to stop all playback
-
+9. **Global Floating Button**: When sounds are playing, a floating button appears, tap to expand and view currently playing sounds
+10. **Long Press Drag to Stop**: Long press floating button to drag, drag to bottom red area to stop all playback
+11. **Batch Add to Preset**: When floating button is expanded, batch add currently playing sounds to the current preset
 
 ## ⚠️ Sound Source Attribution
 
@@ -247,4 +260,3 @@ Issues and Pull Requests are welcome!
 © 2026 XMSLEEP. All rights reserved.
 
 </div>
-

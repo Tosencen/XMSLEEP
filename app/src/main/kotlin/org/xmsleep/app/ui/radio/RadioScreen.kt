@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.viewinterop.AndroidView
 import android.widget.ImageView
+import android.widget.Toast
 import com.airbnb.lottie.LottieAnimationView
 import com.airbnb.lottie.LottieDrawable
 import com.airbnb.lottie.LottieProperty
@@ -57,6 +58,8 @@ import org.xmsleep.app.R
 import org.xmsleep.app.audio.model.RadioStation
 import androidx.compose.ui.res.stringResource
 import org.xmsleep.app.audio.BilibiliApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.xmsleep.app.ui.ThemeColorCallback
 import org.xmsleep.app.ui.TimerDialog
 import org.xmsleep.app.ui.TimerFAB
@@ -451,7 +454,7 @@ fun RadioScreen(
         var selectedTag by remember { mutableStateOf("白噪音") }
 
         ModalBottomSheet(
-            onDismissRequest = { showBilibiliSheet = false },
+            onDismissRequest = { showBilibiliSheet = false; isEditMode = false },
             sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
         ) {
             Column(
@@ -541,6 +544,16 @@ fun RadioScreen(
                 val pinnedRooms = pinnedRoomInfos
                 val otherRooms = bilibiliRooms.filter { it.roomId !in pinnedRoomIds }
 
+                val roomLiveStatus = remember { mutableStateMapOf<String, Boolean>() }
+
+                LaunchedEffect(pinnedRooms) {
+                    roomLiveStatus.clear()
+                    for (room in pinnedRooms) {
+                        val info = withContext(Dispatchers.IO) { BilibiliApi.getRoomInfo(room.roomId) }
+                        roomLiveStatus[room.roomId] = info?.isLive == true
+                    }
+                }
+
                 if (bilibiliRooms.isEmpty()) {
                     Box(
                         modifier = Modifier
@@ -574,9 +587,11 @@ fun RadioScreen(
                                     playingRoomId = playingRoomId,
                                     isEditMode = isEditMode,
                                     isPinned = true,
+                                    isLive = roomLiveStatus[room.roomId] ?: false,
                                     onPinToggle = { viewModel.togglePinRoom(room.roomId, room) },
                                     onPlay = {
                                         showBilibiliSheet = false
+                                        isEditMode = false
                                         viewModel.setPlayingRoomInfo(room)
                                         viewModel.playBilibiliRoom(room.roomId, room)
                                     }
@@ -600,6 +615,7 @@ fun RadioScreen(
                                     onPinToggle = { viewModel.togglePinRoom(room.roomId, room) },
                                     onPlay = {
                                         showBilibiliSheet = false
+                                        isEditMode = false
                                         viewModel.setPlayingRoomInfo(room)
                                         viewModel.playBilibiliRoom(room.roomId, room)
                                     }
@@ -634,9 +650,11 @@ private fun RoomCard(
     playingRoomId: String?,
     isEditMode: Boolean = false,
     isPinned: Boolean = false,
+    isLive: Boolean = true,
     onPinToggle: () -> Unit = {},
     onPlay: () -> Unit
 ) {
+    val context = LocalContext.current
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -646,7 +664,13 @@ private fun RoomCard(
             MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
         else
             MaterialTheme.colorScheme.surface,
-        onClick = onPlay
+        onClick = {
+            if (isLive) {
+                onPlay()
+            } else {
+                Toast.makeText(context, R.string.room_not_live, Toast.LENGTH_SHORT).show()
+            }
+        }
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
@@ -660,12 +684,21 @@ private fun RoomCard(
                     fontWeight = FontWeight.Medium,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    color = if (room.roomId == playingRoomId && isPlaying) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    color = when {
+                        !isLive -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                        room.roomId == playingRoomId && isPlaying -> MaterialTheme.colorScheme.primary
+                        else -> MaterialTheme.colorScheme.onSurface
+                    }
                 )
                 Text(
                     text = "${room.userName} · ${room.online} 人",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (room.roomId == playingRoomId && isPlaying) MaterialTheme.colorScheme.primary.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (!isLive)
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
+                    else if (room.roomId == playingRoomId && isPlaying)
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.7f)
+                    else
+                        MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             if (isEditMode) {

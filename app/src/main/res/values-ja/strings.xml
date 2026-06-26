@@ -635,6 +635,7 @@
     <string name="recommended">おすすめ</string>
     <string name="more_live">その他の配信</string>
     <string name="no_live">現在配信中のルームはありません</string>
+    <string name="room_not_live">このルームは現在配信していません</string>
     <string name="show_radio_tab">ラジオタブ</string>
     <string name="show_radio_tab_description">下部ナビゲーションバーにラジオタブを表示</string>
     <string name="show_breathing_tab">呼吸タブ</string>
