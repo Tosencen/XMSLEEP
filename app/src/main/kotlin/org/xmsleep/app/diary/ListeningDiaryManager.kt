@@ -1,7 +1,6 @@
 package org.xmsleep.app.diary
 
 import android.content.Context
-import android.widget.Toast
 import com.google.gson.Gson
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.audio.model.SoundMetadata

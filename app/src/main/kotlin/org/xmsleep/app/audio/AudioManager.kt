@@ -137,7 +137,6 @@ class AudioManager private constructor() {
     private val audioFocusCallback = object : AudioFocusManager.Callback {
         override fun onAudioFocusLost() {
             pauseAllSounds()
-            audioFocusManager.hasAudioFocus()
         }
 
         override fun onAudioFocusLostTransient() {

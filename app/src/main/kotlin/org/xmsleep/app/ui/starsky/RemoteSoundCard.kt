@@ -2,7 +2,6 @@ package org.xmsleep.app.ui.starsky
 
 import android.widget.Toast
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -25,7 +24,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
@@ -339,20 +337,12 @@ fun RemoteSoundCard(
         val iconSize = if (columnsCount == 3) 36.dp else 45.dp
 
         val circleAlpha by animateFloatAsState(
-            targetValue = when {
-                isPlaying -> 1f
-                isCached -> 0.6f
-                else -> 0.4f
-            },
+            targetValue = if (isPlaying) 1f else 0.4f,
             label = "circleAlpha"
         )
 
         val titleAndIconAlpha by animateFloatAsState(
-            targetValue = when {
-                isPlaying -> 1f
-                isCached -> 0.6f
-                else -> 0.4f
-            },
+            targetValue = if (isPlaying) 1f else 0.4f,
             label = "titleAndIconAlpha"
         )
 
@@ -501,11 +491,8 @@ fun RemoteSoundCard(
                                                 this.scaleY = pulseIconScale
                                             }
                                         },
-                                    tint = when {
-                                        isPlaying -> Color.White
-                                        isCached -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                                        else -> MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                                    }
+                                    tint = if (isPlaying) Color.White
+                                           else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
                                 )
                             }
                         }

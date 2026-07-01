@@ -1,6 +1,5 @@
 package org.xmsleep.app.ui
 
-import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -8,11 +7,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.filled.Favorite // explicit for icon resolution
@@ -26,10 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
-import androidx.core.content.ContextCompat
-import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -37,7 +31,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.i18n.LanguageManager
@@ -50,7 +43,6 @@ import org.xmsleep.app.ui.starsky.StarSkyScreen
 import org.xmsleep.app.ui.breathing.BreathingScreen
 import org.xmsleep.app.ui.flipclock.FlipClockScreen
 import org.xmsleep.app.ui.tomato.TomatoTimerScreen
-import org.xmsleep.app.update.UpdateDialog
 import org.xmsleep.app.utils.Logger
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Alignment
@@ -62,14 +54,11 @@ import androidx.compose.ui.graphics.Brush
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
-import dev.chrisbanes.haze.HazeStyle
-import dev.chrisbanes.haze.materials.HazeMaterials
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
-import org.xmsleep.app.weather.WeatherSoundMapper
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.ui.viewmodel.MainViewModel
 import org.xmsleep.app.ui.viewmodel.SoundsViewModel
@@ -102,7 +91,14 @@ fun MainScreen(
     onSoundCardsColumnsCountChange: (Int) -> Unit,
     paletteColors: List<androidx.compose.ui.graphics.Color>,
     mainViewModel: MainViewModel = hiltViewModel(),
-    soundsViewModel: SoundsViewModel = hiltViewModel()
+    soundsViewModel: SoundsViewModel = hiltViewModel(),
+    customBackgroundUri: String? = null,
+    onPickCustomBackground: () -> Unit = {},
+    pendingCustomBgUri: String? = null,
+    pendingCustomBgColor: Color? = null,
+    onCommitCustomBg: () -> Unit = {},
+    onCancelCustomBg: () -> Unit = {},
+    onCustomColorChange: (Color) -> Unit = {}
 ) {
     // 使用Navigator接口来管理导航
     val navigator = rememberXMSleepNavigator()
@@ -438,6 +434,7 @@ fun MainScreen(
             if (!hideAnimation) {
                 org.xmsleep.app.ui.components.AnimatedBackground(
                     backgroundSelection = backgroundSelection,
+                    customBackgroundUri = customBackgroundUri,
                     modifier = Modifier.fillMaxSize()
                 )
             }
@@ -471,25 +468,30 @@ fun MainScreen(
                             var accumulatedDrag = 0f
                             detectHorizontalDragGestures(
                                 onDragEnd = {
-                                    // 手势结束时判断是否切换页面
-                                    val threshold = size.width * 0.25f
+                                    val threshold = size.width * 0.35f
                                     when {
-                                        // 向右滑动
                                         accumulatedDrag > threshold -> {
                                             when (selectedItem) {
-                                                2 -> selectedItem = 1  // 从繁星到白噪音
-                                                5 -> selectedItem = 2  // 从电台到繁星
-                                                4 -> selectedItem = 5  // 从呼吸到电台
-                                                3 -> selectedItem = 4  // 从设置到呼吸
+                                                2 -> selectedItem = 1
+                                                5 -> selectedItem = 2
+                                                4 -> selectedItem =
+                                                    if (showRadioTab) 5 else 2
+                                                3 -> selectedItem =
+                                                    if (showBreathingTab) 4
+                                                    else if (showRadioTab) 5
+                                                    else 2
                                             }
                                         }
-                                        // 向左滑动
                                         accumulatedDrag < -threshold -> {
                                             when (selectedItem) {
-                                                1 -> selectedItem = 2  // 从白噪音到繁星
-                                                2 -> selectedItem = 5  // 从繁星到电台
-                                                5 -> selectedItem = 4  // 从电台到呼吸
-                                                4 -> selectedItem = 3  // 从呼吸到设置
+                                                1 -> selectedItem = 2
+                                                2 -> selectedItem =
+                                                    if (showRadioTab) 5
+                                                    else if (showBreathingTab) 4
+                                                    else 3
+                                                5 -> selectedItem =
+                                                    if (showBreathingTab) 4 else 3
+                                                4 -> selectedItem = 3
                                             }
                                         }
                                     }
@@ -629,6 +631,7 @@ fun MainScreen(
                                 updateViewModel = updateViewModel,
                                 currentLanguage = currentLanguage,
                                 onLanguageChange = onLanguageChange,
+                                customBackgroundUri = customBackgroundUri,
                                 onScrollDetected = {
                                     // 滚动时，触发浮动按钮收缩
                                     shouldCollapseFloatingButton = true
@@ -639,9 +642,6 @@ fun MainScreen(
                                 },
                                 onNavigateToTheme = { 
                                     navigator.navigateToTheme()
-                                },
-                                onNavigateToSounds = {
-                                    // 不再需要导航到声音页面，因为已经是独立tab
                                 },
                                 onNavigateToQuoteHistory = {
                                     navigator.navigateToQuoteHistory()
@@ -657,7 +657,13 @@ fun MainScreen(
                                 onContentHiddenChange = { isHidden ->
                                     isSettingsContentHidden = isHidden
                                 },
-                                onShowDeveloperLetter = { showDeveloperLetter = true }
+                                onShowDeveloperLetter = { showDeveloperLetter = true },
+                                onPickCustomBackground = onPickCustomBackground,
+                                pendingCustomBgUri = pendingCustomBgUri,
+                                pendingCustomBgColor = pendingCustomBgColor,
+                                onCommitCustomBg = onCommitCustomBg,
+                                onCancelCustomBg = onCancelCustomBg,
+                                onCustomColorChange = onCustomColorChange
                             )
                         }
                         else -> { /* 不应该到达这里 */ }

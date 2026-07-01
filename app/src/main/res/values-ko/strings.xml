@@ -66,6 +66,7 @@
     <string name="background_animation">배경 애니메이션</string>
     <string name="select_background">배경 선택</string>
     <string name="no_background">배경 없음</string>
+    <string name="custom_background">사용자 정의</string>
     <string name="background_1">배경 1</string>
     <string name="background_2">배경 2</string>
     <string name="background_3">배경 3</string>

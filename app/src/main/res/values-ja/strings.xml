@@ -69,6 +69,7 @@
     <string name="background_animation">背景アニメーション</string>
     <string name="select_background">背景を選択</string>
     <string name="no_background">背景なし</string>
+    <string name="custom_background">カスタム</string>
     <string name="background_1">背景 1</string>
     <string name="background_2">背景 2</string>
     <string name="background_3">背景 3</string>

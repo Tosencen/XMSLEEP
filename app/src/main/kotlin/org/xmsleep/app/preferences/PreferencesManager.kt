@@ -45,7 +45,6 @@ object PreferencesManager {
     private val KEY_PRESET_NAME_PREFIX = Constants.PrefsKeys.PRESET_NAME_PREFIX
     private val KEY_PRESET_LOCAL_PREFIX = Constants.PrefsKeys.PRESET_LOCAL_PREFIX
     private val KEY_PRESET_REMOTE_PREFIX = Constants.PrefsKeys.PRESET_REMOTE_PREFIX
-    private val MAX_PRESET_COUNT = Constants.PrefsKeys.MAX_PRESET_COUNT
     private val KEY_LOCAL_AUDIO_FAVORITES = Constants.PrefsKeys.LOCAL_AUDIO_FAVORITES
     private val KEY_RECENT_LOCAL_SOUNDS = Constants.PrefsKeys.RECENT_LOCAL_SOUNDS
     private val KEY_RECENT_REMOTE_SOUNDS = Constants.PrefsKeys.RECENT_REMOTE_SOUNDS
@@ -682,7 +681,28 @@ object PreferencesManager {
         val value = prefs.getString(KEY_BACKGROUND_SELECTION, "none") ?: "none"
         return org.xmsleep.app.ui.BackgroundSelection.fromValue(value)
     }
-    
+
+    fun saveCustomBackgroundUri(context: Context, uri: String) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(Constants.PrefsKeys.CUSTOM_BACKGROUND_URI, uri).apply()
+    }
+
+    fun getCustomBackgroundUri(context: Context): String? {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(Constants.PrefsKeys.CUSTOM_BACKGROUND_URI, null)
+    }
+
+    fun saveCustomBackgroundColor(context: Context, color: Color) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putLong(Constants.PrefsKeys.CUSTOM_BACKGROUND_COLOR, color.value.toLong()).apply()
+    }
+
+    fun getCustomBackgroundColor(context: Context, default: Color): Color {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val colorValue = prefs.getLong(Constants.PrefsKeys.CUSTOM_BACKGROUND_COLOR, -1L)
+        return if (colorValue != -1L) Color(colorValue.toULong()) else default
+    }
+
     /**
      * 保存自动倒计时时间（分钟）
      * @param minutes 倒计时分钟数，0 表示不设置倒计时

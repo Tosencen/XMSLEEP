@@ -69,6 +69,7 @@
     <string name="background_animation">Анимация фона</string>
     <string name="select_background">Выбрать фон</string>
     <string name="no_background">Без фона</string>
+    <string name="custom_background">Пользовательский</string>
     <string name="background_1">Фон 1</string>
     <string name="background_2">Фон 2</string>
     <string name="background_3">Фон 3</string>

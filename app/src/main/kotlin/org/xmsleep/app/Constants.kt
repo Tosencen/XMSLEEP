@@ -102,6 +102,8 @@ object Constants {
         const val VOLUME_PREFIX = "volume_"
         
         const val BACKGROUND_SELECTION = "background_animation_selection"
+        const val CUSTOM_BACKGROUND_URI = "custom_background_uri"
+        const val CUSTOM_BACKGROUND_COLOR = "custom_background_color"
         const val AUTO_COUNTDOWN_MINUTES = "auto_countdown_minutes"
         const val LAST_TIMER_MINUTES = "last_timer_minutes"
         const val KEEP_SCREEN_ON = "keep_screen_on"

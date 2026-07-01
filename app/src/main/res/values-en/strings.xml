@@ -69,6 +69,7 @@
     <string name="background_animation">Background Animation</string>
     <string name="select_background">Select Background</string>
     <string name="no_background">No Background</string>
+    <string name="custom_background">Custom</string>
     <string name="background_1">Background 1</string>
     <string name="background_2">Background 2</string>
     <string name="background_3">Background 3</string>

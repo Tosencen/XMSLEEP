@@ -54,28 +54,6 @@ object LanguageManager {
     }
     
     /**
-     * 获取系统语言
-     */
-    private fun getSystemLanguage(context: Context): Language {
-        val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context.resources.configuration.locales[0]
-        } else {
-            @Suppress("DEPRECATION")
-            context.resources.configuration.locale
-        }
-        
-        return when {
-            locale.language == "zh" && locale.country == "CN" -> Language.SIMPLIFIED_CHINESE
-            locale.language == "zh" && (locale.country == "TW" || locale.country == "HK" || locale.country == "MO") -> Language.TRADITIONAL_CHINESE
-            locale.language == "en" -> Language.ENGLISH
-            locale.language == "ko" -> Language.KOREAN
-            locale.language == "ja" -> Language.JAPANESE
-            locale.language == "ru" -> Language.RUSSIAN
-            else -> Language.SIMPLIFIED_CHINESE
-        }
-    }
-    
-    /**
      * 获取当前语言的Locale
      */
     fun getCurrentLocale(context: Context): Locale {

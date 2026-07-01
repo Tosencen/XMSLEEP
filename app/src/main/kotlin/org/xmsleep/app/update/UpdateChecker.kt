@@ -5,13 +5,11 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.xmsleep.app.Constants
 import org.xmsleep.app.utils.Logger
 import org.xmsleep.app.utils.NetworkClient
 import java.io.IOException
-import java.util.concurrent.TimeUnit
 
 /**
  * GitHub Releases API 更新检查器

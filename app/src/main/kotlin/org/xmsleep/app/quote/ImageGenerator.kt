@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
-import android.graphics.Rect
 import android.graphics.Typeface
 import org.xmsleep.app.R
 import org.xmsleep.app.utils.Logger

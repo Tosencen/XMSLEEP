@@ -8,13 +8,9 @@ import android.net.Uri
 import android.os.Build
 import android.widget.Toast
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -24,11 +20,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.PointerEventPass
-import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,14 +36,11 @@ import org.xmsleep.app.Constants
 import org.xmsleep.app.ui.components.AboutDialog
 import org.xmsleep.app.ui.components.BackgroundSelectionDialog
 import org.xmsleep.app.ui.components.LanguageSelectionDialog
-import org.xmsleep.app.ui.components.SwitchItem
 import org.xmsleep.app.ui.BackgroundSelection
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.update.UpdateDialog
 import org.xmsleep.app.ui.starsky.WeatherEditDialog
-import org.xmsleep.app.ui.components.PullRingControl
 import org.xmsleep.app.utils.Logger
-import org.xmsleep.app.utils.*
 
 /**
  * 设置页面 - 应用配置和管理
@@ -69,7 +60,6 @@ fun SettingsScreen(
     currentLanguage: LanguageManager.Language,
     onLanguageChange: (LanguageManager.Language) -> Unit,
     onNavigateToTheme: () -> Unit,
-    onNavigateToSounds: () -> Unit = {},
     onNavigateToQuoteHistory: () -> Unit = {},
     onNavigateToFlipClock: () -> Unit = {},
     onNavigateToDiary: () -> Unit = {},
@@ -77,7 +67,14 @@ fun SettingsScreen(
     locationPermissionLauncher: androidx.activity.compose.ManagedActivityResultLauncher<String, Boolean>,
     onScrollDetected: () -> Unit = {},
     onContentHiddenChange: (Boolean) -> Unit = {},
-    onShowDeveloperLetter: () -> Unit = {}
+    onShowDeveloperLetter: () -> Unit = {},
+    customBackgroundUri: String? = null,
+    onPickCustomBackground: () -> Unit = {},
+    pendingCustomBgUri: String? = null,
+    pendingCustomBgColor: androidx.compose.ui.graphics.Color? = null,
+    onCommitCustomBg: () -> Unit = {},
+    onCancelCustomBg: () -> Unit = {},
+    onCustomColorChange: (androidx.compose.ui.graphics.Color) -> Unit = {}
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -119,7 +116,7 @@ fun SettingsScreen(
             context, Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
     }
-    
+
     val updateState by updateViewModel.updateState.collectAsState()
     // 获取当前版本号
     val currentVersion = remember {
@@ -603,15 +600,6 @@ fun SettingsScreen(
         
         // 软件更新对话框
         if (showUpdateDialog) {
-            // 如果状态是Installing，检查是否有已下载的文件，如果有则重置为Downloaded状态
-            // 注意：resetInstallingStateIfFileExists方法已移除，如需可以重新实现
-            // LaunchedEffect(showUpdateDialog, updateState) {
-            //     if (showUpdateDialog && updateState is org.xmsleep.app.update.UpdateState.Installing) {
-            //         delay(100) // 短暂延迟确保UpdateDialog已初始化
-            //         updateViewModel.resetInstallingStateIfFileExists()
-            //     }
-            // }
-            
             UpdateDialog(
                 onDismiss = { showUpdateDialog = false },
                 updateViewModel = updateViewModel,
@@ -981,42 +969,41 @@ fun SettingsScreen(
         
         // 背景选择对话框
         if (showBackgroundDialog) {
-            // 保存打开对话框时的原始选择
             val originalSelection = remember { backgroundSelection }
-            // 跟踪临时选择
-            var tempSelection by remember { mutableStateOf(backgroundSelection) }
-            
+
             Logger.d("SettingsScreen", "打开背景对话框，当前选择: $backgroundSelection")
             
             BackgroundSelectionDialog(
-                currentSelection = tempSelection,
+                currentSelection = backgroundSelection,
                 paletteColors = paletteColors,
                 currentColor = currentColor,
                 onSelectionChange = { selection ->
-                    // 实时预览：只更新临时选择和UI显示
                     Logger.d("SettingsScreen", "选择变化（预览）: $selection")
-                    tempSelection = selection
-                    onBackgroundSelectionChange(selection) // 实时预览
+                    onBackgroundSelectionChange(selection)
                 },
                 onColorChange = {
-                    // 选颜色时自动切到无背景
-                    tempSelection = BackgroundSelection.None
                     onBackgroundSelectionChange(BackgroundSelection.None)
                     onColorChange(it)
                 },
                 onDismiss = {
-                    // 取消时恢复原始选择
                     Logger.d("SettingsScreen", "取消，恢复原始选择: $originalSelection")
+                    onCancelCustomBg()
                     onBackgroundSelectionChange(originalSelection)
                     showBackgroundDialog = false
                 },
                 onConfirm = {
-                    // 确认时：确保状态和持久化都更新
-                    Logger.d("SettingsScreen", "确认，保存选择: $tempSelection")
-                    onBackgroundSelectionChange(tempSelection)
+                    Logger.d("SettingsScreen", "确认，保存选择: $backgroundSelection")
+                    if (backgroundSelection == BackgroundSelection.Custom && pendingCustomBgUri != null) {
+                        onCommitCustomBg()
+                    }
                     showBackgroundDialog = false
                 },
-                currentLanguage = currentLanguage // 传递当前语言以强制重组
+                currentLanguage = currentLanguage,
+                customBackgroundUri = customBackgroundUri,
+                pendingCustomBgUri = pendingCustomBgUri,
+                pendingCustomBgColor = pendingCustomBgColor,
+                onCustomBackgroundClick = { onPickCustomBackground() },
+                onCustomColorChange = onCustomColorChange
             )
         }
         
@@ -1098,7 +1085,36 @@ fun SettingsScreen(
                     // 刷新天气功能在设置页面不需要实现
                 }
             )
+    }
+}
+
+internal fun copyToPrivateStorage(context: Context, uri: Uri): Uri? {
+    return try {
+        val mimeType = context.contentResolver.getType(uri) ?: "image/png"
+        val ext = when {
+            mimeType.contains("png") -> "png"
+            mimeType.contains("gif") -> "gif"
+            mimeType.contains("webp") -> "webp"
+            mimeType.contains("mp4") -> "mp4"
+            else -> "png"
         }
+        val bgDir = java.io.File(context.filesDir, "custom_bg")
+        bgDir.mkdirs()
+        // 清除旧文件，避免 Coil 缓存旧图
+        bgDir.listFiles()?.forEach { it.delete() }
+        val fileName = "custom_bg_${System.currentTimeMillis()}.$ext"
+        val destFile = java.io.File(bgDir, fileName)
+
+        context.contentResolver.openInputStream(uri)?.use { input ->
+            java.io.FileOutputStream(destFile).use { output ->
+                input.copyTo(output)
+            }
+        }
+        android.net.Uri.fromFile(destFile)
+    } catch (e: Exception) {
+        Logger.e("SettingsScreen", "复制自定义背景文件失败", e)
+        null
+    }
 }
 
 /**
