@@ -164,7 +164,12 @@ object ImageGenerator {
             setShadowLayer(6f, 0f, 2f, android.graphics.Color.argb(200, 0, 0, 0))
         }
         
-        val appNameY = qrTop - 20f
+        // 计算文本块垂直中心，与二维码垂直中心对齐
+        val qrCenterY = qrTop + qrSize / 2f
+        val fm1 = appNamePaint.fontMetrics
+        val fm2 = appDescPaint.fontMetrics
+        val textBlockCenter = fm1.ascent + 48f + fm2.descent
+        val appNameY = qrCenterY - textBlockCenter / 2f
         canvas.drawText("XMSLEEP", padding, appNameY, appNamePaint)
         canvas.drawText("白噪音助眠应用", padding, appNameY + 48f, appDescPaint)
         
