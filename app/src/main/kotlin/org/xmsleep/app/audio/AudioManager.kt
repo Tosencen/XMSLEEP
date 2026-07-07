@@ -208,6 +208,12 @@ class AudioManager private constructor() {
     @UnstableApi
     fun playSound(context: Context, sound: Sound) {
         stopRadio()
+        // 互斥：停止本地音频
+        try {
+            org.xmsleep.app.audio.LocalAudioPlayer.getInstance().stopAllAudios()
+        } catch (e: Exception) {
+            Logger.e(TAG, "停止本地音频失败", e)
+        }
         musicServiceManager.setPausedState(false)
         Logger.d(TAG, "playSound 被调用: ${sound.name}")
 
@@ -474,6 +480,12 @@ class AudioManager private constructor() {
         uri: android.net.Uri
     ) {
         stopRadio()
+        // 互斥：停止本地音频
+        try {
+            org.xmsleep.app.audio.LocalAudioPlayer.getInstance().stopAllAudios()
+        } catch (e: Exception) {
+            Logger.e(TAG, "停止本地音频失败", e)
+        }
         musicServiceManager.setPausedState(false)
         initializeIfNeeded(context)
 

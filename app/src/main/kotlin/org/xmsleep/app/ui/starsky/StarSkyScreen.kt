@@ -2,6 +2,8 @@ package org.xmsleep.app.ui.starsky
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -13,6 +15,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -23,6 +26,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -667,29 +671,41 @@ fun StarSkyScreen(
                     containerColor = Color.Transparent,
                     contentColor = MaterialTheme.colorScheme.primary,
                     edgePadding = 0.dp,
-                    indicator = { tabPositions ->
-                        TabRowDefaults.SecondaryIndicator(
-                            Modifier.pagerTabIndicatorOffset(pagerState, tabPositions)
-                        )
+                    divider = {},
+                    indicator = { _ ->
                     }
                 ) {
                     allCategories.forEachIndexed { index, categoryId ->
+                        val selected = pagerState.currentPage == index
                         Tab(
-                            selected = pagerState.currentPage == index,
+                            selected = selected,
                             onClick = { 
                                 scope.launch { 
                                     pagerState.animateScrollToPage(index) 
                                 }
                             },
+                            modifier = Modifier.padding(horizontal = 4.dp),
                             text = {
-                                Text(
-                                    text = if (categoryId == null) 
-                                        context.getString(R.string.all_categories) 
-                                    else 
-                                        getCategoryDisplayName(categoryId),
-                                    style = MaterialTheme.typography.labelLarge,
-                                    fontWeight = if (pagerState.currentPage == index) FontWeight.SemiBold else FontWeight.Normal
-                                )
+                                Box {
+                                    Text(
+                                        text = if (categoryId == null) 
+                                            context.getString(R.string.all_categories) 
+                                        else 
+                                            getCategoryDisplayName(categoryId),
+                                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                        fontSize = if (selected) 16.sp else 14.sp,
+                                        color = if (selected) Color.Unspecified else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                                    )
+                                    if (selected) {
+                                        Box(
+                                            modifier = Modifier
+                                                .align(Alignment.TopEnd)
+                                                .offset(x = 6.dp, y = (-4).dp)
+                                                .size(8.dp)
+                                                .border(1.5.dp, MaterialTheme.colorScheme.primary, androidx.compose.foundation.shape.CircleShape)
+                                        )
+                                    }
+                                }
                             }
                         )
                     }

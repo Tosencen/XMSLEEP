@@ -24,12 +24,7 @@ enum class BackgroundSelection(
     Custom("custom", null, null, null),
     
     Background1("bg_1", R.drawable.bg_animation_1, R.drawable.bg_animation_1_thumb_png, Color(0xFF515487)),
-    Background2("bg_2", R.drawable.bg_animation_2, R.drawable.bg_animation_2_thumb_png, Color(0xFF264E70)),
-    Background3("bg_3", R.drawable.bg_animation_3, R.drawable.bg_animation_3_thumb_png, Color(0xFFB94E67)),
-    Background4("bg_4", R.drawable.bg_animation_4, R.drawable.bg_animation_4_thumb_png, Color(0xFFB7C66A)),
-    Background5("bg_5", R.drawable.bg_animation_5, R.drawable.bg_animation_5_thumb_png, Color(0xFF8DA89C)),
-    Background6("bg_6", R.drawable.bg_animation_6, R.drawable.bg_animation_6_thumb_png, Color(0xFF5B9BD5)),
-    Background7("bg_7", R.drawable.bg_animation_7, R.drawable.bg_animation_7_thumb_png, Color(0xFF7CB342));
+    Background6("bg_6", R.drawable.bg_animation_6, R.drawable.bg_animation_6_thumb_png, Color(0xFF5B9BD5));
 
     companion object {
         fun fromValue(value: String): BackgroundSelection {
@@ -47,12 +42,7 @@ enum class BackgroundSelection(
             None -> context.getString(R.string.no_background)
             Custom -> context.getString(R.string.custom_background)
             Background1 -> context.getString(R.string.background_1)
-            Background2 -> context.getString(R.string.background_2)
-            Background3 -> context.getString(R.string.background_3)
-            Background4 -> context.getString(R.string.background_4)
-            Background5 -> context.getString(R.string.background_5)
             Background6 -> context.getString(R.string.background_6)
-            Background7 -> context.getString(R.string.background_7)
         }
     }
     

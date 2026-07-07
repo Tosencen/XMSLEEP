@@ -234,8 +234,13 @@ fun XMSLEEPApp() {
         mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getCustomBackgroundColor(context, Color.Unspecified))
     }
 
+    var customBackgroundThumbnail by remember {
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getCustomBackgroundThumbnail(context))
+    }
+
     // 对话框中待提交的自定义背景（选择文件后暂存，点确定才提交）
     var pendingCustomBgUri by remember { mutableStateOf<String?>(null) }
+    var pendingCustomBgThumbnail by remember { mutableStateOf<String?>(null) }
     var pendingCustomBgColor by remember { mutableStateOf<Color?>(null) }
 
     // 自定义背景文件选择 launcher
@@ -246,17 +251,20 @@ fun XMSLEEPApp() {
         if (uri != null) {
             coroutineScope.launch {
                 try {
-                    val copiedUri = withContext(Dispatchers.IO) {
+                    val (copiedUri, copiedThumbUri) = withContext(Dispatchers.IO) {
                         copyToPrivateStorage(context, uri)
                     }
                     if (copiedUri != null) {
+                        val fileUri = copiedUri
+                        val thumbUri = copiedThumbUri
                         val color = withContext(Dispatchers.IO) {
-                            ThemeColorExtractor(context).extractDominantColorFromUri(copiedUri)
+                            try {
+                                ThemeColorExtractor(context).extractDominantColorFromUri(fileUri)
+                            } catch (_: Exception) { null }
                         }
-                        pendingCustomBgUri = copiedUri.toString()
-                        pendingCustomBgColor = color
-                        // 对话框中高亮自定义模块
-                        backgroundSelection = BackgroundSelection.Custom
+                        pendingCustomBgUri = fileUri.toString()
+                        pendingCustomBgThumbnail = thumbUri?.toString()
+                        pendingCustomBgColor = color ?: org.xmsleep.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors[3])
                     }
                 } catch (e: Exception) {
                     Logger.e("MainActivity", "自定义背景文件处理失败", e)
@@ -265,17 +273,11 @@ fun XMSLEEPApp() {
         }
     }
 
+    val savedColor = org.xmsleep.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors[3])
+
     // 如果有背景选择，使用背景主题色；否则从 SharedPreferences 加载保存的调色板颜色
     var selectedColor by remember {
-        mutableStateOf(
-            if (backgroundSelection == BackgroundSelection.Custom && customBackgroundColor != Color.Unspecified) {
-                customBackgroundColor
-            } else if (backgroundSelection != BackgroundSelection.None) {
-                backgroundThemeColors[backgroundSelection] ?: paletteColors[3]
-            } else {
-                org.xmsleep.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors[3])
-            }
-        )
+        mutableStateOf(savedColor)
     }
 
     var useDynamicColor by remember { 
@@ -290,20 +292,32 @@ fun XMSLEEPApp() {
     var soundCardsColumnsCount by remember { 
         mutableIntStateOf(org.xmsleep.app.preferences.PreferencesManager.getSoundCardsColumnsCount(context))
     }
+    
+    var backgroundOpacity by remember {
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getBackgroundOpacity(context))
+    }
+    var backgroundBlurRadius by remember {
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getBackgroundBlurRadius(context))
+    }
 
     // 确定提交自定义背景（用户点击对话框"确定"时调用）
     val onCommitCustomBg: () -> Unit = {
         pendingCustomBgUri?.let { uri ->
             customBackgroundUri = uri
             org.xmsleep.app.preferences.PreferencesManager.saveCustomBackgroundUri(context, uri)
-            pendingCustomBgColor?.let { color ->
-                customBackgroundColor = color
-                org.xmsleep.app.preferences.PreferencesManager.saveCustomBackgroundColor(context, color)
-                selectedColor = color
+            pendingCustomBgThumbnail?.let { thumb ->
+                customBackgroundThumbnail = thumb
+                org.xmsleep.app.preferences.PreferencesManager.saveCustomBackgroundThumbnail(context, thumb)
             }
+            pendingCustomBgColor?.let { color ->
+                    customBackgroundColor = color
+                    org.xmsleep.app.preferences.PreferencesManager.saveCustomBackgroundColor(context, color)
+                }
+            backgroundSelection = BackgroundSelection.Custom
             org.xmsleep.app.preferences.PreferencesManager.saveBackgroundSelection(context, BackgroundSelection.Custom)
         }
         pendingCustomBgUri = null
+        pendingCustomBgThumbnail = null
         pendingCustomBgColor = null
     }
 
@@ -314,9 +328,9 @@ fun XMSLEEPApp() {
                 java.io.File(java.net.URI.create(uri)).delete()
             } catch (_: Exception) {}
         }
-        // 恢复为已保存的自定义背景（如果有），否则为 None
-        backgroundSelection = if (customBackgroundUri != null) BackgroundSelection.Custom else BackgroundSelection.None
+        // 不改变 backgroundSelection，保持用户打开弹窗前的状态
         pendingCustomBgUri = null
+        pendingCustomBgThumbnail = null
         pendingCustomBgColor = null
     }
 
@@ -375,13 +389,6 @@ fun XMSLEEPApp() {
                         Logger.d("MainActivity", "用户选择调色板颜色: #$colorHex")
                         selectedColor = it
                         org.xmsleep.app.preferences.PreferencesManager.saveSelectedColor(context, it)
-                        
-                        // 用户手动选择调色板颜色时，自动切换到"无背景"
-                        if (backgroundSelection != BackgroundSelection.None) {
-                            Logger.d("MainActivity", "自动切换到无背景")
-                            backgroundSelection = BackgroundSelection.None
-                            org.xmsleep.app.preferences.PreferencesManager.saveBackgroundSelection(context, BackgroundSelection.None)
-                        }
                     },
                     onDynamicColorChange = { 
                         useDynamicColor = it
@@ -396,53 +403,33 @@ fun XMSLEEPApp() {
                         org.xmsleep.app.preferences.PreferencesManager.saveHideAnimation(context, it)
                     },
                     onBackgroundSelectionChange = { newBackground ->
-                        Logger.d("MainActivity", "=== 背景切换开始 ===")
-                        Logger.d("MainActivity", "从: $backgroundSelection")
-                        Logger.d("MainActivity", "到: $newBackground")
-
-                        if (newBackground == BackgroundSelection.None) {
-                            val savedColor = org.xmsleep.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors[3])
-                            selectedColor = savedColor
-                            val colorHex = savedColor.value.toString(16).padStart(16, '0').substring(8).uppercase()
-                            Logger.d("MainActivity", "恢复调色板颜色: #$colorHex")
-                        } else if (newBackground == BackgroundSelection.Custom) {
-                            if (customBackgroundColor != Color.Unspecified) {
-                                selectedColor = customBackgroundColor
-                            }
-                        } else {
-                            Logger.d("MainActivity", "切换到背景: ${newBackground.name}, 预设颜色: ${backgroundThemeColors[newBackground]}")
-
-                            var themeColor = backgroundThemeColors[newBackground]
-
-                            if (themeColor == null && newBackground.thumbnailResourceId != null) {
-                                Logger.d("MainActivity", "预设颜色为null，从缩略图提取: ${newBackground.thumbnailResourceId}")
-                                themeColor = ThemeColorExtractor(context).extractDominantColorSync(newBackground.thumbnailResourceId!!)
-                                Logger.d("MainActivity", "实时提取结果: $themeColor")
-                            }
-
-                            if (themeColor != null) {
-                                selectedColor = themeColor
-                                Logger.d("MainActivity", "应用主题色成功")
-                            } else {
-                                Logger.e("MainActivity", "✗ 未找到背景主题色: $newBackground")
-                            }
-                        }
+                        Logger.d("MainActivity", "背景切换: $newBackground")
 
                         backgroundSelection = newBackground
                         org.xmsleep.app.preferences.PreferencesManager.saveBackgroundSelection(context, newBackground)
-
-                        Logger.d("MainActivity", "=== 背景切换结束 ===")
                     },
                     onSoundCardsColumnsCountChange = {
                         soundCardsColumnsCount = it
                         org.xmsleep.app.preferences.PreferencesManager.saveSoundCardsColumnsCount(context, it)
+                    },
+                    backgroundOpacity = backgroundOpacity,
+                    backgroundBlurRadius = backgroundBlurRadius,
+                    onBackgroundOpacityChange = {
+                        backgroundOpacity = it
+                        org.xmsleep.app.preferences.PreferencesManager.saveBackgroundOpacity(context, it)
+                    },
+                    onBackgroundBlurRadiusChange = {
+                        backgroundBlurRadius = it
+                        org.xmsleep.app.preferences.PreferencesManager.saveBackgroundBlurRadius(context, it)
                     },
                     paletteColors = paletteColors,
                     mainViewModel = mainViewModel,
                     soundsViewModel = soundsViewModel,
                     customBackgroundUri = customBackgroundUri,
                     customBackgroundColor = customBackgroundColor,
+                    customBackgroundThumbnail = customBackgroundThumbnail,
                     pendingCustomBgUri = pendingCustomBgUri,
+                    pendingCustomBgThumbnail = pendingCustomBgThumbnail,
                     pendingCustomBgColor = pendingCustomBgColor,
                     onPickCustomBackground = { customBackgroundLauncher.launch(arrayOf("image/*", "video/mp4")) },
                     onCommitCustomBg = onCommitCustomBg,

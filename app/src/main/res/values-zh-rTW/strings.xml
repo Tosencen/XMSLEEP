@@ -79,6 +79,11 @@
     <string name="background_7">背景 7</string>
     <string name="theme_color">主題顏色</string>
     <string name="theme_color_disabled_hint">選擇"無背景"後可切換主題顏色</string>
+    <string name="change_background">更換背景</string>
+    <string name="built_in_background">內建背景</string>
+    <string name="opacity">透明度</string>
+    <string name="blur_amount">模糊度</string>
+    <string name="off">關閉</string>
     <string name="background_preview">預覽背景</string>
     <string name="white_noise_cards">內建聲音</string>
     <string name="builtin_sounds_offline_hint">內建聲音無需連網直接聽</string>
@@ -275,6 +280,7 @@
     <string name="local_audio">本地音頻</string>
     <string name="search_audio">搜索音頻</string>
     <string name="no_search_results">未找到匹配的音頻</string>
+    <string name="no_local_audio">暫無本地音頻</string>
     <string name="no_audio_files_found">設備上沒有找到音頻文件</string>
     <string name="grant_storage_permission_hint">請在設置中授予存儲權限以訪問本地音頻</string>
     <string name="grant_permission">去授權</string>

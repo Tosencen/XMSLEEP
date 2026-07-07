@@ -46,6 +46,7 @@ fun BackgroundSelectionDialog(
     customBackgroundUri: String? = null,
     onCustomBackgroundClick: () -> Unit = {},
     pendingCustomBgUri: String? = null,
+    pendingCustomBgThumbnail: String? = null,
     pendingCustomBgColor: Color? = null,
     onCustomColorChange: (Color) -> Unit = {}
 ) {
@@ -59,12 +60,7 @@ fun BackgroundSelectionDialog(
             BackgroundSelection.None,
             BackgroundSelection.Custom,
             BackgroundSelection.Background1,
-            BackgroundSelection.Background2,
-            BackgroundSelection.Background3,
-            BackgroundSelection.Background4,
-            BackgroundSelection.Background5,
-            BackgroundSelection.Background6,
-            BackgroundSelection.Background7
+            BackgroundSelection.Background6
         )
     }
 
@@ -92,10 +88,18 @@ fun BackgroundSelectionDialog(
                     modifier = Modifier.heightIn(max = 400.dp)
                 ) {
                     items(backgroundOptions) { option ->
+                        val previewUri = if (option == BackgroundSelection.Custom) {
+                            val currentUri = pendingCustomBgUri ?: customBackgroundUri
+                            if (currentUri?.endsWith(".mp4", ignoreCase = true) == true) {
+                                pendingCustomBgThumbnail
+                            } else {
+                                currentUri
+                            }
+                        } else null
                         BackgroundOptionItem(
                             option = option,
                             isSelected = option == currentSelection,
-                            customPreviewUri = if (option == BackgroundSelection.Custom) pendingCustomBgUri ?: customBackgroundUri else null,
+                            customPreviewUri = previewUri,
                             onClick = {
                                 if (option == BackgroundSelection.Custom) {
                                     onCustomBackgroundClick()

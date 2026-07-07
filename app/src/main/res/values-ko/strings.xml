@@ -76,6 +76,11 @@
     <string name="background_7">배경 7</string>
     <string name="theme_color">테마 색상</string>
     <string name="theme_color_disabled_hint">테마 색상을 변경하려면 \"배경 없음\"을 선택하세요</string>
+    <string name="change_background">배경 변경</string>
+    <string name="built_in_background">내장 배경</string>
+    <string name="opacity">불투명도</string>
+    <string name="blur_amount">블러</string>
+    <string name="off">끔</string>
     <string name="background_preview">배경 미리보기</string>
     <string name="white_noise_cards">백색 소음 카드</string>
     <string name="builtin_sounds_offline_hint">내장 사운드, 네트워크 불필요</string>
@@ -255,6 +260,7 @@
     <string name="local_audio">로컬 오디오</string>
     <string name="search_audio">오디오 검색</string>
     <string name="no_search_results">일치하는 오디오를 찾을 수 없습니다</string>
+    <string name="no_local_audio">아직 로컬 오디오가 없습니다</string>
     <string name="no_audio_files_found">기기에서 오디오 파일을 찾을 수 없습니다</string>
     <string name="grant_storage_permission_hint">로컬 오디오에 접근하려면 설정에서 저장소 권한을 허용해 주세요</string>
     <string name="grant_permission">권한 부여</string>

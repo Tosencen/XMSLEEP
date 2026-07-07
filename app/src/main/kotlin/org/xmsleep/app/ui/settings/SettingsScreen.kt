@@ -34,7 +34,8 @@ import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.Constants
 import org.xmsleep.app.ui.components.AboutDialog
-import org.xmsleep.app.ui.components.BackgroundSelectionDialog
+import org.xmsleep.app.ui.components.BackgroundSettings
+import org.xmsleep.app.ui.components.BackgroundSettingsSheet
 import org.xmsleep.app.ui.components.LanguageSelectionDialog
 import org.xmsleep.app.ui.BackgroundSelection
 import org.xmsleep.app.preferences.PreferencesManager
@@ -56,6 +57,10 @@ fun SettingsScreen(
     paletteColors: List<androidx.compose.ui.graphics.Color> = emptyList(),
     currentColor: androidx.compose.ui.graphics.Color = androidx.compose.ui.graphics.Color.Unspecified,
     onColorChange: (androidx.compose.ui.graphics.Color) -> Unit = {},
+    backgroundOpacity: Float = 0.2f,
+    backgroundBlurRadius: Float = 0f,
+    onBackgroundOpacityChange: (Float) -> Unit = {},
+    onBackgroundBlurRadiusChange: (Float) -> Unit = {},
     updateViewModel: org.xmsleep.app.update.UpdateViewModel,
     currentLanguage: LanguageManager.Language,
     onLanguageChange: (LanguageManager.Language) -> Unit,
@@ -70,7 +75,9 @@ fun SettingsScreen(
     onShowDeveloperLetter: () -> Unit = {},
     customBackgroundUri: String? = null,
     onPickCustomBackground: () -> Unit = {},
+    customBackgroundThumbnail: String? = null,
     pendingCustomBgUri: String? = null,
+    pendingCustomBgThumbnail: String? = null,
     pendingCustomBgColor: androidx.compose.ui.graphics.Color? = null,
     onCommitCustomBg: () -> Unit = {},
     onCancelCustomBg: () -> Unit = {},
@@ -666,7 +673,7 @@ fun SettingsScreen(
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
-                        HorizontalDivider()
+                        // HorizontalDivider()  // 注释掉横线
                         Spacer(modifier = Modifier.height(16.dp))
 
                         // 开启应用自动播放
@@ -721,7 +728,7 @@ fun SettingsScreen(
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
-                        HorizontalDivider()
+                        // HorizontalDivider()  // 注释掉横线
                         Spacer(modifier = Modifier.height(16.dp))
 
                         var showRadioTab by remember {
@@ -967,45 +974,51 @@ fun SettingsScreen(
             )
         }
         
-        // 背景选择对话框
-        if (showBackgroundDialog) {
-            val originalSelection = remember { backgroundSelection }
-
-            Logger.d("SettingsScreen", "打开背景对话框，当前选择: $backgroundSelection")
-            
-            BackgroundSelectionDialog(
-                currentSelection = backgroundSelection,
-                paletteColors = paletteColors,
-                currentColor = currentColor,
-                onSelectionChange = { selection ->
-                    Logger.d("SettingsScreen", "选择变化（预览）: $selection")
-                    onBackgroundSelectionChange(selection)
-                },
-                onColorChange = {
-                    onBackgroundSelectionChange(BackgroundSelection.None)
-                    onColorChange(it)
-                },
-                onDismiss = {
-                    Logger.d("SettingsScreen", "取消，恢复原始选择: $originalSelection")
-                    onCancelCustomBg()
-                    onBackgroundSelectionChange(originalSelection)
-                    showBackgroundDialog = false
-                },
-                onConfirm = {
-                    Logger.d("SettingsScreen", "确认，保存选择: $backgroundSelection")
-                    if (backgroundSelection == BackgroundSelection.Custom && pendingCustomBgUri != null) {
-                        onCommitCustomBg()
-                    }
-                    showBackgroundDialog = false
-                },
-                currentLanguage = currentLanguage,
-                customBackgroundUri = customBackgroundUri,
-                pendingCustomBgUri = pendingCustomBgUri,
-                pendingCustomBgColor = pendingCustomBgColor,
-                onCustomBackgroundClick = { onPickCustomBackground() },
-                onCustomColorChange = onCustomColorChange
-            )
-        }
+        // 背景选择底部弹窗
+        BackgroundSettingsSheet(
+            show = showBackgroundDialog,
+            currentSelection = backgroundSelection,
+            paletteColors = paletteColors,
+            currentColor = currentColor,
+            currentOpacity = backgroundOpacity,
+            currentBlurRadius = backgroundBlurRadius,
+            customBackgroundUri = customBackgroundUri,
+            customBackgroundThumbnail = customBackgroundThumbnail,
+            pendingCustomBgUri = pendingCustomBgUri,
+            pendingCustomBgThumbnail = pendingCustomBgThumbnail ?: customBackgroundThumbnail,
+            pendingCustomBgColor = pendingCustomBgColor,
+            hasPendingCustomBg = pendingCustomBgUri != null,
+            onSelectionChange = { selection ->
+                Logger.d("SettingsScreen", "选择变化（预览）: $selection")
+                // 只更新内存状态用于预览，不保存到 SharedPreferences
+                // 只有点击确认时才保存
+            },
+            onColorChange = {
+                onColorChange(it)
+            },
+            onOpacityChange = onBackgroundOpacityChange,
+            onBlurRadiusChange = onBackgroundBlurRadiusChange,
+            onCustomBackgroundClick = { onPickCustomBackground() },
+            onDismiss = {
+                Logger.d("SettingsScreen", "取消背景设置")
+                onCancelCustomBg()
+                showBackgroundDialog = false
+            },
+            onConfirm = { settings ->
+                Logger.d("SettingsScreen", "确认: selection=${settings.selection}, color=${settings.color}, pendingUri=$pendingCustomBgUri")
+                // Apply all settings atomically
+                onBackgroundSelectionChange(settings.selection)
+                onColorChange(settings.color)
+                onBackgroundOpacityChange(settings.opacity)
+                onBackgroundBlurRadiusChange(settings.blurRadius)
+                // Commit pending custom background if applicable
+                if (settings.selection == BackgroundSelection.Custom && pendingCustomBgUri != null) {
+                    onCommitCustomBg()
+                }
+                showBackgroundDialog = false
+            },
+            currentLanguage = currentLanguage
+        )
         
         // 自动倒计时选择对话框
         if (showAutoCountdownDialog) {
@@ -1088,7 +1101,7 @@ fun SettingsScreen(
     }
 }
 
-internal fun copyToPrivateStorage(context: Context, uri: Uri): Uri? {
+internal fun copyToPrivateStorage(context: Context, uri: Uri): Pair<Uri?, Uri?> {
     return try {
         val mimeType = context.contentResolver.getType(uri) ?: "image/png"
         val ext = when {
@@ -1100,8 +1113,6 @@ internal fun copyToPrivateStorage(context: Context, uri: Uri): Uri? {
         }
         val bgDir = java.io.File(context.filesDir, "custom_bg")
         bgDir.mkdirs()
-        // 清除旧文件，避免 Coil 缓存旧图
-        bgDir.listFiles()?.forEach { it.delete() }
         val fileName = "custom_bg_${System.currentTimeMillis()}.$ext"
         val destFile = java.io.File(bgDir, fileName)
 
@@ -1110,10 +1121,30 @@ internal fun copyToPrivateStorage(context: Context, uri: Uri): Uri? {
                 input.copyTo(output)
             }
         }
-        android.net.Uri.fromFile(destFile)
+
+        val fileUri = android.net.Uri.fromFile(destFile)
+
+        val thumbUri = if (mimeType.contains("mp4")) {
+            try {
+                val retriever = android.media.MediaMetadataRetriever()
+                retriever.setDataSource(context, uri)
+                val bitmap = retriever.frameAtTime
+                retriever.release()
+                if (bitmap != null) {
+                    val thumbFile = java.io.File(bgDir, "${fileName}_thumb.jpg")
+                    java.io.FileOutputStream(thumbFile).use { out ->
+                        bitmap.compress(android.graphics.Bitmap.CompressFormat.JPEG, 80, out)
+                    }
+                    bitmap.recycle()
+                    android.net.Uri.fromFile(thumbFile)
+                } else null
+            } catch (_: Exception) { null }
+        } else null
+
+        Pair(fileUri, thumbUri)
     } catch (e: Exception) {
         Logger.e("SettingsScreen", "复制自定义背景文件失败", e)
-        null
+        Pair(null, null)
     }
 }
 

@@ -59,6 +59,11 @@
     <string name="background_5">背景 5</string>
     <string name="theme_color">主题颜色</string>
     <string name="theme_color_disabled_hint">选择"无背景"后可切换主题颜色</string>
+    <string name="change_background">更换背景</string>
+    <string name="built_in_background">内置背景</string>
+    <string name="opacity">透明度</string>
+    <string name="blur_amount">模糊度</string>
+    <string name="off">关闭</string>
     <string name="background_preview">预览背景</string>
     
     <!-- 本地音频权限 -->
@@ -68,6 +73,7 @@
     <string name="local_audio">本地音频</string>
     <string name="search_audio">搜索音频</string>
     <string name="no_search_results">未找到匹配的音频</string>
+    <string name="no_local_audio">暂无本地音频</string>
     <string name="no_audio_files_found">设备上没有找到音频文件</string>
     <string name="grant_storage_permission_hint">请在设置中授予存储权限以访问本地音频</string>
     <string name="grant_permission">去授权</string>

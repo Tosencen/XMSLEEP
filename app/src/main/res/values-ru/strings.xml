@@ -79,6 +79,11 @@
     <string name="background_7">Фон 7</string>
     <string name="theme_color">Цвет темы</string>
     <string name="theme_color_disabled_hint">Выберите «Без фона», чтобы изменить цвет темы</string>
+    <string name="change_background">Сменить фон</string>
+    <string name="built_in_background">Встроенный</string>
+    <string name="opacity">Прозрачность</string>
+    <string name="blur_amount">Размытие</string>
+    <string name="off">Выкл</string>
     <string name="background_preview">Предпросмотр фона</string>
     <string name="white_noise_cards">Карточки белого шума</string>
     <string name="builtin_sounds_offline_hint">Встроенные звуки, не требуют подключения к сети</string>
@@ -262,6 +267,7 @@
     <string name="local_audio">Локальное аудио</string>
     <string name="search_audio">Поиск аудио</string>
     <string name="no_search_results">Аудио не найдено</string>
+    <string name="no_local_audio">Пока нет локального аудио</string>
     <string name="no_audio_files_found">На устройстве не найдено аудиофайлов</string>
     <string name="grant_storage_permission_hint">Пожалуйста, предоставьте разрешение на хранилище в настройках для доступа к локальному аудио</string>
     <string name="grant_permission">Предоставить разрешение</string>

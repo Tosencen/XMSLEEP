@@ -79,6 +79,11 @@
     <string name="background_7">Background 7</string>
     <string name="theme_color">Theme Color</string>
     <string name="theme_color_disabled_hint">Select \"No Background\" to change theme color</string>
+    <string name="change_background">Change Background</string>
+    <string name="built_in_background">Built-in</string>
+    <string name="opacity">Opacity</string>
+    <string name="blur_amount">Blur</string>
+    <string name="off">Off</string>
     <string name="background_preview">Preview Background</string>
     <string name="white_noise_cards">White Noise Cards</string>
     <string name="builtin_sounds_offline_hint">Built-in sounds, no network required</string>
@@ -262,6 +267,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="local_audio">Local Audio</string>
     <string name="search_audio">Search Audio</string>
     <string name="no_search_results">No matching audio found</string>
+    <string name="no_local_audio">No local audio yet</string>
     <string name="no_audio_files_found">No audio files found on device</string>
     <string name="grant_storage_permission_hint">Please grant storage permission in settings to access local audio</string>
     <string name="grant_permission">Grant Permission</string>

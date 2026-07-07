@@ -904,6 +904,54 @@ fun SoundsScreen(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                             onQuoteClick = onShowDeveloperLetter
                         )
+                        
+                        // 更新图标 + 预设按钮（天气模式下右上角显示）
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.TopEnd)
+                                .padding(16.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                if (showUpdateIcon) {
+                                    Box {
+                                        IconButton(
+                                            onClick = { showUpdateDialog = true }
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.SystemUpdate,
+                                                contentDescription = context.getString(R.string.software_update),
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                        // 小红点Badge
+                                        Box(
+                                            modifier = Modifier
+                                                .size(8.dp)
+                                                .align(Alignment.TopEnd)
+                                                .offset(x = (-8).dp, y = 8.dp)
+                                                .background(
+                                                    color = MaterialTheme.colorScheme.error,
+                                                    shape = CircleShape
+                                                )
+                                        )
+                                    }
+                                }
+                                if (hasAnyPresetItems) {
+                                    IconButton(
+                                        onClick = { showPresetDialog = true }
+                                    ) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.grass_24px),
+                                            contentDescription = context.getString(R.string.preset),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
                 

@@ -79,6 +79,11 @@
     <string name="background_7">背景 7</string>
     <string name="theme_color">テーマカラー</string>
     <string name="theme_color_disabled_hint">「背景なし」を選択するとテーマカラーが変更できます</string>
+    <string name="change_background">背景を変更</string>
+    <string name="built_in_background">内蔵背景</string>
+    <string name="opacity">透明度</string>
+    <string name="blur_amount">ぼかし</string>
+    <string name="off">オフ</string>
     <string name="background_preview">背景をプレビュー</string>
     <string name="white_noise_cards">ホワイトノイズカード</string>
     <string name="builtin_sounds_offline_hint">内蔵サウンド、ネットワーク不要</string>
@@ -262,6 +267,7 @@
     <string name="local_audio">ローカルオーディオ</string>
     <string name="search_audio">オーディオを検索</string>
     <string name="no_search_results">該当するオーディオが見つかりません</string>
+    <string name="no_local_audio">ローカルオーディオはまだありません</string>
     <string name="no_audio_files_found">端末にオーディオファイルが見つかりません</string>
     <string name="grant_storage_permission_hint">設定からストレージ権限を許可してローカルオーディオにアクセスしてください</string>
     <string name="grant_permission">権限を許可</string>

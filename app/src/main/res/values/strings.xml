@@ -81,6 +81,11 @@
     <string name="background_7">背景 7</string>
     <string name="theme_color">主题颜色</string>
     <string name="theme_color_disabled_hint">选择"无背景"后可切换主题颜色</string>
+    <string name="change_background">更换背景</string>
+    <string name="built_in_background">内置背景</string>
+    <string name="opacity">透明度</string>
+    <string name="blur_amount">模糊度</string>
+    <string name="off">关闭</string>
     <string name="background_preview">预览背景</string>
     <string name="white_noise_cards">内置声音</string>
     <string name="builtin_sounds_offline_hint">内置声音无需联网直接听</string>

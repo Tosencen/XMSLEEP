@@ -532,6 +532,38 @@ object PreferencesManager {
     }
     
     /**
+     * 保存本地音频播放模式
+     */
+    fun saveLocalAudioPlayMode(context: Context, mode: String) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(Constants.PrefsKeys.LOCAL_AUDIO_PLAY_MODE, mode).apply()
+    }
+    
+    /**
+     * 获取本地音频播放模式
+     */
+    fun getLocalAudioPlayMode(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(Constants.PrefsKeys.LOCAL_AUDIO_PLAY_MODE, "SEQUENTIAL") ?: "SEQUENTIAL"
+    }
+    
+    /**
+     * 保存本地音频播放位置
+     */
+    fun saveLocalAudioPosition(context: Context, audioId: Long, positionMs: Int) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putInt("${Constants.PrefsKeys.LOCAL_AUDIO_POSITION}_$audioId", positionMs).apply()
+    }
+    
+    /**
+     * 获取本地音频播放位置
+     */
+    fun getLocalAudioPosition(context: Context, audioId: Long): Int {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getInt("${Constants.PrefsKeys.LOCAL_AUDIO_POSITION}_$audioId", 0)
+    }
+    
+    /**
      * 保存最近播放的本地声音列表
      */
     fun saveRecentLocalSounds(context: Context, sounds: List<String>) {
@@ -692,6 +724,16 @@ object PreferencesManager {
         return prefs.getString(Constants.PrefsKeys.CUSTOM_BACKGROUND_URI, null)
     }
 
+    fun saveCustomBackgroundThumbnail(context: Context, uri: String) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(Constants.PrefsKeys.CUSTOM_BACKGROUND_THUMBNAIL, uri).apply()
+    }
+
+    fun getCustomBackgroundThumbnail(context: Context): String? {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(Constants.PrefsKeys.CUSTOM_BACKGROUND_THUMBNAIL, null)
+    }
+
     fun saveCustomBackgroundColor(context: Context, color: Color) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().putLong(Constants.PrefsKeys.CUSTOM_BACKGROUND_COLOR, color.value.toLong()).apply()
@@ -701,6 +743,26 @@ object PreferencesManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val colorValue = prefs.getLong(Constants.PrefsKeys.CUSTOM_BACKGROUND_COLOR, -1L)
         return if (colorValue != -1L) Color(colorValue.toULong()) else default
+    }
+
+    fun saveBackgroundOpacity(context: Context, opacity: Float) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putFloat(Constants.PrefsKeys.BACKGROUND_OPACITY, opacity).apply()
+    }
+
+    fun getBackgroundOpacity(context: Context): Float {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getFloat(Constants.PrefsKeys.BACKGROUND_OPACITY, 0.2f)
+    }
+
+    fun saveBackgroundBlurRadius(context: Context, radius: Float) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putFloat(Constants.PrefsKeys.BACKGROUND_BLUR_RADIUS, radius).apply()
+    }
+
+    fun getBackgroundBlurRadius(context: Context): Float {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getFloat(Constants.PrefsKeys.BACKGROUND_BLUR_RADIUS, 0f)
     }
 
     /**

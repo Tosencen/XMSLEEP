@@ -133,16 +133,16 @@ private fun SettingsItemRow(
         }
 
         // Divider
-        if (showDivider) {
-            HorizontalDivider(
-                modifier = Modifier.padding(
-                    start = if (item.icon != null) 76.dp else 20.dp,
-                    end = 20.dp
-                ),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-            )
-        }
+        // if (showDivider) {
+        //     HorizontalDivider(
+        //         modifier = Modifier.padding(
+        //             start = if (item.icon != null) 76.dp else 20.dp,
+        //             end = 20.dp
+        //         ),
+        //         thickness = 0.5.dp,
+        //         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+        //     )
+        // }
     }
 }
 
