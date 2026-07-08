@@ -142,7 +142,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.9.5")
     
     // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0")
     
     // Hilt - 依赖注入
     implementation("com.google.dagger:hilt-android:2.53.1")
@@ -189,7 +189,7 @@ dependencies {
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.11.0")
     testImplementation("com.google.dagger:hilt-android-testing:2.53.1")
     kaptTest("com.google.dagger:hilt-android-compiler:2.53.1")
     
