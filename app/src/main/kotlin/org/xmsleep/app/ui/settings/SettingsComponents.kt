@@ -1,6 +1,5 @@
 package org.xmsleep.app.ui.settings
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -14,10 +13,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 
-/**
- * Settings category component - groups related settings in a card
- * Inspired by OpenTune's Material 3 design
- */
 @Composable
 fun SettingsCategory(
     title: String? = null,
@@ -37,120 +32,86 @@ fun SettingsCategory(
             )
         }
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .animateContentSize(),
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-        ) {
-            Column {
-                items.forEachIndexed { index, item ->
-                    SettingsItemRow(
-                        item = item,
-                        showDivider = index < items.size - 1
-                    )
-                }
+        items.forEachIndexed { index, item ->
+            val shape = when {
+                items.size == 1 -> RoundedCornerShape(24.dp)
+                index == 0 -> RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp, bottomStart = 6.dp, bottomEnd = 6.dp)
+                index == items.size - 1 -> RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomStart = 24.dp, bottomEnd = 24.dp)
+                else -> RoundedCornerShape(6.dp)
             }
-        }
-    }
-}
 
-/**
- * Individual settings item row with Material 3 styling
- */
-@Composable
-private fun SettingsItemRow(
-    item: SettingsCategoryItem,
-    showDivider: Boolean
-) {
-    Column {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
-                .clickable(
-                    enabled = item.onClick != null,
-                    onClick = { item.onClick?.invoke() }
-                )
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Icon with background
-            item.icon?.let { icon ->
-                Box(
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(shape)
+                    .clickable(
+                        enabled = item.onClick != null,
+                        onClick = { item.onClick?.invoke() }
+                    ),
+                shape = shape,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            ) {
+                Row(
                     modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(
-                            MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                        ),
-                    contentAlignment = Alignment.Center
+                        .fillMaxWidth()
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    when (icon) {
-                        is ImageVector -> Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
-                            modifier = Modifier.size(24.dp)
-                        )
-                        is Painter -> Icon(
-                            painter = icon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
-                            modifier = Modifier.size(24.dp)
-                        )
+                    item.icon?.let { icon ->
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            when (icon) {
+                                is ImageVector -> Icon(
+                                    imageVector = icon,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                                is Painter -> Icon(
+                                    painter = icon,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.9f),
+                                    modifier = Modifier.size(24.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.width(16.dp))
+                    }
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        ProvideTextStyle(MaterialTheme.typography.titleMedium) {
+                            item.title()
+                        }
+                        item.description?.let { desc ->
+                            Spacer(modifier = Modifier.height(2.dp))
+                            desc()
+                        }
+                    }
+
+                    item.trailingContent?.let { trailing ->
+                        Spacer(modifier = Modifier.width(8.dp))
+                        trailing()
                     }
                 }
-
-                Spacer(modifier = Modifier.width(16.dp))
             }
 
-            // Title and description
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                // Title content
-                ProvideTextStyle(MaterialTheme.typography.titleMedium) {
-                    item.title()
-                }
-
-                // Description if provided
-                item.description?.let { desc ->
-                    Spacer(modifier = Modifier.height(2.dp))
-                    desc()
-                }
-            }
-
-            // Trailing content
-            item.trailingContent?.let { trailing ->
-                Spacer(modifier = Modifier.width(8.dp))
-                trailing()
+            if (index < items.size - 1) {
+                Spacer(modifier = Modifier.height(4.dp))
             }
         }
-
-        // Divider
-        // if (showDivider) {
-        //     HorizontalDivider(
-        //         modifier = Modifier.padding(
-        //             start = if (item.icon != null) 76.dp else 20.dp,
-        //             end = 20.dp
-        //         ),
-        //         thickness = 0.5.dp,
-        //         color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
-        //     )
-        // }
     }
 }
 
-/**
- * Data class for settings item
- */
 data class SettingsCategoryItem(
-    val icon: Any? = null, // Can be ImageVector or Painter
+    val icon: Any? = null,
     val title: @Composable () -> Unit,
     val description: (@Composable () -> Unit)? = null,
     val trailingContent: (@Composable () -> Unit)? = null,

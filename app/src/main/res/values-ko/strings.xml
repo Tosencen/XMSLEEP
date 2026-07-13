@@ -153,6 +153,7 @@
     <string name="no_favorites">즐겨찾기 없음</string>
     <string name="favorites_will_show_here">즐겨찾는 사운드가 여기에 표시됩니다</string>
     <string name="hours">시간</string>
+    <string name="minutes_label">분</string>
     <string name="hours_minutes">%1$d시간 %2$d분</string>
     <string name="minutes_only">%1$d분</string>
     <string name="five_minutes">5분</string>

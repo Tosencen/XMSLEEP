@@ -156,6 +156,7 @@
     <string name="no_favorites">No Favorites</string>
     <string name="favorites_will_show_here">Favorited sounds will show here</string>
     <string name="hours">hours</string>
+    <string name="minutes_label">minutes</string>
     <string name="hours_minutes">%1$d hours %2$d minutes</string>
     <string name="minutes_only">%1$d minutes</string>
     <string name="five_minutes">5 minutes</string>

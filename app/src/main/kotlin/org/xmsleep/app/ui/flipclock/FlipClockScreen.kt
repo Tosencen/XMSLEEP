@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.xmsleep.app.R
+import org.xmsleep.app.ui.components.WheelPicker
 import kotlin.math.min
 
 /**
@@ -308,7 +309,8 @@ private fun CountdownDialog(
     onDismiss: () -> Unit,
     onConfirm: (Int) -> Unit
 ) {
-    var selectedMinutes by remember { mutableIntStateOf(30) }
+    var selectedHour by remember { mutableIntStateOf(0) }
+    var selectedMinute by remember { mutableIntStateOf(30) }
     val quickOptions = listOf(15, 30, 45, 60, 90, 120)
 
     AlertDialog(
@@ -334,8 +336,11 @@ private fun CountdownDialog(
                     ) {
                         quickOptions.take(3).forEach { minutes ->
                             FilterChip(
-                                selected = selectedMinutes == minutes,
-                                onClick = { selectedMinutes = minutes },
+                                selected = (selectedHour * 60 + selectedMinute) == minutes,
+                                onClick = {
+                                    selectedHour = minutes / 60
+                                    selectedMinute = minutes % 60
+                                },
                                 label = { Text(context.getString(R.string.flip_clock_minutes_format, minutes)) },
                                 modifier = Modifier.weight(1f),
                                 colors = FilterChipDefaults.filterChipColors(
@@ -351,8 +356,11 @@ private fun CountdownDialog(
                     ) {
                         quickOptions.drop(3).forEach { minutes ->
                             FilterChip(
-                                selected = selectedMinutes == minutes,
-                                onClick = { selectedMinutes = minutes },
+                                selected = (selectedHour * 60 + selectedMinute) == minutes,
+                                onClick = {
+                                    selectedHour = minutes / 60
+                                    selectedMinute = minutes % 60
+                                },
                                 label = { Text(context.getString(R.string.flip_clock_minutes_format, minutes)) },
                                 modifier = Modifier.weight(1f),
                                 colors = FilterChipDefaults.filterChipColors(
@@ -363,13 +371,79 @@ private fun CountdownDialog(
                         }
                     }
                 }
+
+                // 自定义时间轮盘选择器
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = context.getString(R.string.hours),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                            val hourItems = remember { (0..24).map { it.toString().padStart(2, '0') } }
+                            WheelPicker(
+                                options = hourItems,
+                                selectedIndex = selectedHour,
+                                onItemSelected = { selectedHour = it },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = context.getString(R.string.minutes_label),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                            val minuteItems = remember { (0..59).map { it.toString().padStart(2, '0') } }
+                            WheelPicker(
+                                options = minuteItems,
+                                selectedIndex = selectedMinute,
+                                onItemSelected = { selectedMinute = it },
+                                modifier = Modifier.fillMaxWidth(),
+                            )
+                        }
+                    }
+                }
+
+                // 显示当前选择的总时间
+                val totalMinutes = selectedHour * 60 + selectedMinute
+                Text(
+                    text = if (totalMinutes > 0) {
+                        if (selectedHour > 0) {
+                            context.getString(R.string.hours_minutes, selectedHour, selectedMinute)
+                        } else {
+                            context.getString(R.string.minutes_only, selectedMinute)
+                        }
+                    } else {
+                        context.getString(R.string.minutes_only, 0)
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (selectedMinutes > 0) {
-                        onConfirm(selectedMinutes)
+                    val totalMinutes = selectedHour * 60 + selectedMinute
+                    if (totalMinutes > 0) {
+                        onConfirm(totalMinutes)
                     }
                 }
             ) {

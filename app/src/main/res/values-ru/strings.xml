@@ -156,6 +156,7 @@
     <string name="no_favorites">Нет избранного</string>
     <string name="favorites_will_show_here">Избранные звуки будут отображаться здесь</string>
     <string name="hours">ч</string>
+    <string name="minutes_label">мин</string>
     <string name="hours_minutes">%1$d ч %2$d мин.</string>
     <string name="minutes_only">%1$d мин.</string>
     <string name="five_minutes">5 минут</string>

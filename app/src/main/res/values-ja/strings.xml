@@ -156,6 +156,7 @@
     <string name="no_favorites">お気に入りはありません</string>
     <string name="favorites_will_show_here">お気に入りに追加したサウンドがここに表示されます</string>
     <string name="hours">時間</string>
+    <string name="minutes_label">分</string>
     <string name="hours_minutes">%1$d時間%2$d分</string>
     <string name="minutes_only">%1$d分</string>
     <string name="five_minutes">5分</string>

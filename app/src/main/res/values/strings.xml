@@ -177,6 +177,7 @@
     <string name="no_favorites">暂无收藏</string>
     <string name="favorites_will_show_here">收藏的声音将显示在这里</string>
     <string name="hours">小时</string>
+    <string name="minutes_label">分钟</string>
     <string name="hours_minutes">%1$d小时%2$d分钟</string>
     <string name="minutes_only">%1$d分钟</string>
     <string name="five_minutes">5分钟</string>
