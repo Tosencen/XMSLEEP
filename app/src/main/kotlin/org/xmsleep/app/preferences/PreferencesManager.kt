@@ -312,6 +312,22 @@ object PreferencesManager {
     }
     
     /**
+     * 保存大时钟传感器自动旋转设置
+     */
+    fun saveFlipClockSensorRotation(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(Constants.PrefsKeys.FLIP_CLOCK_SENSOR_ROTATION, enabled).apply()
+    }
+
+    /**
+     * 获取大时钟传感器自动旋转设置
+     */
+    fun getFlipClockSensorRotation(context: Context, default: Boolean = true): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(Constants.PrefsKeys.FLIP_CLOCK_SENSOR_ROTATION, default)
+    }
+
+    /**
      * 保存声音卡片列数设置
      */
     fun saveSoundCardsColumnsCount(context: Context, columnsCount: Int) {

@@ -611,6 +611,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="flip_clock_countdown">Countdown</string>
     <string name="flip_clock_cancel_countdown">Cancel countdown</string>
     <string name="flip_clock_font">Font</string>
+    <string name="flip_clock_sensor_rotation">Sensor auto-rotation</string>
     <string name="flip_clock_set_countdown">Set Countdown</string>
     <string name="flip_clock_minutes_format">%1$d min</string>
     <string name="flip_clock_start">Start</string>

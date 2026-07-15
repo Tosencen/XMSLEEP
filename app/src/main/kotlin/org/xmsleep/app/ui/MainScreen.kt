@@ -732,7 +732,8 @@ fun MainScreen(
             
             composable("flipclock") {
                 FlipClockScreen(
-                    onBack = { navigator.popBackStack() }
+                    onBack = { navigator.popBackStack() },
+                    activity = mainActivity
                 )
             }
             

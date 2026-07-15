@@ -1,5 +1,7 @@
 package org.xmsleep.app.ui.flipclock
 
+import android.app.Activity
+import android.content.pm.ActivityInfo
 import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -9,6 +11,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ScreenRotation
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.*
@@ -23,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import org.xmsleep.app.R
+import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.ui.components.WheelPicker
 import kotlin.math.min
 
@@ -34,6 +38,7 @@ import kotlin.math.min
 fun FlipClockScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
+    activity: Activity? = null,
     viewModel: FlipClockViewModel = viewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -44,6 +49,27 @@ fun FlipClockScreen(
     var showControls by remember { mutableStateOf(false) }
     var showCountdownDialog by remember { mutableStateOf(false) }
     var showFontSelector by remember { mutableStateOf(false) }
+
+    // 传感器自动旋转（借鉴 nextplayer：使用 SCREEN_ORIENTATION_FULL_SENSOR 真正跟随设备方向）
+    // 注意：不能用 LocalContext 取 Activity，本应用 LocalContext 被替换为 localizedContext（基于 Application），
+    // findActivity 永远拿不到 Activity，因此由 MainScreen 显式传入 Activity
+    var useSensorRotation by remember {
+        mutableStateOf(PreferencesManager.getFlipClockSensorRotation(context))
+    }
+    // 进入大时钟时记录原始方向，离开时恢复
+    val originalOrientation = remember(activity) {
+        activity?.requestedOrientation ?: ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    }
+    DisposableEffect(activity, useSensorRotation) {
+        if (useSensorRotation) {
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR
+        } else {
+            activity?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
+        onDispose {
+            activity?.requestedOrientation = originalOrientation
+        }
+    }
 
     // 保持屏幕常亮
     val view = androidx.compose.ui.platform.LocalView.current
@@ -99,7 +125,12 @@ fun FlipClockScreen(
                 onCountdownClick = { showCountdownDialog = true },
                 onFontClick = { showFontSelector = true },
                 isCountdownActive = uiState.isCountdownActive,
-                onCancelCountdown = { viewModel.cancelCountdown() }
+                onCancelCountdown = { viewModel.cancelCountdown() },
+                useSensorRotation = useSensorRotation,
+                onToggleSensorRotation = {
+                    useSensorRotation = !useSensorRotation
+                    PreferencesManager.saveFlipClockSensorRotation(context, useSensorRotation)
+                }
             )
         }
 
@@ -231,7 +262,9 @@ private fun FlipClockControls(
     onCountdownClick: () -> Unit,
     onFontClick: () -> Unit,
     isCountdownActive: Boolean,
-    onCancelCountdown: () -> Unit
+    onCancelCountdown: () -> Unit,
+    useSensorRotation: Boolean,
+    onToggleSensorRotation: () -> Unit
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -297,6 +330,21 @@ private fun FlipClockControls(
                     imageVector = Icons.Default.TextFields,
                     contentDescription = context.getString(R.string.flip_clock_font),
                     tint = MaterialTheme.colorScheme.onSurface
+                )
+            }
+
+            FilledTonalIconButton(
+                onClick = onToggleSensorRotation,
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = if (useSensorRotation) MaterialTheme.colorScheme.primaryContainer
+                    else MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ScreenRotation,
+                    contentDescription = context.getString(R.string.flip_clock_sensor_rotation),
+                    tint = if (useSensorRotation) MaterialTheme.colorScheme.onPrimaryContainer
+                    else MaterialTheme.colorScheme.onSurface
                 )
             }
         }

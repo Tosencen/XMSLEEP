@@ -593,6 +593,7 @@
     <string name="flip_clock_countdown">카운트다운</string>
     <string name="flip_clock_cancel_countdown">카운트다운 취소</string>
     <string name="flip_clock_font">글꼴</string>
+    <string name="flip_clock_sensor_rotation">센서 자동 회전</string>
     <string name="flip_clock_set_countdown">카운트다운 설정</string>
     <string name="flip_clock_minutes_format">%1$d분</string>
     <string name="flip_clock_start">시작</string>

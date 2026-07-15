@@ -251,6 +251,7 @@
     <string name="flip_clock_countdown">倒計時</string>
     <string name="flip_clock_cancel_countdown">取消倒計時</string>
     <string name="flip_clock_font">字體</string>
+    <string name="flip_clock_sensor_rotation">感測器自動旋轉</string>
     <string name="flip_clock_set_countdown">設置倒計時</string>
     <string name="flip_clock_minutes_format">%1$d分</string>
     <string name="flip_clock_start">開始</string>

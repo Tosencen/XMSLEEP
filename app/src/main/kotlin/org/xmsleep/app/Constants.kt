@@ -130,6 +130,7 @@ object Constants {
         const val RADIO_FLOATING_BUTTON_IS_LEFT = "radio_floating_button_is_left"
         const val SHOW_RADIO_TAB = "show_radio_tab"
         const val SHOW_BREATHING_TAB = "show_breathing_tab"
+        const val FLIP_CLOCK_SENSOR_ROTATION = "flip_clock_sensor_rotation"
         
         const val LANGUAGE_PREFS_NAME = "language_prefs"
         const val KEY_LANGUAGE = "language"

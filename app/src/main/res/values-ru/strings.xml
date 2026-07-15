@@ -600,6 +600,7 @@
     <string name="flip_clock_countdown">Таймер</string>
     <string name="flip_clock_cancel_countdown">Отменить таймер</string>
     <string name="flip_clock_font">Шрифт</string>
+    <string name="flip_clock_sensor_rotation">Автоповорот по датчику</string>
     <string name="flip_clock_set_countdown">Установить таймер</string>
     <string name="flip_clock_minutes_format">%1$d мин</string>
     <string name="flip_clock_start">Старт</string>

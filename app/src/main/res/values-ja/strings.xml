@@ -600,6 +600,7 @@
     <string name="flip_clock_countdown">カウントダウン</string>
     <string name="flip_clock_cancel_countdown">カウントダウンをキャンセル</string>
     <string name="flip_clock_font">フォント</string>
+    <string name="flip_clock_sensor_rotation">センサー自動回転</string>
     <string name="flip_clock_set_countdown">カウントダウン設定</string>
     <string name="flip_clock_minutes_format">%1$d分</string>
     <string name="flip_clock_start">開始</string>
