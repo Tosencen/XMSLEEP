@@ -41,7 +41,14 @@ object Constants {
     
     // ==================== API 配置 ====================
     const val GITHUB_API_BASE_URL = "https://api.github.com"
-    const val CDN_BASE_URL = "https://cdn.jsdelivr.net"
+
+    // GitHub Release 下载代理（按国内可达性排序，更新时依次尝试）
+    // 注意：jsDelivr 不托管 GitHub Release 附件（404），故改用 Release 代理。
+    // 代理地址需带末尾斜杠，拼接规则为 "$proxy$githubReleaseUrl"
+    val GITHUB_PROXIES = listOf(
+        "https://ghproxy.net/",           // 国内可直连的 GitHub Release 加速代理（首选）
+        "https://mirror.ghproxy.com/"     // 备用加速代理（ghproxy.net 不可达时兜底）
+    )
     
     // ==================== 仓库信息 ====================
     const val GITHUB_OWNER = "Tosencen"

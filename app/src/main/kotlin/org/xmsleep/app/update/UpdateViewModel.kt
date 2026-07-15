@@ -213,7 +213,7 @@ class UpdateViewModel(private val context: Context) : ViewModel() {
             
             // 下载文件（带智能回退）
             val downloadedFile = withContext(Dispatchers.IO) {
-                fileDownloader.download(version.downloadUrl, apkFile, version.fallbackUrl)
+                fileDownloader.download(version.downloadUrls, apkFile)
             }
             
             progressJob?.cancel()

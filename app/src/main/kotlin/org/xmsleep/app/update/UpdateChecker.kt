@@ -102,24 +102,18 @@ class UpdateChecker(
                 Logger.d("UpdateChecker", "找到APK资源: ${apkAsset?.name ?: "未找到"}")
                 
                 if (apkAsset != null) {
-                    // 保存原始GitHub URL和jsDelivr URL（用于智能回退）
+                    // 构建多个下载源：GitHub Release 代理（国内可达）优先，GitHub 直链最后兜底
                     val githubUrl = apkAsset.browserDownloadUrl
-                    val jsDelivrUrl = convertToJsDelivrUrl(
-                        githubUrl = githubUrl,
-                        tagName = release.tagName,
-                        fileName = apkAsset.name
-                    )
-                    
-                    // 优先使用jsDelivr URL，但保存原始URL用于回退
+                    val downloadUrls = buildDownloadUrls(githubUrl)
+
                     val newVersion = NewVersion(
                         version = latestVersion,
                         name = release.name.ifEmpty { release.tagName },
                         changelog = release.body,
-                        downloadUrl = jsDelivrUrl,  // 优先使用jsDelivr
-                        publishedAt = release.publishedAt,
-                        fallbackUrl = githubUrl  // 保存原始URL用于回退
+                        downloadUrls = downloadUrls,
+                        publishedAt = release.publishedAt
                     )
-                    Logger.d("UpdateChecker", "返回NewVersion: version=${newVersion.version}, downloadUrl=${newVersion.downloadUrl}, fallbackUrl=${newVersion.fallbackUrl}")
+                    Logger.d("UpdateChecker", "返回NewVersion: version=${newVersion.version}, 下载源数量=${newVersion.downloadUrls.size}")
                     return@withContext newVersion
                 } else {
                     Logger.w("UpdateChecker", "未找到APK资源文件")
@@ -141,32 +135,24 @@ class UpdateChecker(
     }
     
     /**
-     * 将GitHub Release下载URL转换为jsDelivr CDN URL
-     * 例如: https://github.com/Tosencen/XMSLEEP/releases/download/v2.0.3/app-release.apk
-     * 转换为: https://cdn.jsdelivr.net/gh/Tosencen/XMSLEEP@v2.0.3/app-release.apk
+     * 构建下载源列表（按国内可达性排序）
+     * 依次尝试多个 GitHub Release 代理（如 ghproxy.net），最后以 GitHub 原始直链兜底。
+     * 拼接规则：代理地址（带末尾斜杠） + GitHub Release 下载 URL。
+     * 例如: https://github.com/Tosencen/XMSLEEP/releases/download/v2.2.8/XMSLEEP-v2.2.8.apk
+     * 转换为: https://ghproxy.net/https://github.com/Tosencen/XMSLEEP/releases/download/v2.2.8/XMSLEEP-v2.2.8.apk
      */
-    private fun convertToJsDelivrUrl(githubUrl: String, tagName: String, fileName: String): String {
+    private fun buildDownloadUrls(githubUrl: String): List<String> {
         return try {
-            // 尝试从GitHub URL中提取信息
-            val githubPattern = Regex("https://github.com/([^/]+)/([^/]+)/releases/download/(.+)")
-            val matchResult = githubPattern.find(githubUrl)
-            
-            if (matchResult != null) {
-                val (owner, repo, _) = matchResult.destructured
-                // 使用jsDelivr CDN格式
-                val jsDelivrUrl = "${Constants.CDN_BASE_URL}/gh/$owner/$repo@$tagName/$fileName"
-                Logger.d("UpdateChecker", "URL转换: $githubUrl -> $jsDelivrUrl")
-                jsDelivrUrl
-            } else {
-                // 如果无法匹配，直接使用tagName和fileName构建
-                val jsDelivrUrl = "${Constants.CDN_BASE_URL}/gh/$repositoryOwner/$repositoryName@$tagName/$fileName"
-                Logger.d("UpdateChecker", "使用默认格式构建URL: $jsDelivrUrl")
-                jsDelivrUrl
+            val proxyUrls = Constants.GITHUB_PROXIES.map { proxy ->
+                val url = "$proxy$githubUrl"
+                Logger.d("UpdateChecker", "生成下载源: $url")
+                url
             }
+            // 代理在前，GitHub 直链最后兜底
+            proxyUrls + githubUrl
         } catch (e: Exception) {
-            Logger.e("UpdateChecker", "URL转换失败: ${e.message}", e)
-            // 转换失败时返回原URL
-            githubUrl
+            Logger.e("UpdateChecker", "构建下载源失败，回退到GitHub直链: ${e.message}", e)
+            listOf(githubUrl)
         }
     }
     
@@ -214,7 +200,6 @@ data class NewVersion(
     val version: String,
     val name: String,
     val changelog: String,
-    val downloadUrl: String,      // 优先使用的URL（jsDelivr CDN）
-    val publishedAt: String,
-    val fallbackUrl: String? = null  // 回退URL（GitHub原始URL）
+    val downloadUrls: List<String>,  // 下载源列表（按优先级排序，依次尝试）
+    val publishedAt: String
 )
