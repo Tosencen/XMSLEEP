@@ -71,6 +71,18 @@ interface XMSleepNavigator {
     fun navigateToBreathingDetail(methodId: String) {
         navController.navigate("breathing_detail/$methodId")
     }
+
+    /**
+     * 导航到冥想播放页面
+     */
+    fun navigateToMeditation(categoryId: String, sessionId: String? = null) {
+        val route = if (sessionId != null) {
+            "meditation/$categoryId/$sessionId"
+        } else {
+            "meditation/$categoryId"
+        }
+        navController.navigate(route)
+    }
 }
 
 /**

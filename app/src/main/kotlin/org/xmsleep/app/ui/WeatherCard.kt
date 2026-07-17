@@ -221,7 +221,28 @@ fun WeatherCard(
             }
             
             Spacer(modifier = Modifier.height(32.dp))
-            
+
+            // 日期显示
+            val currentDate = remember {
+                val locale = org.xmsleep.app.i18n.LanguageManager.getCurrentLocale(context)
+                val pattern = when (locale.language) {
+                    "zh" -> "M月d日 EEEE"
+                    "ja" -> "M月d日(E)"
+                    "ko" -> "M월 d일 EEEE"
+                    "ru" -> "d MMMM, EEEE"
+                    else -> "EEE, MMM d"
+                }
+                val sdf = java.text.SimpleDateFormat(pattern, locale)
+                sdf.format(java.util.Date())
+            }
+            Text(
+                text = currentDate,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             // 标语
             val weatherQuote = remember { 
                 HealingQuoteManager.getRandomQuote(context) 

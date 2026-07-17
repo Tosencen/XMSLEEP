@@ -502,6 +502,17 @@
     
     <!-- Breathing Exercise -->
     <string name="breathing_exercise">Дыхание</string>
+    <string name="meditation">Медитация</string>
+    <string name="select_audio">Выбрать аудио</string>
+    <string name="loop_play">Повтор</string>
+    <string name="meditation_sleep_subtitle">Глубокая релаксация · Успокоение тела и ума · Помощь в засыпании</string>
+    <string name="meditation_practice_subtitle">Дыхательный гид · Тренировка фокуса · Внутреннее познание</string>
+    <string name="meditation_relax_subtitle">Снятие стресса · Восстановление покоя · Регуляция эмоций</string>
+    <string name="mindfulness_subtitle">Осознанность момента · Поток переживания · Повышение концентрации</string>
+    <string name="tag_sleep">Сон</string>
+    <string name="tag_practice">Практика</string>
+    <string name="tag_relax">Релаксация</string>
+    <string name="tag_mindfulness">Осознанность</string>
     <string name="tap_to_start">Нажмите, чтобы начать</string>
     <string name="inhale">Вдох...</string>
     <string name="hold">Задержка...</string>

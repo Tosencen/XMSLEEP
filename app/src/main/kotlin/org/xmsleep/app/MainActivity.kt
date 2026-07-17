@@ -67,6 +67,9 @@ class MainActivity : ComponentActivity() {
         
         // 在应用启动时迁移旧版本的数据（如果存在）
         org.xmsleep.app.preferences.PreferencesManager.migrateFromOldVersion(this)
+
+        // 确保匿名设备标识已生成（共建/赞助身份，首次启动生成并持久化）
+        org.xmsleep.app.preferences.PreferencesManager.getAnonymousDeviceId(this)
         
         // 初始化默认的音频清单（从 assets 加载到缓存）
         org.xmsleep.app.audio.AudioResourceManager.getInstance(this).initializeDefaultManifest()

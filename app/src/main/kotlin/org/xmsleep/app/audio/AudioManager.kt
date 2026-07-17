@@ -214,6 +214,8 @@ class AudioManager private constructor() {
         } catch (e: Exception) {
             Logger.e(TAG, "停止本地音频失败", e)
         }
+        // 互斥：停止冥想播放
+        org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().stop()
         musicServiceManager.setPausedState(false)
         Logger.d(TAG, "playSound 被调用: ${sound.name}")
 
@@ -321,6 +323,8 @@ class AudioManager private constructor() {
             localSoundPlayer.stopAllSounds()
             remoteSoundPlayer.pauseAllRemoteSounds()
             onStopRadioRequested?.invoke()
+            // 停止冥想播放
+            org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().stop()
 
             playingQueue.clear()
             notifyServicePlayingStateChanged()
@@ -486,6 +490,8 @@ class AudioManager private constructor() {
         } catch (e: Exception) {
             Logger.e(TAG, "停止本地音频失败", e)
         }
+        // 互斥：停止冥想播放
+        org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().stop()
         musicServiceManager.setPausedState(false)
         initializeIfNeeded(context)
 

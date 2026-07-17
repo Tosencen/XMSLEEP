@@ -558,7 +558,19 @@ fun LocalAudioItem(
             if (isPlaying) {
                 Spacer(modifier = Modifier.height(12.dp))
                 val progressFraction = if (totalDuration > 0) currentProgress.toFloat() / totalDuration.toFloat() else 0f
-                Slider(value = progressFraction, onValueChange = { localAudioPlayer.seekTo(audio.id, (it * totalDuration).toInt()); currentProgress = (it * totalDuration).toInt() }, modifier = Modifier.fillMaxWidth(), colors = SliderDefaults.colors(thumbColor = MaterialTheme.colorScheme.primary, activeTrackColor = MaterialTheme.colorScheme.primary, inactiveTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)))
+                me.saket.squiggles.SquigglySlider(
+                    value = progressFraction,
+                    onValueChange = {
+                        localAudioPlayer.seekTo(audio.id, (it * totalDuration).toInt())
+                        currentProgress = (it * totalDuration).toInt()
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = SliderDefaults.colors(
+                        thumbColor = MaterialTheme.colorScheme.primary,
+                        activeTrackColor = MaterialTheme.colorScheme.primary,
+                        inactiveTrackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                    )
+                )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(formatDuration(currentProgress.toLong()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

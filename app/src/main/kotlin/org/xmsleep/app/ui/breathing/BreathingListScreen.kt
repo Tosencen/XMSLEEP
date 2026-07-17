@@ -1,5 +1,6 @@
 package org.xmsleep.app.ui.breathing
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -21,34 +22,81 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import org.xmsleep.app.R
+import org.xmsleep.app.i18n.LanguageManager
+import org.xmsleep.app.meditation.MeditationPlayerManager
+import org.xmsleep.app.ui.components.PlayingAnimation
+import org.xmsleep.app.ui.meditation.MeditationCategory
+import org.xmsleep.app.ui.meditation.MeditationManifest
+import java.io.InputStreamReader
 
 @Composable
 fun BreathingListScreen(
     onMethodClick: (String) -> Unit,
+    onMeditationClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     val methods = remember { BreathingMethods.getMethods(context) }
     val pagerState = rememberPagerState(pageCount = { methods.size })
     var showTutorialMethod by remember { mutableStateOf<BreathingMethod?>(null) }
+    val languageCode = LanguageManager.getCurrentLanguage(context).code
 
-    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    val meditationManifest = remember {
+        loadMeditationManifest(context)
+    }
+    val meditationCategories = remember(meditationManifest) {
+        meditationManifest?.categories?.sortedBy { it.order } ?: emptyList()
+    }
+
+    val playerManager = remember { MeditationPlayerManager.getInstance() }
+    val isMeditationPlaying by playerManager.isPlaying.collectAsState()
+    val playingCategoryId by playerManager.currentCategoryId.collectAsState()
+
+    LaunchedEffect(Unit) {
+        playerManager.initialize(context)
+    }
+
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
-            modifier = Modifier.fillMaxSize().padding(bottom = 80.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(bottom = 80.dp)
         ) {
+            // 冥想模块（上方）
             Text(
-                text = context.getString(R.string.breathing_exercise),
-                style = MaterialTheme.typography.headlineMedium,
+                text = context.getString(R.string.meditation),
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = 20.dp)
+                modifier = Modifier.padding(start = 20.dp, top = 16.dp, bottom = 12.dp)
+            )
+            MeditationCategoriesRow(
+                categories = meditationCategories,
+                languageCode = languageCode,
+                onClick = onMeditationClick,
+                isPlaying = isMeditationPlaying,
+                playingCategoryId = playingCategoryId
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 呼吸模块（下方）
+            Text(
+                text = context.getString(R.string.breathing_exercise),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(start = 20.dp, bottom = 12.dp)
             )
             HorizontalPager(
                 state = pagerState,
-                modifier = Modifier.fillMaxWidth().height(440.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(320.dp),
                 contentPadding = PaddingValues(horizontal = 32.dp),
                 pageSpacing = 16.dp
             ) { page ->
@@ -63,6 +111,119 @@ fun BreathingListScreen(
 
     showTutorialMethod?.let { method ->
         BreathingMethodTutorialDialog(method = method, onDismiss = { showTutorialMethod = null })
+    }
+}
+
+@Composable
+private fun MeditationCategoriesRow(
+    categories: List<MeditationCategory>,
+    languageCode: String,
+    onClick: (String) -> Unit,
+    isPlaying: Boolean,
+    playingCategoryId: String?
+) {
+    val context = LocalContext.current
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+    val contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+
+    HorizontalPager(
+        state = rememberPagerState(pageCount = { categories.size }),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp),
+        contentPadding = PaddingValues(horizontal = 32.dp),
+        pageSpacing = 16.dp
+    ) { page ->
+        val category = categories[page]
+        val showAnimation = isPlaying && playingCategoryId == category.id
+
+        Box(
+            modifier = Modifier.fillMaxSize()
+                .clip(RoundedCornerShape(24.dp))
+                .background(Brush.verticalGradient(listOf(backgroundColor, backgroundColor.copy(alpha = 0.9f))))
+                .clickable { onClick(category.id) }
+                .padding(24.dp)
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = category.getLocalizedName(languageCode),
+                        style = MaterialTheme.typography.headlineSmall,
+                        fontWeight = FontWeight.Bold,
+                        color = contentColor,
+                        lineHeight = 28.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = getMeditationCategorySubtitle(context, category.id),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = contentColor.copy(alpha = 0.8f)
+                    )
+                }
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Surface(
+                        color = contentColor.copy(alpha = 0.15f),
+                        shape = RoundedCornerShape(6.dp)
+                    ) {
+                        Text(
+                            text = getCategoryTag(context, category.id),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = contentColor,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    if (showAnimation) {
+                        PlayingAnimation(
+                            color = contentColor,
+                            width = 16.dp,
+                            height = 14.dp
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun getMeditationCategorySubtitle(context: Context, categoryId: String): String {
+    return when (categoryId) {
+        "meditation_sleep" -> context.getString(R.string.meditation_sleep_subtitle)
+        "meditation_practice" -> context.getString(R.string.meditation_practice_subtitle)
+        "meditation_relax" -> context.getString(R.string.meditation_relax_subtitle)
+        "mindfulness" -> context.getString(R.string.mindfulness_subtitle)
+        else -> ""
+    }
+}
+
+private fun getCategoryTag(context: Context, categoryId: String): String {
+    return when (categoryId) {
+        "meditation_sleep" -> context.getString(R.string.tag_sleep)
+        "meditation_practice" -> context.getString(R.string.tag_practice)
+        "meditation_relax" -> context.getString(R.string.tag_relax)
+        "mindfulness" -> context.getString(R.string.tag_mindfulness)
+        else -> ""
+    }
+}
+
+private fun loadMeditationManifest(context: Context): MeditationManifest? {
+    return try {
+        val inputStream = context.assets.open("meditation_remote.json")
+        val reader = InputStreamReader(inputStream)
+        val type = object : TypeToken<MeditationManifest>() {}.type
+        Gson().fromJson(reader, type)
+    } catch (e: Exception) {
+        null
     }
 }
 

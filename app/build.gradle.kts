@@ -158,6 +158,9 @@ dependencies {
     // Coil - 图片加载
     implementation("io.coil-kt:coil-compose:2.6.0")
     
+    // SquigglySlider - 波浪进度条
+    implementation("me.saket.squigglyslider:squigglyslider:1.0.0")
+    
     // Kotlin Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     

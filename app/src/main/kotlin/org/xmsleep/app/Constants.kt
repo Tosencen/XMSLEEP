@@ -138,6 +138,9 @@ object Constants {
         const val SHOW_RADIO_TAB = "show_radio_tab"
         const val SHOW_BREATHING_TAB = "show_breathing_tab"
         const val FLIP_CLOCK_SENSOR_ROTATION = "flip_clock_sensor_rotation"
+
+        // 匿名设备唯一标识（用于共建/赞助时的去重与署名，不含真实身份）
+        const val ANONYMOUS_DEVICE_ID = "anonymous_device_id"
         
         const val LANGUAGE_PREFS_NAME = "language_prefs"
         const val KEY_LANGUAGE = "language"

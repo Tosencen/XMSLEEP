@@ -515,6 +515,17 @@
     
     <!-- 呼吸練習 -->
     <string name="breathing_exercise">呼吸練習</string>
+    <string name="meditation">冥想</string>
+    <string name="select_audio">選擇音訊</string>
+    <string name="loop_play">循環播放</string>
+    <string name="meditation_sleep_subtitle">深度放鬆 · 舒緩身心 · 入睡引導</string>
+    <string name="meditation_practice_subtitle">呼吸引導 · 專注訓練 · 內在探索</string>
+    <string name="meditation_relax_subtitle">釋放壓力 · 恢復平靜 · 情緒調節</string>
+    <string name="mindfulness_subtitle">當下覺知 · 心流體驗 · 注意力提升</string>
+    <string name="tag_sleep">助眠</string>
+    <string name="tag_practice">練習</string>
+    <string name="tag_relax">放鬆</string>
+    <string name="tag_mindfulness">正念</string>
     <string name="tap_to_start">點擊開始</string>
     <string name="inhale">吸氣...</string>
     <string name="hold">屏息</string>

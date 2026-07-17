@@ -405,25 +405,6 @@ fun SettingsScreen(
                     onClick = { onNavigateToDiary() }
                 ),
                 SettingsCategoryItem(
-                    icon = Icons.Default.SystemUpdate,
-                    title = { Text(context.getString(R.string.software_update)) },
-                    description = {
-                        Text(
-                            context.getString(R.string.check_and_update_to_latest_version),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    trailingContent = {
-                        Text(
-                            "v$currentVersion",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    onClick = { showUpdateDialog = true }
-                ),
-                SettingsCategoryItem(
                     icon = painterResource(R.drawable.ic_telegram),
                     title = { Text(context.getString(R.string.join_group)) },
                     description = {
@@ -434,21 +415,31 @@ fun SettingsScreen(
                         )
                     },
                     onClick = { showCommunityDialog = true }
-                ),
-                SettingsCategoryItem(
-                    icon = Icons.Default.Info,
-                    title = { Text(context.getString(R.string.about_xmsleep)) },
-                    description = {
-                        Text(
-                            context.getString(R.string.view_app_info_version_copyright),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    },
-                    onClick = { showAboutDialog = true }
                 )
             )
         )
+
+        // 底部版本信息和关于
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 24.dp, bottom = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = "v$currentVersion",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clickable { showUpdateDialog = true }
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = context.getString(R.string.about_xmsleep),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.clickable { showAboutDialog = true }
+            )
+        }
         }
     }
         

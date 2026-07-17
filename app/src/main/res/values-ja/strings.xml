@@ -502,6 +502,17 @@
     
     <!-- Breathing Exercise -->
     <string name="breathing_exercise">呼吸</string>
+    <string name="meditation">メディテーション</string>
+    <string name="select_audio">オーディオを選択</string>
+    <string name="loop_play">ループ再生</string>
+    <string name="meditation_sleep_subtitle">深いリラックス · 身心の安らぎ · 入眠ガイド</string>
+    <string name="meditation_practice_subtitle">呼吸ガイド · 集中訓練 · 内なる探求</string>
+    <string name="meditation_relax_subtitle">ストレス解放 · 平静回復 · 感情調整</string>
+    <string name="mindfulness_subtitle">今この瞬間 · フロー体験 · 集中力向上</string>
+    <string name="tag_sleep">入眠</string>
+    <string name="tag_practice">練習</string>
+    <string name="tag_relax">リラックス</string>
+    <string name="tag_mindfulness">マインドフルネス</string>
     <string name="tap_to_start">タップして開始</string>
     <string name="inhale">吸う…</string>
     <string name="hold">止める…</string>

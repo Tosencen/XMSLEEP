@@ -42,6 +42,7 @@ import org.xmsleep.app.ui.settings.ThemeSettingsScreen
 import org.xmsleep.app.ui.starsky.StarSkyScreen
 import org.xmsleep.app.ui.breathing.BreathingListScreen
 import org.xmsleep.app.ui.breathing.BreathingDetailScreen
+import org.xmsleep.app.ui.meditation.MeditationPlayerScreen
 import org.xmsleep.app.ui.flipclock.FlipClockScreen
 import org.xmsleep.app.ui.tomato.TomatoTimerScreen
 import org.xmsleep.app.utils.Logger
@@ -411,7 +412,7 @@ fun MainScreen(
     // 监听当前路由，判断是否在二级页面
     val currentBackStackEntry by navigator.navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    val isInSecondaryPage = currentRoute in listOf("theme", "local_audio", "quoteHistory", "flipclock", "tomato_timer", "diary", "breathing_detail/{methodId}")
+    val isInSecondaryPage = currentRoute in listOf("theme", "local_audio", "quoteHistory", "flipclock", "tomato_timer", "diary", "breathing_detail/{methodId}", "meditation/{categoryId}/{sessionId}", "meditation/{categoryId}")
     val isMainRoute = !isInSecondaryPage  // 主页面 = 不在二级页面
     val isFlipClockPage = currentRoute == "flipclock"
     
@@ -624,6 +625,9 @@ fun MainScreen(
                                 onMethodClick = { methodId ->
                                     navigator.navigateToBreathingDetail(methodId)
                                 },
+                                onMeditationClick = { categoryId ->
+                                    navigator.navigateToMeditation(categoryId)
+                                },
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .padding(paddingValues)
@@ -757,6 +761,24 @@ fun MainScreen(
                 BreathingDetailScreen(
                     methodId = methodId,
                     activity = mainActivity,
+                    onBack = { navigator.popBackStack() }
+                )
+            }
+
+            composable("meditation/{categoryId}/{sessionId}") { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getString("categoryId") ?: "meditation_sleep"
+                val sessionId = backStackEntry.arguments?.getString("sessionId")
+                org.xmsleep.app.ui.meditation.MeditationPlayerScreen(
+                    categoryId = categoryId,
+                    sessionId = sessionId,
+                    onBack = { navigator.popBackStack() }
+                )
+            }
+
+            composable("meditation/{categoryId}") { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getString("categoryId") ?: "meditation_sleep"
+                org.xmsleep.app.ui.meditation.MeditationPlayerScreen(
+                    categoryId = categoryId,
                     onBack = { navigator.popBackStack() }
                 )
             }

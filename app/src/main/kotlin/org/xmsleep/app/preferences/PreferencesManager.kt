@@ -1009,5 +1009,33 @@ object PreferencesManager {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return prefs.getBoolean(Constants.PrefsKeys.RADIO_FLOATING_BUTTON_IS_LEFT, true)
     }
+
+    // =========================================================================
+    // 匿名设备标识（共建 / 赞助身份）
+    // =========================================================================
+
+    /**
+     * 获取匿名设备唯一标识。
+     * 首次调用时生成并持久化一个随机 UUID，之后每次返回同一值。
+     * 用途：共建壁纸/晚安信/赞助的去重与署名，不关联任何真实身份。
+     * 注意：卸载重装或清除应用数据会重置该标识。
+     */
+    fun getAnonymousDeviceId(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val existing = prefs.getString(Constants.PrefsKeys.ANONYMOUS_DEVICE_ID, null)
+        if (!existing.isNullOrBlank()) return existing
+        val newId = java.util.UUID.randomUUID().toString()
+        prefs.edit().putString(Constants.PrefsKeys.ANONYMOUS_DEVICE_ID, newId).apply()
+        Logger.d("PreferencesManager", "生成匿名设备标识: $newId")
+        return newId
+    }
+
+    /**
+     * 重置匿名设备标识（清数据/迁移场景用，一般无需调用）。
+     */
+    fun resetAnonymousDeviceId(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().remove(Constants.PrefsKeys.ANONYMOUS_DEVICE_ID).apply()
+    }
 }
 

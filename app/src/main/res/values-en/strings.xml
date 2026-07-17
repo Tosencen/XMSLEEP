@@ -502,6 +502,17 @@ If you have any questions, please contact us through the in-app contact method.<
     
     <!-- Breathing Exercise -->
     <string name="breathing_exercise">Breathing</string>
+    <string name="meditation">Meditation</string>
+    <string name="select_audio">Select Audio</string>
+    <string name="loop_play">Loop Play</string>
+    <string name="meditation_sleep_subtitle">Deep Relaxation · Soothe Body &amp; Mind · Sleep Guide</string>
+    <string name="meditation_practice_subtitle">Breath Guide · Focus Training · Inner Exploration</string>
+    <string name="meditation_relax_subtitle">Release Stress · Restore Calm · Emotion Regulation</string>
+    <string name="mindfulness_subtitle">Present Awareness · Flow Experience · Attention Boost</string>
+    <string name="tag_sleep">Sleep Aid</string>
+    <string name="tag_practice">Practice</string>
+    <string name="tag_relax">Relax</string>
+    <string name="tag_mindfulness">Mindfulness</string>
     <string name="tap_to_start">Tap to Start</string>
     <string name="inhale">Inhale...</string>
     <string name="hold">Hold...</string>

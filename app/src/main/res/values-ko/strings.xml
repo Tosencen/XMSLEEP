@@ -495,6 +495,17 @@
 
     <!-- Breathing Exercise -->
     <string name="breathing_exercise">호흡</string>
+    <string name="meditation">명상</string>
+    <string name="select_audio">오디오 선택</string>
+    <string name="loop_play">반복 재생</string>
+    <string name="meditation_sleep_subtitle">깊은 이완 ·身心 안정 · 수면 가이드</string>
+    <string name="meditation_practice_subtitle">호흡 가이드 · 집중 훈련 · 내면 탐구</string>
+    <string name="meditation_relax_subtitle">스트레스 해소 · 평정 회복 · 감정 조절</string>
+    <string name="mindfulness_subtitle">현재 인식 · 플로우 경험 · 집중력 향상</string>
+    <string name="tag_sleep">수면</string>
+    <string name="tag_practice">연습</string>
+    <string name="tag_relax">이완</string>
+    <string name="tag_mindfulness">마음챙김</string>
     <string name="tap_to_start">탭하여 시작</string>
     <string name="inhale">들이마시기...</string>
     <string name="hold">멈춤...</string>
