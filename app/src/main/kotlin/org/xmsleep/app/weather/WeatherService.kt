@@ -62,6 +62,24 @@ object WeatherCodeMapper {
         }
     }
 
+    /**
+     * 返回对应的 Meteocons Lottie 动画资源 ID（fill 风格，区分昼夜）。
+     * 资源文件位于 res/raw/，由 Meteocons (MIT) 提供，离线打包随 APK 分发。
+     */
+    fun toLottieResId(code: Int, isDay: Boolean = true): Int {
+        return when (code) {
+            0 -> if (isDay) R.raw.wx_clear_day else R.raw.wx_clear_night
+            1, 2 -> if (isDay) R.raw.wx_partly_cloudy_day else R.raw.wx_partly_cloudy_night
+            3 -> R.raw.wx_overcast
+            45, 48 -> R.raw.wx_fog
+            51, 53, 55, 56, 57 -> R.raw.wx_drizzle
+            61, 63, 65, 66, 67, 80, 81, 82 -> R.raw.wx_rain
+            71, 73, 75, 77, 85, 86 -> R.raw.wx_snow
+            95, 96, 99 -> if (isDay) R.raw.wx_thunderstorms_day else R.raw.wx_thunderstorms_night
+            else -> if (isDay) R.raw.wx_clear_day else R.raw.wx_clear_night
+        }
+    }
+
     fun toWeatherType(code: Int): WeatherType {
         return when (code) {
             0 -> WeatherType.SUNNY_CLEAR

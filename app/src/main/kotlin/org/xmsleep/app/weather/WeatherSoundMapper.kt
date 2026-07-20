@@ -16,12 +16,13 @@ object WeatherSoundMapper {
     private const val KEY_LAST_LONGITUDE = "last_longitude"
     private const val KEY_LAST_TEMPERATURE = "last_temperature"
     private const val KEY_LAST_CITY_NAME = "last_city_name"
+    private const val KEY_LAST_IS_DAY = "last_is_day"
     private const val KEY_LAST_HUMIDITY = "last_humidity"
     private const val KEY_LAST_FEELS_LIKE = "last_feels_like"
     private const val KEY_LAST_WEATHER_TIMESTAMP = "last_weather_timestamp"
 
-    /** 缓存有效期：30分钟 */
-    private const val WEATHER_CACHE_DURATION_MS = 30 * 60 * 1000L
+    /** 缓存有效期：3小时（先显示缓存、后台静默刷新，避免国内直连 open-meteo 慢时卡加载） */
+    private const val WEATHER_CACHE_DURATION_MS = 3 * 60 * 60 * 1000L
 
     private val gson = Gson()
 
@@ -143,7 +144,7 @@ object WeatherSoundMapper {
         return prefs.getBoolean(KEY_WEATHER_ENABLED, false)
     }
 
-    fun saveLastWeather(context: Context, weatherCode: Int, latitude: Double, longitude: Double, temperature: Double = 0.0, cityName: String = "", humidity: Int = 0, feelsLike: Double = 0.0) {
+    fun saveLastWeather(context: Context, weatherCode: Int, latitude: Double, longitude: Double, temperature: Double = 0.0, cityName: String = "", humidity: Int = 0, feelsLike: Double = 0.0, isDay: Boolean = true) {
         val prefs = context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE)
         prefs.edit()
             .putInt(KEY_LAST_WEATHER_CODE, weatherCode)
@@ -153,6 +154,7 @@ object WeatherSoundMapper {
             .putString(KEY_LAST_CITY_NAME, cityName)
             .putInt(KEY_LAST_HUMIDITY, humidity)
             .putFloat(KEY_LAST_FEELS_LIKE, feelsLike.toFloat())
+            .putBoolean(KEY_LAST_IS_DAY, isDay)
             .putLong(KEY_LAST_WEATHER_TIMESTAMP, System.currentTimeMillis())
             .apply()
     }
@@ -173,7 +175,8 @@ object WeatherSoundMapper {
             icon = WeatherCodeMapper.toIcon(weatherCode),
             cityName = prefs.getString(KEY_LAST_CITY_NAME, "") ?: "",
             humidity = humidity,
-            feelsLike = feelsLike
+            feelsLike = feelsLike,
+            isDay = prefs.getBoolean(KEY_LAST_IS_DAY, true)
         )
     }
 

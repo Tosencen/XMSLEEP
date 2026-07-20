@@ -1,0 +1,5 @@
+Meteocons weather icons (res/raw/wx_*.json) are from Meteocons by Bas Milius,
+licensed under MIT: https://github.com/basmilius/meteocons
+
+These Lottie JSON files (fill style) are bundled offline in the APK.
+Version pinned: 3.0.0-next.10

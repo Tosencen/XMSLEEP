@@ -358,7 +358,7 @@ private suspend fun fetchAndRefreshWeather(context: android.content.Context): We
                     context, data.weatherCode,
                     location.latitude, location.longitude,
                     data.temperature, data.cityName,
-                    data.humidity, data.feelsLike
+                    data.humidity, data.feelsLike, data.isDay
                 )
             }.getOrNull()
         }
@@ -471,17 +471,19 @@ fun SoundsScreen(
             return@LaunchedEffect
         }
 
-        // 先尝试加载上次缓存的天气（立即显示）
+        // 先尝试加载上次缓存的天气（立即显示，不依赖网络）
         val lastWeather = WeatherSoundMapper.getLastWeather(context)
         if (lastWeather != null) {
             currentWeather = lastWeather
         }
 
-        // 如果缓存有效，先不刷新（等定期刷新）
+        // 若缓存有效，直接展示缓存，刷新交给下面的定期任务，避免首屏卡在请求上
         if (WeatherSoundMapper.isWeatherCacheValid(context)) return@LaunchedEffect
 
-        // 缓存过期，立即刷新
-        fetchAndRefreshWeather(context)?.let { currentWeather = it }
+        // 缓存过期：后台静默刷新，失败时继续显示旧缓存（绝不清空）
+        launch {
+            fetchAndRefreshWeather(context)?.let { currentWeather = it }
+        }
     }
 
     // 定期刷新天气数据（每10分钟），带错误退避

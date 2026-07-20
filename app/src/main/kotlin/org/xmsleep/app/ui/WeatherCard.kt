@@ -17,6 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.rememberLottieComposition
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -99,10 +102,14 @@ fun WeatherCard(
             Box(
                 contentAlignment = Alignment.BottomEnd
             ) {
-                Text(
-                    text = currentWeather.icon,
-                    style = MaterialTheme.typography.displayLarge,
-                    modifier = Modifier.graphicsLayer(scaleX = 1.5f, scaleY = 1.5f)
+                val lottieRes = WeatherCodeMapper.toLottieResId(currentWeather.weatherCode, currentWeather.isDay)
+                val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(lottieRes))
+                LottieAnimation(
+                    composition = composition,
+                    iterations = Int.MAX_VALUE,
+                    modifier = Modifier
+                        .size(96.dp)
+                        .graphicsLayer(scaleX = 1.5f, scaleY = 1.5f)
                 )
                 
                 // 播放/停止按钮（只显示图标，在天气图标右下角）
