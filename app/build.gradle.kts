@@ -165,8 +165,8 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     
     // Lottie - 用于显示JSON动画
-    implementation("com.airbnb.android:lottie:6.3.0")
-    implementation("com.airbnb.android:lottie-compose:6.3.0")
+    implementation("com.airbnb.android:lottie:6.7.1")
+    implementation("com.airbnb.android:lottie-compose:6.7.1")
     
     // ExoPlayer/Media3 - 用于无缝循环播放音频（声音模块需要）
     implementation("androidx.media3:media3-exoplayer:1.8.0")
