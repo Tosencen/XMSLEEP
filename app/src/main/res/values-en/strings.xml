@@ -721,4 +721,6 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="storage_management">Storage</string>
     <string name="clear_downloaded">Clear Downloaded</string>
     <string name="storage_space">Used Space: %s</string>
+    <string name="simple_mode_button">Simple Mode</string>
+    <string name="simple_mode_full_version">Full Version</string>
 </resources>

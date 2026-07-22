@@ -732,4 +732,6 @@
     <string name="storage_management">Управление хранилищем</string>
     <string name="clear_downloaded">Очистить загруженное</string>
     <string name="storage_space">Используемое место: %s</string>
+    <string name="simple_mode_button">Упрощённый режим</string>
+    <string name="simple_mode_full_version">Полная версия</string>
 </resources>

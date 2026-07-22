@@ -145,5 +145,7 @@
     <string name="storage_management">存储管理</string>
     <string name="clear_downloaded">清除已下载</string>
     <string name="storage_space">占用空间: %s</string>
+    <string name="simple_mode_button">简化版</string>
+    <string name="simple_mode_full_version">完整版</string>
 </resources>
 

@@ -725,4 +725,6 @@
     <string name="storage_management">저장소 관리</string>
     <string name="clear_downloaded">다운로드 삭제</string>
     <string name="storage_space">사용 공간: %s</string>
+    <string name="simple_mode_button">간편 모드</string>
+    <string name="simple_mode_full_version">전체 버전</string>
 </resources>

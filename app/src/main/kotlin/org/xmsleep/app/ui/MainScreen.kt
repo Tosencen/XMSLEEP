@@ -113,6 +113,9 @@ fun MainScreen(
     val navigator = rememberXMSleepNavigator()
     var selectedItem by remember { mutableIntStateOf(1) }
     val context = androidx.compose.ui.platform.LocalContext.current
+    val prefs = remember { context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE) }
+    var simpleMode by remember { mutableStateOf(prefs.getBoolean("simple_mode", false)) }
+    LaunchedEffect(simpleMode) { prefs.edit().putBoolean("simple_mode", simpleMode).apply() }
     val isDarkTheme = isSystemInDarkTheme()
     
     // 获取 Activity - 使用 LifecycleOwner
@@ -471,6 +474,24 @@ fun MainScreen(
                     ) {
             // 主页面路由（显示 AnimatedContent）
             composable("main") {
+                if (simpleMode) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectHorizontalDragGestures(
+                                    onDragEnd = {},
+                                    onDragCancel = {}
+                                ) { _, _ -> }
+                            }
+                    ) {
+                        org.xmsleep.app.ui.starsky.StarSkySimpleContent(
+                            modifier = Modifier.fillMaxSize(),
+                            onExitSimpleMode = { simpleMode = false }
+                        )
+                    }
+                    return@composable
+                }
                 // 主页面：直接根据 selectedItem 切换内容（支持左右滑动切换）
                 AnimatedContent(
                     targetState = selectedItem,
@@ -675,10 +696,8 @@ fun MainScreen(
                                 },
                                 pinnedSounds = pinnedSounds,
                                 locationPermissionLauncher = locationPermissionLauncher,
-                                onContentHiddenChange = { isHidden ->
-                                    isSettingsContentHidden = isHidden
-                                },
                                 onShowDeveloperLetter = { showDeveloperLetter = true },
+                                onEnterSimpleMode = { simpleMode = true },
                                 onPickCustomBackground = onPickCustomBackground,
                                 customBackgroundThumbnail = customBackgroundThumbnail,
                                 pendingCustomBgUri = pendingCustomBgUri,
@@ -789,7 +808,7 @@ fun MainScreen(
             // 底部导航栏 - 作为独立层，应用毛玻璃效果
             // 只在主页面显示，且设置页面内容未隐藏时显示
             androidx.compose.animation.AnimatedVisibility(
-                visible = isMainRoute && !isSettingsContentHidden,
+                visible = isMainRoute && !isSettingsContentHidden && !simpleMode,
                 modifier = Modifier.align(Alignment.BottomCenter),
                 enter = androidx.compose.animation.fadeIn(animationSpec = tween(0)),
                 exit = androidx.compose.animation.fadeOut(animationSpec = tween(0))
@@ -885,7 +904,7 @@ fun MainScreen(
         // 全局浮动播放按钮（新版本 - 吸附式交互）
         org.xmsleep.app.ui.FloatingPlayButtonNew(
             audioManager = audioManager,
-            selectedTab = selectedItem, // 传递当前选中的 tab
+            selectedTab = if (simpleMode) 2 else selectedItem, // 简化模式视为繁星页
             shouldCollapse = shouldCollapseFloatingButton, // 传递收缩标志
             activePreset = activePreset,
             forceCollapse = forceCollapseFloatingButton, // 传递强制收缩标志

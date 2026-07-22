@@ -339,7 +339,7 @@ private fun obtainLocation(context: android.content.Context): android.location.L
  * 获取并刷新天气数据
  * @return 刷新成功返回 WeatherData，失败返回 null
  */
-private suspend fun fetchAndRefreshWeather(context: android.content.Context): WeatherData? {
+internal suspend fun fetchAndRefreshWeather(context: android.content.Context): WeatherData? {
     // 检查位置权限
     val hasLocationPermission = androidx.core.content.ContextCompat.checkSelfPermission(
         context, android.Manifest.permission.ACCESS_COARSE_LOCATION

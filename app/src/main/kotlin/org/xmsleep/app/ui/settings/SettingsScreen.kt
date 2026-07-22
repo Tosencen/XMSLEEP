@@ -7,7 +7,6 @@ import android.Manifest
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,9 +19,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -71,8 +67,8 @@ fun SettingsScreen(
     pinnedSounds: MutableState<MutableSet<AudioManager.Sound>>,
     locationPermissionLauncher: androidx.activity.compose.ManagedActivityResultLauncher<String, Boolean>,
     onScrollDetected: () -> Unit = {},
-    onContentHiddenChange: (Boolean) -> Unit = {},
     onShowDeveloperLetter: () -> Unit = {},
+    onEnterSimpleMode: () -> Unit = {},
     customBackgroundUri: String? = null,
     onPickCustomBackground: () -> Unit = {},
     customBackgroundThumbnail: String? = null,
@@ -143,10 +139,6 @@ fun SettingsScreen(
         }
     }
 
-    // 灯泡功能状态
-    var isContentHidden by remember { mutableStateOf(false) }
-    var showPullRing by remember { mutableStateOf(false) }
-    
     // 倒计时状态
     val isTimerActive by timerManager.isTimerActive.collectAsState()
     val timeLeftMillis by timerManager.timeLeftMillis.collectAsState()
@@ -165,28 +157,6 @@ fun SettingsScreen(
         }
     }
     
-    // 通知 MainScreen 内容隐藏状态变化
-    LaunchedEffect(isContentHidden) {
-        onContentHiddenChange(isContentHidden)
-    }
-    
-    // 内容透明度动画
-    val contentAlpha by animateFloatAsState(
-        targetValue = if (isContentHidden) 0f else 1f,
-        animationSpec = tween(durationMillis = 300),
-        label = "content_alpha"
-    )
-    
-    // 拉环掉落动画进度
-    val pullRingProgress by animateFloatAsState(
-        targetValue = if (showPullRing) 1f else 0f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
-        ),
-        label = "pull_ring_progress"
-    )
-    
     Box(
         modifier = modifier.fillMaxSize()
     ) {
@@ -194,23 +164,6 @@ fun SettingsScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .graphicsLayer { alpha = contentAlpha }
-                .then(
-                    // 当内容隐藏时，禁用所有点击事件
-                    if (isContentHidden) {
-                        Modifier.pointerInput(Unit) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent(PointerEventPass.Initial)
-                                    // 拦截所有触摸事件
-                                    event.changes.forEach { it.consume() }
-                                }
-                            }
-                        }
-                    } else {
-                        Modifier
-                    }
-                )
         ) {
             // 固定标题
             Row(
@@ -220,11 +173,54 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    context.getString(R.string.settings),
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        context.getString(R.string.settings),
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(Modifier.width(10.dp))
+                    Surface(
+                        onClick = onEnterSimpleMode,
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                        contentColor = MaterialTheme.colorScheme.primary
+                    ) {
+                        Text(
+                            context.getString(R.string.simple_mode_button),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp)
+                        )
+                    }
+                }
+
+                if (weatherEnabled) {
+                    Surface(
+                        onClick = {
+                            val lastWeather = org.xmsleep.app.weather.WeatherSoundMapper.getLastWeather(context)
+                            currentWeatherCodeForDialog = lastWeather?.weatherCode ?: 0
+                            showWeatherEditDialog = true
+                        },
+                        modifier = Modifier.size(40.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.fillMaxSize()
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Cloud,
+                                contentDescription = "天气设置",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
+                }
             }
         
         // 可滚动内容区域
@@ -442,120 +438,7 @@ fun SettingsScreen(
         }
         }
     }
-        
-        // 悬浮按钮层（始终在最上层）
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 16.dp, end = 16.dp)
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                verticalAlignment = Alignment.Top
-            ) {
-                // 天气设置按钮（仅在天气功能开启时显示）
-                if (weatherEnabled) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Surface(
-                            onClick = {
-                                val lastWeather = org.xmsleep.app.weather.WeatherSoundMapper.getLastWeather(context)
-                                currentWeatherCodeForDialog = lastWeather?.weatherCode ?: 0
-                                showWeatherEditDialog = true
-                            },
-                            modifier = Modifier.size(40.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                        ) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier.fillMaxSize()
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Outlined.Cloud,
-                                    contentDescription = "天气设置",
-                                    tint = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.size(24.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    // 灯泡按钮（添加圆角矩形背景）
-                    Surface(
-                        onClick = { showPullRing = !showPullRing },
-                        modifier = Modifier.size(40.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.light_24px),
-                                contentDescription = if (isContentHidden) "显示内容" else "隐藏内容",
-                                tint = if (isContentHidden) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
-                    
-                    // 拉环控制（从灯泡下方掉落，居中对齐）
-                    if (showPullRing) {
-                        org.xmsleep.app.ui.components.PullRingControl(
-                            isContentHidden = isContentHidden,
-                            onToggle = {
-                                isContentHidden = !isContentHidden
-                                // 切换后自动收起拉环
-                                showPullRing = false
-                            },
-                            animationProgress = pullRingProgress
-                        )
-                    }
-                }
-            }
-        }
-        
-        // 倒计时显示（左上角，仅在内容隐藏且倒计时激活时显示）
-        if (isContentHidden && isTimerActive && timeLeftMillis > 0) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(top = 16.dp, start = 16.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Timer,
-                            contentDescription = "倒计时",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Text(
-                            text = formatTimeLeft(timeLeftMillis),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-            }
-            }
-        }
-        
+
         // 软件更新对话框
         if (showUpdateDialog) {
             UpdateDialog(
@@ -1049,6 +932,7 @@ fun SettingsScreen(
                     // 刷新天气功能在设置页面不需要实现
                 }
             )
+        }
     }
 }
 

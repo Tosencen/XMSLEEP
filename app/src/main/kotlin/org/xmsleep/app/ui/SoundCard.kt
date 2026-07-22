@@ -386,7 +386,7 @@ internal fun AnimatedWebPImage(
  * 倒计时 FAB 组件
  */
 @Composable
-internal fun TimerFAB(
+fun TimerFAB(
     isTimerActive: Boolean,
     timeLeftMillis: Long,
     onClick: () -> Unit,

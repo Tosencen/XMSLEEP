@@ -634,6 +634,8 @@
     <string name="tab_radio">电台</string>
     <string name="radio_select_station">选择电台</string>
     <string name="tab_settings">设置</string>
+    <string name="simple_mode_button">简化版</string>
+    <string name="simple_mode_full_version">完整版</string>
     <string name="search_room_hint">搜索内容...</string>
     <string name="tag_white_noise">白噪音</string>
     <string name="tag_study_room">自习室</string>
