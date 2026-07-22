@@ -131,7 +131,7 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.foundation:foundation")
     // Accompanist
-    implementation("com.google.accompanist:accompanist-swiperefresh:0.34.0")
+    implementation("com.google.accompanist:accompanist-swiperefresh:0.36.0")
     implementation("com.google.accompanist:accompanist-permissions:0.36.0") // 保持 0.36.0，与我们的 Compose BOM 2024.12.01 兼容
     
     // AndroidX
