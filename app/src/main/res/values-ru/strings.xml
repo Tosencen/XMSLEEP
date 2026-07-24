@@ -505,7 +505,7 @@
     <string name="weather_overcast">Пасмурно</string>
     <string name="weather_fog">Туман</string>
     <string name="weather_drizzle">Морось</string>
-    <string name="weather_freezing_fog">Ледяной туман</string>
+    <string name="weather_freezing_fog">Ледяная морось</string>
     <string name="weather_rain">Дождь</string>
     <string name="weather_freezing_rain">Ледяной дождь</string>
     <string name="weather_snow">Снег</string>

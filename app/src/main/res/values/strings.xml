@@ -524,7 +524,7 @@
     <string name="weather_cloudy_partly">多云</string>
     <string name="weather_cloudy_overcast">阴</string>
     <string name="weather_foggy">雾</string>
-    <string name="weather_foggy_drizzle">小雾</string>
+    <string name="weather_foggy_drizzle">毛毛雨</string>
     <string name="weather_rain_light">小雨</string>
     <string name="weather_rain_moderate">中雨</string>
     <string name="weather_rain_heavy">大雨</string>
@@ -538,8 +538,8 @@
     <string name="weather_cloudy">多云</string>
     <string name="weather_overcast">阴</string>
     <string name="weather_fog">雾</string>
-    <string name="weather_drizzle">小雾</string>
-    <string name="weather_freezing_fog">冻雾</string>
+    <string name="weather_drizzle">毛毛雨</string>
+    <string name="weather_freezing_fog">冻毛毛雨</string>
     <string name="weather_rain">雨</string>
     <string name="weather_freezing_rain">冻雨</string>
     <string name="weather_snow">雪</string>

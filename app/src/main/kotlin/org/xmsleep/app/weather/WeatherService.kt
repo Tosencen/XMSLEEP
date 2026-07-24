@@ -32,8 +32,8 @@ object WeatherCodeMapper {
             2 -> context?.getString(R.string.weather_cloudy) ?: "多云"
             3 -> context?.getString(R.string.weather_overcast) ?: "阴"
             45, 48 -> context?.getString(R.string.weather_fog) ?: "雾"
-            51, 53, 55 -> context?.getString(R.string.weather_drizzle) ?: "小雾"
-            56, 57 -> context?.getString(R.string.weather_freezing_fog) ?: "冻雾"
+            51, 53, 55 -> context?.getString(R.string.weather_drizzle) ?: "毛毛雨"
+            56, 57 -> context?.getString(R.string.weather_freezing_fog) ?: "冻毛毛雨"
             61, 63, 65 -> context?.getString(R.string.weather_rain) ?: "雨"
             66, 67 -> context?.getString(R.string.weather_freezing_rain) ?: "冻雨"
             71, 73, 75 -> context?.getString(R.string.weather_snow) ?: "雪"
@@ -71,11 +71,15 @@ object WeatherCodeMapper {
             0 -> if (isDay) R.raw.wx_clear_day else R.raw.wx_clear_night
             1, 2 -> if (isDay) R.raw.wx_partly_cloudy_day else R.raw.wx_partly_cloudy_night
             3 -> R.raw.wx_overcast
-            45, 48 -> R.raw.wx_fog
-            51, 53, 55, 56, 57 -> R.raw.wx_drizzle
-            61, 63, 65, 66, 67, 80, 81, 82 -> R.raw.wx_rain
-            71, 73, 75, 77, 85, 86 -> R.raw.wx_snow
-            95, 96, 99 -> if (isDay) R.raw.wx_thunderstorms_day else R.raw.wx_thunderstorms_night
+            45, 48 -> if (isDay) R.raw.wx_fog_day else R.raw.wx_fog_night
+            51, 53, 55 -> R.raw.wx_drizzle
+            56, 57, 66, 67 -> R.raw.wx_sleet
+            61, 63, 65 -> R.raw.wx_rain
+            80, 81, 82 -> if (isDay) R.raw.wx_partly_cloudy_day_rain else R.raw.wx_partly_cloudy_night_rain
+            71, 73, 75, 77 -> R.raw.wx_snow
+            85, 86 -> if (isDay) R.raw.wx_partly_cloudy_day_snow else R.raw.wx_partly_cloudy_night_snow
+            95 -> if (isDay) R.raw.wx_thunderstorms_day else R.raw.wx_thunderstorms_night
+            96, 99 -> if (isDay) R.raw.wx_thunderstorms_extreme_day else R.raw.wx_thunderstorms_extreme_night
             else -> if (isDay) R.raw.wx_clear_day else R.raw.wx_clear_night
         }
     }
@@ -90,11 +94,12 @@ object WeatherCodeMapper {
             56, 57 -> WeatherType.FOGGY_DRIZZLE
             61 -> WeatherType.RAIN_LIGHT
             63 -> WeatherType.RAIN_MODERATE
-            65, 66, 67 -> WeatherType.RAIN_HEAVY
+            65 -> WeatherType.RAIN_HEAVY
+            66, 67 -> WeatherType.RAIN_HEAVY
             80, 81, 82 -> WeatherType.RAIN_SHOWER
-            71 -> WeatherType.SNOW_LIGHT
+            71, 77 -> WeatherType.SNOW_LIGHT
             73 -> WeatherType.SNOW_MODERATE
-            75, 77 -> WeatherType.SNOW_HEAVY
+            75 -> WeatherType.SNOW_HEAVY
             85, 86 -> WeatherType.SNOW_SLEET
             95 -> WeatherType.THUNDERSTORM
             96, 99 -> WeatherType.THUNDERSTORM_HAIL

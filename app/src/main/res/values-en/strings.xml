@@ -505,7 +505,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="weather_overcast">Overcast</string>
     <string name="weather_fog">Fog</string>
     <string name="weather_drizzle">Drizzle</string>
-    <string name="weather_freezing_fog">Freezing Fog</string>
+    <string name="weather_freezing_fog">Freezing Drizzle</string>
     <string name="weather_rain">Rain</string>
     <string name="weather_freezing_rain">Freezing Rain</string>
     <string name="weather_snow">Snow</string>
