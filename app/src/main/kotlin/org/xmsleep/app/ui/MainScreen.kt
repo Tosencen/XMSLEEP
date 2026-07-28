@@ -66,6 +66,10 @@ import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.ui.viewmodel.MainViewModel
 import org.xmsleep.app.ui.viewmodel.SoundsViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import android.content.Context
+import android.content.SharedPreferences
+import android.Manifest
+import android.widget.Toast
 
 /**
  * 主屏幕 - 包含底部导航和页面切换
@@ -114,7 +118,7 @@ fun MainScreen(
     val navigator = rememberXMSleepNavigator()
     var selectedItem by remember { mutableIntStateOf(1) }
     val context = androidx.compose.ui.platform.LocalContext.current
-    val prefs = remember { context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE) }
+    val prefs = remember { context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE) }
     var simpleMode by remember { mutableStateOf(prefs.getBoolean(Constants.PrefsKeys.SIMPLE_MODE, false)) }
     LaunchedEffect(simpleMode) { prefs.edit().putBoolean(Constants.PrefsKeys.SIMPLE_MODE, simpleMode).apply() }
     val isDarkTheme = isSystemInDarkTheme()
@@ -141,72 +145,23 @@ fun MainScreen(
         mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getShowRecentPlayDialog(context))
     }
     
-    var showRadioTab by remember {
-        val prefs = context.getSharedPreferences(
-            org.xmsleep.app.Constants.PrefsKeys.PREFS_NAME,
-            android.content.Context.MODE_PRIVATE
-        )
-        mutableStateOf(prefs.getBoolean(org.xmsleep.app.Constants.PrefsKeys.SHOW_RADIO_TAB, true))
-    }
-    // 监听电台Tab显隐偏好变化
-    val radioTabPrefListener = remember {
-        android.content.SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-            if (key == org.xmsleep.app.Constants.PrefsKeys.SHOW_RADIO_TAB) {
-                showRadioTab = prefs.getBoolean(key, true)
-            }
-        }
-    }
-    DisposableEffect(Unit) {
-        val prefs = context.getSharedPreferences(
-            org.xmsleep.app.Constants.PrefsKeys.PREFS_NAME,
-            android.content.Context.MODE_PRIVATE
-        )
-        prefs.registerOnSharedPreferenceChangeListener(radioTabPrefListener)
-        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(radioTabPrefListener) }
-    }
-    
-    // 当电台 Tab 隐藏时，如果当前在电台页面则切换到默认 Tab
-    LaunchedEffect(showRadioTab) {
-        if (!showRadioTab && selectedItem == 5) {
-            selectedItem = 1
-        }
-    }
+    val showRadioTab by rememberTabVisibility(
+        context = context,
+        prefsKey = Constants.PrefsKeys.SHOW_RADIO_TAB,
+        onTabHidden = { if (selectedItem == 5) selectedItem = 1 }
+    )
 
-    var showBreathingTab by remember {
-        val prefs = context.getSharedPreferences(
-            org.xmsleep.app.Constants.PrefsKeys.PREFS_NAME,
-            android.content.Context.MODE_PRIVATE
-        )
-        mutableStateOf(prefs.getBoolean(org.xmsleep.app.Constants.PrefsKeys.SHOW_BREATHING_TAB, true))
-    }
-    val breathingTabPrefListener = remember {
-        android.content.SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-            if (key == org.xmsleep.app.Constants.PrefsKeys.SHOW_BREATHING_TAB) {
-                showBreathingTab = prefs.getBoolean(key, true)
-            }
-        }
-    }
-    DisposableEffect(Unit) {
-        val prefs = context.getSharedPreferences(
-            org.xmsleep.app.Constants.PrefsKeys.PREFS_NAME,
-            android.content.Context.MODE_PRIVATE
-        )
-        prefs.registerOnSharedPreferenceChangeListener(breathingTabPrefListener)
-        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(breathingTabPrefListener) }
-    }
-
-    // 当呼吸 Tab 隐藏时，如果当前在呼吸页面则切换到默认 Tab
-    LaunchedEffect(showBreathingTab) {
-        if (!showBreathingTab && selectedItem == 4) {
-            selectedItem = 1
-        }
-    }
+    val showBreathingTab by rememberTabVisibility(
+        context = context,
+        prefsKey = Constants.PrefsKeys.SHOW_BREATHING_TAB,
+        onTabHidden = { if (selectedItem == 4) selectedItem = 1 }
+    )
     
     // 本地音频权限相关
-    val requiredPermission = if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-        android.Manifest.permission.READ_MEDIA_AUDIO
+    val requiredPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        Manifest.permission.READ_MEDIA_AUDIO
     } else {
-        android.Manifest.permission.READ_EXTERNAL_STORAGE
+        Manifest.permission.READ_EXTERNAL_STORAGE
     }
     
     var showPermissionDialog by remember { mutableStateOf(false) }
@@ -218,7 +173,7 @@ fun MainScreen(
             val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
                 context,
                 requiredPermission
-            ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED
             
             if (hasPermission) {
                 navigator.navController.navigate("local_audio")
@@ -236,7 +191,7 @@ fun MainScreen(
                 val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
                     context,
                     requiredPermission
-                ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                ) == PackageManager.PERMISSION_GRANTED
                 
                 if (hasPermission) {
                     // 权限已授予，进入页面
@@ -309,7 +264,7 @@ fun MainScreen(
                     Logger.d("UpdateCheck", "检测到待安装文件且权限已授予")
                     // 在协程中延迟一小段时间确保UI已准备好
                     scope.launch {
-                        delay(500)
+                        delay(Constants.SHORT_DELAY_MS)
                         // 自动重试安装
                         updateViewModel.autoRetryInstall()
                     }
@@ -502,7 +457,7 @@ fun MainScreen(
                             var accumulatedDrag = 0f
                             detectHorizontalDragGestures(
                                 onDragEnd = {
-                                    val threshold = size.width * 0.35f
+                                    val threshold = size.width * Constants.SWIPE_THRESHOLD_RATIO
                                     when {
                                         accumulatedDrag > threshold -> {
                                             when (selectedItem) {
@@ -542,19 +497,19 @@ fun MainScreen(
                         val direction = if (toPos > fromPos) 1 else -1
                         slideInHorizontally(
                             initialOffsetX = { fullWidth -> fullWidth * direction },
-                            animationSpec = tween(300, easing = FastOutSlowInEasing)
-                        ) + fadeIn(animationSpec = tween(300)) togetherWith
+                            animationSpec = tween(Constants.ANIM_PAGE_SWITCH_DURATION_MS, easing = FastOutSlowInEasing)
+                        ) + fadeIn(animationSpec = tween(Constants.ANIM_PAGE_SWITCH_DURATION_MS)) togetherWith
                         slideOutHorizontally(
                             targetOffsetX = { fullWidth -> -fullWidth * direction },
-                            animationSpec = tween(300, easing = FastOutSlowInEasing)
-                        ) + fadeOut(animationSpec = tween(300))
+                            animationSpec = tween(Constants.ANIM_PAGE_SWITCH_DURATION_MS, easing = FastOutSlowInEasing)
+                        ) + fadeOut(animationSpec = tween(Constants.ANIM_PAGE_SWITCH_DURATION_MS))
                     },
                     label = "tab_switch"
                 ) { currentTab ->
                     // tab 切换时，触发浮动按钮收缩
                     LaunchedEffect(currentTab) {
                         shouldCollapseFloatingButton = true
-                        delay(100) // 短暂延迟后重置
+                        delay(Constants.COLLAPSE_DELAY_MS) // 短暂延迟后重置
                         shouldCollapseFloatingButton = false
                     }
                     when (currentTab) {
@@ -583,7 +538,7 @@ fun MainScreen(
                                     // 滚动时，触发浮动按钮收缩
                                     shouldCollapseFloatingButton = true
                                     scope.launch {
-                                        delay(100) // 短暂延迟后重置
+                                        delay(Constants.COLLAPSE_DELAY_MS) // 短暂延迟后重置
                                         shouldCollapseFloatingButton = false
                                     }
                                 },
@@ -592,7 +547,7 @@ fun MainScreen(
                                     forceCollapseFloatingButton = true
                                     // 短暂延迟后重置强制收缩状态
                                     scope.launch {
-                                        delay(100)
+                                        delay(Constants.COLLAPSE_DELAY_MS)
                                         forceCollapseFloatingButton = false
                                     }
                                 },
@@ -612,7 +567,7 @@ fun MainScreen(
                                     // 滚动时，触发浮动按钮收缩
                                     shouldCollapseFloatingButton = true
                                     scope.launch {
-                                        delay(100) // 短暂延迟后重置
+                                        delay(Constants.COLLAPSE_DELAY_MS) // 短暂延迟后重置
                                         shouldCollapseFloatingButton = false
                                     }
                                 },
@@ -621,7 +576,7 @@ fun MainScreen(
                                     val hasPermission = androidx.core.content.ContextCompat.checkSelfPermission(
                                         context,
                                         requiredPermission
-                                    ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                                    ) == PackageManager.PERMISSION_GRANTED
                                     
                                     if (hasPermission) {
                                         // 有权限，直接进入页面
@@ -679,7 +634,7 @@ fun MainScreen(
                                     // 滚动时，触发浮动按钮收缩
                                     shouldCollapseFloatingButton = true
                                     scope.launch {
-                                        delay(100) // 短暂延迟后重置
+                                        delay(Constants.COLLAPSE_DELAY_MS) // 短暂延迟后重置
                                         shouldCollapseFloatingButton = false
                                     }
                                 },
@@ -730,7 +685,7 @@ fun MainScreen(
                         // 滚动时收缩悬浮按钮
                         shouldCollapseFloatingButton = true
                         scope.launch {
-                            delay(100)
+                            delay(Constants.COLLAPSE_DELAY_MS)
                             shouldCollapseFloatingButton = false
                         }
                     }
@@ -927,10 +882,10 @@ fun MainScreen(
                 PreferencesManager.savePresetRemotePinned(context, activePreset, newRemoteSet)
 
                 val addedCount = localSounds.size + remoteSoundIds.size
-                android.widget.Toast.makeText(
+                Toast.makeText(
                     context,
                     context.getString(R.string.added_to_preset, addedCount, activePreset),
-                    android.widget.Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT
                 ).show()
             }
         )
@@ -975,7 +930,7 @@ fun MainScreen(
                         val autoCountdownMinutes = org.xmsleep.app.preferences.PreferencesManager.getAutoCountdownMinutes(context)
                         if (autoCountdownMinutes > 0) {
                             scope.launch {
-                                delay(500)
+                                delay(Constants.SHORT_DELAY_MS)
                                 timerManager.startTimer(autoCountdownMinutes)
                             }
                         }
@@ -988,7 +943,7 @@ fun MainScreen(
                     if (shouldShow) {
                         val audioManager = org.xmsleep.app.audio.AudioManager.getInstance()
                         if (audioManager.hasRecentSounds(context)) {
-                            delay(500)
+                            delay(Constants.SHORT_DELAY_MS)
                             showRecentPlayDialog = true
                         }
                     }
@@ -1045,6 +1000,45 @@ fun MainScreen(
             )
         }
     }
+}
+
+/**
+ * 监听 SharedPreferences 中 Tab 显隐偏好的变化，Tab 隐藏时自动执行回调
+ */
+@Composable
+private fun rememberTabVisibility(
+    context: Context,
+    prefsKey: String,
+    onTabHidden: () -> Unit = {}
+): State<Boolean> {
+    var showTab by remember {
+        mutableStateOf(
+            context.getSharedPreferences(Constants.PrefsKeys.PREFS_NAME, Context.MODE_PRIVATE)
+                .getBoolean(prefsKey, true)
+        )
+    }
+
+    val listener = remember {
+        SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
+            if (key == prefsKey) {
+                showTab = prefs.getBoolean(key, true)
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        val prefs = context.getSharedPreferences(Constants.PrefsKeys.PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.registerOnSharedPreferenceChangeListener(listener)
+        onDispose { prefs.unregisterOnSharedPreferenceChangeListener(listener) }
+    }
+
+    LaunchedEffect(showTab) {
+        if (!showTab) {
+            onTabHidden()
+        }
+    }
+
+    return derivedStateOf { showTab }
 }
 
 @OptIn(ExperimentalFoundationApi::class)

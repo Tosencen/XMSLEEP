@@ -27,14 +27,6 @@ object Constants {
     const val APP_NAME = "XMSLEEP"
     const val APP_PACKAGE = "org.xmsleep.app"
     
-    // ==================== 旧版本信息（用于数据迁移）====================
-    // 注意：OLD_APP_PACKAGE 与 APP_PACKAGE 相同，说明包名从未变更过。
-    // migrateFromOldVersion 中的迁移逻辑实际上是死代码，首次运行时
-    // createPackageContext 会抛出 NameNotFoundException 并被 catch 捕获，
-    // 迁移标记会被置为 true，后续不再执行。保留此常量仅作历史记录。
-    @Deprecated("包名从未变更，迁移逻辑为死代码，不需要使用此常量")
-    const val OLD_APP_PACKAGE = "org.xmsleep.app"
-    
     // ==================== 外部链接 ====================
     const val GITHUB_URL = "https://github.com/Tosencen/XMSLEEP"
     const val TELEGRAM_URL = "https://t.me/xmsleep"
@@ -64,6 +56,16 @@ object Constants {
     // ==================== 默认配置 ====================
     const val DEFAULT_SOUND_COLUMNS = 2
     const val DEFAULT_VOLUME = 1.0f
+    
+    // ==================== 动画与交互 ====================
+    /** 页面切换动画时长 (ms) */
+    const val ANIM_PAGE_SWITCH_DURATION_MS = 300
+    /** 滑动切换阈值比例 (占屏幕宽度的百分比) */
+    const val SWIPE_THRESHOLD_RATIO = 0.35f
+    /** 收缩动画延迟 (ms) */
+    const val COLLAPSE_DELAY_MS = 100L
+    /** UI 操作短延迟 (ms) */
+    const val SHORT_DELAY_MS = 500L
     
     // ==================== SharedPreferences Keys ====================
     object PrefsKeys {

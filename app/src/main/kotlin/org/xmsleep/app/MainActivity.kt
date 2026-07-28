@@ -38,6 +38,10 @@ import org.xmsleep.app.ui.settings.copyToPrivateStorage
 import org.xmsleep.app.ui.viewmodel.MainViewModel
 import org.xmsleep.app.ui.viewmodel.SoundsViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import org.xmsleep.app.audio.AudioManager
+import org.xmsleep.app.audio.AudioResourceManager
+import org.xmsleep.app.audio.LocalAudioMediaService
+import org.xmsleep.app.preferences.PreferencesManager
 
 /**
  * XMSLEEP 主Activity
@@ -63,16 +67,16 @@ class MainActivity : ComponentActivity() {
         CrashHandler.init(this)
         
         // 初始化本地音频媒体服务
-        org.xmsleep.app.audio.LocalAudioMediaService.getInstance(this).initialize(this)
+        LocalAudioMediaService.getInstance(this).initialize(this)
         
         // 在应用启动时迁移旧版本的数据（如果存在）
-        org.xmsleep.app.preferences.PreferencesManager.migrateFromOldVersion(this)
+        PreferencesManager.migrateFromOldVersion(this)
 
         // 确保匿名设备标识已生成（共建/赞助身份，首次启动生成并持久化）
-        org.xmsleep.app.preferences.PreferencesManager.getAnonymousDeviceId(this)
+        PreferencesManager.getAnonymousDeviceId(this)
         
         // 初始化默认的音频清单（从 assets 加载到缓存）
-        org.xmsleep.app.audio.AudioResourceManager.getInstance(this).initializeDefaultManifest()
+        AudioResourceManager.getInstance(this).initializeDefaultManifest()
         
         // 检查是否有崩溃信息
         val (errorMessage, stackTrace) = intent.getCrashInfo()
@@ -101,7 +105,7 @@ class MainActivity : ComponentActivity() {
         super.onStop()
         // 应用进入后台时保存最近播放记录
         try {
-            val audioManager = org.xmsleep.app.audio.AudioManager.getInstance()
+            val audioManager = AudioManager.getInstance()
             audioManager.saveRecentPlayingSounds()
         } catch (e: Exception) {
             Logger.e("MainActivity", "保存最近播放记录失败: ${e.message}")
@@ -187,7 +191,7 @@ fun XMSLEEPApp() {
     
     // 主题状态管理（从SharedPreferences加载保存的设置）
     var darkMode by remember { 
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getDarkMode(context))
+        mutableStateOf(PreferencesManager.getDarkMode(context))
     }
     
     // 背景动画的主题色（从缩略图同步提取）
@@ -226,19 +230,19 @@ fun XMSLEEPApp() {
     }
     
     var backgroundSelection by remember {
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getBackgroundSelection(context))
+        mutableStateOf(PreferencesManager.getBackgroundSelection(context))
     }
 
     var customBackgroundUri by remember {
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getCustomBackgroundUri(context))
+        mutableStateOf(PreferencesManager.getCustomBackgroundUri(context))
     }
 
     var customBackgroundColor by remember {
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getCustomBackgroundColor(context, Color.Unspecified))
+        mutableStateOf(PreferencesManager.getCustomBackgroundColor(context, Color.Unspecified))
     }
 
     var customBackgroundThumbnail by remember {
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getCustomBackgroundThumbnail(context))
+        mutableStateOf(PreferencesManager.getCustomBackgroundThumbnail(context))
     }
 
     // 对话框中待提交的自定义背景（选择文件后暂存，点确定才提交）
@@ -267,7 +271,7 @@ fun XMSLEEPApp() {
                         }
                         pendingCustomBgUri = fileUri.toString()
                         pendingCustomBgThumbnail = thumbUri?.toString()
-                        pendingCustomBgColor = color ?: org.xmsleep.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors[3])
+                        pendingCustomBgColor = color ?: PreferencesManager.getSelectedColor(context, paletteColors[3])
                     }
                 } catch (e: Exception) {
                     Logger.e("MainActivity", "自定义背景文件处理失败", e)
@@ -276,7 +280,7 @@ fun XMSLEEPApp() {
         }
     }
 
-    val savedColor = org.xmsleep.app.preferences.PreferencesManager.getSelectedColor(context, paletteColors[3])
+    val savedColor = PreferencesManager.getSelectedColor(context, paletteColors[3])
 
     // 如果有背景选择，使用背景主题色；否则从 SharedPreferences 加载保存的调色板颜色
     var selectedColor by remember {
@@ -284,40 +288,40 @@ fun XMSLEEPApp() {
     }
 
     var useDynamicColor by remember { 
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getUseDynamicColor(context))
+        mutableStateOf(PreferencesManager.getUseDynamicColor(context))
     }
     var useBlackBackground by remember { 
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getUseBlackBackground(context))
+        mutableStateOf(PreferencesManager.getUseBlackBackground(context))
     }
     var hideAnimation by remember { 
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getHideAnimation(context))
+        mutableStateOf(PreferencesManager.getHideAnimation(context))
     }
     var soundCardsColumnsCount by remember { 
-        mutableIntStateOf(org.xmsleep.app.preferences.PreferencesManager.getSoundCardsColumnsCount(context))
+        mutableIntStateOf(PreferencesManager.getSoundCardsColumnsCount(context))
     }
     
     var backgroundOpacity by remember {
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getBackgroundOpacity(context))
+        mutableStateOf(PreferencesManager.getBackgroundOpacity(context))
     }
     var backgroundBlurRadius by remember {
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getBackgroundBlurRadius(context))
+        mutableStateOf(PreferencesManager.getBackgroundBlurRadius(context))
     }
 
     // 确定提交自定义背景（用户点击对话框"确定"时调用）
     val onCommitCustomBg: () -> Unit = {
         pendingCustomBgUri?.let { uri ->
             customBackgroundUri = uri
-            org.xmsleep.app.preferences.PreferencesManager.saveCustomBackgroundUri(context, uri)
+            PreferencesManager.saveCustomBackgroundUri(context, uri)
             pendingCustomBgThumbnail?.let { thumb ->
                 customBackgroundThumbnail = thumb
-                org.xmsleep.app.preferences.PreferencesManager.saveCustomBackgroundThumbnail(context, thumb)
+                PreferencesManager.saveCustomBackgroundThumbnail(context, thumb)
             }
             pendingCustomBgColor?.let { color ->
                     customBackgroundColor = color
-                    org.xmsleep.app.preferences.PreferencesManager.saveCustomBackgroundColor(context, color)
+                    PreferencesManager.saveCustomBackgroundColor(context, color)
                 }
             backgroundSelection = BackgroundSelection.Custom
-            org.xmsleep.app.preferences.PreferencesManager.saveBackgroundSelection(context, BackgroundSelection.Custom)
+            PreferencesManager.saveBackgroundSelection(context, BackgroundSelection.Custom)
         }
         pendingCustomBgUri = null
         pendingCustomBgThumbnail = null
@@ -340,7 +344,7 @@ fun XMSLEEPApp() {
     // 自定义背景下选择主题色（不切换到无背景）
     val onCustomColorChange: (Color) -> Unit = { color ->
         selectedColor = color
-        org.xmsleep.app.preferences.PreferencesManager.saveSelectedColor(context, color)
+        PreferencesManager.saveSelectedColor(context, color)
     }
 
     // 计算是否使用深色主题
@@ -385,45 +389,45 @@ fun XMSLEEPApp() {
                     onLanguageChange = { currentLanguage = it },
                     onDarkModeChange = { newMode ->
                         darkMode = newMode
-                        org.xmsleep.app.preferences.PreferencesManager.saveDarkMode(context, newMode)
+                        PreferencesManager.saveDarkMode(context, newMode)
                     },
                     onColorChange = { 
                         val colorHex = it.value.toString(16).padStart(8, '0').takeLast(6).uppercase()
                         Logger.d("MainActivity", "用户选择调色板颜色: #$colorHex")
                         selectedColor = it
-                        org.xmsleep.app.preferences.PreferencesManager.saveSelectedColor(context, it)
+                        PreferencesManager.saveSelectedColor(context, it)
                     },
                     onDynamicColorChange = { 
                         useDynamicColor = it
-                        org.xmsleep.app.preferences.PreferencesManager.saveUseDynamicColor(context, it)
+                        PreferencesManager.saveUseDynamicColor(context, it)
                     },
                     onBlackBackgroundChange = { 
                         useBlackBackground = it
-                        org.xmsleep.app.preferences.PreferencesManager.saveUseBlackBackground(context, it)
+                        PreferencesManager.saveUseBlackBackground(context, it)
                     },
                     onHideAnimationChange = { 
                         hideAnimation = it
-                        org.xmsleep.app.preferences.PreferencesManager.saveHideAnimation(context, it)
+                        PreferencesManager.saveHideAnimation(context, it)
                     },
                     onBackgroundSelectionChange = { newBackground ->
                         Logger.d("MainActivity", "背景切换: $newBackground")
 
                         backgroundSelection = newBackground
-                        org.xmsleep.app.preferences.PreferencesManager.saveBackgroundSelection(context, newBackground)
+                        PreferencesManager.saveBackgroundSelection(context, newBackground)
                     },
                     onSoundCardsColumnsCountChange = {
                         soundCardsColumnsCount = it
-                        org.xmsleep.app.preferences.PreferencesManager.saveSoundCardsColumnsCount(context, it)
+                        PreferencesManager.saveSoundCardsColumnsCount(context, it)
                     },
                     backgroundOpacity = backgroundOpacity,
                     backgroundBlurRadius = backgroundBlurRadius,
                     onBackgroundOpacityChange = {
                         backgroundOpacity = it
-                        org.xmsleep.app.preferences.PreferencesManager.saveBackgroundOpacity(context, it)
+                        PreferencesManager.saveBackgroundOpacity(context, it)
                     },
                     onBackgroundBlurRadiusChange = {
                         backgroundBlurRadius = it
-                        org.xmsleep.app.preferences.PreferencesManager.saveBackgroundBlurRadius(context, it)
+                        PreferencesManager.saveBackgroundBlurRadius(context, it)
                     },
                     paletteColors = paletteColors,
                     mainViewModel = mainViewModel,
