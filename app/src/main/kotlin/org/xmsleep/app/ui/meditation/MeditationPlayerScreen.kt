@@ -41,6 +41,7 @@ import org.xmsleep.app.meditation.BilibiliAudioHelper
 import org.xmsleep.app.meditation.MeditationPlayerManager
 import org.xmsleep.app.timer.TimerManager
 import org.xmsleep.app.ui.TimerDialog
+import org.xmsleep.app.utils.Logger
 import java.io.InputStreamReader
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -150,6 +151,22 @@ fun MeditationPlayerScreen(
     // 初始化管理器
     LaunchedEffect(Unit) {
         playerManager.initialize(context)
+    }
+
+    // 倒计时结束时停止冥想播放（安全网，与 MeditationPlayerManager 冗余）
+    DisposableEffect(Unit) {
+        val listener = object : TimerManager.TimerListener {
+            override fun onTimerTick(timeLeftMillis: Long) {}
+            override fun onTimerFinished(durationMinutes: Int) {
+                playerManager.stop()
+                Logger.d("MeditationPlayerScreen", "倒计时结束，已停止冥想播放")
+            }
+            override fun onTimerCancelled() {}
+        }
+        timerManager.addListener(listener)
+        onDispose {
+            timerManager.removeListener(listener)
+        }
     }
 
     // 切换音频时重置进度（总时长先用 manifest 里的真实值兜底，READY 后由播放器修正）

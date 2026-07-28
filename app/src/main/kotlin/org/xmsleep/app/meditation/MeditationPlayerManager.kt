@@ -60,11 +60,18 @@ class MeditationPlayerManager private constructor() {
     // 外部停止回调（用于互斥）
     private var onStopRequested: (() -> Unit)? = null
 
-    // 全局倒计时监听器（注册后永不移除，直到 release）
+    // 全局倒计时监听器（构造时立即注册，确保始终生效）
     private val timerListener = object : org.xmsleep.app.timer.TimerManager.TimerListener {
         override fun onTimerTick(timeLeftMillis: Long) {}
-        override fun onTimerFinished(durationMinutes: Int) { stop() }
+        override fun onTimerFinished(durationMinutes: Int) {
+            Logger.d(TAG, "倒计时到期，停止冥想播放")
+            stop()
+        }
         override fun onTimerCancelled() {}
+    }
+
+    init {
+        org.xmsleep.app.timer.TimerManager.getInstance().addListener(timerListener)
     }
 
     fun setOnStopRequested(callback: () -> Unit) {
@@ -106,9 +113,6 @@ class MeditationPlayerManager private constructor() {
                 })
             }
             audioManager.value = context.getSystemService(Context.AUDIO_SERVICE) as? SystemAudioManager
-
-            // 注册全局倒计时监听器：倒计时到期时停止冥想音频
-            org.xmsleep.app.timer.TimerManager.getInstance().addListener(timerListener)
         }
     }
 

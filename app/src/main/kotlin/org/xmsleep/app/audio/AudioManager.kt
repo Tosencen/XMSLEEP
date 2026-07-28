@@ -113,9 +113,10 @@ class AudioManager private constructor() {
     val hasAnyPlayingSounds: StateFlow<Boolean> = combine(
         localSoundPlayer.hasAnyPlaying,
         remoteSoundPlayer.hasAnyPlaying,
-        _radioPlaying
-    ) { localPlaying, remotePlaying, radioPlaying ->
-        localPlaying || remotePlaying || radioPlaying
+        _radioPlaying,
+        org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().isPlaying
+    ) { localPlaying, remotePlaying, radioPlaying, meditationPlaying ->
+        localPlaying || remotePlaying || radioPlaying || meditationPlaying
     }.stateIn(
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
         started = kotlinx.coroutines.flow.SharingStarted.Eagerly,
@@ -423,7 +424,7 @@ class AudioManager private constructor() {
      * 检查是否有任何声音正在播放
      */
     fun hasAnyPlayingSounds(): Boolean {
-        return localSoundPlayer.hasAnyPlayingSounds() || remoteSoundPlayer.hasAnyPlayingSounds() || _radioPlaying.value
+        return localSoundPlayer.hasAnyPlayingSounds() || remoteSoundPlayer.hasAnyPlayingSounds() || _radioPlaying.value || org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().isPlaying.value
     }
 
     /**
