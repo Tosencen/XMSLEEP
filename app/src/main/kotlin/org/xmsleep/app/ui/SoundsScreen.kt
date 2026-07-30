@@ -847,7 +847,7 @@ fun SoundsScreen(
                     onClick = { onNavigateToFlipClock() }
                 ) {
                     Icon(
-                        imageVector = Icons.Outlined.Timer,
+                        painter = painterResource(R.drawable.nutrition_24px),
                         contentDescription = context.getString(R.string.tomato_timer_title),
                         tint = MaterialTheme.colorScheme.primary
                     )

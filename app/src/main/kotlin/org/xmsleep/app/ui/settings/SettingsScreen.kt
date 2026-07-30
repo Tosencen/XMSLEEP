@@ -7,6 +7,8 @@ import android.Manifest
 import android.net.Uri
 import android.os.Build
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -19,6 +21,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -89,6 +93,8 @@ fun SettingsScreen(
     var showBackgroundDialog by remember { mutableStateOf(false) }
     var showFeatureDialog by remember { mutableStateOf(false) }
     var showCommunityDialog by remember { mutableStateOf(false) }
+    var showDonateDialog by remember { mutableStateOf(false) }
+    var showDonateQrDialog by remember { mutableStateOf(false) }
     var showAutoCountdownDialog by remember { mutableStateOf(false) }
     var autoCountdownMinutes by remember { 
         mutableIntStateOf(org.xmsleep.app.preferences.PreferencesManager.getAutoCountdownMinutes(context))
@@ -411,6 +417,18 @@ fun SettingsScreen(
                         )
                     },
                     onClick = { showCommunityDialog = true }
+                ),
+                SettingsCategoryItem(
+                    icon = Icons.Default.Coffee,
+                    title = { Text(context.getString(R.string.buy_me_a_coffee)) },
+                    description = {
+                        Text(
+                            context.getString(R.string.buy_me_a_coffee_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    onClick = { showDonateDialog = true }
                 )
             )
         )
@@ -780,6 +798,136 @@ fun SettingsScreen(
                 confirmButton = {
                     TextButton(onClick = { showCommunityDialog = false }) {
                         Text(context.getString(R.string.cancel))
+                    }
+                }
+            )
+        }
+
+        // 给晓满加油对话框
+        if (showDonateDialog) {
+            AlertDialog(
+                onDismissRequest = { showDonateDialog = false },
+                title = {
+                    Text(
+                        text = context.getString(R.string.buy_me_a_coffee),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = context.getString(R.string.donate_message),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(bottom = 20.dp)
+                        )
+
+                        listOf(
+                            Icons.Default.Restaurant to R.string.donate_amount_1,
+                            Icons.Default.DirectionsSubway to R.string.donate_amount_2,
+                            Icons.Default.LunchDining to R.string.donate_amount_3
+                        ).forEach { (icon, resId) ->
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .border(
+                                        width = 1.dp,
+                                        color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                                        shape = RoundedCornerShape(16.dp)
+                                    )
+                                    .clickable {
+                                        showDonateDialog = false
+                                        showDonateQrDialog = true
+                                    }
+                                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                                contentAlignment = Alignment.CenterStart
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = icon,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Text(
+                                        text = context.getString(resId),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+                        }
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = { showDonateDialog = false }) {
+                        Text(context.getString(R.string.close))
+                    }
+                }
+            )
+        }
+
+        // 收款码预览对话框
+        if (showDonateQrDialog) {
+            AlertDialog(
+                onDismissRequest = { showDonateQrDialog = false },
+                title = {
+                    Text(
+                        text = context.getString(R.string.wechat_pay_qr),
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.wechat_donate_qr),
+                            contentDescription = context.getString(R.string.wechat_pay_qr),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(16.dp)),
+                            contentScale = ContentScale.FillWidth
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = context.getString(R.string.donate_tip),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                },
+                confirmButton = {
+                    TextButton(onClick = {
+                        try {
+                            val bitmap = android.graphics.BitmapFactory.decodeResource(
+                                context.resources,
+                                R.drawable.wechat_donate_qr
+                            )
+                            android.provider.MediaStore.Images.Media.insertImage(
+                                context.contentResolver,
+                                bitmap,
+                                "wechat_donate_qr",
+                                "XMSLEEP donate QR code"
+                            )
+                            bitmap.recycle()
+                            Toast.makeText(context, context.getString(R.string.qr_saved), Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(context, context.getString(R.string.qr_save_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    }) {
+                        Text(context.getString(R.string.save_to_gallery))
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    TextButton(onClick = { showDonateQrDialog = false }) {
+                        Text(context.getString(R.string.close))
                     }
                 }
             )

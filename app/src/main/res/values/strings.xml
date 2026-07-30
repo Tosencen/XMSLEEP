@@ -205,6 +205,17 @@
     <string name="install_failed">安装失败</string>
     <string name="join_group">社区</string>
     <string name="join_group_description">关注我获取最新资讯</string>
+    <string name="buy_me_a_coffee">给晓满加油</string>
+    <string name="buy_me_a_coffee_description">你的支持是我持续更新的动力</string>
+    <string name="donate_message">如果 XMSLEEP 对你有帮助，可以赞助晓满，你的支持是我持续更新的动力！</string>
+    <string name="donate_amount_1">请晓满吃早餐 ¥5.4</string>
+    <string name="donate_amount_2">请晓满坐地铁 ¥6.9</string>
+    <string name="donate_amount_3">请晓满吃午餐 ¥16.8</string>
+    <string name="donate_tip">保存到相册后，打开微信扫一扫即可操作</string>
+    <string name="save_to_gallery">保存到相册</string>
+    <string name="qr_saved">收款码已保存到相册</string>
+    <string name="qr_save_failed">保存失败，请重试</string>
+    <string name="wechat_pay_qr">我的二维码</string>
     <string name="community_dialog_title">社区</string>
     <string name="open_github">GitHub</string>
     <string name="open_github_description">查看项目源码</string>
@@ -679,11 +690,23 @@
     <!-- 番茄计时器 -->
     <string name="tomato_timer_title">番茄时钟</string>
     <string name="tomato_today_completed">今日完成：%1$d 个番茄</string>
-    <string name="tomato_focus">专注</string>
-    <string name="tomato_break">休息</string>
+    <string name="tomato_focus">专注中</string>
+    <string name="tomato_break">休息中</string>
     <string name="tomato_start">开始</string>
     <string name="tomato_pause">暂停</string>
     <string name="tomato_reset">重置</string>
+    <string name="tomato_focus_complete_title">专注完成！</string>
+    <string name="tomato_focus_complete_desc">干得不错，休息一下吧！</string>
+    <string name="tomato_break_complete_title">休息结束</string>
+    <string name="tomato_break_complete_desc">准备好继续专注了吗？</string>
+    <string name="tomato_start_break">开始休息</string>
+    <string name="tomato_start_focus">开始专注</string>
+    <string name="tomato_skip_break">跳过休息</string>
+    <string name="tomato_start_later">稍后开始</string>
+    <string name="tomato_custom_time_title">自定义时长</string>
+    <string name="tomato_custom_time_range">1 ~ 180 分钟</string>
+    <string name="tomato_custom_time_label">专注时长</string>
+    <string name="tomato_custom_time_suffix">分钟</string>
     
     <!-- 小组件 -->
     <string name="add_quote_widget">添加小组件</string>

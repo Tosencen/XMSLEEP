@@ -182,6 +182,17 @@
     <string name="install_failed">Установка не удалась</string>
     <string name="join_group">Сообщество</string>
     <string name="join_group_description">Подпишитесь на новости</string>
+    <string name="buy_me_a_coffee">Поддержать Сяо Мань</string>
+    <string name="buy_me_a_coffee_description">Ваша поддержка — мой мотив продолжать обновления</string>
+    <string name="donate_message">Если XMSLEEP вам помог, поддержите Сяо Мань. Ваша поддержка — мой мотив продолжать обновления!</string>
+    <string name="donate_amount_1">Оплатить завтрак Сяо Мань ¥5.4</string>
+    <string name="donate_amount_2">Оплатить метро для Сяо Мань ¥6.9</string>
+    <string name="donate_amount_3">Оплатить обед Сяо Мань ¥16.8</string>
+    <string name="donate_tip">Сохраните в галерею, затем откройте WeChat для сканирования</string>
+    <string name="save_to_gallery">Сохранить в галерею</string>
+    <string name="wechat_pay_qr">Мой QR-код</string>
+    <string name="qr_saved">QR-код сохранён в галерею</string>
+    <string name="qr_save_failed">Не удалось сохранить, попробуйте ещё раз</string>
     <string name="community_dialog_title">Сообщество</string>
     <string name="open_github">GitHub</string>
     <string name="open_github_description">Исходный код</string>
@@ -622,11 +633,23 @@
     <!-- Tomato Timer -->
     <string name="tomato_timer_title">Таймер фокуса</string>
     <string name="tomato_today_completed">Сегодня: %1$d помидоров</string>
-    <string name="tomato_focus">Фокус</string>
+    <string name="tomato_focus">Фокусировка</string>
     <string name="tomato_break">Перерыв</string>
     <string name="tomato_start">Старт</string>
     <string name="tomato_pause">Пауза</string>
     <string name="tomato_reset">Сброс</string>
+    <string name="tomato_focus_complete_title">Фокус завершён!</string>
+    <string name="tomato_focus_complete_desc">Отлично! Отдыхайте.</string>
+    <string name="tomato_break_complete_title">Перерыв окончен</string>
+    <string name="tomato_break_complete_desc">Готовы снова сосредоточиться?</string>
+    <string name="tomato_start_break">Начать перерыв</string>
+    <string name="tomato_start_focus">Начать фокус</string>
+    <string name="tomato_skip_break">Пропустить перерыв</string>
+    <string name="tomato_start_later">Начать позже</string>
+    <string name="tomato_custom_time_title">Своё время</string>
+    <string name="tomato_custom_time_range">1 ~ 180 минут</string>
+    <string name="tomato_custom_time_label">Время фокуса</string>
+    <string name="tomato_custom_time_suffix">мин</string>
 
     <!-- Flip Clock -->
     <string name="flip_clock">Большие часы</string>

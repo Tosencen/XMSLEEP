@@ -182,6 +182,17 @@
     <string name="install_failed">インストールに失敗しました</string>
     <string name="join_group">コミュニティ</string>
     <string name="join_group_description">最新情報をフォロー</string>
+    <string name="buy_me_a_coffee">晓满を応援する</string>
+    <string name="buy_me_a_coffee_description">あなたの応援が更新の动力になります</string>
+    <string name="donate_message">XMSLEEPが役に立ったなら、晓满をサポートしてね。あなたの応援が更新の动力です！</string>
+    <string name="donate_amount_1">晓满の朝ごはん ¥5.4</string>
+    <string name="donate_amount_2">晓满の電車代 ¥6.9</string>
+    <string name="donate_amount_3">晓满のお昼ごはん ¥16.8</string>
+    <string name="donate_tip">ギャラリーに保存してから、WeChatでスキャンしてください</string>
+    <string name="save_to_gallery">ギャラリーに保存</string>
+    <string name="wechat_pay_qr">私のQRコード</string>
+    <string name="qr_saved">QRコードをギャラリーに保存しました</string>
+    <string name="qr_save_failed">保存に失敗しました。もう一度お試しください</string>
     <string name="community_dialog_title">コミュニティ</string>
     <string name="open_github">GitHub</string>
     <string name="open_github_description">プロジェクトのソースコードを表示</string>
@@ -622,11 +633,23 @@
     <!-- Tomato Timer -->
     <string name="tomato_timer_title">集中タイマー</string>
     <string name="tomato_today_completed">今日: %1$dポモドーロ</string>
-    <string name="tomato_focus">集中</string>
-    <string name="tomato_break">休憩</string>
+    <string name="tomato_focus">集中中</string>
+    <string name="tomato_break">休憩中</string>
     <string name="tomato_start">開始</string>
     <string name="tomato_pause">一時停止</string>
     <string name="tomato_reset">リセット</string>
+    <string name="tomato_focus_complete_title">集中完了！</string>
+    <string name="tomato_focus_complete_desc">よくできました！少し休憩しましょう。</string>
+    <string name="tomato_break_complete_title">休憩終了</string>
+    <string name="tomato_break_complete_desc">もう一度集中しますか？</string>
+    <string name="tomato_start_break">休憩する</string>
+    <string name="tomato_start_focus">集中開始</string>
+    <string name="tomato_skip_break">休憩をスキップ</string>
+    <string name="tomato_start_later">後で開始</string>
+    <string name="tomato_custom_time_title">カスタム時間</string>
+    <string name="tomato_custom_time_range">1 ~ 180 分</string>
+    <string name="tomato_custom_time_label">集中時間</string>
+    <string name="tomato_custom_time_suffix">分</string>
 
     <!-- Flip Clock -->
     <string name="flip_clock">大きな時計</string>

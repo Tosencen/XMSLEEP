@@ -182,6 +182,17 @@
     <string name="install_failed">Install Failed</string>
     <string name="join_group">Community</string>
     <string name="join_group_description">Follow me for latest updates</string>
+    <string name="buy_me_a_coffee">Support Xiao Man</string>
+    <string name="buy_me_a_coffee_description">Your support keeps me updating</string>
+    <string name="donate_message">If XMSLEEP has helped you, consider supporting Xiao Man. Your support is my motivation to keep updating!</string>
+    <string name="donate_amount_1">Buy Xiao Man breakfast ¥5.4</string>
+    <string name="donate_amount_2">Buy Xiao Man a subway ride ¥6.9</string>
+    <string name="donate_amount_3">Buy Xiao Man lunch ¥16.8</string>
+    <string name="donate_tip">Save to gallery, then open WeChat to scan</string>
+    <string name="save_to_gallery">Save to Gallery</string>
+    <string name="wechat_pay_qr">My QR Code</string>
+    <string name="qr_saved">QR code saved to gallery</string>
+    <string name="qr_save_failed">Save failed, please try again</string>
     <string name="community_dialog_title">Community</string>
     <string name="open_github">GitHub</string>
     <string name="open_github_description">View project source code</string>
@@ -633,11 +644,23 @@ If you have any questions, please contact us through the in-app contact method.<
     <!-- Tomato Timer -->
     <string name="tomato_timer_title">Focus Timer</string>
     <string name="tomato_today_completed">Today: %1$d pomodoros</string>
-    <string name="tomato_focus">Focus</string>
-    <string name="tomato_break">Break</string>
+    <string name="tomato_focus">Focusing</string>
+    <string name="tomato_break">On Break</string>
     <string name="tomato_start">Start</string>
     <string name="tomato_pause">Pause</string>
     <string name="tomato_reset">Reset</string>
+    <string name="tomato_focus_complete_title">Focus Complete!</string>
+    <string name="tomato_focus_complete_desc">Great job! Take a break.</string>
+    <string name="tomato_break_complete_title">Break Over</string>
+    <string name="tomato_break_complete_desc">Ready to focus again?</string>
+    <string name="tomato_start_break">Take a Break</string>
+    <string name="tomato_start_focus">Start Focus</string>
+    <string name="tomato_skip_break">Skip Break</string>
+    <string name="tomato_start_later">Start Later</string>
+    <string name="tomato_custom_time_title">Custom Duration</string>
+    <string name="tomato_custom_time_range">1 ~ 180 minutes</string>
+    <string name="tomato_custom_time_label">Focus duration</string>
+    <string name="tomato_custom_time_suffix">min</string>
 
     <!-- Flip Clock -->
     <string name="flip_clock">Big Clock</string>

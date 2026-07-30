@@ -6,13 +6,14 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.view.WindowManager
-import androidx.core.app.NotificationCompat
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
@@ -20,60 +21,66 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.delay
 import org.xmsleep.app.MainActivity
 import org.xmsleep.app.R
+import kotlin.math.roundToInt
 
 private const val NOTIFICATION_CHANNEL_ID = "tomato_timer_channel"
-private const val NOTIFICATION_ID = 1003  // 番茄钟通知（1001 被 MusicService，1002 被 BreathingService 占用）
+private const val NOTIFICATION_ID = 1003
 
 @Composable
 fun TomatoTimerView(
     modifier: Modifier = Modifier,
     focusDurationMinutes: Int = 25,
     breakDurationMinutes: Int = 5,
-    onTimerComplete: () -> Unit = {}
+    onTimerComplete: () -> Unit = {},
+    onPulseStart: (isBreak: Boolean) -> Unit = { _ -> }
 ) {
     val context = LocalContext.current
     val view = LocalView.current
-    
+
     var isRunning by remember { mutableStateOf(false) }
     var isBreak by remember { mutableStateOf(false) }
     var selectedFocusMinutes by remember { mutableIntStateOf(focusDurationMinutes) }
-    var timeLeftMillis by remember { 
-        mutableLongStateOf(selectedFocusMinutes * 60 * 1000L) 
-    }
+    var timeLeftMillis by remember { mutableLongStateOf(selectedFocusMinutes * 60 * 1000L) }
     var todayCompletedPomodoros by remember { mutableIntStateOf(0) }
-    
-    val totalMillis = if (isBreak) {
-        5 * 60 * 1000L
-    } else {
-        selectedFocusMinutes * 60 * 1000L
+
+    var showPulseBorder by remember { mutableStateOf(false) }
+
+    LaunchedEffect(showPulseBorder) {
+        if (showPulseBorder) {
+            onPulseStart(isBreak)
+            showPulseBorder = false
+        }
     }
-    
-    val progress = if (totalMillis > 0) {
-        timeLeftMillis.toFloat() / totalMillis.toFloat()
-    } else {
-        1f
-    }
-    
-    // 创建通知渠道
-    LaunchedEffect(Unit) {
-        createNotificationChannel(context)
-    }
-    
-    // 屏幕常亮控制
+
+    val totalMillis = if (isBreak) breakDurationMinutes * 60 * 1000L
+    else selectedFocusMinutes * 60 * 1000L
+
+    val progress = if (totalMillis > 0) timeLeftMillis.toFloat() / totalMillis.toFloat() else 1f
+
+    LaunchedEffect(Unit) { createNotificationChannel(context) }
+
     DisposableEffect(isRunning) {
         if (isRunning) {
             view.keepScreenOn = true
@@ -87,206 +94,318 @@ fun TomatoTimerView(
             cancelNotification(context)
         }
     }
-    
-    // 计时逻辑
-    LaunchedEffect(isRunning) {
-        while (isRunning && timeLeftMillis > 0) {
+
+    LaunchedEffect(isRunning, isBreak) {
+        if (!isRunning) return@LaunchedEffect
+        while (timeLeftMillis > 0) {
             delay(1000)
             timeLeftMillis -= 1000
             updateNotification(context, timeLeftMillis, isBreak)
         }
-        if (timeLeftMillis <= 0 && isRunning) {
+        view.keepScreenOn = false
+        if (!isBreak) todayCompletedPomodoros++
+        showCompletionNotification(context, isBreak)
+        showPulseBorder = true
+        isBreak = !isBreak
+        timeLeftMillis = if (isBreak) breakDurationMinutes * 60 * 1000L
+        else selectedFocusMinutes * 60 * 1000L
+        if (isBreak) {
+            isRunning = true
+            view.keepScreenOn = true
+        } else {
             isRunning = false
-            if (!isBreak) {
-                todayCompletedPomodoros++
-            }
-            showCompletionNotification(context, isBreak)
-            isBreak = !isBreak
-            timeLeftMillis = if (isBreak) {
-                5 * 60 * 1000L
-            } else {
-                selectedFocusMinutes * 60 * 1000L
-            }
-            onTimerComplete()
         }
+        onTimerComplete()
     }
-    
+
     val primaryColor = MaterialTheme.colorScheme.primary
-    val breakColor = MaterialTheme.colorScheme.tertiary // 使用主题的 tertiary 颜色表示休息
-    
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        // 模块1: 今日完成数 + 时长选择
+    val breakColor = MaterialTheme.colorScheme.tertiary
+
+    Box(modifier = modifier.fillMaxSize()) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            // 今日完成数
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-            ) {
+            // 今日完成数（仅专注时显示）
+            if (!isBreak) {
                 Text(
                     text = stringResource(R.string.tomato_today_completed, todayCompletedPomodoros),
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp)
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            // 时长选择
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 环形进度条 + 时间
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(260.dp)
             ) {
-                DurationChip(
-                    text = "25",
-                    selected = selectedFocusMinutes == 25,
-                    onClick = { 
-                        if (!isRunning) {
-                            selectedFocusMinutes = 25
-                            timeLeftMillis = 25 * 60 * 1000L
-                        }
-                    }
-                )
-                DurationChip(
-                    text = "30",
-                    selected = selectedFocusMinutes == 30,
-                    onClick = { 
-                        if (!isRunning) {
-                            selectedFocusMinutes = 30
-                            timeLeftMillis = 30 * 60 * 1000L
-                        }
-                    }
-                )
-                DurationChip(
-                    text = "45",
-                    selected = selectedFocusMinutes == 45,
-                    onClick = { 
-                        if (!isRunning) {
-                            selectedFocusMinutes = 45
-                            timeLeftMillis = 45 * 60 * 1000L
-                        }
-                    }
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(60.dp))
-        
-        // 模块2: 时间显示区域
-        Box(
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = if (isBreak) stringResource(R.string.tomato_break) else stringResource(R.string.tomato_focus),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isBreak) breakColor else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = formatTimeMillis(timeLeftMillis),
-                    fontSize = 100.sp,
-                    fontWeight = FontWeight.W900,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                // 进度横线
-                Canvas(
-                    modifier = Modifier
-                        .width(100.dp)
-                        .height(6.dp)
-                ) {
-                    // 背景横线
-                    drawRoundRect(
-                        color = Color.Gray.copy(alpha = 0.2f),
-                        size = Size(size.width, size.height),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(3.dp.toPx())
+                val activeColor = if (isBreak) breakColor else primaryColor
+
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    val strokeWidth = 10.dp.toPx()
+                    val diameter = size.minDimension - strokeWidth
+                    val topLeft = Offset(strokeWidth / 2, strokeWidth / 2)
+
+                    drawArc(
+                        color = activeColor.copy(alpha = 0.08f),
+                        startAngle = -90f,
+                        sweepAngle = 360f,
+                        useCenter = false,
+                        topLeft = topLeft,
+                        size = Size(diameter, diameter),
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
                     )
-                    // 进度横线
-                    drawRoundRect(
-                        color = if (isBreak) breakColor else primaryColor,
-                        size = Size(size.width * progress, size.height),
-                        cornerRadius = androidx.compose.ui.geometry.CornerRadius(3.dp.toPx())
+                    drawArc(
+                        color = activeColor.copy(alpha = 0.18f),
+                        startAngle = -90f,
+                        sweepAngle = 360f * progress,
+                        useCenter = false,
+                        topLeft = topLeft,
+                        size = Size(diameter, diameter),
+                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    )
+                }
+
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        text = if (isBreak) stringResource(R.string.tomato_break) else stringResource(R.string.tomato_focus),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (isBreak) breakColor else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = formatTimeMillis(timeLeftMillis),
+                        fontSize = 64.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
-        }
-        
-        Spacer(modifier = Modifier.height(60.dp))
-        
-        // 模块3: 控制按钮
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(24.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // 重置按钮
-            FilledTonalIconButton(
-                onClick = {
-                    isRunning = false
-                    isBreak = false
-                    timeLeftMillis = focusDurationMinutes * 60 * 1000L
-                },
-                modifier = Modifier.size(56.dp)
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // 刻度尺 — 固定高度占位，运行时置灰不可点击
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(100.dp)
+                    .alpha(if (isRunning) 0.3f else 1f)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Refresh,
-                    contentDescription = stringResource(R.string.tomato_reset)
+                MinuteRulerPicker(
+                    value = selectedFocusMinutes,
+                    onValueChange = { minutes ->
+                        selectedFocusMinutes = minutes
+                        timeLeftMillis = minutes * 60 * 1000L
+                    },
+                    range = 3..180,
+                    enabled = !isRunning,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp)
                 )
             }
-            
-            // 开始/暂停按钮
-            FilledIconButton(
-                onClick = { isRunning = !isRunning },
-                modifier = Modifier.size(108.dp),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = if (isBreak) breakColor else MaterialTheme.colorScheme.primary
-                )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // 控制按钮
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(24.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(
-                    imageVector = if (isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
-                    contentDescription = if (isRunning) stringResource(R.string.tomato_pause) else stringResource(R.string.tomato_start),
-                    modifier = Modifier.size(54.dp)
-                )
+                FilledTonalIconButton(
+                    onClick = {
+                        isRunning = false
+                        isBreak = false
+                        timeLeftMillis = selectedFocusMinutes * 60 * 1000L
+                    },
+                    modifier = Modifier.size(52.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = stringResource(R.string.tomato_reset),
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+
+                FilledIconButton(
+                    onClick = { isRunning = !isRunning },
+                    modifier = Modifier.size(80.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = when {
+                            isRunning -> if (isBreak) breakColor.copy(alpha = 0.35f) else primaryColor.copy(alpha = 0.35f)
+                            else -> if (isBreak) breakColor else primaryColor
+                        }
+                    )
+                ) {
+                    Icon(
+                        imageVector = if (isRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
+                        contentDescription = if (isRunning) stringResource(R.string.tomato_pause) else stringResource(R.string.tomato_start),
+                        modifier = Modifier.size(40.dp)
+                    )
+                }
+
+                if (isBreak) {
+                    FilledTonalIconButton(
+                        onClick = {
+                            isBreak = false
+                            timeLeftMillis = selectedFocusMinutes * 60 * 1000L
+                            isRunning = false
+                        },
+                        modifier = Modifier.size(52.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = stringResource(R.string.tomato_skip_break),
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                } else {
+                    Box(modifier = Modifier.size(52.dp))
+                }
             }
-            
-            // 占位保持对称
-            Box(modifier = Modifier.size(56.dp))
         }
     }
 }
 
 @Composable
-private fun DurationChip(
-    text: String,
-    selected: Boolean,
-    onClick: () -> Unit
+private fun MinuteRulerPicker(
+    value: Int,
+    onValueChange: (Int) -> Unit,
+    range: IntRange = 3..180,
+    enabled: Boolean = true,
+    modifier: Modifier = Modifier
 ) {
-    FilterChip(
-        selected = selected,
-        onClick = onClick,
-        label = {
-            Text(
-                text = text,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        },
-        colors = FilterChipDefaults.filterChipColors(
-            selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-            selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer
-        ),
-        modifier = Modifier.height(36.dp)
-    )
+    val density = LocalDensity.current
+    val scaleIntervalDp = 16.dp
+    val scaleInterval = with(density) { scaleIntervalDp.toPx() }
+    val bigScaleHeight = with(density) { 20.dp.toPx() }
+    val smallScaleHeight = with(density) { 12.dp.toPx() }
+    val onSurfaceColor = MaterialTheme.colorScheme.onSurface
+    val totalSteps = range.last - range.first
+
+    fun clampOffset(raw: Float): Float {
+        val minOff = -(totalSteps * scaleInterval)
+        return raw.coerceIn(minOff, 0f)
+    }
+
+    var measuredWidth by remember { mutableFloatStateOf(0f) }
+    var measuredHeight by remember { mutableFloatStateOf(0f) }
+    var offset by remember { mutableFloatStateOf(-((value - range.first) * scaleInterval)) }
+
+    Box(modifier = modifier.fillMaxWidth()) {
+        Canvas(
+            modifier = Modifier
+                .fillMaxSize()
+                .onSizeChanged {
+                    measuredWidth = it.width.toFloat()
+                    measuredHeight = it.height.toFloat()
+                }
+                .pointerInput(enabled) {
+                    if (!enabled) return@pointerInput
+                    detectDragGestures { change, dragAmount ->
+                        change.consume()
+                        offset = clampOffset(offset + dragAmount.x)
+                        val rawIndex = (-offset / scaleInterval).roundToInt()
+                        val newIndex = rawIndex.coerceIn(0, totalSteps)
+                        val newValue = newIndex + range.first
+                        if (newValue != value) onValueChange(newValue)
+                    }
+                }
+        ) {
+            val centerX = size.width / 2f
+            val centerY = size.height / 2f
+
+            for (i in range) {
+                val index = i - range.first
+                val x = centerX + offset + index * scaleInterval
+                if (x < -scaleInterval * 3 || x > size.width + scaleInterval * 3) continue
+
+                val normalizedDist = (kotlin.math.abs(x - centerX) / size.width).coerceIn(0f, 1f)
+                val alpha = (1f - normalizedDist * normalizedDist).coerceIn(0.08f, 1f)
+
+                val isCenter = i == value
+                val isBigScale = i % 5 == 0
+
+                val lineHeight = when {
+                    isCenter -> bigScaleHeight
+                    isBigScale -> bigScaleHeight * 0.7f
+                    else -> smallScaleHeight
+                }
+
+                val lineWidth = when {
+                    isCenter -> 2.dp.toPx()
+                    isBigScale -> 1.5.dp.toPx()
+                    else -> 1.dp.toPx()
+                }
+
+                drawLine(
+                    color = onSurfaceColor.copy(alpha = if (isCenter) 1f else alpha * 0.6f),
+                    start = Offset(x, centerY - lineHeight / 2f),
+                    end = Offset(x, centerY + lineHeight / 2f),
+                    strokeWidth = lineWidth,
+                    cap = StrokeCap.Round
+                )
+            }
+        }
+
+        if (measuredWidth > 0f && measuredHeight > 0f) {
+            val centerX = measuredWidth / 2f
+            val centerY = measuredHeight / 2f
+            for (i in range) {
+                val index = i - range.first
+                val xPx = centerX + offset + index * scaleInterval
+                if (xPx < -scaleInterval * 3 || xPx > measuredWidth + scaleInterval * 3) continue
+
+                val isCenter = i == value
+                val isBigScale = i % 5 == 0
+                if (!isCenter && !isBigScale) continue
+
+                val normalizedDist = (kotlin.math.abs(xPx - centerX) / measuredWidth).coerceIn(0f, 1f)
+                val alpha = (1f - normalizedDist * normalizedDist).coerceIn(0.08f, 1f)
+
+                val lineHeight = when {
+                    isCenter -> bigScaleHeight
+                    isBigScale -> bigScaleHeight * 0.7f
+                    else -> smallScaleHeight
+                }
+
+                val textWidthDp = if (isCenter) 48.dp else 32.dp
+                val textHeight = if (isCenter) 28.dp else 20.dp
+
+                val yPx = if (isCenter) {
+                    centerY - lineHeight / 2f - with(density) { 16.dp.toPx() + textHeight.toPx() }
+                } else {
+                    centerY + lineHeight / 2f + with(density) { 8.dp.toPx() }
+                }
+
+                Box(
+                    modifier = Modifier.offset {
+                        IntOffset(
+                            x = (xPx - with(density) { textWidthDp.toPx() / 2f }).toInt(),
+                            y = yPx.toInt()
+                        )
+                    }
+                        .width(textWidthDp)
+                        .height(textHeight),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "$i",
+                        fontSize = if (isCenter) 22.sp else 13.sp,
+                        fontWeight = if (isCenter) FontWeight.Bold else FontWeight.Normal,
+                        color = onSurfaceColor.copy(alpha = if (isCenter) 1f else alpha * 0.7f),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+        }
+    }
 }
 
 private fun formatTimeMillis(millis: Long): String {
@@ -300,14 +419,15 @@ private fun createNotificationChannel(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
-            "番茄计时器",
-            NotificationManager.IMPORTANCE_LOW
+            context.getString(R.string.tomato_timer_title),
+            NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "显示番茄计时器状态"
-            setShowBadge(false)
+            description = context.getString(R.string.tomato_focus_complete_title)
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 300, 200, 300)
         }
-        val notificationManager = context.getSystemService(NotificationManager::class.java)
-        notificationManager.createNotificationChannel(channel)
+        context.getSystemService(NotificationManager::class.java)
+            .createNotificationChannel(channel)
     }
 }
 
@@ -319,18 +439,16 @@ private fun showTimerNotification(context: Context, timeLeftMillis: Long, isBrea
         context, 0, intent,
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
-    
     val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-        .setContentTitle(if (isBreak) "休息中" else "专注中")
+        .setContentTitle(if (isBreak) context.getString(R.string.tomato_break) else context.getString(R.string.tomato_focus))
         .setContentText(formatTimeMillis(timeLeftMillis))
         .setSmallIcon(R.drawable.ic_notification)
         .setContentIntent(pendingIntent)
         .setOngoing(true)
         .setSilent(true)
+        .setPriority(NotificationCompat.PRIORITY_LOW)
         .build()
-    
-    val notificationManager = context.getSystemService(NotificationManager::class.java)
-    notificationManager.notify(NOTIFICATION_ID, notification)
+    context.getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification)
 }
 
 private fun updateNotification(context: Context, timeLeftMillis: Long, isBreak: Boolean) {
@@ -345,20 +463,18 @@ private fun showCompletionNotification(context: Context, isBreak: Boolean) {
         context, 0, intent,
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
-    
     val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
-        .setContentTitle(if (isBreak) "休息结束" else "专注完成")
-        .setContentText(if (isBreak) "开始新的专注吧！" else "干得不错，休息一下吧！")
+        .setContentTitle(if (isBreak) context.getString(R.string.tomato_break_complete_title) else context.getString(R.string.tomato_focus_complete_title))
+        .setContentText(if (isBreak) context.getString(R.string.tomato_break_complete_desc) else context.getString(R.string.tomato_focus_complete_desc))
         .setSmallIcon(R.drawable.ic_notification)
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
+        .setPriority(NotificationCompat.PRIORITY_HIGH)
+        .setVibrate(longArrayOf(0, 300, 200, 300))
         .build()
-    
-    val notificationManager = context.getSystemService(NotificationManager::class.java)
-    notificationManager.notify(NOTIFICATION_ID, notification)
+    context.getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification)
 }
 
 private fun cancelNotification(context: Context) {
-    val notificationManager = context.getSystemService(NotificationManager::class.java)
-    notificationManager.cancel(NOTIFICATION_ID)
+    context.getSystemService(NotificationManager::class.java).cancel(NOTIFICATION_ID)
 }
