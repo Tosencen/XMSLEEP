@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -26,6 +27,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
@@ -48,6 +50,14 @@ import kotlin.math.roundToInt
 private const val NOTIFICATION_CHANNEL_ID = "tomato_timer_channel"
 private const val NOTIFICATION_ID = 1003
 
+object TomatoTimerState {
+    var isRunning = mutableStateOf(false)
+    var isBreak = mutableStateOf(false)
+    var selectedFocusMinutes = mutableIntStateOf(25)
+    var timeLeftMillis = mutableLongStateOf(25L * 60 * 1000L)
+    var todayCompletedPomodoros = mutableIntStateOf(0)
+}
+
 @Composable
 fun TomatoTimerView(
     modifier: Modifier = Modifier,
@@ -59,13 +69,13 @@ fun TomatoTimerView(
     val context = LocalContext.current
     val view = LocalView.current
 
-    var isRunning by remember { mutableStateOf(false) }
-    var isBreak by remember { mutableStateOf(false) }
-    var selectedFocusMinutes by remember { mutableIntStateOf(focusDurationMinutes) }
-    var timeLeftMillis by remember { mutableLongStateOf(selectedFocusMinutes * 60 * 1000L) }
-    var todayCompletedPomodoros by remember { mutableIntStateOf(0) }
+    var isRunning by TomatoTimerState.isRunning
+    var isBreak by TomatoTimerState.isBreak
+    var selectedFocusMinutes by TomatoTimerState.selectedFocusMinutes
+    var timeLeftMillis by TomatoTimerState.timeLeftMillis
+    var todayCompletedPomodoros by TomatoTimerState.todayCompletedPomodoros
 
-    var showPulseBorder by remember { mutableStateOf(false) }
+    var showPulseBorder by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(showPulseBorder) {
         if (showPulseBorder) {
@@ -140,35 +150,55 @@ fun TomatoTimerView(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 环形进度条 + 时间
+            // 正弦波环 + 时间
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier.size(260.dp)
             ) {
                 val activeColor = if (isBreak) breakColor else primaryColor
+                val infiniteTransition = rememberInfiniteTransition()
+                val wavePhase by infiniteTransition.animateFloat(
+                    initialValue = 0f,
+                    targetValue = 360f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(8000, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    )
+                )
 
                 Canvas(modifier = Modifier.fillMaxSize()) {
-                    val strokeWidth = 10.dp.toPx()
-                    val diameter = size.minDimension - strokeWidth
-                    val topLeft = Offset(strokeWidth / 2, strokeWidth / 2)
+                    val strokeWidth = 2.dp.toPx()
+                    val baseRadius = (size.minDimension / 2f) - strokeWidth * 2
+                    val centerX = size.width / 2f
+                    val centerY = size.height / 2f
+                    val numWaves = 10f
+                    val waveAmplitude = 6.dp.toPx() * progress
 
-                    drawArc(
-                        color = activeColor.copy(alpha = 0.08f),
-                        startAngle = -90f,
-                        sweepAngle = 360f,
-                        useCenter = false,
-                        topLeft = topLeft,
-                        size = Size(diameter, diameter),
-                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                    // 背景圆 — 极淡
+                    drawCircle(
+                        color = activeColor.copy(alpha = 0.06f),
+                        radius = baseRadius,
+                        center = Offset(centerX, centerY),
+                        style = Stroke(width = strokeWidth)
                     )
-                    drawArc(
-                        color = activeColor.copy(alpha = 0.18f),
-                        startAngle = -90f,
-                        sweepAngle = 360f * progress,
-                        useCenter = false,
-                        topLeft = topLeft,
-                        size = Size(diameter, diameter),
-                        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+
+                    // 正弦波环
+                    val path = Path()
+                    val steps = 360
+                    for (deg in 0..steps) {
+                        val angle = Math.toRadians(deg.toDouble())
+                        val wave = kotlin.math.sin(Math.toRadians((numWaves * deg + wavePhase).toDouble()))
+                        val r = baseRadius + (wave * waveAmplitude).toFloat()
+                        val x = centerX + r * kotlin.math.cos(angle).toFloat()
+                        val y = centerY + r * kotlin.math.sin(angle).toFloat()
+                        if (deg == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                    }
+                    path.close()
+
+                    drawPath(
+                        path = path,
+                        color = activeColor.copy(alpha = 0.25f),
+                        style = Stroke(width = strokeWidth * 1.5f, cap = StrokeCap.Round)
                     )
                 }
 
