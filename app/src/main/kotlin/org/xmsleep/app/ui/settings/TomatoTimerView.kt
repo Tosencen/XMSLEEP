@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -45,7 +46,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationCompat
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import org.xmsleep.app.MainActivity
 import org.xmsleep.app.R
 import org.xmsleep.app.preferences.PreferencesManager
@@ -63,6 +64,114 @@ object TomatoTimerState {
     var selectedFocusMinutes = mutableIntStateOf(25)
     var timeLeftMillis = mutableLongStateOf(25L * 60 * 1000L)
     var todayCompletedPomodoros = mutableIntStateOf(0)
+    // 专注结束后等待用户点击"开始休息"（不再自动进入休息）
+    var awaitingBreakStart = mutableStateOf(false)
+    // 完成事件计数：每完成一次递增，供页面触发完成动画
+    var completionTick = mutableIntStateOf(0)
+
+    // 休息时长（分钟），由页面传入
+    var breakDurationMinutes = 5
+
+    // 截止时间（基于 SystemClock.elapsedRealtime），0 = 未在计时
+    private var deadline = 0L
+
+    // 应用级协程作用域：倒计时不依赖页面存活，离开页面仍在后台走
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var countdownJob: Job? = null
+    private var appContext: Context? = null
+
+    /**
+     * 开始/恢复倒计时（点播放、开始休息时调用）。
+     * 基于截止时间计算剩余，离开页面后仍继续倒计时并按时完成。
+     */
+    fun start(context: Context) {
+        appContext = context.applicationContext
+        countdownJob?.cancel()
+        awaitingBreakStart.value = false
+        isRunning.value = true
+        createNotificationChannel(appContext!!)
+        val remaining = timeLeftMillis.value.coerceAtLeast(0)
+        deadline = SystemClock.elapsedRealtime() + remaining
+        showTimerNotification(appContext!!, remaining, isBreak.value)
+        countdownJob = scope.launch {
+            while (isActive) {
+                val rem = (deadline - SystemClock.elapsedRealtime()).coerceAtLeast(0)
+                timeLeftMillis.value = rem
+                if (rem <= 0) {
+                    handleCompletion()
+                    break
+                }
+                updateNotification(appContext!!, rem, isBreak.value)
+                delay(1000)
+            }
+        }
+    }
+
+    /**
+     * 暂停倒计时（保留剩余时间）
+     */
+    fun pause() {
+        countdownJob?.cancel()
+        deadline = 0L
+        isRunning.value = false
+        appContext?.let { cancelNotification(it) }
+    }
+
+    /**
+     * 重置回专注准备态
+     */
+    fun reset() {
+        countdownJob?.cancel()
+        deadline = 0L
+        isRunning.value = false
+        isBreak.value = false
+        awaitingBreakStart.value = false
+        timeLeftMillis.value = selectedFocusMinutes.value * 60 * 1000L
+        appContext?.let { cancelNotification(it) }
+    }
+
+    /**
+     * 跳过休息，回到专注准备态
+     */
+    fun skipBreak() {
+        countdownJob?.cancel()
+        deadline = 0L
+        isBreak.value = false
+        awaitingBreakStart.value = false
+        timeLeftMillis.value = selectedFocusMinutes.value * 60 * 1000L
+        isRunning.value = false
+        appContext?.let { cancelNotification(it) }
+    }
+
+    /**
+     * 到点完成：响铃、震动、完成通知，并切换阶段状态
+     */
+    private fun handleCompletion() {
+        val ctx = appContext ?: return
+        countdownJob?.cancel()
+        deadline = 0L
+        isRunning.value = false
+        if (!isBreak.value) todayCompletedPomodoros.value++
+        // 播放结束铃声（内部会停止白噪音等），并显示完成通知
+        TomatoRingtonePlayer.play(ctx, PreferencesManager.getTomatoRingtone(ctx))
+        showCompletionNotification(ctx, isBreak.value)
+        // 震动开关
+        if (PreferencesManager.getTomatoVibrate(ctx)) {
+            vibrate(ctx)
+        }
+        if (isBreak.value) {
+            // 休息结束：回到专注准备态，等待用户手动开始下一轮
+            isBreak.value = false
+            timeLeftMillis.value = selectedFocusMinutes.value * 60 * 1000L
+            awaitingBreakStart.value = false
+        } else {
+            // 专注结束：进入休息准备态，不自动开始休息
+            isBreak.value = true
+            timeLeftMillis.value = breakDurationMinutes * 60 * 1000L
+            awaitingBreakStart.value = true
+        }
+        completionTick.value++
+    }
 }
 
 @Composable
@@ -81,16 +190,21 @@ fun TomatoTimerView(
     var selectedFocusMinutes by TomatoTimerState.selectedFocusMinutes
     var timeLeftMillis by TomatoTimerState.timeLeftMillis
     var todayCompletedPomodoros by TomatoTimerState.todayCompletedPomodoros
+    var awaitingBreakStart by TomatoTimerState.awaitingBreakStart
+    var completionTick by TomatoTimerState.completionTick
 
-    var showPulseBorder by rememberSaveable { mutableStateOf(false) }
+    // 同步休息时长到单例（完成逻辑在后台运行时需要）
+    TomatoTimerState.breakDurationMinutes = breakDurationMinutes
 
-    // 专注结束后等待用户点击"开始休息"（不再自动进入休息）
-    var awaitingBreakStart by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(showPulseBorder) {
-        if (showPulseBorder) {
-            onPulseStart(isBreak)
-            showPulseBorder = false
+    // 完成事件消费标记：仅在完成的那一次触发动画/回调（含离开页面后台完成的场景）
+    var lastCompletionTick by rememberSaveable { mutableIntStateOf(TomatoTimerState.completionTick.value) }
+    LaunchedEffect(completionTick) {
+        if (completionTick != lastCompletionTick) {
+            lastCompletionTick = completionTick
+            if (PreferencesManager.getTomatoPulseAnimation(context)) {
+                onPulseStart(isBreak)
+            }
+            onTimerComplete()
         }
     }
 
@@ -99,56 +213,16 @@ fun TomatoTimerView(
 
     val progress = if (totalMillis > 0) timeLeftMillis.toFloat() / totalMillis.toFloat() else 1f
 
+    // 标尺显示当前阶段时长（专注=专注时长，休息=休息时长），避免与计时不一致
+    val rulerValue = if (isBreak) breakDurationMinutes else selectedFocusMinutes
+
     LaunchedEffect(Unit) { createNotificationChannel(context) }
 
     DisposableEffect(isRunning) {
-        if (isRunning) {
-            view.keepScreenOn = true
-            showTimerNotification(context, timeLeftMillis, isBreak)
-        } else {
-            view.keepScreenOn = false
-            cancelNotification(context)
-        }
+        view.keepScreenOn = isRunning
         onDispose {
             view.keepScreenOn = false
-            cancelNotification(context)
         }
-    }
-
-    LaunchedEffect(isRunning, isBreak) {
-        if (!isRunning) return@LaunchedEffect
-        while (timeLeftMillis > 0) {
-            delay(1000)
-            timeLeftMillis -= 1000
-            updateNotification(context, timeLeftMillis, isBreak)
-        }
-        view.keepScreenOn = false
-        if (!isBreak) todayCompletedPomodoros++
-        // 播放结束铃声（内部会停止白噪音等），并显示完成通知
-        TomatoRingtonePlayer.play(context, PreferencesManager.getTomatoRingtone(context))
-        showCompletionNotification(context, isBreak)
-        // 震动开关
-        if (PreferencesManager.getTomatoVibrate(context)) {
-            vibrate(context)
-        }
-        // 描边框动画开关
-        if (PreferencesManager.getTomatoPulseAnimation(context)) {
-            showPulseBorder = true
-        }
-        if (isBreak) {
-            // 休息结束：回到专注准备态，等待用户手动开始下一轮
-            isBreak = false
-            timeLeftMillis = selectedFocusMinutes * 60 * 1000L
-            isRunning = false
-            awaitingBreakStart = false
-        } else {
-            // 专注结束：进入休息准备态，不自动开始休息
-            isBreak = true
-            timeLeftMillis = breakDurationMinutes * 60 * 1000L
-            isRunning = false
-            awaitingBreakStart = true
-        }
-        onTimerComplete()
     }
 
     val primaryColor = MaterialTheme.colorScheme.primary
@@ -251,13 +325,15 @@ fun TomatoTimerView(
                     .alpha(if (isRunning) 0.3f else 1f)
             ) {
                 MinuteRulerPicker(
-                    value = selectedFocusMinutes,
+                    value = rulerValue,
                     onValueChange = { minutes ->
-                        selectedFocusMinutes = minutes
-                        timeLeftMillis = minutes * 60 * 1000L
+                        if (!isBreak) {
+                            selectedFocusMinutes = minutes
+                            timeLeftMillis = minutes * 60 * 1000L
+                        }
                     },
                     range = 3..180,
-                    enabled = !isRunning,
+                    enabled = !isRunning && !isBreak,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp)
@@ -275,10 +351,7 @@ fun TomatoTimerView(
                 FilledTonalIconButton(
                     onClick = {
                         TomatoRingtonePlayer.stop()
-                        isRunning = false
-                        isBreak = false
-                        awaitingBreakStart = false
-                        timeLeftMillis = selectedFocusMinutes * 60 * 1000L
+                        TomatoTimerState.reset()
                     },
                     modifier = Modifier.size(52.dp)
                 ) {
@@ -293,10 +366,9 @@ fun TomatoTimerView(
                     onClick = {
                         TomatoRingtonePlayer.stop()
                         if (isRunning) {
-                            isRunning = false
+                            TomatoTimerState.pause()
                         } else {
-                            awaitingBreakStart = false
-                            isRunning = true
+                            TomatoTimerState.start(context)
                         }
                     },
                     modifier = Modifier.size(80.dp),
@@ -318,10 +390,7 @@ fun TomatoTimerView(
                     FilledTonalIconButton(
                         onClick = {
                             TomatoRingtonePlayer.stop()
-                            isBreak = false
-                            awaitingBreakStart = false
-                            timeLeftMillis = selectedFocusMinutes * 60 * 1000L
-                            isRunning = false
+                            TomatoTimerState.skipBreak()
                         },
                         modifier = Modifier.size(52.dp)
                     ) {
@@ -343,8 +412,7 @@ fun TomatoTimerView(
                 Button(
                     onClick = {
                         TomatoRingtonePlayer.stop()
-                        awaitingBreakStart = false
-                        isRunning = true
+                        TomatoTimerState.start(context)
                         view.keepScreenOn = true
                     },
                     modifier = Modifier.height(52.dp)
@@ -386,6 +454,11 @@ private fun MinuteRulerPicker(
     var measuredWidth by remember { mutableFloatStateOf(0f) }
     var measuredHeight by remember { mutableFloatStateOf(0f) }
     var offset by remember { mutableFloatStateOf(-((value - range.first) * scaleInterval)) }
+
+    // 外部 value 变化时（如专注↔休息切换）标尺重新居中对齐
+    LaunchedEffect(value) {
+        offset = -((value - range.first) * scaleInterval).toFloat()
+    }
 
     Box(modifier = modifier.fillMaxWidth()) {
         Canvas(
