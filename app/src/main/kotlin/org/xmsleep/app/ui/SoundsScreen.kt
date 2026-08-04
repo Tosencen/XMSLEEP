@@ -673,7 +673,8 @@ fun SoundsScreen(
             hasAnyPlayingSounds = hasPlaying
             
             // 如果没有声音在播放且倒计时是激活状态，自动取消倒计时
-            if (!hasPlaying && isTimerActive) {
+            // 注意：临时暂停（拔耳机、媒体面板暂停）时不能取消，否则重新播放后倒计时会丢失
+            if (!hasPlaying && isTimerActive && !audioManager.isPausedState) {
                 timerManager.cancelTimer()
             }
         }

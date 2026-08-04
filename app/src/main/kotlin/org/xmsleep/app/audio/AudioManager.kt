@@ -126,6 +126,11 @@ class AudioManager private constructor() {
         initialValue = false
     )
 
+    // 是否为临时暂停状态（拔耳机/媒体面板暂停），区别于真正的停止。
+    // 临时暂停时保留倒计时，避免被误判为停止而取消。
+    val isPausedState: Boolean
+        get() = musicServiceManager.isPausedState
+
     // 响应式状态：本地播放状态
     val localPlayingStates: StateFlow<Map<Sound, Boolean>>
         get() = localSoundPlayer.playingStates
