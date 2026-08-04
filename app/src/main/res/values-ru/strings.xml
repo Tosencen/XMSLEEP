@@ -650,6 +650,15 @@
     <string name="tomato_custom_time_range">1 ~ 180 минут</string>
     <string name="tomato_custom_time_label">Время фокуса</string>
     <string name="tomato_custom_time_suffix">мин</string>
+    <string name="tomato_settings_title">Настройки томато</string>
+    <string name="tomato_ringtone_label">Звук окончания</string>
+    <string name="tomato_ringtone_none">Без звука</string>
+    <string name="tomato_ringtone_chime">Колокольчик</string>
+    <string name="tomato_ringtone_ding">Динь-дон</string>
+    <string name="tomato_ringtone_marimba">Маримба</string>
+    <string name="tomato_ringtone_windchime">Колокольчики</string>
+    <string name="tomato_pulse_animation">Анимация завершения</string>
+    <string name="tomato_vibrate">Вибрация</string>
 
     <!-- Flip Clock -->
     <string name="flip_clock">Большие часы</string>

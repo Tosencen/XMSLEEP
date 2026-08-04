@@ -650,6 +650,15 @@
     <string name="tomato_custom_time_range">1 ~ 180 分</string>
     <string name="tomato_custom_time_label">集中時間</string>
     <string name="tomato_custom_time_suffix">分</string>
+    <string name="tomato_settings_title">トマト設定</string>
+    <string name="tomato_ringtone_label">終了音</string>
+    <string name="tomato_ringtone_none">音なし</string>
+    <string name="tomato_ringtone_chime">チャイム</string>
+    <string name="tomato_ringtone_ding">ディンドン</string>
+    <string name="tomato_ringtone_marimba">マリンバ</string>
+    <string name="tomato_ringtone_windchime">ウィンドチャイム</string>
+    <string name="tomato_pulse_animation">完了アニメーション</string>
+    <string name="tomato_vibrate">バイブレーション</string>
 
     <!-- Flip Clock -->
     <string name="flip_clock">大きな時計</string>

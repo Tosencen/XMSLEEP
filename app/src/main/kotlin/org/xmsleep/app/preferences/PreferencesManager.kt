@@ -53,6 +53,9 @@ object PreferencesManager {
     private val KEY_BACKGROUND_SELECTION = Constants.PrefsKeys.BACKGROUND_SELECTION
     private val KEY_AUTO_COUNTDOWN_MINUTES = Constants.PrefsKeys.AUTO_COUNTDOWN_MINUTES
     private val KEY_LAST_TIMER_MINUTES = Constants.PrefsKeys.LAST_TIMER_MINUTES
+    private val KEY_TOMATO_RINGTONE = Constants.PrefsKeys.TOMATO_RINGTONE
+    private val KEY_TOMATO_PULSE_ANIMATION = Constants.PrefsKeys.TOMATO_PULSE_ANIMATION
+    private val KEY_TOMATO_VIBRATE = Constants.PrefsKeys.TOMATO_VIBRATE
     private val KEY_KEEP_SCREEN_ON = Constants.PrefsKeys.KEEP_SCREEN_ON
     private val KEY_SHOW_RECENT_PLAY_DIALOG = Constants.PrefsKeys.SHOW_RECENT_PLAY_DIALOG
     private val KEY_AUTO_PLAY_ON_START = Constants.PrefsKeys.AUTO_PLAY_ON_START
@@ -825,6 +828,56 @@ object PreferencesManager {
     fun getKeepScreenOn(context: Context): Boolean {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return prefs.getBoolean(KEY_KEEP_SCREEN_ON, true)
+    }
+
+    /**
+     * 保存番茄时钟结束铃声
+     * @param ringtoneId 铃声标识（空字符串表示无铃声）
+     */
+    fun saveTomatoRingtone(context: Context, ringtoneId: String) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putString(KEY_TOMATO_RINGTONE, ringtoneId).apply()
+    }
+
+    /**
+     * 获取番茄时钟结束铃声
+     * @return 铃声标识，空字符串表示无铃声
+     */
+    fun getTomatoRingtone(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_TOMATO_RINGTONE, "") ?: ""
+    }
+
+    /**
+     * 保存番茄时钟完成时的描边框动画开关
+     */
+    fun saveTomatoPulseAnimation(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_TOMATO_PULSE_ANIMATION, enabled).apply()
+    }
+
+    /**
+     * 获取番茄时钟完成时的描边框动画开关，默认开启
+     */
+    fun getTomatoPulseAnimation(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_TOMATO_PULSE_ANIMATION, true)
+    }
+
+    /**
+     * 保存番茄时钟完成时是否震动
+     */
+    fun saveTomatoVibrate(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_TOMATO_VIBRATE, enabled).apply()
+    }
+
+    /**
+     * 获取番茄时钟完成时是否震动，默认开启
+     */
+    fun getTomatoVibrate(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_TOMATO_VIBRATE, true)
     }
     
     /**

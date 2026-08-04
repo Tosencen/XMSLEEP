@@ -6,6 +6,9 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.os.VibratorManager
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.border
@@ -45,10 +48,14 @@ import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.delay
 import org.xmsleep.app.MainActivity
 import org.xmsleep.app.R
+import org.xmsleep.app.preferences.PreferencesManager
+import org.xmsleep.app.ui.tomato.TomatoRingtonePlayer
+import org.xmsleep.app.utils.Logger
 import kotlin.math.roundToInt
 
 private const val NOTIFICATION_CHANNEL_ID = "tomato_timer_channel"
-private const val NOTIFICATION_ID = 1003
+private const val NOTIFICATION_ID = 1001
+private const val TAG = "TomatoTimerView"
 
 object TomatoTimerState {
     var isRunning = mutableStateOf(false)
@@ -76,6 +83,9 @@ fun TomatoTimerView(
     var todayCompletedPomodoros by TomatoTimerState.todayCompletedPomodoros
 
     var showPulseBorder by rememberSaveable { mutableStateOf(false) }
+
+    // 专注结束后等待用户点击"开始休息"（不再自动进入休息）
+    var awaitingBreakStart by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(showPulseBorder) {
         if (showPulseBorder) {
@@ -114,16 +124,29 @@ fun TomatoTimerView(
         }
         view.keepScreenOn = false
         if (!isBreak) todayCompletedPomodoros++
+        // 播放结束铃声（内部会停止白噪音等），并显示完成通知
+        TomatoRingtonePlayer.play(context, PreferencesManager.getTomatoRingtone(context))
         showCompletionNotification(context, isBreak)
-        showPulseBorder = true
-        isBreak = !isBreak
-        timeLeftMillis = if (isBreak) breakDurationMinutes * 60 * 1000L
-        else selectedFocusMinutes * 60 * 1000L
+        // 震动开关
+        if (PreferencesManager.getTomatoVibrate(context)) {
+            vibrate(context)
+        }
+        // 描边框动画开关
+        if (PreferencesManager.getTomatoPulseAnimation(context)) {
+            showPulseBorder = true
+        }
         if (isBreak) {
-            isRunning = true
-            view.keepScreenOn = true
-        } else {
+            // 休息结束：回到专注准备态，等待用户手动开始下一轮
+            isBreak = false
+            timeLeftMillis = selectedFocusMinutes * 60 * 1000L
             isRunning = false
+            awaitingBreakStart = false
+        } else {
+            // 专注结束：进入休息准备态，不自动开始休息
+            isBreak = true
+            timeLeftMillis = breakDurationMinutes * 60 * 1000L
+            isRunning = false
+            awaitingBreakStart = true
         }
         onTimerComplete()
     }
@@ -243,15 +266,18 @@ fun TomatoTimerView(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // 控制按钮
+            // 控制按钮（专注结束后等待"开始休息"时隐藏）
+            if (!awaitingBreakStart) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 FilledTonalIconButton(
                     onClick = {
+                        TomatoRingtonePlayer.stop()
                         isRunning = false
                         isBreak = false
+                        awaitingBreakStart = false
                         timeLeftMillis = selectedFocusMinutes * 60 * 1000L
                     },
                     modifier = Modifier.size(52.dp)
@@ -264,7 +290,15 @@ fun TomatoTimerView(
                 }
 
                 FilledIconButton(
-                    onClick = { isRunning = !isRunning },
+                    onClick = {
+                        TomatoRingtonePlayer.stop()
+                        if (isRunning) {
+                            isRunning = false
+                        } else {
+                            awaitingBreakStart = false
+                            isRunning = true
+                        }
+                    },
                     modifier = Modifier.size(80.dp),
                     colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = when {
@@ -283,7 +317,9 @@ fun TomatoTimerView(
                 if (isBreak) {
                     FilledTonalIconButton(
                         onClick = {
+                            TomatoRingtonePlayer.stop()
                             isBreak = false
+                            awaitingBreakStart = false
                             timeLeftMillis = selectedFocusMinutes * 60 * 1000L
                             isRunning = false
                         },
@@ -297,6 +333,29 @@ fun TomatoTimerView(
                     }
                 } else {
                     Box(modifier = Modifier.size(52.dp))
+                }
+            }
+            }
+
+            // 专注结束后：等待用户点击"开始休息"
+            if (awaitingBreakStart) {
+                Spacer(modifier = Modifier.height(20.dp))
+                Button(
+                    onClick = {
+                        TomatoRingtonePlayer.stop()
+                        awaitingBreakStart = false
+                        isRunning = true
+                        view.keepScreenOn = true
+                    },
+                    modifier = Modifier.height(52.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(stringResource(R.string.tomato_start_break))
                 }
             }
         }
@@ -447,17 +506,52 @@ private fun formatTimeMillis(millis: Long): String {
 
 private fun createNotificationChannel(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val vibrate = PreferencesManager.getTomatoVibrate(context)
         val channel = NotificationChannel(
             NOTIFICATION_CHANNEL_ID,
             context.getString(R.string.tomato_timer_title),
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
             description = context.getString(R.string.tomato_focus_complete_title)
-            enableVibration(true)
-            vibrationPattern = longArrayOf(0, 300, 200, 300)
+            enableVibration(vibrate)
+            if (vibrate) {
+                vibrationPattern = longArrayOf(0, 300, 200, 300)
+            }
         }
         context.getSystemService(NotificationManager::class.java)
             .createNotificationChannel(channel)
+    }
+}
+
+/**
+ * 更新通知渠道的震动设置（设置弹窗切换震动开关时调用）
+ */
+fun updateVibrationSetting(context: Context, enabled: Boolean) {
+    createNotificationChannel(context)
+}
+
+/**
+ * 番茄结束震动（独立于通知，直接调用系统 Vibrator，更可靠）
+ */
+private fun vibrate(context: Context) {
+    try {
+        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            context.getSystemService(VibratorManager::class.java).defaultVibrator
+        } else {
+            @Suppress("DEPRECATION")
+            context.getSystemService(Vibrator::class.java)
+        }
+        if (vibrator != null && vibrator.hasVibrator()) {
+            // 震动3次：每次为「300ms 震 + 200ms 停 + 300ms 震」，共3组
+            vibrator.vibrate(
+                VibrationEffect.createWaveform(
+                    longArrayOf(0, 300, 200, 300, 200, 300, 200, 300, 200, 300, 200, 300),
+                    -1
+                )
+            )
+        }
+    } catch (e: Exception) {
+        Logger.e(TAG, "番茄结束震动失败: ${e.message}")
     }
 }
 
@@ -493,15 +587,18 @@ private fun showCompletionNotification(context: Context, isBreak: Boolean) {
         context, 0, intent,
         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
-    val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
+    val vibrateEnabled = PreferencesManager.getTomatoVibrate(context)
+    val notificationBuilder = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
         .setContentTitle(if (isBreak) context.getString(R.string.tomato_break_complete_title) else context.getString(R.string.tomato_focus_complete_title))
         .setContentText(if (isBreak) context.getString(R.string.tomato_break_complete_desc) else context.getString(R.string.tomato_focus_complete_desc))
         .setSmallIcon(R.drawable.ic_notification)
         .setContentIntent(pendingIntent)
         .setAutoCancel(true)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
-        .setVibrate(longArrayOf(0, 300, 200, 300))
-        .build()
+    if (vibrateEnabled) {
+        notificationBuilder.setVibrate(longArrayOf(0, 300, 200, 300))
+    }
+    val notification = notificationBuilder.build()
     context.getSystemService(NotificationManager::class.java).notify(NOTIFICATION_ID, notification)
 }
 

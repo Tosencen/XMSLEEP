@@ -653,6 +653,15 @@
     <string name="tomato_custom_time_range">1 ~ 180 分鐘</string>
     <string name="tomato_custom_time_label">專注時長</string>
     <string name="tomato_custom_time_suffix">分鐘</string>
+    <string name="tomato_settings_title">番茄設定</string>
+    <string name="tomato_ringtone_label">結束鈴聲</string>
+    <string name="tomato_ringtone_none">無鈴聲</string>
+    <string name="tomato_ringtone_chime">鐘聲</string>
+    <string name="tomato_ringtone_ding">叮咚</string>
+    <string name="tomato_ringtone_marimba">木琴</string>
+    <string name="tomato_ringtone_windchime">風鈴</string>
+    <string name="tomato_pulse_animation">完成描邊動畫</string>
+    <string name="tomato_vibrate">震動</string>
     
     <!-- 小組件 -->
     <string name="add_quote_widget">添加小組件</string>

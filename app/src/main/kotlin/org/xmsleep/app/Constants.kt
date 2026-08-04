@@ -121,6 +121,11 @@ object Constants {
         const val AUTO_COUNTDOWN_MINUTES = "auto_countdown_minutes"
         const val LAST_TIMER_MINUTES = "last_timer_minutes"
         const val KEEP_SCREEN_ON = "keep_screen_on"
+
+        // 番茄时钟设置
+        const val TOMATO_RINGTONE = "tomato_ringtone"
+        const val TOMATO_PULSE_ANIMATION = "tomato_pulse_animation"
+        const val TOMATO_VIBRATE = "tomato_vibrate"
         
         // 最近播放弹窗开关
         const val SHOW_RECENT_PLAY_DIALOG = "show_recent_play_dialog"

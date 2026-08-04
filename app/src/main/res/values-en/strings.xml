@@ -661,6 +661,15 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="tomato_custom_time_range">1 ~ 180 minutes</string>
     <string name="tomato_custom_time_label">Focus duration</string>
     <string name="tomato_custom_time_suffix">min</string>
+    <string name="tomato_settings_title">Tomato Settings</string>
+    <string name="tomato_ringtone_label">End ringtone</string>
+    <string name="tomato_ringtone_none">No ringtone</string>
+    <string name="tomato_ringtone_chime">Chime</string>
+    <string name="tomato_ringtone_ding">Ding-Dong</string>
+    <string name="tomato_ringtone_marimba">Marimba</string>
+    <string name="tomato_ringtone_windchime">Wind Chime</string>
+    <string name="tomato_pulse_animation">Completion animation</string>
+    <string name="tomato_vibrate">Vibrate</string>
 
     <!-- Flip Clock -->
     <string name="flip_clock">Big Clock</string>

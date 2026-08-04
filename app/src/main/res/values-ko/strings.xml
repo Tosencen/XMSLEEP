@@ -643,6 +643,15 @@
     <string name="tomato_custom_time_range">1 ~ 180 분</string>
     <string name="tomato_custom_time_label">집중 시간</string>
     <string name="tomato_custom_time_suffix">분</string>
+    <string name="tomato_settings_title">토마토 설정</string>
+    <string name="tomato_ringtone_label">종료 벨소리</string>
+    <string name="tomato_ringtone_none">벨소리 없음</string>
+    <string name="tomato_ringtone_chime">차임</string>
+    <string name="tomato_ringtone_ding">딩동</string>
+    <string name="tomato_ringtone_marimba">마림바</string>
+    <string name="tomato_ringtone_windchime">윈드 차임</string>
+    <string name="tomato_pulse_animation">완료 애니메이션</string>
+    <string name="tomato_vibrate">진동</string>
 
     <!-- Flip Clock -->
     <string name="flip_clock">큰 시계</string>

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -48,6 +49,7 @@ fun TomatoTimerScreen(
     }
 
     var showPulse by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
     val pulseAlpha = remember { Animatable(0f) }
     var pulseColor by remember { mutableStateOf(Color.Unspecified) }
     val primaryColor = MaterialTheme.colorScheme.primary
@@ -103,6 +105,14 @@ fun TomatoTimerScreen(
                             )
                         }
                     },
+                    actions = {
+                        IconButton(onClick = { showSettings = true }) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = context.getString(R.string.tomato_settings_title)
+                            )
+                        }
+                    },
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f)
                     )
@@ -120,5 +130,11 @@ fun TomatoTimerScreen(
                 }
             )
         }
+    }
+
+    if (showSettings) {
+        TomatoTimerSettingsSheet(
+            onDismiss = { showSettings = false }
+        )
     }
 }

@@ -951,6 +951,17 @@ fun SoundsScreen(
                                         )
                                     }
                                 }
+                                
+                                // 番茄时钟按钮
+                                IconButton(
+                                    onClick = { onNavigateToFlipClock() }
+                                ) {
+                                    Icon(
+                                        painter = painterResource(R.drawable.nutrition_24px),
+                                        contentDescription = context.getString(R.string.tomato_timer_title),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
                             }
                         }
                     }
