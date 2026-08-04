@@ -533,6 +533,8 @@
     <string name="meditation">명상</string>
     <string name="select_audio">오디오 선택</string>
     <string name="loop_play">반복 재생</string>
+    <string name="meditation_repeat_times">반복 횟수</string>
+    <string name="meditation_repeat_count">%1$d회 반복</string>
     <string name="meditation_sleep_subtitle">깊은 이완 ·身心 안정 · 수면 가이드</string>
     <string name="meditation_practice_subtitle">호흡 가이드 · 집중 훈련 · 내면 탐구</string>
     <string name="meditation_relax_subtitle">스트레스 해소 · 평정 회복 · 감정 조절</string>

@@ -553,6 +553,8 @@
     <string name="meditation">冥想</string>
     <string name="select_audio">選擇音訊</string>
     <string name="loop_play">循環播放</string>
+    <string name="meditation_repeat_times">循環次數</string>
+    <string name="meditation_repeat_count">循環 %1$d 次</string>
     <string name="meditation_sleep_subtitle">深度放鬆 · 舒緩身心 · 入睡引導</string>
     <string name="meditation_practice_subtitle">呼吸引導 · 專注訓練 · 內在探索</string>
     <string name="meditation_relax_subtitle">釋放壓力 · 恢復平靜 · 情緒調節</string>

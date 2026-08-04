@@ -540,6 +540,8 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="meditation">Meditation</string>
     <string name="select_audio">Select Audio</string>
     <string name="loop_play">Loop Play</string>
+    <string name="meditation_repeat_times">Repeat count</string>
+    <string name="meditation_repeat_count">Repeat %1$d time(s)</string>
     <string name="meditation_sleep_subtitle">Deep Relaxation · Soothe Body &amp; Mind · Sleep Guide</string>
     <string name="meditation_practice_subtitle">Breath Guide · Focus Training · Inner Exploration</string>
     <string name="meditation_relax_subtitle">Release Stress · Restore Calm · Emotion Regulation</string>

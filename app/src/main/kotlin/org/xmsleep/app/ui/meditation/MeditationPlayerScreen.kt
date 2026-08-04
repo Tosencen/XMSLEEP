@@ -11,9 +11,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.SelfImprovement
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,9 +39,6 @@ import org.xmsleep.app.R
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.meditation.BilibiliAudioHelper
 import org.xmsleep.app.meditation.MeditationPlayerManager
-import org.xmsleep.app.timer.TimerManager
-import org.xmsleep.app.ui.TimerDialog
-import org.xmsleep.app.utils.Logger
 import java.io.InputStreamReader
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,7 +52,6 @@ fun MeditationPlayerScreen(
     val languageCode = LanguageManager.getCurrentLanguage(context).code
     val scope = rememberCoroutineScope()
     val playerManager = remember { MeditationPlayerManager.getInstance() }
-    val timerManager = remember { TimerManager.getInstance() }
 
     val manifest = remember {
         loadMeditationManifest(context)
@@ -74,8 +70,7 @@ fun MeditationPlayerScreen(
     val managerSessionId by playerManager.currentSessionId.collectAsState()
     val managerCategoryId by playerManager.currentCategoryId.collectAsState()
     val isLoop by playerManager.isLoop.collectAsState()
-    val timerActive by timerManager.isTimerActive.collectAsState()
-    val timerLeft by timerManager.timeLeftMillis.collectAsState()
+    val repeatCount by playerManager.repeatCount.collectAsState()
 
     var currentSessionIndex by remember {
         mutableIntStateOf(
@@ -107,7 +102,6 @@ fun MeditationPlayerScreen(
     var currentTime by remember { mutableLongStateOf(0L) }
     var duration by remember { mutableLongStateOf(0L) }
     var isDragging by remember { mutableStateOf(false) }
-    var showTimerDialog by remember { mutableStateOf(false) }
     // 用户主动切换会话后，待自动播放标记
     var pendingAutoPlay by remember { mutableStateOf(false) }
 
@@ -151,22 +145,6 @@ fun MeditationPlayerScreen(
     // 初始化管理器
     LaunchedEffect(Unit) {
         playerManager.initialize(context)
-    }
-
-    // 倒计时结束时停止冥想播放（安全网，与 MeditationPlayerManager 冗余）
-    DisposableEffect(Unit) {
-        val listener = object : TimerManager.TimerListener {
-            override fun onTimerTick(timeLeftMillis: Long) {}
-            override fun onTimerFinished(durationMinutes: Int) {
-                playerManager.stop()
-                Logger.d("MeditationPlayerScreen", "倒计时结束，已停止冥想播放")
-            }
-            override fun onTimerCancelled() {}
-        }
-        timerManager.addListener(listener)
-        onDispose {
-            timerManager.removeListener(listener)
-        }
     }
 
     // 切换音频时重置进度（总时长先用 manifest 里的真实值兜底，READY 后由播放器修正）
@@ -366,13 +344,13 @@ fun MeditationPlayerScreen(
                     }
                 }
 
-                // 右：倒计时（复用全局 TimerManager，不冲突，背景样式参考电台按钮）
+                // 右：循环次数（×1/×2/×3，播满N遍自动停止；与左侧无限循环互斥）
                 Box(contentAlignment = Alignment.Center) {
                     Surface(
-                        onClick = { showTimerDialog = true },
+                        onClick = { playerManager.cycleRepeatCount() },
                         modifier = Modifier.size(56.dp),
                         shape = RoundedCornerShape(16.dp),
-                        color = if (timerActive) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
+                        color = if (repeatCount > 0) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.8f)
                         else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
                     ) {
                         Box(
@@ -380,26 +358,26 @@ fun MeditationPlayerScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.HourglassEmpty,
-                                contentDescription = context.getString(R.string.set_countdown),
-                                tint = if (timerActive) MaterialTheme.colorScheme.primary
+                                imageVector = Icons.Default.RepeatOne,
+                                contentDescription = if (repeatCount > 0) {
+                                    context.getString(R.string.meditation_repeat_count, repeatCount)
+                                } else {
+                                    context.getString(R.string.meditation_repeat_times)
+                                },
+                                tint = if (repeatCount > 0) MaterialTheme.colorScheme.primary
                                 else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(24.dp)
                             )
                         }
                     }
-                    if (timerActive && timerLeft > 0) {
-                        val minutes = (timerLeft / 60000).toInt()
-                        val seconds = ((timerLeft % 60000) / 1000).toInt()
-                        val badgeText = if (minutes > 0) "$minutes:${seconds.toString().padStart(2, '0')}"
-                        else "${seconds}s"
+                    if (repeatCount > 0) {
                         Badge(
                             modifier = Modifier
                                 .align(Alignment.TopEnd)
                                 .offset(x = 4.dp, y = (-4).dp)
                         ) {
                             Text(
-                                text = badgeText,
+                                text = "×$repeatCount",
                                 style = MaterialTheme.typography.labelSmall
                             )
                         }
@@ -444,40 +422,6 @@ fun MeditationPlayerScreen(
                 }
             }
         }
-    }
-
-    // 倒计时设置对话框（复用全局 TimerManager，与白噪音页共享同一倒计时，避免冲突）
-    if (showTimerDialog) {
-        TimerDialog(
-            onDismiss = { showTimerDialog = false },
-            onTimerSet = { minutes ->
-                if (minutes > 0) {
-                    if (playerManager.hasMedia()) {
-                        timerManager.startTimer(minutes)
-                        android.widget.Toast.makeText(
-                            context,
-                            context.getString(R.string.countdown_set_minutes, minutes),
-                            android.widget.Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        android.widget.Toast.makeText(
-                            context,
-                            context.getString(R.string.please_play_sound_before_timer),
-                            android.widget.Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                } else {
-                    timerManager.cancelTimer()
-                    android.widget.Toast.makeText(
-                        context,
-                        context.getString(R.string.countdown_cancelled),
-                        android.widget.Toast.LENGTH_SHORT
-                    ).show()
-                }
-                showTimerDialog = false
-            },
-            currentTimerMinutes = if (timerActive) timerManager.getCurrentTimerMinutes() else 0
-        )
     }
 }
 

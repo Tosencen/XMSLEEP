@@ -58,6 +58,14 @@ class MeditationPlayerManager private constructor() {
     private val _duration = MutableStateFlow(0L)
     val duration: StateFlow<Long> = _duration.asStateFlow()
 
+    // 循环次数（0=关闭，1/2/3=播放N遍后自动停止）
+    private val _repeatCount = MutableStateFlow(0)
+    val repeatCount: StateFlow<Int> = _repeatCount.asStateFlow()
+
+    // 已播放遍数 + 用户拖到末尾时忽略下一次 ended
+    private var playCount = 0
+    private var ignoreNextEnded = false
+
     // 外部停止回调（用于互斥）
     private var onStopRequested: (() -> Unit)? = null
 
@@ -110,6 +118,7 @@ class MeditationPlayerManager private constructor() {
                         }
                         if (playbackState == Player.STATE_ENDED) {
                             _isPlaying.value = false
+                            onPlaybackEnded()
                         }
                     }
 
@@ -153,8 +162,34 @@ class MeditationPlayerManager private constructor() {
             player.prepare()
             player.play()
         }
+        playCount = 1
+        ignoreNextEnded = false
 
         Logger.d(TAG, "开始播放冥想音频: $sessionId")
+    }
+
+    /**
+     * 自然播完一幕后处理循环次数：达到目标遍数则停止，否则重播下一遍
+     */
+    private fun onPlaybackEnded() {
+        val count = _repeatCount.value
+        if (count <= 0) return
+        if (ignoreNextEnded) {
+            ignoreNextEnded = false
+            return
+        }
+        if (playCount >= count) {
+            stop()
+            Logger.d(TAG, "循环次数 $count 遍完成，停止播放")
+            return
+        }
+        playCount++
+        exoPlayer?.let { player ->
+            player.seekTo(0)
+            player.play()
+            _isPlaying.value = true
+        }
+        Logger.d(TAG, "循环第 $playCount/$count 遍")
     }
 
     /**
@@ -203,6 +238,13 @@ class MeditationPlayerManager private constructor() {
     fun seekTo(positionMs: Long) {
         exoPlayer?.seekTo(positionMs)
         _currentTime.value = positionMs
+        // 用户把进度条拖到末尾时，避免把下一次 ended 误计为自然播完
+        if (_repeatCount.value > 0) {
+            val dur = exoPlayer?.duration ?: 0L
+            if (dur > 0 && positionMs >= dur - 500) {
+                ignoreNextEnded = true
+            }
+        }
     }
 
     /**
@@ -246,8 +288,43 @@ class MeditationPlayerManager private constructor() {
     fun toggleLoop() {
         val next = !_isLoop.value
         _isLoop.value = next
+        if (next) {
+            // 开启无限循环时清空循环次数（互斥）
+            _repeatCount.value = 0
+            playCount = 0
+            ignoreNextEnded = false
+        }
         exoPlayer?.repeatMode = if (next) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
         Logger.d(TAG, "循环播放: $next")
+    }
+
+    /**
+     * 循环次数档位循环：关闭 → 1 → 2 → 3 → 关闭
+     */
+    fun cycleRepeatCount() {
+        val next = when (_repeatCount.value) {
+            0 -> 1
+            1 -> 2
+            2 -> 3
+            else -> 0
+        }
+        setRepeatCount(next)
+    }
+
+    /**
+     * 设置循环次数（0=关闭）。设置次数时自动关闭无限循环（互斥）
+     */
+    fun setRepeatCount(count: Int) {
+        val c = count.coerceIn(0, 3)
+        if (c == _repeatCount.value) return
+        if (c > 0) {
+            _isLoop.value = false
+            exoPlayer?.repeatMode = Player.REPEAT_MODE_OFF
+        }
+        _repeatCount.value = c
+        playCount = if (c > 0) 1 else 0
+        ignoreNextEnded = false
+        Logger.d(TAG, "循环次数: $c")
     }
 
     /**

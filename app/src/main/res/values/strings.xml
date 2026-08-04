@@ -575,6 +575,8 @@
     <string name="meditation">冥想</string>
     <string name="select_audio">选择音频</string>
     <string name="loop_play">循环播放</string>
+    <string name="meditation_repeat_times">循环次数</string>
+    <string name="meditation_repeat_count">循环 %1$d 次</string>
     <string name="meditation_sleep_subtitle">深度放松 · 舒缓身心 · 入睡引导</string>
     <string name="meditation_practice_subtitle">呼吸引导 · 专注训练 · 内在探索</string>
     <string name="meditation_relax_subtitle">释放压力 · 恢复平静 · 情绪调节</string>

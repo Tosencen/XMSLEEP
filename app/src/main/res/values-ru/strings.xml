@@ -540,6 +540,8 @@
     <string name="meditation">Медитация</string>
     <string name="select_audio">Выбрать аудио</string>
     <string name="loop_play">Повтор</string>
+    <string name="meditation_repeat_times">Количество повторов</string>
+    <string name="meditation_repeat_count">Повторить %1$d раз</string>
     <string name="meditation_sleep_subtitle">Глубокая релаксация · Успокоение тела и ума · Помощь в засыпании</string>
     <string name="meditation_practice_subtitle">Дыхательный гид · Тренировка фокуса · Внутреннее познание</string>
     <string name="meditation_relax_subtitle">Снятие стресса · Восстановление покоя · Регуляция эмоций</string>

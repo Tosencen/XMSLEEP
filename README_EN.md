@@ -101,12 +101,27 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.2.6
-- **Version Code**: 41
+- **Version**: 2.3.0
+- **Version Code**: 45
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 
 ## 🆕 Latest Updates
+
+### v2.3.0
+#### 🎨 New Features
+- **Tomato Timer End Ringtone**: 4 built-in royalty-free ringtones (Chime/Ding-Dong/Marimba/Wind Chime), plays automatically when focus ends
+- **Tomato Timer End Vibration**: Automatic vibration reminder when focus ends, with a settings toggle
+- **Tomato Settings Sheet**: Gear icon in the top-right of the tomato page — configure end ringtone, completion animation, and vibration, fully expanded sheet
+- **Ringtone/Vibration ×3**: End ringtone and vibration each repeat 3 times then stop automatically
+- **Manual Break Start**: Focus no longer auto-starts the break — a "Start Break" button appears for the user to trigger manually
+- **Meditation Repeat Count**: The meditation detail countdown is replaced by a repeat-count control — loop 1/2/3 times then auto-stop, mutually exclusive with infinite loop
+- **Tomato Entry in Weather Mode**: Added a tomato timer shortcut in the top-right of weather mode
+
+#### ✨ Improvements
+- **Tomato Settings Multi-language**: Supports Chinese/English/Japanese/Korean/Russian/Traditional Chinese
+- **Vibration Implementation**: Now uses the system Vibrator directly with the VIBRATE permission added for reliability
+- **Version Bump**: 2.2.9 → 2.3.0
 
 ### v2.2.6
 #### 🎨 New Features
