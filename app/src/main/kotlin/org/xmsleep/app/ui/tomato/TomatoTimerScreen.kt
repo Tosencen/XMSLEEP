@@ -36,8 +36,12 @@ fun TomatoTimerScreen(
     val screenCornerRadius = remember {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val insets = view.rootWindowInsets
-            val cornerRadiusPx = insets?.mandatorySystemGestureInsets?.top?.toInt() ?: 48
-            with(density) { cornerRadiusPx.toDp() }
+            val cornerRadiusPx = insets?.getRoundedCorner(0)?.radius ?: 0
+            if (cornerRadiusPx > 0) {
+                with(density) { cornerRadiusPx.toFloat().toDp() }
+            } else {
+                16.dp
+            }
         } else {
             16.dp
         }
