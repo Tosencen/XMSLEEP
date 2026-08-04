@@ -3,7 +3,6 @@ package org.xmsleep.app.audio
 import android.content.Context
 import android.media.AudioFocusRequest
 import android.media.AudioManager as SystemAudioManager
-import android.os.Build
 import org.xmsleep.app.utils.Logger
 
 /**
@@ -54,30 +53,19 @@ class AudioFocusManager {
         return try {
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as SystemAudioManager
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                audioFocusRequest = AudioFocusRequest.Builder(SystemAudioManager.AUDIOFOCUS_GAIN)
-                    .setAudioAttributes(
-                        android.media.AudioAttributes.Builder()
-                            .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
-                            .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
-                            .build()
-                    )
-                    .setOnAudioFocusChangeListener(audioFocusChangeListener)
-                    .build()
-
-                val result = audioManager.requestAudioFocus(audioFocusRequest!!)
-                hasAudioFocus = result == SystemAudioManager.AUDIOFOCUS_REQUEST_GRANTED
-                hasAudioFocus
-            } else {
-                @Suppress("DEPRECATION")
-                val result = audioManager.requestAudioFocus(
-                    audioFocusChangeListener,
-                    SystemAudioManager.STREAM_MUSIC,
-                    SystemAudioManager.AUDIOFOCUS_GAIN
+            audioFocusRequest = AudioFocusRequest.Builder(SystemAudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(
+                    android.media.AudioAttributes.Builder()
+                        .setUsage(android.media.AudioAttributes.USAGE_MEDIA)
+                        .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
                 )
-                hasAudioFocus = result == SystemAudioManager.AUDIOFOCUS_REQUEST_GRANTED
-                hasAudioFocus
-            }
+                .setOnAudioFocusChangeListener(audioFocusChangeListener)
+                .build()
+
+            val result = audioManager.requestAudioFocus(audioFocusRequest!!)
+            hasAudioFocus = result == SystemAudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            hasAudioFocus
         } catch (e: Exception) {
             Logger.e(TAG, "请求音频焦点失败", e)
             false
@@ -87,13 +75,8 @@ class AudioFocusManager {
     fun abandonAudioFocus(context: Context) {
         try {
             val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as SystemAudioManager
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                audioFocusRequest?.let {
-                    audioManager.abandonAudioFocusRequest(it)
-                }
-            } else {
-                @Suppress("DEPRECATION")
-                audioManager.abandonAudioFocus(audioFocusChangeListener)
+            audioFocusRequest?.let {
+                audioManager.abandonAudioFocusRequest(it)
             }
             hasAudioFocus = false
         } catch (e: Exception) {

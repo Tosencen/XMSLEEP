@@ -1,6 +1,9 @@
 package org.xmsleep.app.audio
 
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import androidx.media3.common.util.UnstableApi
 import org.xmsleep.app.utils.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -133,6 +136,42 @@ class AudioManager private constructor() {
 
     var applicationContext: Context? = null
         private set
+
+    // 音频输出切换（拔耳机/断开蓝牙）广播接收器
+    private var audioBecomingNoisyReceiver: BroadcastReceiver? = null
+
+    private val audioBecomingNoisyListener = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY) {
+                Logger.d(TAG, "检测到音频输出切换（拔耳机/断开蓝牙），暂停所有音频")
+                pauseAllSounds()
+            }
+        }
+    }
+
+    private fun registerAudioBecomingNoisyReceiver(context: Context) {
+        if (audioBecomingNoisyReceiver != null) return
+        try {
+            val filter = IntentFilter(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY)
+            context.registerReceiver(audioBecomingNoisyListener, filter)
+            audioBecomingNoisyReceiver = audioBecomingNoisyListener
+            Logger.d(TAG, "音频输出切换监听已注册")
+        } catch (e: Exception) {
+            Logger.e(TAG, "注册音频输出切换监听失败: ${e.message}")
+        }
+    }
+
+    private fun unregisterAudioBecomingNoisyReceiver() {
+        try {
+            audioBecomingNoisyReceiver?.let { receiver ->
+                applicationContext?.unregisterReceiver(receiver)
+            }
+        } catch (e: Exception) {
+            Logger.e(TAG, "注销音频输出切换监听失败: ${e.message}")
+        } finally {
+            audioBecomingNoisyReceiver = null
+        }
+    }
 
     // 音频焦点变化回调
     private val audioFocusCallback = object : AudioFocusManager.Callback {
@@ -374,6 +413,7 @@ class AudioManager private constructor() {
             localSoundPlayer.releaseAllPlayers()
             remoteSoundPlayer.releaseAllRemotePlayers()
 
+            unregisterAudioBecomingNoisyReceiver()
             audioFocusManager.abandonAudioFocus(applicationContext ?: return)
             musicServiceManager.release()
 
@@ -571,6 +611,8 @@ class AudioManager private constructor() {
             localSoundPlayer.setApplicationContext(context)
             remoteSoundPlayer.setApplicationContext(context)
             musicServiceManager.setApplicationContext(context)
+
+            registerAudioBecomingNoisyReceiver(context)
 
             musicServiceManager.initializeBluetoothHeadsetListener(context) {
                 pauseAllSounds()

@@ -1,7 +1,10 @@
 package org.xmsleep.app.audio
 
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioFocusRequest
 import android.media.MediaPlayer
+import android.media.AudioManager as SystemAudioManager
 import android.net.Uri
 import org.xmsleep.app.utils.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,6 +80,75 @@ class LocalAudioPlayer private constructor() {
     
     // 上下文引用，用于读取偏好设置
     private var appContext: Context? = null
+
+    // === 音频焦点相关 ===
+    private var audioFocusRequest: AudioFocusRequest? = null
+    private var hasAudioFocus = false
+    // 是否因焦点丢失而暂停（用于焦点恢复后自动续播）
+    private var pausedByFocusLoss = false
+    // 因焦点丢失而被暂停的音频ID集合
+    private val pausedAudioIds = mutableSetOf<Long>()
+    // 因焦点丢失（CAN_DUCK）而被调低音量的音频ID集合
+    private val duckedAudioIds = mutableSetOf<Long>()
+
+    private val audioFocusChangeListener = SystemAudioManager.OnAudioFocusChangeListener { focusChange ->
+        when (focusChange) {
+            SystemAudioManager.AUDIOFOCUS_LOSS -> {
+                hasAudioFocus = false
+                pausedByFocusLoss = true
+                pausedAudioIds.clear()
+                pausedAudioIds.addAll(playingStates.filter { it.value }.keys)
+                pausedAudioIds.addAll(duckedAudioIds)
+                duckedAudioIds.clear()
+                stopAllAudios()
+            }
+            SystemAudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                pausedByFocusLoss = true
+                pausedAudioIds.clear()
+                pausedAudioIds.addAll(playingStates.filter { it.value }.keys)
+                pausedAudioIds.addAll(duckedAudioIds)
+                duckedAudioIds.clear()
+                stopAllAudios()
+            }
+            SystemAudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                mediaPlayers.forEach { (audioId, mp) ->
+                    duckedAudioIds.add(audioId)
+                    try {
+                        mp.setVolume(0.1f, 0.1f)
+                    } catch (e: Exception) {
+                        Logger.e(TAG, "降音失败: audioId=$audioId", e)
+                    }
+                }
+            }
+            SystemAudioManager.AUDIOFOCUS_GAIN -> {
+                hasAudioFocus = true
+                // 恢复被压低的音量
+                mediaPlayers.forEach { (audioId, mp) ->
+                    if (duckedAudioIds.contains(audioId)) {
+                        val volume = volumeSettings[audioId] ?: _currentVolume.value
+                        try {
+                            mp.setVolume(volume, volume)
+                        } catch (e: Exception) {
+                            Logger.e(TAG, "恢复音量失败: audioId=$audioId", e)
+                        }
+                    }
+                }
+                duckedAudioIds.clear()
+
+                // 恢复因瞬时焦点丢失而被暂停的音频
+                if (pausedByFocusLoss) {
+                    pausedByFocusLoss = false
+                    val idsToRestore = pausedAudioIds.toList()
+                    pausedAudioIds.clear()
+                    idsToRestore.forEach { audioId ->
+                        audioUriCache[audioId]?.let { uri ->
+                            playAudio(appContext ?: return@let, audioId, Uri.parse(uri)) {}
+                        }
+                    }
+                }
+            }
+        }
+    }
     
     /**
      * 设置播放列表（由UI调用，传入当前可见的音频列表）
@@ -201,6 +273,12 @@ class LocalAudioPlayer private constructor() {
             
             // 缓存上下文
             if (appContext == null) appContext = context
+
+            // 请求音频焦点
+            if (!hasAudioFocus && !requestAudioFocus()) {
+                Logger.w(TAG, "无法获取音频焦点，取消播放 audioId=$audioId")
+                return
+            }
             
             // 缓存 URI
             audioUriCache[audioId] = audioUri.toString()
@@ -390,9 +468,15 @@ class LocalAudioPlayer private constructor() {
             mediaPlayers.remove(audioId)
             playingStates.remove(audioId)
             volumeSettings.remove(audioId)
+            duckedAudioIds.remove(audioId)
             updatePlayingAudioIds()
             Logger.d(TAG, "停止播放音频: $audioId")
-            
+
+            // 没有其他音频播放时释放音频焦点
+            if (mediaPlayers.isEmpty()) {
+                abandonAudioFocus()
+            }
+
             try {
                 org.xmsleep.app.audio.AudioManager.getInstance().saveRecentPlayingSounds()
             } catch (e: Exception) {
@@ -415,6 +499,48 @@ class LocalAudioPlayer private constructor() {
             Logger.d(TAG, "停止所有音频")
         } catch (e: Exception) {
             Logger.e(TAG, "停止所有音频失败", e)
+        }
+    }
+
+    /**
+     * 请求音频焦点
+     */
+    private fun requestAudioFocus(): Boolean {
+        val context = appContext ?: return false
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? SystemAudioManager ?: return false
+        return try {
+            audioFocusRequest = AudioFocusRequest.Builder(SystemAudioManager.AUDIOFOCUS_GAIN)
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .build()
+                )
+                .setOnAudioFocusChangeListener(audioFocusChangeListener)
+                .build()
+            val result = audioManager.requestAudioFocus(audioFocusRequest!!)
+            hasAudioFocus = result == SystemAudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            hasAudioFocus
+        } catch (e: Exception) {
+            Logger.e(TAG, "请求音频焦点失败", e)
+            false
+        }
+    }
+
+    /**
+     * 释放音频焦点
+     */
+    private fun abandonAudioFocus() {
+        val context = appContext ?: return
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as? SystemAudioManager ?: return
+        try {
+            audioFocusRequest?.let {
+                audioManager.abandonAudioFocusRequest(it)
+            }
+            audioFocusRequest = null
+            hasAudioFocus = false
+        } catch (e: Exception) {
+            Logger.e(TAG, "释放音频焦点失败", e)
         }
     }
     

@@ -2,6 +2,8 @@ package org.xmsleep.app.audio
 
 import android.content.Context
 import android.net.Uri
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.datasource.DefaultDataSource
@@ -204,6 +206,13 @@ class RemoteSoundPlayer private constructor() {
         if (remotePlayers[soundId] == null) {
             try {
                 val player = ExoPlayer.Builder(context).build().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(C.USAGE_MEDIA)
+                            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+                            .build(),
+                        false
+                    )
                     addListener(createRemotePlayerListener(soundId))
                 }
                 remotePlayers[soundId] = player

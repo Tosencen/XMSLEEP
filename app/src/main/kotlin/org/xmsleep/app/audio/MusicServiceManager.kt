@@ -1,13 +1,15 @@
 package org.xmsleep.app.audio
 
+import android.Manifest
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import android.os.Build
+import android.content.pm.PackageManager
 import android.os.IBinder
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
+import androidx.core.content.ContextCompat
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.service.MusicService
 import org.xmsleep.app.utils.Logger
@@ -112,6 +114,12 @@ class MusicServiceManager private constructor() {
      */
     fun registerPhoneStateListener(context: Context) {
         try {
+            if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE)
+                != PackageManager.PERMISSION_GRANTED
+            ) {
+                Logger.w(TAG, "未授予 READ_PHONE_STATE 权限，跳过电话状态监听（来电暂停由音频焦点兜底）")
+                return
+            }
             telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
             phoneStateListener = object : PhoneStateListener() {
                 @Deprecated("Deprecated in Java")
@@ -163,11 +171,7 @@ class MusicServiceManager private constructor() {
             }
 
             val serviceIntent = Intent(context, MusicService::class.java)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(serviceIntent)
-            } else {
-                context.startService(serviceIntent)
-            }
+            context.startForegroundService(serviceIntent)
 
             context.bindService(
                 serviceIntent,
