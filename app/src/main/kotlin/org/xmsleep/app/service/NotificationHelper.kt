@@ -11,12 +11,11 @@ import android.os.Build
 import androidx.media3.session.MediaSession
 import org.xmsleep.app.MainActivity
 import org.xmsleep.app.R
+import org.xmsleep.app.i18n.LanguageManager
 
 object NotificationHelper {
 
     private const val CHANNEL_ID = "music_playback_channel"
-    private const val CHANNEL_NAME = "音乐播放"
-    private const val CHANNEL_DESCRIPTION = "显示正在播放的音乐和控制按钮"
 
     const val NOTIFICATION_ID = 1001
 
@@ -24,11 +23,18 @@ object NotificationHelper {
     const val ACTION_STOP = "org.xmsleep.app.ACTION_STOP"
     const val ACTION_NOTIFICATION_DISMISSED = "org.xmsleep.app.ACTION_NOTIFICATION_DISMISSED"
 
+    /**
+     * 获取跟随应用语言的 Context（Service 自身不走 Compose 本地化包装）
+     */
+    private fun localizedContext(context: Context): Context =
+        LanguageManager.createLocalizedContext(context, LanguageManager.getCurrentLanguage(context))
+
     fun createNotificationChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val lc = localizedContext(context)
             val importance = NotificationManager.IMPORTANCE_LOW
-            val channel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance).apply {
-                description = CHANNEL_DESCRIPTION
+            val channel = NotificationChannel(CHANNEL_ID, lc.getString(R.string.music_playback_channel_name), importance).apply {
+                description = lc.getString(R.string.music_playback_channel_description)
                 setShowBadge(false)
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
@@ -67,22 +73,23 @@ object NotificationHelper {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
+        val lc = localizedContext(context)
         val title = buildString {
             append("XMSLEEP")
             if (!timeLeftText.isNullOrEmpty()) {
                 append("  ·  $timeLeftText")
             }
         }
-        val statusText = if (isPlaying) "正在播放" else "已暂停"
+        val statusText = if (isPlaying) lc.getString(R.string.playing) else lc.getString(R.string.paused)
         val content = buildString {
             append(statusText)
             if (playingSoundsCount > 0) {
-                append(" · $playingSoundsCount 个音频")
+                append(" · ").append(lc.getString(R.string.playing_audio_count, playingSoundsCount))
             }
         }
 
         val playPauseIcon = if (isPlaying) R.drawable.ic_media_pause else R.drawable.ic_media_play
-        val playPauseLabel = if (isPlaying) "暂停" else "播放"
+        val playPauseLabel = if (isPlaying) lc.getString(R.string.pause) else lc.getString(R.string.play)
 
         val builder = Notification.Builder(context, CHANNEL_ID)
             .setContentTitle(title)
@@ -109,7 +116,7 @@ object NotificationHelper {
             Notification.Action.Builder(Icon.createWithResource(context, playPauseIcon), playPauseLabel, playPausePendingIntent).build()
         )
         builder.addAction(
-            Notification.Action.Builder(Icon.createWithResource(context, R.drawable.ic_stop), "退出", stopPendingIntent).build()
+            Notification.Action.Builder(Icon.createWithResource(context, R.drawable.ic_stop), lc.getString(R.string.notification_quit), stopPendingIntent).build()
         )
 
         return builder.build()

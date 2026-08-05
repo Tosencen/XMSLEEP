@@ -223,6 +223,14 @@
     <string name="collapse">접기</string>
     <string name="expand">펼치기</string>
     <string name="playing_title">현재 재생 중 (%1$d)</string>
+    <string name="playing_audio_count">오디오 %1$d개</string>
+    <string name="notification_quit">나가기</string>
+    <string name="paused">일시정지됨</string>
+    <string name="breathing_notification_title">호흡 운동 중</string>
+    <string name="breathing_notification_time_left">남은 시간: %1$s</string>
+    <string name="breathing_channel_description">호흡 운동 백그라운드 재생</string>
+    <string name="music_playback_channel_name">음악 재생</string>
+    <string name="music_playback_channel_description">현재 재생 중인 음악 및 컨트롤 버튼 표시</string>
     <string name="stop_all">모두 중지</string>
     <string name="stop_all_confirm_title">모든 재생 중지</string>
     <string name="stop_all_confirm_message">모든 재생 중인 오디오를 중지하시겠습니까?</string>
@@ -652,6 +660,7 @@
     <string name="tomato_ringtone_ding">딩동</string>
     <string name="tomato_ringtone_marimba">마림바</string>
     <string name="tomato_ringtone_windchime">윈드 차임</string>
+    <string name="tomato_ringtone_preview">미리 듣기</string>
     <string name="tomato_pulse_animation">완료 애니메이션</string>
     <string name="tomato_vibrate">진동</string>
 

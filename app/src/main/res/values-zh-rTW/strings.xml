@@ -246,6 +246,14 @@
     <string name="collapse">收起</string>
     <string name="expand">展開</string>
     <string name="playing_title">正在播放 (%1$d)</string>
+    <string name="playing_audio_count">%1$d 個音頻</string>
+    <string name="notification_quit">退出</string>
+    <string name="paused">已暫停</string>
+    <string name="breathing_notification_title">呼吸練習中</string>
+    <string name="breathing_notification_time_left">剩餘時間：%1$s</string>
+    <string name="breathing_channel_description">呼吸練習背景播放</string>
+    <string name="music_playback_channel_name">音樂播放</string>
+    <string name="music_playback_channel_description">顯示正在播放的音樂和控制按鈕</string>
     <string name="stop_all_confirm_title">停止所有播放</string>
     <string name="stop_all_confirm_message">確定要停止所有正在播放的音訊嗎？</string>
     <string name="stop">停止</string>
@@ -662,6 +670,7 @@
     <string name="tomato_ringtone_ding">叮咚</string>
     <string name="tomato_ringtone_marimba">木琴</string>
     <string name="tomato_ringtone_windchime">風鈴</string>
+    <string name="tomato_ringtone_preview">試聽</string>
     <string name="tomato_pulse_animation">完成描邊動畫</string>
     <string name="tomato_vibrate">震動</string>
     

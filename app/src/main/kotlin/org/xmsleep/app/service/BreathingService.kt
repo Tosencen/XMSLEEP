@@ -13,6 +13,7 @@ import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 import org.xmsleep.app.MainActivity
 import org.xmsleep.app.R
+import org.xmsleep.app.i18n.LanguageManager
 
 class BreathingService : Service() {
     
@@ -28,6 +29,12 @@ class BreathingService : Service() {
     private var mediaPlayer: MediaPlayer? = null
     private var serviceScope: CoroutineScope? = null
     private var job: Job? = null
+    
+    /**
+     * 获取跟随应用语言的 Context（服务自身不走 Compose 本地化包装）
+     */
+    private fun localizedContext(): Context =
+        LanguageManager.createLocalizedContext(this, LanguageManager.getCurrentLanguage(this))
     
     override fun onCreate() {
         super.onCreate()
@@ -53,12 +60,13 @@ class BreathingService : Service() {
     
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val lc = localizedContext()
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "呼吸练习",
+                lc.getString(R.string.breathing_exercise),
                 NotificationManager.IMPORTANCE_LOW
             ).apply {
-                description = "呼吸练习后台播放"
+                description = lc.getString(R.string.breathing_channel_description)
             }
             
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -85,16 +93,17 @@ class BreathingService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
         
+        val lc = localizedContext()
         val minutes = (timeLeft / 1000) / 60
         val seconds = (timeLeft / 1000) % 60
         val timeText = String.format("%02d:%02d", minutes, seconds)
         
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("呼吸练习中")
-            .setContentText("剩余时间：$timeText")
+            .setContentTitle(lc.getString(R.string.breathing_notification_title))
+            .setContentText(lc.getString(R.string.breathing_notification_time_left, timeText))
             .setSmallIcon(android.R.drawable.ic_media_play)
             .setContentIntent(mainPendingIntent)
-            .addAction(android.R.drawable.ic_media_pause, "停止", stopPendingIntent)
+            .addAction(android.R.drawable.ic_media_pause, lc.getString(R.string.stop), stopPendingIntent)
             .setOngoing(true)
             .build()
     }

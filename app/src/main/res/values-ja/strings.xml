@@ -230,6 +230,14 @@
     <string name="collapse">折りたたむ</string>
     <string name="expand">展開</string>
     <string name="playing_title">再生中 (%1$d)</string>
+    <string name="playing_audio_count">オーディオ %1$d</string>
+    <string name="notification_quit">退出</string>
+    <string name="paused">一時停止</string>
+    <string name="breathing_notification_title">呼吸練習中</string>
+    <string name="breathing_notification_time_left">残り時間：%1$s</string>
+    <string name="breathing_channel_description">呼吸練習のバックグラウンド再生</string>
+    <string name="music_playback_channel_name">音楽再生</string>
+    <string name="music_playback_channel_description">再生中の音楽と操作ボタンを表示</string>
     <string name="stop_all">すべて停止</string>
     <string name="stop_all_confirm_title">すべての再生を停止</string>
     <string name="stop_all_confirm_message">再生中のオーディオをすべて停止してもよろしいですか？</string>
@@ -659,6 +667,7 @@
     <string name="tomato_ringtone_ding">ディンドン</string>
     <string name="tomato_ringtone_marimba">マリンバ</string>
     <string name="tomato_ringtone_windchime">ウィンドチャイム</string>
+    <string name="tomato_ringtone_preview">試聴</string>
     <string name="tomato_pulse_animation">完了アニメーション</string>
     <string name="tomato_vibrate">バイブレーション</string>
 

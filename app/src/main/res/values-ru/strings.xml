@@ -230,6 +230,14 @@
     <string name="collapse">Свернуть</string>
     <string name="expand">Развернуть</string>
     <string name="playing_title">Сейчас играет (%1$d)</string>
+    <string name="playing_audio_count">аудио: %1$d</string>
+    <string name="notification_quit">Выход</string>
+    <string name="paused">На паузе</string>
+    <string name="breathing_notification_title">Дыхательное упражнение</string>
+    <string name="breathing_notification_time_left">Осталось: %1$s</string>
+    <string name="breathing_channel_description">Фоновое воспроизведение дыхания</string>
+    <string name="music_playback_channel_name">Музыка</string>
+    <string name="music_playback_channel_description">Отображает текущую музыку и элементы управления</string>
     <string name="stop_all">Остановить всё</string>
     <string name="stop_all_confirm_title">Остановить всё</string>
     <string name="stop_all_confirm_message">Вы уверены, что хотите остановить всё воспроизведение?</string>
@@ -659,6 +667,7 @@
     <string name="tomato_ringtone_ding">Динь-дон</string>
     <string name="tomato_ringtone_marimba">Маримба</string>
     <string name="tomato_ringtone_windchime">Колокольчики</string>
+    <string name="tomato_ringtone_preview">Прослушать</string>
     <string name="tomato_pulse_animation">Анимация завершения</string>
     <string name="tomato_vibrate">Вибрация</string>
 

@@ -80,6 +80,13 @@
             </intent-filter>
         </service>
         
+        <!-- 呼吸练习前台服务 -->
+        <service
+            android:name=".service.BreathingService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+        
         <!-- 一言一句小组件 -->
         <receiver
             android:name=".widget.QuoteWidgetProvider"

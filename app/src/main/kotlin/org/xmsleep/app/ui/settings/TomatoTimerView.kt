@@ -69,8 +69,8 @@ object TomatoTimerState {
     // 完成事件计数：每完成一次递增，供页面触发完成动画
     var completionTick = mutableIntStateOf(0)
 
-    // 休息时长（分钟），由页面传入
-    var breakDurationMinutes = 5
+    // 休息时长（分钟），可在休息准备态通过刻度尺调整
+    var breakDurationMinutes = mutableIntStateOf(5)
 
     // 截止时间（基于 SystemClock.elapsedRealtime），0 = 未在计时
     private var deadline = 0L
@@ -85,7 +85,9 @@ object TomatoTimerState {
      * 基于截止时间计算剩余，离开页面后仍继续倒计时并按时完成。
      */
     fun start(context: Context) {
-        appContext = context.applicationContext
+        // 保存本地化的 application context（LocalContext 已按应用语言包装），
+        // 保证后台通知等取字符串时与应用语言一致，而非系统语言
+        appContext = context
         countdownJob?.cancel()
         awaitingBreakStart.value = false
         isRunning.value = true
@@ -167,7 +169,7 @@ object TomatoTimerState {
         } else {
             // 专注结束：进入休息准备态，不自动开始休息
             isBreak.value = true
-            timeLeftMillis.value = breakDurationMinutes * 60 * 1000L
+            timeLeftMillis.value = TomatoTimerState.breakDurationMinutes.value * 60 * 1000L
             awaitingBreakStart.value = true
         }
         completionTick.value++
@@ -178,7 +180,6 @@ object TomatoTimerState {
 fun TomatoTimerView(
     modifier: Modifier = Modifier,
     focusDurationMinutes: Int = 25,
-    breakDurationMinutes: Int = 5,
     onTimerComplete: () -> Unit = {},
     onPulseStart: (isBreak: Boolean) -> Unit = { _ -> }
 ) {
@@ -188,13 +189,11 @@ fun TomatoTimerView(
     var isRunning by TomatoTimerState.isRunning
     var isBreak by TomatoTimerState.isBreak
     var selectedFocusMinutes by TomatoTimerState.selectedFocusMinutes
+    var breakDurationMinutes by TomatoTimerState.breakDurationMinutes
     var timeLeftMillis by TomatoTimerState.timeLeftMillis
     var todayCompletedPomodoros by TomatoTimerState.todayCompletedPomodoros
     var awaitingBreakStart by TomatoTimerState.awaitingBreakStart
     var completionTick by TomatoTimerState.completionTick
-
-    // 同步休息时长到单例（完成逻辑在后台运行时需要）
-    TomatoTimerState.breakDurationMinutes = breakDurationMinutes
 
     // 完成事件消费标记：仅在完成的那一次触发动画/回调（含离开页面后台完成的场景）
     var lastCompletionTick by rememberSaveable { mutableIntStateOf(TomatoTimerState.completionTick.value) }
@@ -215,7 +214,6 @@ fun TomatoTimerView(
 
     // 标尺显示当前阶段时长（专注=专注时长，休息=休息时长），避免与计时不一致
     val rulerValue = if (isBreak) breakDurationMinutes else selectedFocusMinutes
-
     LaunchedEffect(Unit) { createNotificationChannel(context) }
 
     DisposableEffect(isRunning) {
@@ -327,13 +325,16 @@ fun TomatoTimerView(
                 MinuteRulerPicker(
                     value = rulerValue,
                     onValueChange = { minutes ->
-                        if (!isBreak) {
+                        if (isBreak) {
+                            breakDurationMinutes = minutes
+                            timeLeftMillis = minutes * 60 * 1000L
+                        } else {
                             selectedFocusMinutes = minutes
                             timeLeftMillis = minutes * 60 * 1000L
                         }
                     },
                     range = 3..180,
-                    enabled = !isRunning && !isBreak,
+                    enabled = !isRunning,
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp)

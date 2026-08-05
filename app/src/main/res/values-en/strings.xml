@@ -230,6 +230,14 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="collapse">Collapse</string>
     <string name="expand">Expand</string>
     <string name="playing_title">Now Playing (%1$d)</string>
+    <string name="playing_audio_count">%1$d audio</string>
+    <string name="notification_quit">Exit</string>
+    <string name="paused">Paused</string>
+    <string name="breathing_notification_title">Breathing exercise in progress</string>
+    <string name="breathing_notification_time_left">Time left: %1$s</string>
+    <string name="breathing_channel_description">Breathing exercise background playback</string>
+    <string name="music_playback_channel_name">Music playback</string>
+    <string name="music_playback_channel_description">Shows the currently playing music and controls</string>
     <string name="stop_all">Stop All</string>
     <string name="stop_all_confirm_title">Stop All Playback</string>
     <string name="stop_all_confirm_message">Are you sure you want to stop all playing audio?</string>
@@ -670,6 +678,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="tomato_ringtone_ding">Ding-Dong</string>
     <string name="tomato_ringtone_marimba">Marimba</string>
     <string name="tomato_ringtone_windchime">Wind Chime</string>
+    <string name="tomato_ringtone_preview">Preview</string>
     <string name="tomato_pulse_animation">Completion animation</string>
     <string name="tomato_vibrate">Vibrate</string>
 
