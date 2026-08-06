@@ -35,7 +35,7 @@ fun TomatoTimerScreen(
 
     // 获取系统实际屏幕圆角
     val screenCornerRadius = remember {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val insets = view.rootWindowInsets
             val cornerRadiusPx = insets?.getRoundedCorner(0)?.radius ?: 0
             if (cornerRadiusPx > 0) {

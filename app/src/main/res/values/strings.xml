@@ -275,6 +275,15 @@
     <string name="breathing_channel_description">呼吸练习后台播放</string>
     <string name="music_playback_channel_name">音乐播放</string>
     <string name="music_playback_channel_description">显示正在播放的音乐和控制按钮</string>
+    <string name="timer_paused_suffix">(已暂停)</string>
+    <string name="audio_import_unsupported_format">不支持的音频格式。支持的格式：%1$s</string>
+    <string name="audio_import_corrupted">无法读取音频文件信息，文件可能已损坏</string>
+    <string name="audio_import_validation_failed">文件验证失败：%1$s</string>
+    <string name="audio_import_invalid_format">文件格式无效</string>
+    <string name="audio_import_storage_full">无法保存文件到内部存储</string>
+    <string name="audio_import_permission_denied">没有访问文件的权限</string>
+    <string name="audio_import_write_failed">存储空间不足或文件写入失败</string>
+    <string name="audio_import_failed">导入失败：%1$s</string>
     <string name="stop_all_confirm_title">停止所有播放</string>
     <string name="stop_all_confirm_message">确定要停止所有正在播放的音频吗？</string>
     <string name="stop">停止</string>

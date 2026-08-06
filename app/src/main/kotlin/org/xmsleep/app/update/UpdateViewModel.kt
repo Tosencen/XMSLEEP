@@ -1,6 +1,8 @@
 package org.xmsleep.app.update
 
 import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -19,18 +21,7 @@ import java.io.IOException
  */
 class UpdateViewModel(private val context: Context) : ViewModel() {
     
-    // 从 BuildConfig 读取 GitHub Token（如果配置了）
-    private val githubToken: String? = try {
-        val buildConfigClass = Class.forName("org.xmsleep.app.BuildConfig")
-        val tokenField = buildConfigClass.getField("GITHUB_TOKEN")
-        val token = tokenField.get(null) as? String
-        if (token.isNullOrBlank()) null else token
-    } catch (e: Exception) {
-        Logger.d("UpdateCheck", "无法读取GITHUB_TOKEN，使用未认证请求")
-        null
-    }
-    
-    private val updateChecker = UpdateChecker(githubToken = githubToken)
+    private val updateChecker = UpdateChecker()
     private val fileDownloader = FileDownloader()
     private val updateInstaller = UpdateInstaller(context)
     
@@ -131,14 +122,93 @@ class UpdateViewModel(private val context: Context) : ViewModel() {
     }
     
     /**
-     * 验证APK文件是否有效
+     * 验证APK文件是否有效（存在且签名与当前应用一致，防止供应链投毒）
      */
     private fun isValidApk(file: File): Boolean {
         return try {
-            file.exists() && file.length() > 0 && file.canRead()
+            if (!(file.exists() && file.length() > 0 && file.canRead())) {
+                Logger.w("UpdateCheck", "APK文件不存在或为空: ${file.path}")
+                return false
+            }
+            val result = verifyApkSignatureMatchesCurrentApp(file)
+            if (!result) {
+                Logger.e("UpdateCheck", "APK签名校验失败，拒绝安装: ${file.path}")
+            }
+            result
         } catch (e: Exception) {
+            Logger.e("UpdateCheck", "APK验证异常: ${e.message}", e)
             false
         }
+    }
+
+    /**
+     * 将下载的 APK 签名与当前已安装应用签名比对
+     */
+    private fun verifyApkSignatureMatchesCurrentApp(apkFile: File): Boolean {
+        val currentSignatures = getInstalledAppSignatures() ?: return false
+        val pm = context.packageManager
+
+        val archiveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            pm.getPackageArchiveInfo(apkFile.absolutePath, PackageManager.GET_SIGNING_CERTIFICATES)
+        } else {
+            @Suppress("DEPRECATION")
+            pm.getPackageArchiveInfo(apkFile.absolutePath, PackageManager.GET_SIGNATURES)
+        }
+        if (archiveInfo == null) {
+            Logger.e("UpdateCheck", "无法解析下载的APK元信息")
+            return false
+        }
+
+        val apkSignatures = extractSignatures(archiveInfo) ?: run {
+            Logger.e("UpdateCheck", "下载的APK无签名信息")
+            return false
+        }
+
+        val currentCerts = currentSignatures.map { certificateDigest(it) }.toSet()
+        return apkSignatures.any { certificateDigest(it) in currentCerts }
+    }
+
+    /**
+     * 获取当前已安装应用的签名证书
+     */
+    private fun getInstalledAppSignatures(): List<android.content.pm.Signature>? {
+        return try {
+            val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+            } else {
+                @Suppress("DEPRECATION")
+                context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_SIGNATURES)
+            }
+            extractSignatures(info)
+        } catch (e: Exception) {
+            Logger.e("UpdateCheck", "获取当前应用签名失败: ${e.message}", e)
+            null
+        }
+    }
+
+    /**
+     * 统一提取 PackageInfo 的签名证书（API 28+ 用 signingInfo，低版本用 signatures）
+     */
+    private fun extractSignatures(info: android.content.pm.PackageInfo): List<android.content.pm.Signature>? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val signingInfo = info.signingInfo ?: return null
+            if (signingInfo.hasMultipleSigners()) {
+                signingInfo.apkContentsSigners.toList()
+            } else {
+                signingInfo.signingCertificateHistory.toList()
+            }
+        } else {
+            @Suppress("DEPRECATION")
+            info.signatures?.toList()
+        }
+    }
+
+    /**
+     * 计算签名证书的 SHA-256 摘要（十六进制）
+     */
+    private fun certificateDigest(signature: android.content.pm.Signature): String {
+        val md = java.security.MessageDigest.getInstance("SHA-256")
+        return md.digest(signature.toByteArray()).joinToString("") { "%02x".format(it) }
     }
     
     /**

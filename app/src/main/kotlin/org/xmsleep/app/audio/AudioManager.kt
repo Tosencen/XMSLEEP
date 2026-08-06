@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import androidx.media3.common.util.UnstableApi
+import org.xmsleep.app.R
+import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.utils.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -495,21 +497,38 @@ class AudioManager private constructor() {
 
     /**
      * 通知服务播放状态已改变
+     * （公开：MeditationPlayerManager 在冥想状态变化时也会调用，让通知栏/媒体卡片反映冥想播放）
      */
-    private fun notifyServicePlayingStateChanged() {
+    fun notifyServicePlayingStateChanged() {
+        val meditation = org.xmsleep.app.meditation.MeditationPlayerManager.getInstance()
+        val meditationPlaying = meditation.isPlaying.value
         val isPlaying = hasAnyPlayingSounds()
         val localCount = localSoundPlayer.getPlayingSounds().size
         val remoteCount = remoteSoundPlayer.getPlayingRemoteSoundIds().size
         val radioCount = if (_radioPlaying.value) 1 else 0
-        val totalCount = localCount + remoteCount + radioCount
+        val meditationCount = if (meditationPlaying) 1 else 0
+        val totalCount = localCount + remoteCount + radioCount + meditationCount
         val descriptions = getActiveSoundDescriptions()
-        val allDescriptions = if (_radioPlaying.value) {
-            descriptions + "电台噪音"
-        } else {
-            descriptions
+        val allDescriptions = buildList {
+            addAll(descriptions)
+            if (_radioPlaying.value) {
+                add("电台噪音")
+            }
+            if (meditationPlaying) {
+                add(meditation.currentTitle.value ?: localizedString(R.string.meditation))
+            }
         }
 
         musicServiceManager.notifyServicePlayingStateChanged(isPlaying, totalCount, allDescriptions)
+    }
+
+    /**
+     * 获取跟随应用语言的字符串（AudioManager 非 UI 上下文，需手动本地化）
+     */
+    private fun localizedString(resId: Int): String {
+        val ctx = applicationContext ?: return ""
+        val lc = LanguageManager.createLocalizedContext(ctx, LanguageManager.getCurrentLanguage(ctx))
+        return lc.getString(resId)
     }
 
     // =========================================================================

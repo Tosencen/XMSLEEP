@@ -12,24 +12,10 @@
     <!-- 音频文件访问权限 (Android 13+) -->
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     
-    <!-- 图片访问权限 (Android 13+) -->
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    
-    <!-- 蓝牙权限 -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <!-- Android 12+ (API 31+) 需要的蓝牙权限 -->
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
-    
     <!-- 通知权限 (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <!-- 电话状态权限（来电时暂停音频，备份机制；未授予时优雅降级） -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-    <!-- 定位权限 -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <!-- 定位权限（粗定位即可满足天气功能） -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     
     <!-- 前台服务权限 -->
@@ -44,7 +30,6 @@
         android:label="@string/app_name"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         android:supportsRtl="true"
-        android:usesCleartextTraffic="true"
         android:networkSecurityConfig="@xml/network_security_config">
         
         <activity

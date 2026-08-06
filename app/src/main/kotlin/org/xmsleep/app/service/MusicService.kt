@@ -14,6 +14,8 @@ import org.xmsleep.app.MainActivity
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AggregatePlayer
 import org.xmsleep.app.audio.AudioManager
+import org.xmsleep.app.i18n.LanguageManager
+import org.xmsleep.app.meditation.MeditationPlayerManager
 import org.xmsleep.app.timer.TimerManager
 import org.xmsleep.app.utils.Logger
 import java.util.concurrent.TimeUnit
@@ -228,9 +230,10 @@ class MusicService : Service() {
             val timeLeft = timerManager.getTimeLeftMillis()
             if (timeLeft > 0) {
                 timeLeftText = formatTime(timeLeft)
-                // 如果倒计时处于暂停状态，在时间后加上"已暂停"标记
+                // 如果倒计时处于暂停状态，在时间后加上本地化"已暂停"标记
                 if (timerManager.isTimerPaused.value) {
-                    timeLeftText = "$timeLeftText (已暂停)"
+                    val lc = LanguageManager.createLocalizedContext(this, LanguageManager.getCurrentLanguage(this))
+                    timeLeftText = "$timeLeftText ${lc.getString(R.string.timer_paused_suffix)}"
                 }
             }
         }
@@ -240,21 +243,30 @@ class MusicService : Service() {
     
     /**
      * 处理播放/暂停按钮点击
+     * 同时控制声音/电台（AudioManager）与冥想播放器（MeditationPlayerManager）
      */
     private fun handlePlayPause() {
-        if (isPlaying) {
-            // 当前正在播放，执行暂停
-            // 关键：在调用 pauseAllSounds() 之前先保存播放列表
+        val meditation = MeditationPlayerManager.getInstance()
+        val meditationPlaying = meditation.isPlaying.value
+        val meditationPaused = meditation.isPaused.value
+
+        if (isPlaying || meditationPlaying) {
+            // 当前正在暂停
             audioManager.setRadioWasPlaying(audioManager.radioPlaying.value)
             lastPlayingLocalSounds.clear()
             lastPlayingLocalSounds.addAll(audioManager.getPlayingSounds())
-            
+
             lastPlayingRemoteSoundIds.clear()
             lastPlayingRemoteSoundIds.addAll(audioManager.getPlayingRemoteSoundIds())
-            
+
             isPausing = true
             try {
                 audioManager.pauseAllSounds()
+
+                // 暂停冥想（冥想播放器状态变化会自动同步回通知）
+                if (meditationPlaying) {
+                    meditation.pause()
+                }
 
                 // 暂停倒计时
                 if (timerManager.isTimerActive.value) {
@@ -267,33 +279,37 @@ class MusicService : Service() {
             isPlaying = false
         } else {
             // 当前已暂停，恢复上次播放的音频
-            if (lastPlayingLocalSounds.isEmpty() && lastPlayingRemoteSoundIds.isEmpty() && !audioManager.isRadioWasPlaying()) {
+            if (lastPlayingLocalSounds.isEmpty() && lastPlayingRemoteSoundIds.isEmpty() && !audioManager.isRadioWasPlaying() && !meditationPaused) {
                 // 没有可恢复的音频，关闭服务
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
                 return
             }
 
+            var restoredAnything = false
+
             // 恢复电台
             if (audioManager.isRadioWasPlaying()) {
                 audioManager.setRadioWasPlaying(false)
                 audioManager.resumeRadio()
+                restoredAnything = true
             }
 
             // 关键修复：设置恢复标志，防止恢复过程中重新保存播放列表
             isRestoring = true
-            
+
             try {
                 // 恢复本地音频（使用副本避免 ConcurrentModificationException）
                 val soundsToRestore = lastPlayingLocalSounds.toList()
                 soundsToRestore.forEach { sound ->
                     try {
                         audioManager.playSound(applicationContext ?: return, sound)
+                        restoredAnything = true
                     } catch (e: Exception) {
                         Logger.e(TAG, "恢复本地播放 $sound 失败: ${e.message}")
                     }
                 }
-                
+
                 // 恢复远程音频（使用缓存的元数据和URI）
                 val remoteSoundsToRestore = lastPlayingRemoteSoundIds.toList()
                 remoteSoundsToRestore.forEach { soundId ->
@@ -303,6 +319,7 @@ class MusicService : Service() {
                         if (metadataAndUri != null) {
                             val (metadata, uri) = metadataAndUri
                             audioManager.playRemoteSound(applicationContext ?: return, metadata, uri)
+                            restoredAnything = true
                         } else {
                             Logger.w(TAG, "无法恢复远程音频 $soundId：元数据不存在")
                         }
@@ -310,19 +327,26 @@ class MusicService : Service() {
                         Logger.e(TAG, "恢复远程播放 $soundId 失败: ${e.message}")
                     }
                 }
-                
+
+                // 恢复冥想（仅当冥想处于暂停状态时）
+                if (meditationPaused) {
+                    if (meditation.resume(applicationContext)) {
+                        restoredAnything = true
+                    }
+                }
+
                 // 恢复倒计时
                 if (timerManager.isTimerActive.value && timerManager.isTimerPaused.value) {
                     timerManager.resumeTimer()
                 }
-                
-                isPlaying = true
+
+                isPlaying = restoredAnything
             } finally {
                 // 恢复完成后，清除恢复标志
                 isRestoring = false
             }
         }
-        
+
         // 更新通知
         updateNotification()
     }

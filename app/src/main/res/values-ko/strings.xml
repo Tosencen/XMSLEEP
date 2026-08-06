@@ -231,6 +231,15 @@
     <string name="breathing_channel_description">호흡 운동 백그라운드 재생</string>
     <string name="music_playback_channel_name">음악 재생</string>
     <string name="music_playback_channel_description">현재 재생 중인 음악 및 컨트롤 버튼 표시</string>
+    <string name="timer_paused_suffix">(일시정지)</string>
+    <string name="audio_import_unsupported_format">지원되지 않는 오디오 형식입니다. 지원 형식: %1$s</string>
+    <string name="audio_import_corrupted">오디오 파일 정보를 읽을 수 없습니다. 파일이 손상되었을 수 있습니다</string>
+    <string name="audio_import_validation_failed">파일 검증 실패: %1$s</string>
+    <string name="audio_import_invalid_format">잘못된 파일 형식</string>
+    <string name="audio_import_storage_full">내부 저장소에 파일을 저장할 수 없습니다</string>
+    <string name="audio_import_permission_denied">파일에 접근할 권한이 없습니다</string>
+    <string name="audio_import_write_failed">저장 공간이 부족하거나 파일 쓰기에 실패했습니다</string>
+    <string name="audio_import_failed">가져오기 실패: %1$s</string>
     <string name="stop_all">모두 중지</string>
     <string name="stop_all_confirm_title">모든 재생 중지</string>
     <string name="stop_all_confirm_message">모든 재생 중인 오디오를 중지하시겠습니까?</string>

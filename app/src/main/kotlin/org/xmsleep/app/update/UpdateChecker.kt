@@ -13,14 +13,13 @@ import java.io.IOException
 
 /**
  * GitHub Releases API 更新检查器
+ * 使用未认证请求（60次/小时），避免在应用内嵌入任何访问令牌
  * @param repositoryOwner 仓库所有者
  * @param repositoryName 仓库名称
- * @param githubToken 可选的GitHub Personal Access Token，如果提供则使用认证请求（5000次/小时），否则使用未认证请求（60次/小时）
  */
 class UpdateChecker(
     private val repositoryOwner: String = "Tosencen",
-    private val repositoryName: String = "XMSLEEP",
-    private val githubToken: String? = null
+    private val repositoryName: String = "XMSLEEP"
 ) {
     private val client = NetworkClient.default
     
@@ -43,14 +42,8 @@ class UpdateChecker(
             val requestBuilder = Request.Builder()
                 .url(url)
                 .header("Accept", "application/vnd.github.v3+json")
-            
-            // 如果提供了Token，添加Authorization header
-            if (!githubToken.isNullOrBlank()) {
-                requestBuilder.header("Authorization", "Bearer $githubToken")
-                Logger.d("UpdateChecker", "使用GitHub Token进行认证请求")
-            } else {
-                Logger.d("UpdateChecker", "使用未认证请求（限制60次/小时）")
-            }
+
+            Logger.d("UpdateChecker", "使用未认证请求（限制60次/小时）")
             
             val request = requestBuilder.get().build()
             

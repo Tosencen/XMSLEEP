@@ -52,6 +52,14 @@ class MeditationPlayerManager private constructor() {
     private val _currentCategoryId = MutableStateFlow<String?>(null)
     val currentCategoryId: StateFlow<String?> = _currentCategoryId.asStateFlow()
 
+    // 当前会话标题（用于通知/媒体卡片副标题）
+    private val _currentTitle = MutableStateFlow<String?>(null)
+    val currentTitle: StateFlow<String?> = _currentTitle.asStateFlow()
+
+    // 是否为「播放中暂停」（可恢复），区别于 stop() 停止后不可直接恢复
+    private val _isPaused = MutableStateFlow(false)
+    val isPaused: StateFlow<Boolean> = _isPaused.asStateFlow()
+
     private val _currentTime = MutableStateFlow(0L)
     val currentTime: StateFlow<Long> = _currentTime.asStateFlow()
 
@@ -85,6 +93,17 @@ class MeditationPlayerManager private constructor() {
 
     fun setOnStopRequested(callback: () -> Unit) {
         onStopRequested = callback
+    }
+
+    /**
+     * 播放状态变化时同步到 MusicService，让通知栏/媒体卡片反映冥想播放
+     */
+    private fun notifyServiceStateChanged() {
+        try {
+            org.xmsleep.app.audio.AudioManager.getInstance().notifyServicePlayingStateChanged()
+        } catch (e: Exception) {
+            Logger.w(TAG, "通知服务状态失败: ${e.message}")
+        }
     }
 
     /**
@@ -125,7 +144,9 @@ class MeditationPlayerManager private constructor() {
                     override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
                         Logger.e(TAG, "播放错误: ${error.message} cause=${error.cause?.message}")
                         _isPlaying.value = false
+                        _isPaused.value = false
                         _hasError.value = true
+                        notifyServiceStateChanged()
                     }
                 })
             }
@@ -136,7 +157,7 @@ class MeditationPlayerManager private constructor() {
     /**
      * 播放冥想音频
      */
-    fun play(context: Context, categoryId: String, sessionId: String, audioUrl: String) {
+    fun play(context: Context, categoryId: String, sessionId: String, audioUrl: String, title: String? = null) {
         initialize(context)
 
         // 通知外部停止其他音频（互斥）
@@ -153,6 +174,8 @@ class MeditationPlayerManager private constructor() {
 
         _currentCategoryId.value = categoryId
         _currentSessionId.value = sessionId
+        _currentTitle.value = title
+        _isPaused.value = false
         _isPlaying.value = true
         _hasError.value = false
 
@@ -165,6 +188,8 @@ class MeditationPlayerManager private constructor() {
         playCount = 1
         ignoreNextEnded = false
 
+        notifyServiceStateChanged()
+
         Logger.d(TAG, "开始播放冥想音频: $sessionId")
     }
 
@@ -173,9 +198,13 @@ class MeditationPlayerManager private constructor() {
      */
     private fun onPlaybackEnded() {
         val count = _repeatCount.value
-        if (count <= 0) return
+        if (count <= 0) {
+            notifyServiceStateChanged()
+            return
+        }
         if (ignoreNextEnded) {
             ignoreNextEnded = false
+            notifyServiceStateChanged()
             return
         }
         if (playCount >= count) {
@@ -189,6 +218,7 @@ class MeditationPlayerManager private constructor() {
             player.play()
             _isPlaying.value = true
         }
+        notifyServiceStateChanged()
         Logger.d(TAG, "循环第 $playCount/$count 遍")
     }
 
@@ -196,9 +226,12 @@ class MeditationPlayerManager private constructor() {
      * 暂停播放
      */
     fun pause() {
+        if (!_isPlaying.value) return
         _isPlaying.value = false
+        _isPaused.value = true
         exoPlayer?.playWhenReady = false
         abandonAudioFocus()
+        notifyServiceStateChanged()
         Logger.d(TAG, "暂停冥想播放")
     }
 
@@ -207,12 +240,15 @@ class MeditationPlayerManager private constructor() {
      */
     fun resume(context: Context): Boolean {
         if (_hasError.value) {
+            _isPaused.value = false
             Logger.w(TAG, "播放器处于错误状态，需要重新播放")
             return false
         }
         if (!requestAudioFocus(context)) return false
         exoPlayer?.playWhenReady = true
         _isPlaying.value = true
+        _isPaused.value = false
+        notifyServiceStateChanged()
         Logger.d(TAG, "恢复冥想播放")
         return true
     }
@@ -224,11 +260,14 @@ class MeditationPlayerManager private constructor() {
         exoPlayer?.stop()
         _isPlaying.value = false
         _hasError.value = false
+        _isPaused.value = false
         _currentSessionId.value = null
         _currentCategoryId.value = null
+        _currentTitle.value = null
         _currentTime.value = 0L
         _duration.value = 0L
         abandonAudioFocus()
+        notifyServiceStateChanged()
         Logger.d(TAG, "停止冥想播放")
     }
 

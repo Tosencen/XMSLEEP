@@ -133,7 +133,7 @@ fun MeditationPlayerScreen(
                         }
                     }
                     if (audioUrl != null) {
-                        playerManager.play(context, categoryId, session.id, audioUrl)
+                        playerManager.play(context, categoryId, session.id, audioUrl, session.getLocalizedName(languageCode))
                     }
                 } finally {
                     isLoading = false

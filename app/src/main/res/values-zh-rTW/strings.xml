@@ -254,6 +254,15 @@
     <string name="breathing_channel_description">呼吸練習背景播放</string>
     <string name="music_playback_channel_name">音樂播放</string>
     <string name="music_playback_channel_description">顯示正在播放的音樂和控制按鈕</string>
+    <string name="timer_paused_suffix">(已暫停)</string>
+    <string name="audio_import_unsupported_format">不支援的音訊格式。支援的格式：%1$s</string>
+    <string name="audio_import_corrupted">無法讀取音訊檔案資訊，檔案可能已損壞</string>
+    <string name="audio_import_validation_failed">檔案驗證失敗：%1$s</string>
+    <string name="audio_import_invalid_format">檔案格式無效</string>
+    <string name="audio_import_storage_full">無法儲存檔案到內部儲存空間</string>
+    <string name="audio_import_permission_denied">沒有存取檔案的權限</string>
+    <string name="audio_import_write_failed">儲存空間不足或檔案寫入失敗</string>
+    <string name="audio_import_failed">匯入失敗：%1$s</string>
     <string name="stop_all_confirm_title">停止所有播放</string>
     <string name="stop_all_confirm_message">確定要停止所有正在播放的音訊嗎？</string>
     <string name="stop">停止</string>

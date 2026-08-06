@@ -238,6 +238,15 @@
     <string name="breathing_channel_description">Фоновое воспроизведение дыхания</string>
     <string name="music_playback_channel_name">Музыка</string>
     <string name="music_playback_channel_description">Отображает текущую музыку и элементы управления</string>
+    <string name="timer_paused_suffix">(на паузе)</string>
+    <string name="audio_import_unsupported_format">Неподдерживаемый аудиоформат. Поддерживаемые форматы: %1$s</string>
+    <string name="audio_import_corrupted">Не удалось прочитать информацию об аудиофайле. Возможно, файл поврежден</string>
+    <string name="audio_import_validation_failed">Ошибка проверки файла: %1$s</string>
+    <string name="audio_import_invalid_format">Неверный формат файла</string>
+    <string name="audio_import_storage_full">Не удалось сохранить файл во внутреннее хранилище</string>
+    <string name="audio_import_permission_denied">Нет доступа к файлу</string>
+    <string name="audio_import_write_failed">Недостаточно места или ошибка записи</string>
+    <string name="audio_import_failed">Ошибка импорта: %1$s</string>
     <string name="stop_all">Остановить всё</string>
     <string name="stop_all_confirm_title">Остановить всё</string>
     <string name="stop_all_confirm_message">Вы уверены, что хотите остановить всё воспроизведение?</string>

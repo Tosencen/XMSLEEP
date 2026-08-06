@@ -5,6 +5,7 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.provider.OpenableColumns
 import android.webkit.MimeTypeMap
+import org.xmsleep.app.R
 import org.xmsleep.app.audio.model.SoundMetadata
 import java.io.File
 import java.io.FileOutputStream
@@ -57,7 +58,7 @@ class AudioImportManager(private val context: Context) {
                         isValid = false,
                         format = null,
                         duration = null,
-                        errorMessage = "不支持的音频格式。支持的格式：${SUPPORTED_FORMATS.joinToString(", ")}"
+                        errorMessage = context.getString(R.string.audio_import_unsupported_format, SUPPORTED_FORMATS.joinToString(", "))
                     )
                 }
             }
@@ -74,7 +75,7 @@ class AudioImportManager(private val context: Context) {
                         isValid = false,
                         format = null,
                         duration = null,
-                        errorMessage = "无法读取音频文件信息，文件可能已损坏"
+                        errorMessage = context.getString(R.string.audio_import_corrupted)
                     )
                 }
                 
@@ -94,7 +95,7 @@ class AudioImportManager(private val context: Context) {
                 isValid = false,
                 format = null,
                 duration = null,
-                errorMessage = "文件验证失败：${e.message}"
+                errorMessage = context.getString(R.string.audio_import_validation_failed, e.message ?: "")
             )
         }
     }
@@ -104,7 +105,7 @@ class AudioImportManager(private val context: Context) {
             // 首先验证文件
             val validation = validateAudioFile(uri)
             if (!validation.isValid) {
-                callback.onImportError(ImportError.INVALID_FORMAT, validation.errorMessage ?: "文件格式无效")
+                callback.onImportError(ImportError.INVALID_FORMAT, validation.errorMessage ?: context.getString(R.string.audio_import_invalid_format))
                 return
             }
             
@@ -116,7 +117,7 @@ class AudioImportManager(private val context: Context) {
             // 复制到内部存储
             val internalFile = copyToInternalStorage(uri, finalFileName)
             if (internalFile == null) {
-                callback.onImportError(ImportError.STORAGE_FULL, "无法保存文件到内部存储")
+                callback.onImportError(ImportError.STORAGE_FULL, context.getString(R.string.audio_import_storage_full))
                 return
             }
             
@@ -134,11 +135,11 @@ class AudioImportManager(private val context: Context) {
             callback.onImportSuccess(soundMetadata)
             
         } catch (e: SecurityException) {
-            callback.onImportError(ImportError.PERMISSION_DENIED, "没有访问文件的权限")
+            callback.onImportError(ImportError.PERMISSION_DENIED, context.getString(R.string.audio_import_permission_denied))
         } catch (e: IOException) {
-            callback.onImportError(ImportError.STORAGE_FULL, "存储空间不足或文件写入失败")
+            callback.onImportError(ImportError.STORAGE_FULL, context.getString(R.string.audio_import_write_failed))
         } catch (e: Exception) {
-            callback.onImportError(ImportError.UNKNOWN_ERROR, "导入失败：${e.message}")
+            callback.onImportError(ImportError.UNKNOWN_ERROR, context.getString(R.string.audio_import_failed, e.message ?: ""))
         }
     }
     

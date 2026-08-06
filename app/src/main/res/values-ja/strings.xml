@@ -238,6 +238,15 @@
     <string name="breathing_channel_description">呼吸練習のバックグラウンド再生</string>
     <string name="music_playback_channel_name">音楽再生</string>
     <string name="music_playback_channel_description">再生中の音楽と操作ボタンを表示</string>
+    <string name="timer_paused_suffix">(一時停止)</string>
+    <string name="audio_import_unsupported_format">対応していないオーディオ形式です。対応形式: %1$s</string>
+    <string name="audio_import_corrupted">オーディオファイル情報を読み取れません。ファイルが破損している可能性があります</string>
+    <string name="audio_import_validation_failed">ファイル検証失敗: %1$s</string>
+    <string name="audio_import_invalid_format">ファイル形式が無効です</string>
+    <string name="audio_import_storage_full">内部ストレージにファイルを保存できません</string>
+    <string name="audio_import_permission_denied">ファイルにアクセスする権限がありません</string>
+    <string name="audio_import_write_failed">ストレージ容量が不足しているか、書き込みに失敗しました</string>
+    <string name="audio_import_failed">インポート失敗: %1$s</string>
     <string name="stop_all">すべて停止</string>
     <string name="stop_all_confirm_title">すべての再生を停止</string>
     <string name="stop_all_confirm_message">再生中のオーディオをすべて停止してもよろしいですか？</string>

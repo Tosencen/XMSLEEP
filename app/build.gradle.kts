@@ -23,10 +23,6 @@ android {
             abiFilters += listOf("arm64-v8a")
             debugSymbolLevel = "NONE"  // 禁用debug符号，避免strip警告
         }
-        
-        // 从 gradle.properties 读取 GitHub Token（如果存在）
-        val githubToken = project.findProperty("GITHUB_TOKEN") as String? ?: ""
-        buildConfigField("String", "GITHUB_TOKEN", if (githubToken.isNotBlank()) "\"$githubToken\"" else "null")
     }
     
     signingConfigs {

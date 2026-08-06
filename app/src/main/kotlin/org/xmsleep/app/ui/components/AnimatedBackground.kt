@@ -128,7 +128,7 @@ fun AnimatedBackground(
                     val drawable = imageDrawable
                     if (drawable != null) {
                         view.setImageDrawable(drawable)
-                        if (drawable is android.graphics.drawable.AnimatedImageDrawable) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && drawable is android.graphics.drawable.AnimatedImageDrawable) {
                             drawable.repeatCount = android.graphics.drawable.AnimatedImageDrawable.REPEAT_INFINITE
                             if (!drawable.isRunning) drawable.start()
                         }
