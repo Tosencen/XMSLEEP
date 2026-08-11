@@ -8,8 +8,9 @@ A white noise and natural sound player app to help you relax, focus, and sleep b
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.1.0-blue.svg)](https://kotlinlang.org/)
 [![Android](https://img.shields.io/badge/Android-8.0%2B-green.svg)](https://www.android.com/)
+[![Web](https://img.shields.io/badge/Web-Play%20Online-black.svg)](https://tosencen.github.io/XMSLEEP/player.html)
 
-[Download](#download) • [Features](#features) • [Usage](#usage)
+[Download](#download) • [Features](#features) • [Usage](#usage) • [Web Version](#-web-version)
 
 **Language**: [中文](README.md) | [繁體中文](README_ZH_TW.md) | English | [한국어](README_KO.md) | [Русский](README_RU.md) | [日本語](README_JA.md)
 
@@ -50,6 +51,16 @@ A white noise and natural sound player app to help you relax, focus, and sleep b
 
 ---
 
+## 🌐 Web Version
+
+No installation needed — try the full experience right in your browser: **113 ambient sounds · free mixing · seamless looping · 6 languages · countdown timer**, with the same sound library as the mobile app.
+
+👉 **Play online**: [tosencen.github.io/XMSLEEP/player.html](https://tosencen.github.io/XMSLEEP/player.html)
+
+> In the app: Settings → Others → Web Version for one-tap access and link sharing.
+
+---
+
 ## 📱 About
 
 XMSLEEP is a professional white noise and natural sound playback app dedicated to providing you with high-quality audio experiences. The app includes a variety of carefully selected natural sounds, including rain, thunder, campfire, bird chirping, and more, to help you relax, improve focus, and enhance sleep quality.
@@ -83,6 +94,13 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 - **Smart Interaction**: Preset sheet and floating button are mutually exclusive; both auto-hide when scrolling
 - **Auto Update**: Supports silent update checking via GitHub Releases, update icon appears when new version available
 
+### 🌐 Web Version
+- **Online Player**: Runs instantly in the browser — 113 ambient sounds with free mixing, seamless looping, and independent volume control
+- **Multi-language**: Chinese/English/Japanese/Korean/Russian/Traditional Chinese
+- **Countdown Timer**: Custom countdown with auto-stop and live time display
+- **Now Playing Panel**: View/stop/adjust volume of active sounds at a glance
+- **Performance**: First-screen prefetch + LRU caching for instant replays
+
 ## 🛠️ Tech Stack
 
 - **Kotlin** - Main development language
@@ -98,6 +116,7 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 - **Accompanist** - Pull-to-refresh support
 - **Hilt** - Dependency injection framework
 - **Lottie** - High-quality animation rendering
+- **Web Audio API** - Seamless looping in the web player (sample-accurate)
 
 ## 📦 Current Version
 
@@ -107,6 +126,26 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 - **Target SDK**: Android 15 (API 35)
 
 ## 🆕 Latest Updates
+
+### v2.3.1
+#### 🎨 New Features
+- **Web Version Player**: New GitHub Pages online player — 113 ambient sounds, free mixing, seamless looping, 6-language UI, synced with the app's sound library, no installation required
+- **Web Version Entry in App**: New "Web Version" entry at the top of the "Others" section in Settings — one-tap browser launch plus a copy-link button
+- **Black & White Theme**: New monochrome theme for a minimalist look
+- **Tomato Timer Background Timing**: Countdown keeps running after leaving the page; ruler shows the current phase duration
+- **Tomato Settings Sheet Redesign**: Card-style sheet with ringtone preview and adjustable break length
+- **Notification Media Controls**: Control meditation playback from the notification shade/lock screen
+- **Plurals Localization**: Proper plural forms for counts in English, Russian and other languages
+
+#### ✨ Improvements
+- **Tightened Permissions**: Streamlined permission declarations to reduce privacy exposure
+- **Firebase Analytics & Crash Reporting**: Anonymous usage stats and crash collection — no personally identifiable information
+- **Dependency Upgrades**: okhttp 5.3.2, gson 2.11.0, androidx.media 1.8.0, core-splashscreen 1.2.0
+- **Resource & Signing Cleanup**
+
+#### 🐛 Bug Fixes
+- Custom countdown display issue
+- Breathing service registration & notification localization
 
 ### v2.3.0
 #### 🎨 New Features

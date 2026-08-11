@@ -8,8 +8,9 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.1.0-blue.svg)](https://kotlinlang.org/)
 [![Android](https://img.shields.io/badge/Android-8.0%2B-green.svg)](https://www.android.com/)
+[![Web](https://img.shields.io/badge/Web-線上播放-black.svg)](https://tosencen.github.io/XMSLEEP/player.html)
 
-[下載應用](#下載) • [功能特性](#功能特性) • [使用說明](#使用說明)
+[下載應用](#下載) • [功能特性](#功能特性) • [使用說明](#使用說明) • [網頁版](#-網頁版)
 
 **Language**: [中文](README.md) | 繁體中文 | [English](README_EN.md) | [한국어](README_KO.md) | [Русский](README_RU.md) | [日本語](README_JA.md)
 
@@ -49,6 +50,16 @@
 
 ---
 
+## 🌐 網頁版
+
+無需安裝，瀏覽器中直接體驗全部功能：**113 種自然聲音自由混音 · 無縫循環 · 6 種語言 · 倒數計時定時**，聲音清單與手機 App 同步。
+
+👉 **線上播放**：[tosencen.github.io/XMSLEEP/player.html](https://tosencen.github.io/XMSLEEP/player.html)
+
+> App 內 設定 → 其他 → 網頁版 也可一鍵直達並複製連結分享。
+
+---
+
 ## 📱 關於
 
 XMSLEEP 是一個專注於白噪音播放的 Android 應用，提供多種自然聲音幫助您放鬆、專注和入眠。應用採用 Material Design 3 設計規範，介面簡潔美觀，操作流暢。
@@ -80,6 +91,13 @@ XMSLEEP 是一個專注於白噪音播放的 Android 應用，提供多種自然
 - **智慧互動**：懸浮按鈕與預設彈窗互斥，滾動頁面時自動收起
 - **自動更新**：支援透過 GitHub Releases 自動檢查更新，下載狀態持久化
 
+### 🌐 網頁版
+- **線上播放器**：瀏覽器即開即用，113 種自然聲音自由混音、無縫循環、音量獨立控制
+- **多語言介面**：支援中文/英文/日文/韓文/俄文/繁體中文 6 種語言
+- **倒數計時定時**：支援自訂倒數計時、定時停止，時間即時顯示
+- **正在播放面板**：即時檢視/停止/調節音量，播放數量一目瞭然
+- **載入最佳化**：首屏預取 + LRU 快取，重播秒開
+
 ## 🛠️ 技術棧
 
 - **Kotlin** - 主要開發語言
@@ -95,6 +113,7 @@ XMSLEEP 是一個專注於白噪音播放的 Android 應用，提供多種自然
 - **Accompanist** - Pull-to-refresh 支援
 - **Hilt** - 依賴注入框架
 - **Lottie** - 高品質動畫渲染
+- **Web Audio API** - 網頁版無縫循環播放（取樣級無縫）
 
 ## 📦 目前版本
 
@@ -102,6 +121,27 @@ XMSLEEP 是一個專注於白噪音播放的 Android 應用，提供多種自然
 - **Version Code**: 46
 - **最低支援**: Android 8.0 (API 26)
 - **目標版本**: Android 15 (API 35)
+
+### 🆕 最新更新 (v2.3.1)
+
+#### 🎨 新功能
+- **網頁版線上播放器**：新增 GitHub Pages 網頁版，113 種自然聲音自由混音、無縫循環、6 種語言介面，聲音與 App 同步，無需安裝即開即用
+- **App 網頁版入口**：設定頁「其他」模組新增「網頁版」入口，一鍵跳轉線上播放器，支援複製連結分享
+- **黑白模式主題**：新增黑白主題，極簡視覺風格
+- **番茄鐘背景計時**：離開頁面後計時繼續走，標尺顯示目前階段時長
+- **番茄設定彈窗卡片化**：卡片化彈窗 + 結束鈴聲試聽 + 休息時長可調
+- **通知欄冥想控制**：通知欄/鎖屏可直接控制冥想音訊播放
+- **數量字串複數化**：英文/俄語等多語言數量顯示本地化（plurals）
+
+#### ✨ 改進
+- **權限收緊**：精簡權限宣告，降低隱私暴露面
+- **Firebase 統計與崩潰上報**：匿名使用統計與崩潰收集，不收集個人身分資訊
+- **依賴升級**：okhttp 5.3.2、gson 2.11.0、androidx.media 1.8.0、core-splashscreen 1.2.0
+- **資源與簽名整理**
+
+#### 🐛 修正
+- 自訂倒數計時顯示問題
+- 呼吸服務註冊、通知本地化
 
 ### 🆕 最新更新 (v2.3.0)
 
