@@ -121,6 +121,10 @@
     <string name="installing">インストール中</string>
     <string name="starting_installer">インストーラーを起動中…</string>
     <string name="install_failed">インストールに失敗しました</string>
+    <string name="web_version">ウェブ版</string>
+    <string name="web_version_description">ブラウザですべての自然音を再生</string>
+    <string name="copied">コピーしました</string>
+    <string name="open_failed">開けませんでした。ブラウザを確認してください</string>
     <string name="join_group">コミュニティ</string>
     <string name="join_group_description">最新情報をフォロー</string>
     <string name="buy_me_a_coffee">晓满を応援する</string>

@@ -1,6 +1,8 @@
 package org.xmsleep.app.ui.settings
 
 import android.annotation.SuppressLint
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -43,6 +45,9 @@ import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.update.UpdateDialog
 import org.xmsleep.app.ui.starsky.WeatherEditDialog
 import org.xmsleep.app.utils.Logger
+
+/** 网页版在线播放器地址（GitHub Pages） */
+private const val WEB_VERSION_URL = "https://tosencen.github.io/XMSLEEP/player.html"
 
 /**
  * 设置页面 - 应用配置和管理
@@ -383,6 +388,43 @@ fun SettingsScreen(
         SettingsCategory(
             title = context.getString(R.string.other),
             items = listOf(
+                SettingsCategoryItem(
+                    icon = Icons.Default.Public,
+                    title = { Text(context.getString(R.string.web_version)) },
+                    description = {
+                        Text(
+                            context.getString(R.string.web_version_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    trailingContent = {
+                        IconButton(
+                            onClick = {
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("XMSLEEP Web", WEB_VERSION_URL))
+                                Toast.makeText(context, context.getString(R.string.copied), Toast.LENGTH_SHORT).show()
+                            }
+                        ) {
+                            Icon(
+                                Icons.Default.ContentCopy,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    },
+                    onClick = {
+                        // LocalContext 是语言化包装的 application context，跨 Activity 启动需 NEW_TASK
+                        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(WEB_VERSION_URL))
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        try {
+                            context.startActivity(intent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, context.getString(R.string.open_failed), Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                ),
                 SettingsCategoryItem(
                     icon = Icons.Default.FormatQuote,
                     title = { Text(context.getString(R.string.daily_quote)) },

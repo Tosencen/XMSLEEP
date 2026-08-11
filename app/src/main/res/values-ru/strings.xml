@@ -133,6 +133,10 @@
     <string name="installing">Установка</string>
     <string name="starting_installer">Запуск установщика…</string>
     <string name="install_failed">Установка не удалась</string>
+    <string name="web_version">Веб-версия</string>
+    <string name="web_version_description">Слушайте все звуки прямо в браузере</string>
+    <string name="copied">Скопировано</string>
+    <string name="open_failed">Не удалось открыть, проверьте браузер</string>
     <string name="join_group">Сообщество</string>
     <string name="join_group_description">Подпишитесь на новости</string>
     <string name="buy_me_a_coffee">Поддержать Сяо Мань</string>
@@ -581,9 +585,9 @@
     <!-- Bottom Navigation Tabs -->
     <string name="tab_white_noise">XM</string>
     <string name="tab_starsky">Звёзды</string>
-    <string name="tab_breathing">Дыхан</string>
+    <string name="tab_breathing">Дыхание</string>
     <string name="tab_radio">Радио</string>
-    <string name="tab_settings">Настр</string>
+    <string name="tab_settings">Настройки</string>
     
     <!-- Tomato Timer -->
     <string name="tomato_timer_title">Таймер фокуса</string>

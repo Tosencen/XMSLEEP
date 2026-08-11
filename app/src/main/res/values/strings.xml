@@ -141,6 +141,10 @@
     <string name="installing">正在安装</string>
     <string name="starting_installer">正在启动安装程序…</string>
     <string name="install_failed">安装失败</string>
+    <string name="web_version">网页版</string>
+    <string name="web_version_description">浏览器中直接播放全部自然声音</string>
+    <string name="copied">已复制</string>
+    <string name="open_failed">打开失败，请检查浏览器</string>
     <string name="join_group">社区</string>
     <string name="join_group_description">关注我获取最新资讯</string>
     <string name="buy_me_a_coffee">给晓满加油</string>

@@ -118,6 +118,10 @@
     <string name="installing">설치 중</string>
     <string name="starting_installer">설치 프로그램을 시작하는 중…</string>
     <string name="install_failed">설치 실패</string>
+    <string name="web_version">웹 버전</string>
+    <string name="web_version_description">브라우저에서 모든 자연 소리 재생</string>
+    <string name="copied">복사됨</string>
+    <string name="open_failed">열기 실패, 브라우저를 확인하세요</string>
     <string name="join_group">커뮤니티</string>
     <string name="join_group_description">팔로우하여 최신 업데이트 확인</string>
     <string name="buy_me_a_coffee">晓满을 응원하기</string>

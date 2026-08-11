@@ -125,6 +125,10 @@
     <string name="installing">Installing</string>
     <string name="starting_installer">Starting installer…</string>
     <string name="install_failed">Install Failed</string>
+    <string name="web_version">Web Version</string>
+    <string name="web_version_description">Play all natural sounds directly in your browser</string>
+    <string name="copied">Copied</string>
+    <string name="open_failed">Failed to open, please check your browser</string>
     <string name="join_group">Community</string>
     <string name="join_group_description">Follow me for latest updates</string>
     <string name="buy_me_a_coffee">Support Xiao Man</string>
@@ -553,9 +557,9 @@
     <!-- Bottom Navigation Tabs -->
     <string name="tab_white_noise">XM</string>
     <string name="tab_starsky">Stars</string>
-    <string name="tab_breathing">Breath</string>
+    <string name="tab_breathing">Breathe</string>
     <string name="tab_radio">Radio</string>
-    <string name="tab_settings">Setup</string>
+    <string name="tab_settings">Settings</string>
     <string name="tag_white_noise">White Noise</string>
     <string name="tag_study_room">Study Room</string>
     <string name="refresh">Refresh</string>

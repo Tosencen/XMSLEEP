@@ -136,6 +136,10 @@
     <string name="installing">正在安裝</string>
     <string name="starting_installer">正在啟動安裝程序…</string>
     <string name="install_failed">安裝失敗</string>
+    <string name="web_version">網頁版</string>
+    <string name="web_version_description">在瀏覽器中直接播放全部自然聲音</string>
+    <string name="copied">已複製</string>
+    <string name="open_failed">開啟失敗，請檢查瀏覽器</string>
     <string name="join_group">社區</string>
     <string name="join_group_description">關注我獲取最新資訊</string>
     <string name="buy_me_a_coffee">給曉滿加油</string>
