@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title lang-key="title">XMSLEEP — 在线白噪音播放</title>
+<meta name="description" lang-key="desc" content="在浏览器中直接播放 XMSLEEP 的 113 款自然声音，自由混音">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#000;
+  --surface:rgba(255,255,255,0.05);
+  --surface-hover:rgba(255,255,255,0.1);
+  --border:rgba(255,255,255,0.12);
+  --text:#fff;
+  --text2:#8a8a8a;
+  --radius:14px;
+}
+html,body{height:100%}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.container{max-width:1100px;margin:0 auto;padding:0 24px}
+
+/* ---------- 顶栏（居中 logo，随页面滚动，无背景） ---------- */
+header{
+  /* 普通文档流，随滚动移动 */
+}
+.header-inner{
+  display:flex;align-items:center;justify-content:center;
+  padding-top:50px;
+}
+.logo{
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  text-decoration:none;color:var(--text);
+}
+.logo img{width:56px;height:56px;border-radius:12px;display:block}
+.logo-text{
+  font-family:'Fraunces',serif;font-weight:700;
+  font-size:1.75rem;letter-spacing:.02em;line-height:1;
+}
+.logo-sub{font-size:.72rem;color:var(--text2);letter-spacing:.12em}
+
+/* ---------- Safari 提示 ---------- */
+.banner{
+  display:none;background:rgba(255,255,255,.08);color:var(--text2);
+  font-size:.78rem;text-align:center;padding:8px 16px;border-bottom:1px solid var(--border);
+}
+.banner.show{display:block}
+
+/* ---------- 下拉菜单（语言 / 定时 / 播放列表） ---------- */
+.dropdown{
+  position:absolute;top:calc(100% + 8px);right:0;min-width:160px;
+  background:#111;border:1px solid var(--border);border-radius:10px;
+  padding:6px;display:none;box-shadow:0 8px 30px rgba(0,0,0,.6);z-index:70;
+}
+.dropdown.open{display:block}
+.dropdown button{
+  display:block;width:100%;text-align:left;
+  padding:8px 12px;font-size:.8rem;color:var(--text2);
+  background:none;border:none;border-radius:6px;cursor:pointer;font-family:inherit;
+}
+.dropdown button:hover{background:var(--surface-hover);color:var(--text)}
+.dropdown button.active{color:var(--text);background:var(--surface)}
+.timer-info{font-size:.74rem;color:var(--text);padding:4px 12px 8px;border-bottom:1px solid var(--border);margin-bottom:4px;font-variant-numeric:tabular-nums}
+.timer-custom{
+  display:flex;gap:6px;padding:6px 4px 2px;border-top:1px solid var(--border);margin-top:4px;
+}
+.timer-custom input{
+  flex:1;min-width:0;background:#18181b;border:1px solid #3f3f46;border-radius:6px;
+  color:var(--text);padding:6px 8px;font-size:.78rem;font-family:inherit;outline:none;
+  transition:border-color .15s;
+}
+.timer-custom input:focus{border-color:#52525b}
+.timer-custom input.invalid{border-color:#f87171;animation:shake .3s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+/* 隐藏原生 spinner，输入框无上下箭头 */
+.timer-custom input::-webkit-outer-spin-button,
+.timer-custom input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.timer-custom input{-moz-appearance:textfield}
+.timer-custom button{
+  flex:0 0 auto;width:auto;background:#18181b;border:1px solid #3f3f46;border-radius:6px;
+  color:var(--text);padding:0 12px;font-size:.78rem;cursor:pointer;font-family:inherit;
+}
+.timer-custom button:hover{background:#27272a}
+
+/* 播放列表面板 */
+.pl-title{
+  font-size:.72rem;color:var(--text2);letter-spacing:.08em;
+  padding:4px 12px 8px;border-bottom:1px solid var(--border);margin-bottom:4px;
+}
+
+/* ---------- 分类区块 ---------- */
+.section-title{
+  font-size:.95rem;font-weight:700;letter-spacing:.04em;
+  color:var(--text2);margin:36px 0 16px;text-align:center;
+}
+.section:first-child .section-title{margin-top:32px}
+.grid{
+  display:grid;grid-template-columns:repeat(4,170px);
+  justify-content:center;gap:14px;
+}
+
+/* ---------- 声音卡片（moodist 尺寸） ---------- */
+.card{
+  position:relative;
+  background:linear-gradient(rgb(24 24 27 / 50%), transparent);
+  border:1px solid var(--border);
+  border-radius:var(--radius);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:26px 14px 24px;gap:10px;min-height:132px;transition:all .15s;
+  user-select:none;-webkit-tap-highlight-color:transparent;
+}
+/* 上缘高光线（moodist） */
+.card:not(.playing)::before{
+  position:absolute;top:-1px;left:0;width:100%;height:1px;content:'';
+  background:linear-gradient(90deg,transparent,#52525b,transparent);
+}
+.card.playing{border-color:var(--text);background:rgba(255,255,255,0.07)}
+.card.loading{opacity:.6}
+.card-name{font-size:.8rem;font-weight:500;text-align:center;padding:0 6px;color:var(--text2);line-height:1.3}
+/* 图标圆盘：moodist 双层渐变环 */
+.card-icon{
+  position:relative;z-index:2;
+  width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text2);transition:all .15s;
+}
+.card-icon .material-symbols-outlined{font-size:20px;position:relative;z-index:2;line-height:0}
+.card-icon::after{
+  position:absolute;top:0;left:0;z-index:-1;width:100%;height:100%;content:'';
+  background:#09090b;border-radius:50%;
+}
+.card-icon::before{
+  position:absolute;top:-1px;left:-1px;z-index:-2;width:calc(100% + 2px);height:calc(100% + 2px);content:'';
+  background:linear-gradient(#3f3f46,#18181b);border-radius:50%;
+}
+.card:hover .card-icon{color:#a1a1aa}
+/* 播放时：圆形状态不变，仅图标描边变白色 */
+.card.playing .card-icon{color:var(--text)}
+/* 播放中划过：颜色浅一点（标题不参与 hover） */
+.card.playing:hover .card-icon{color:rgba(255,255,255,.55)}
+.card.playing .card-name{color:var(--text)}
+
+/* 播放动画（均衡器）——点击弹出该声音的音量，位于卡片右下角 */
+.eq{
+  position:absolute;bottom:12px;right:12px;
+  display:none;gap:2px;align-items:flex-end;
+  cursor:pointer;padding:8px;border-radius:10px;transition:background .15s;
+  z-index:5;
+}
+.eq:hover{background:rgba(255,255,255,.1)}
+.card.playing .eq{display:flex}
+.eq span{width:3px;background:var(--text);border-radius:1px;animation:eq .9s ease-in-out infinite;transform-origin:bottom}
+.eq span:nth-child(1){height:10px;animation-delay:0s}
+.eq span:nth-child(2){height:18px;animation-delay:.15s}
+.eq span:nth-child(3){height:13px;animation-delay:.3s}
+@keyframes eq{0%,100%{transform:scaleY(.4)}50%{transform:scaleY(1)}}
+
+/* 卡片音量弹窗（点均衡器弹出，卡片内垂直居中） */
+.vol-pop{
+  position:absolute;top:50%;transform:translateY(-50%);right:10px;z-index:40;
+  display:flex;align-items:center;gap:8px;
+  background:#111;border:1px solid var(--border);border-radius:10px;
+  padding:10px 12px;box-shadow:0 8px 30px rgba(0,0,0,.6);
+  width:150px;
+}
+.vol-pop .pl-vol{flex:1;min-width:0}
+.vol-pop-val{font-size:.72rem;color:var(--text2);font-variant-numeric:tabular-nums;flex:0 0 auto}
+
+/* 音量滑杆（moodist 复刻，位于底部播放列表面板） */
+.pl-item{
+  display:flex;align-items:center;gap:10px;
+  padding:6px 8px;border-radius:8px;transition:background .15s;
+}
+/* 行 hover：极淡背景，仅给一点反馈（名字本身无 hover 背景） */
+.pl-item:hover{background:rgba(255,255,255,.04)}
+.pl-name{
+  flex:0 0 auto;max-width:110px;
+  background:none;border:none;padding:3px 0;
+  font-family:inherit;font-size:.8rem;color:var(--text);text-align:left;
+  cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:color .15s;
+}
+.pl-item:hover .pl-name{color:#fff}
+/* 去掉 .dropdown button:hover 全局规则给名字加的背景 */
+.dropdown .pl-name:hover{background:none}
+.pl-x{
+  font-size:16px;color:var(--text2);cursor:pointer;flex:0 0 auto;
+  border-radius:50%;padding:3px;line-height:1;transition:all .15s;
+}
+.pl-item:hover .pl-x{color:var(--text)}
+.pl-x:hover{background:rgba(255,255,255,.12)}
+/* 滑杆 hover 提亮，提示可拖动 */
+.pl-item .pl-vol:hover::-webkit-slider-runnable-track{background:#3f3f46}
+.pl-item .pl-vol:hover::-moz-range-track{background:#3f3f46}
+.pl-vol{
+  flex:1;min-width:0;-webkit-appearance:none;appearance:none;
+  background:transparent;cursor:pointer;outline:none;margin:0;
+}
+.pl-vol::-webkit-slider-runnable-track{
+  height:8px;background:#27272a;border-radius:8px;
+}
+.pl-vol::-webkit-slider-thumb{
+  width:14px;height:14px;margin-top:-3px;
+  -webkit-appearance:none;background:#3f3f46;
+  border:1px solid #52525b;border-radius:50%;
+}
+.pl-vol::-moz-range-track{
+  height:8px;background:#27272a;border-radius:8px;
+}
+.pl-vol::-moz-range-thumb{
+  width:14px;height:14px;background:#3f3f46;
+  border:1px solid #52525b;border-radius:50%;
+}
+#playingMenu{width:250px}
+#playingList{display:flex;flex-direction:column;gap:2px;max-height:260px;overflow-y:auto}
+
+/* ---------- 底部悬浮模块 ---------- */
+.dock{
+  position:fixed;bottom:24px;left:0;right:0;
+  display:flex;justify-content:center;align-items:center;gap:10px;
+  z-index:60;pointer-events:none;
+}
+.dock>*{pointer-events:auto;flex-shrink:0}
+.playerbar{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(10,10,12,0.92);
+  border:1px solid var(--border);border-radius:50px;
+  padding:8px 10px;box-shadow:0 8px 30px rgba(0,0,0,.5);
+  /* 注意：不能加 backdrop-filter / filter / transform ——
+     它们会把 fixed 弹窗的包含块捕获到本元素，导致手机下弹窗错位 */
+}
+.playerbar>*{flex-shrink:0}
+.bar-lang{
+  position:relative;width:40px;height:40px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.74rem;color:var(--text);
+  background:#18181b;border:1px solid #3f3f46;
+  cursor:pointer;transition:all .15s;
+}
+.bar-lang:hover{background:#27272a}
+.bar-count{
+  position:relative;cursor:pointer;
+  display:flex;align-items:center;gap:6px;
+  font-size:.78rem;color:var(--text2);
+  padding:0 12px;height:40px;border-radius:20px;
+  border:1px solid var(--border);transition:all .15s;
+  white-space:nowrap;user-select:none;
+}
+.bar-count b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.bar-count.has{background:#18181b;border-color:rgba(255,255,255,0.45)}
+.bar-count.has b{color:var(--text)}
+.bar-count.has span{color:var(--text)}
+.bar-count:not(.has){cursor:default;pointer-events:none}
+.bar-btn,.bar-stop{
+  height:40px;display:flex;align-items:center;justify-content:center;gap:6px;
+  background:#18181b;border:1px solid #3f3f46;color:var(--text);
+  cursor:pointer;transition:all .2s;font-family:inherit;
+  white-space:nowrap;
+}
+.bar-btn{
+  position:relative;border-radius:24px;padding:0 14px;font-size:.78rem;
+}
+.bar-btn .material-symbols-outlined{font-size:17px;color:var(--text2)}
+.bar-btn:hover{background:#27272a}
+.bar-btn.active{background:var(--text);border-color:var(--text);color:#000}
+.bar-btn.active .material-symbols-outlined{color:#000}
+.bar-stop{
+  border-radius:24px;padding:0 16px;font-size:.78rem;
+}
+.bar-stop .material-symbols-outlined{font-size:17px}
+.bar-stop:disabled{opacity:.35;cursor:default;pointer-events:none}
+/* 有播放时：深色底（倒计时按钮背景样式）+ 白色描边 */
+.bar-stop:not(:disabled){background:#18181b;border-color:rgba(255,255,255,0.45);color:var(--text)}
+.bar-stop:not(:disabled):hover{background:#27272a}
+.bar-stop:not(:disabled) .material-symbols-outlined{color:var(--text)}
+.dock .dropdown{top:auto;bottom:calc(100% + 10px)}
+
+/* ---------- 页脚 ---------- */
+footer{
+  text-align:center;padding:48px 0 150px;
+  color:var(--text2);font-size:.8rem;
+}
+footer a{color:var(--text);text-decoration:none}
+footer a:hover{text-decoration:underline}
+
+/* ---------- 移动端 ---------- */
+@media(max-width:900px){
+  .grid{grid-template-columns:repeat(3,1fr)}
+}
+@media(max-width:640px){
+  .grid{grid-template-columns:repeat(2,1fr);gap:10px}
+  .header-inner{padding-top:40px}
+  .logo img{width:48px;height:48px}
+  .logo-text{font-size:1.5rem}
+  /* 底部模块：小屏紧凑适配 */
+  .dock{bottom:16px;gap:8px}
+  .playerbar{padding:6px;gap:6px}
+  .bar-lang,.bar-count,.bar-btn,.bar-stop{height:36px}
+  .bar-lang{width:36px;font-size:.7rem}
+  .bar-count{padding:0 10px}
+  .bar-btn{padding:0 10px}
+  .bar-btn .material-symbols-outlined{font-size:16px}
+  .bar-stop{padding:0 12px}
+  .bar-stop .material-symbols-outlined{font-size:16px}
+  .bar-count span{display:none}
+  /* 弹窗：手机下水平居中于屏幕、dock 上方弹出，超高可滚动 */
+  .dock .dropdown{
+    position:fixed;left:50%;right:auto;transform:translateX(-50%);
+    bottom:96px;
+    max-width:calc(100vw - 24px);
+    max-height:calc(100vh - 130px);
+    overflow-y:auto;
+  }
+  footer{padding-bottom:120px}
+}
+</style>
+</head>
+<body>
+
+<div class="banner" id="safariBanner" lang-key="safari">当前浏览器不支持 Ogg 音频，建议使用 Chrome / Edge / Firefox 打开以获得最佳体验。</div>
+
+<header>
+  <div class="container header-inner">
+    <a class="logo" href="./">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAbAAAAGwCAYAAADITjAqAAAAAXNSR0IArs4c6QAAADhlWElmTU0AKgAAAAgAAYdpAAQAAAABAAAAGgAAAAAAAqACAAQAAAABAAABsKADAAQAAAABAAABsAAAAADXm1AIAAAo70lEQVR4Ae3d/XXbRtbHcXvP/v9wK1iogmUqCFRBlApMV2ClAlMVRK7AVAWRKzBSQZQKPFtBuBXk+V0btCmJkjGDmcEM8MU5CN/m5c5naFwOCDEvXrAhgAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCA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CCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCCAAAIIIIAAAggggAACCCBQt8D/A9SLSdCMNK0ZAAAAAElFTkSuQmCC" alt="XMSLEEP" width="56" height="56">
+      <span class="logo-text">XMSLEEP</span>
+      <small class="logo-sub" lang-key="logoSub">在线白噪音</small>
+    </a>
+  </div>
+</header>
+
+<div class="container" id="sections"></div>
+
+<footer>
+  <p><span lang-key="footerText">XMSLEEP 在线白噪音 · 113 种自然声音自由混音 · 无缝循环 · 完全免费</span></p>
+</footer>
+
+<!-- 底部悬浮模块（语言按钮独立在左侧） -->
+<div class="dock" id="playerBar">
+  <div class="bar-lang" id="langBtn" role="button" tabindex="0" title="Language">
+    <span id="langLabel">简</span>
+    <div class="dropdown" id="langMenu">
+      <button data-lang="zh" lang-key="langZh">简体中文</button>
+      <button data-lang="tw" lang-key="langTw">繁體中文</button>
+      <button data-lang="en" lang-key="langEn">English</button>
+      <button data-lang="ja" lang-key="langJa">日本語</button>
+      <button data-lang="ko" lang-key="langKo">한국어</button>
+      <button data-lang="ru" lang-key="langRu">Русский</button>
+    </div>
+  </div>
+  <div class="playerbar">
+    <div class="bar-count" id="countBtn" role="button" tabindex="0">
+      <b id="playingCount">0</b>      <span lang-key="playingLabel">播放</span>
+      <div class="dropdown" id="playingMenu">
+        <div class="pl-title" lang-key="playingList">正在播放</div>
+        <div id="playingList"></div>
+      </div>
+    </div>
+    <button class="bar-stop" id="stopAllBtn" disabled>
+      <span class="material-symbols-outlined">stop</span>
+      <span lang-key="stopAll">停止</span>
+    </button>
+    <div class="bar-btn" id="timerBtn">
+      <span class="material-symbols-outlined">timer</span>
+      <span lang-key="timer" id="timerLabel">定时</span>
+      <div class="dropdown" id="timerMenu">
+        <div class="timer-info" id="timerInfo" lang-key="timerOff">未设置</div>
+        <button data-min="15">15 <span lang-key="minUnit">分钟</span></button>
+        <button data-min="30">30 <span lang-key="minUnit">分钟</span></button>
+        <button data-min="45">45 <span lang-key="minUnit">分钟</span></button>
+        <button data-min="60">60 <span lang-key="minUnit">分钟</span></button>
+        <div class="timer-custom">
+          <input type="number" id="timerCustomInput" min="1" max="600" step="1" placeholder="自定义">
+          <button id="timerCustomBtn">✓</button>
+        </div>
+        <button data-min="0" lang-key="timerNone">不设置</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const BUILTIN_DATA = {"version":"1.0.5","categories":[{"id":"nature","name":"自然","nameEn":"Nature","nameZhTW":"自然","nameKo":"자연","nameJa":"自然","nameRu":"Природа"},{"id":"rain","name":"雨声","nameEn":"Rain","nameZhTW":"雨聲","nameKo":"비","nameJa":"雨","nameRu":"Дождь"},{"id":"animals","name":"动物","nameEn":"Animals","nameZhTW":"動物","nameKo":"동물","nameJa":"動物","nameRu":"Животные"},{"id":"urban","name":"城市","nameEn":"Urban","nameZhTW":"城市","nameKo":"도시","nameJa":"都市","nameRu":"Город"},{"id":"places","name":"场所","nameEn":"Places","nameZhTW":"場所","nameKo":"장소","nameJa":"場所","nameRu":"Места"},{"id":"transport","name":"交通","nameEn":"Transport","nameZhTW":"交通","nameKo":"교통","nameJa":"交通","nameRu":"Транспорт"},{"id":"things","name":"物品","nameEn":"Things","nameZhTW":"物品","nameKo":"물건","nameJa":"物","nameRu":"Предметы"},{"id":"noise","name":"噪音","nameEn":"Noise","nameZhTW":"噪音","nameKo":"소음","nameJa":"ノイズ","nameRu":"Шум"}],"sounds":[{"id":"river","name":"河流","nameEn":"River","nameZhTW":"河流","nameKo":"강","nameJa":"川","nameRu":"Река","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/river.ogg","isSeamless":true,"format":"ogg"},{"id":"waves","name":"海浪","nameEn":"Waves","nameZhTW":"海浪","nameKo":"파도","nameJa":"波","nameRu":"Волны","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/waves.ogg","isSeamless":true,"format":"ogg"},{"id":"campfire","name":"篝火","nameEn":"Campfire","nameZhTW":"篝火","nameKo":"모닥불","nameJa":"キャンプファイヤー","nameRu":"Костёр","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/campfire.ogg","isSeamless":true,"format":"ogg"},{"id":"wind","name":"风声","nameEn":"Wind","nameZhTW":"風聲","nameKo":"바람","nameJa":"風","nameRu":"Ветер","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/wind.ogg","isSeamless":true,"format":"ogg"},{"id":"howling-wind","name":"呼啸的风","nameEn":"Howling Wind","nameZhTW":"呼嘯的風","nameKo":"울부짖는 바람","nameJa":"吠える風","nameRu":"Воющий ветер","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/howling-wind.ogg","isSeamless":true,"format":"ogg"},{"id":"wind-in-trees","name":"树间风声","nameEn":"Wind in Trees","nameZhTW":"樹間風聲","nameKo":"나무 사이 바람","nameJa":"木々の風","nameRu":"Ветер в деревьях","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/wind-in-trees.ogg","isSeamless":true,"format":"ogg"},{"id":"waterfall","name":"瀑布","nameEn":"Waterfall","nameZhTW":"瀑布","nameKo":"폭포","nameJa":"滝","nameRu":"Водопад","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/waterfall.ogg","isSeamless":true,"format":"ogg"},{"id":"walk-in-snow","name":"雪中行走","nameEn":"Walk in Snow","nameZhTW":"雪中行走","nameKo":"눈 속 걷기","nameJa":"雪の中を歩く","nameRu":"Ходьба по снегу","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/walk-in-snow.ogg","isSeamless":true,"format":"ogg"},{"id":"walk-on-leaves","name":"踩踏树叶","nameEn":"Walk on Leaves","nameZhTW":"踩踏樹葉","nameKo":"낙엽 밟기","nameJa":"落ち葉を踏む","nameRu":"Ходьба по листьям","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/walk-on-leaves.ogg","isSeamless":true,"format":"ogg"},{"id":"walk-on-gravel","name":"踩踏碎石","nameEn":"Walk on Gravel","nameZhTW":"踩踏碎石","nameKo":"자갈길 걷기","nameJa":"砂利道を歩く","nameRu":"Ходьба по гравию","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/walk-on-gravel.ogg","isSeamless":true,"format":"ogg"},{"id":"droplets","name":"水滴","nameEn":"Droplets","nameZhTW":"水滴","nameKo":"물방울","nameJa":"水滴","nameRu":"Капли","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/droplets.ogg","isSeamless":true,"format":"ogg"},{"id":"jungle","name":"丛林","nameEn":"Jungle","nameZhTW":"丛林","nameKo":"정글","nameJa":"ジャングル","nameRu":"Джунгли","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/jungle.ogg","isSeamless":true,"format":"ogg"},{"id":"field","name":"田野","nameEn":"Field","nameZhTW":"田野","nameKo":"들판","nameJa":"野原","nameRu":"Поле","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/field.ogg","isSeamless":true,"format":"ogg"},{"id":"lake","name":"湖泊","nameEn":"Lake","nameZhTW":"湖泊","nameKo":"호수","nameJa":"湖","nameRu":"Озеро","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/lake.ogg","isSeamless":true,"format":"ogg"},{"id":"light-rain","name":"小雨","nameEn":"Light Rain","nameZhTW":"小雨","nameKo":"약한 비","nameJa":"小雨","nameRu":"Мелкий дождь","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/light-rain.ogg","isSeamless":true,"format":"ogg"},{"id":"heavy-rain","name":"大雨","nameEn":"Heavy Rain","nameZhTW":"大雨","nameKo":"폭우","nameJa":"大雨","nameRu":"Сильный дождь","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/heavy_rain.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-car-roof","name":"车顶雨声","nameEn":"Rain on Car Roof","nameZhTW":"車頂雨聲","nameKo":"차 지붕 빗소리","nameJa":"車の屋根に当たる雨","nameRu":"Дождь по крыше машины","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-on-car-roof.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-umbrella","name":"伞上雨声","nameEn":"Rain on Umbrella","nameZhTW":"傘上雨聲","nameKo":"우산 빗소리","nameJa":"傘に当たる雨","nameRu":"Дождь по зонту","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-on-umbrella.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-tent","name":"帐篷雨声","nameEn":"Rain on Tent","nameZhTW":"帳篷雨聲","nameKo":"텐트 빗소리","nameJa":"テントに当たる雨","nameRu":"Дождь по палатке","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-on-tent.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-leaves","name":"叶上雨声","nameEn":"Rain on Leaves","nameZhTW":"葉上雨聲","nameKo":"나뭇잎 빗소리","nameJa":"葉に当たる雨","nameRu":"Дождь по листьям","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-on-leaves.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-raincoat","name":"雨落雨披","nameEn":"Rain on Raincoat","nameZhTW":"雨落雨披","nameKo":"우비 빗소리","nameJa":"レインコートに当たる雨","nameRu":"Дождь по плащу","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-on-raincoat.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-windowsill","name":"雨打窗台","nameEn":"Rain on Windowsill","nameZhTW":"雨打窗台","nameKo":"창틀 빗소리","nameJa":"窓辺に当たる雨","nameRu":"Дождь на подоконник","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-on-windowsill.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-wooden-house","name":"雨敲木屋","nameEn":"Rain on Wooden House","nameZhTW":"雨敲木屋","nameKo":"나무 집 빗소리","nameJa":"木造家屋に当たる雨","nameRu":"Дождь по деревянному дому","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-on-wooden-house.ogg","isSeamless":true,"format":"ogg"},{"id":"thunderstorm","name":"雷雨声","nameEn":"Thunderstorm","nameZhTW":"雷雨聲","nameKo":"뇌우","nameJa":"雷雨","nameRu":"Гроза","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/thunderstorm.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-while-driving","name":"开车时遇雨","nameEn":"Rain While Driving","nameZhTW":"開車時遇雨","nameKo":"운전 중 빗소리","nameJa":"運転中の雨","nameRu":"Дождь во время вождения","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-while-driving.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-empty-street","name":"空荡街道的雨","nameEn":"Rain on Empty Street","nameZhTW":"空蕩街道的雨","nameKo":"텅 빈 거리의 빗소리","nameJa":"誰もいない通りの雨","nameRu":"Дождь на пустой улице","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-on-empty-street.ogg","isSeamless":true,"format":"ogg"},{"id":"drizzle","name":"绵绵细雨","nameEn":"Drizzle","nameZhTW":"綿綿細雨","nameKo":"이슬비","nameJa":"霧雨","nameRu":"Морось","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/drizzle.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-eaves","name":"屋檐落雨","nameEn":"Rain on Eaves","nameZhTW":"屋簷落雨","nameKo":"처마 빗소리","nameJa":"軒先に当たる雨","nameRu":"Дождь по карнизу","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/rain-on-eaves.ogg","isSeamless":true,"format":"ogg"},{"id":"heavy-rain-on-glass","name":"大雨落玻璃","nameEn":"Heavy Rain on Glass","nameZhTW":"大雨落玻璃","nameKo":"유리창 폭우","nameJa":"窓ガラスに打ちつける大雨","nameRu":"Сильный дождь по стеклу","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/heavy-rain-on-glass.ogg","isSeamless":true,"format":"ogg"},{"id":"birds","name":"鸟鸣","nameEn":"Birds","nameZhTW":"鳥鳴","nameKo":"새소리","nameJa":"鳥のさえずり","nameRu":"Птицы","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/birds.ogg","isSeamless":true,"format":"ogg"},{"id":"seagulls","name":"海鸥","nameEn":"Seagulls","nameZhTW":"海鷗","nameKo":"갈매기","nameJa":"カモメ","nameRu":"Чайки","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/seagulls.ogg","isSeamless":true,"format":"ogg"},{"id":"crickets","name":"蟋蟀","nameEn":"Crickets","nameZhTW":"蟋蟀","nameKo":"귀뚜라미","nameJa":"コオロギ","nameRu":"Сверчки","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/crickets.ogg","isSeamless":true,"format":"ogg"},{"id":"wolf","name":"狼嚎","nameEn":"Wolf","nameZhTW":"狼嚎","nameKo":"늑대","nameJa":"狼","nameRu":"Волк","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/wolf.ogg","isSeamless":true,"format":"ogg"},{"id":"owl","name":"猫头鹰","nameEn":"Owl","nameZhTW":"貓頭鷹","nameKo":"올빼미","nameJa":"フクロウ","nameRu":"Сова","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/owl.ogg","isSeamless":true,"format":"ogg"},{"id":"frog","name":"青蛙","nameEn":"Frog","nameZhTW":"青蛙","nameKo":"개구리","nameJa":"カエル","nameRu":"Лягушка","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/frog.ogg","isSeamless":true,"format":"ogg"},{"id":"dog-barking","name":"狗叫","nameEn":"Dog Barking","nameZhTW":"狗叫","nameKo":"개 짖는 소리","nameJa":"犬の鳴き声","nameRu":"Лай собаки","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/dog-barking.ogg","isSeamless":true,"format":"ogg"},{"id":"horse-gallop","name":"马奔腾","nameEn":"Horse Gallop","nameZhTW":"馬奔騰","nameKo":"말 질주","nameJa":"馬の駆け足","nameRu":"Галоп лошади","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/horse-gallop.ogg","isSeamless":true,"format":"ogg"},{"id":"cat-purring","name":"猫咪呼噜","nameEn":"Cat Purring","nameZhTW":"貓咪呼嚕","nameKo":"고양이 가르릉","nameJa":"猫のゴロゴロ","nameRu":"Мурлыканье кота","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/cat-purring.ogg","isSeamless":true,"format":"ogg"},{"id":"crows","name":"乌鸦","nameEn":"Crows","nameZhTW":"烏鴉","nameKo":"까마귀","nameJa":"カラス","nameRu":"Вороны","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/crows.ogg","isSeamless":true,"format":"ogg"},{"id":"whale","name":"鲸鱼","nameEn":"Whale","nameZhTW":"鯨魚","nameKo":"고래","nameJa":"クジラ","nameRu":"Кит","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/whale.ogg","isSeamless":true,"format":"ogg"},{"id":"beehive","name":"蜂巢","nameEn":"Beehive","nameZhTW":"蜂巢","nameKo":"벌집","nameJa":"蜂の巣","nameRu":"Улей","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/beehive.ogg","isSeamless":true,"format":"ogg"},{"id":"woodpecker","name":"啄木鸟","nameEn":"Woodpecker","nameZhTW":"啄木鳥","nameKo":"딱따구리","nameJa":"キツツキ","nameRu":"Дятел","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/woodpecker.ogg","isSeamless":true,"format":"ogg"},{"id":"chickens","name":"鸡","nameEn":"Chickens","nameZhTW":"雞","nameKo":"닭","nameJa":"ニワトリ","nameRu":"Куры","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/chickens.ogg","isSeamless":true,"format":"ogg"},{"id":"cows","name":"牛","nameEn":"Cows","nameZhTW":"牛","nameKo":"소","nameJa":"牛","nameRu":"Коровы","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/cows.ogg","isSeamless":true,"format":"ogg"},{"id":"sheep","name":"羊","nameEn":"Sheep","nameZhTW":"羊","nameKo":"양","nameJa":"羊","nameRu":"Овцы","category":"animals","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/animals/sheep.ogg","isSeamless":true,"format":"ogg"},{"id":"highway","name":"高速公路","nameEn":"Highway","nameZhTW":"高速公路","nameKo":"고속도로","nameJa":"高速道路","nameRu":"Автострада","category":"urban","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/urban/highway.ogg","isSeamless":true,"format":"ogg"},{"id":"road","name":"道路","nameEn":"Road","nameZhTW":"道路","nameKo":"도로","nameJa":"道路","nameRu":"Дорога","category":"urban","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/urban/road.ogg","isSeamless":true,"format":"ogg"},{"id":"ambulance-siren","name":"救护车警笛","nameEn":"Ambulance Siren","nameZhTW":"救護車警笛","nameKo":"구급차 사이렌","nameJa":"救急車のサイレン","nameRu":"Сирена скорой помощи","category":"urban","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/urban/ambulance-siren.ogg","isSeamless":true,"format":"ogg"},{"id":"busy-street","name":"繁忙街道","nameEn":"Busy Street","nameZhTW":"繁忙街道","nameKo":"번화가","nameJa":"賑やかな通り","nameRu":"Оживлённая улица","category":"urban","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/urban/busy-street.ogg","isSeamless":true,"format":"ogg"},{"id":"crowd","name":"人群","nameEn":"Crowd","nameZhTW":"人群","nameKo":"군중","nameJa":"人混み","nameRu":"Толпа","category":"urban","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/urban/crowd.ogg","isSeamless":true,"format":"ogg"},{"id":"traffic","name":"交通","nameEn":"Traffic","nameZhTW":"交通","nameKo":"교통 소음","nameJa":"交通騒音","nameRu":"Трафик","category":"urban","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/urban/traffic.ogg","isSeamless":true,"format":"ogg"},{"id":"fireworks","name":"烟花","nameEn":"Fireworks","nameZhTW":"煙花","nameKo":"불꽃놀이","nameJa":"花火","nameRu":"Фейерверк","category":"urban","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/urban/fireworks.ogg","isSeamless":true,"format":"ogg"},{"id":"cafe","name":"咖啡厅","nameEn":"Cafe","nameZhTW":"咖啡廳","nameKo":"카페","nameJa":"カフェ","nameRu":"Кафе","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/cafe.ogg","isSeamless":true,"format":"ogg"},{"id":"airport","name":"机场","nameEn":"Airport","nameZhTW":"機場","nameKo":"공항","nameJa":"空港","nameRu":"Аэропорт","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/airport.ogg","isSeamless":true,"format":"ogg"},{"id":"church","name":"教堂","nameEn":"Church","nameZhTW":"教堂","nameKo":"교회","nameJa":"教会","nameRu":"Церковь","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/church.ogg","isSeamless":true,"format":"ogg"},{"id":"temple","name":"寺庙","nameEn":"Temple","nameZhTW":"寺廟","nameKo":"사찰","nameJa":"寺院","nameRu":"Храм","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/temple.ogg","isSeamless":true,"format":"ogg"},{"id":"construction-site","name":"建筑工地","nameEn":"Construction Site","nameZhTW":"建築工地","nameKo":"공사 현장","nameJa":"建設現場","nameRu":"Стройка","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/construction-site.ogg","isSeamless":true,"format":"ogg"},{"id":"underwater","name":"水下","nameEn":"Underwater","nameZhTW":"水下","nameKo":"수중","nameJa":"水中","nameRu":"Под водой","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/underwater.ogg","isSeamless":true,"format":"ogg"},{"id":"crowded-bar","name":"拥挤酒吧","nameEn":"Crowded Bar","nameZhTW":"擁擠酒吧","nameKo":"붐비는 술집","nameJa":"混雑したバー","nameRu":"Шумный бар","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/crowded-bar.ogg","isSeamless":true,"format":"ogg"},{"id":"night-village","name":"夜晚村庄","nameEn":"Night Village","nameZhTW":"夜晚村莊","nameKo":"밤의 마을","nameJa":"夜の村","nameRu":"Ночная деревня","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/night-village.ogg","isSeamless":true,"format":"ogg"},{"id":"subway-station","name":"地铁站","nameEn":"Subway Station","nameZhTW":"地鐵站","nameKo":"지하철역","nameJa":"地下鉄駅","nameRu":"Станция метро","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/subway-station.ogg","isSeamless":true,"format":"ogg"},{"id":"office","name":"办公室","nameEn":"Office","nameZhTW":"辦公室","nameKo":"사무실","nameJa":"オフィス","nameRu":"Офис","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/office.ogg","isSeamless":true,"format":"ogg"},{"id":"supermarket","name":"超市","nameEn":"Supermarket","nameZhTW":"超市","nameKo":"슈퍼마켓","nameJa":"スーパーマーケット","nameRu":"Супермаркет","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/supermarket.ogg","isSeamless":true,"format":"ogg"},{"id":"carousel","name":"旋转木马","nameEn":"Carousel","nameZhTW":"旋轉木馬","nameKo":"회전목마","nameJa":"メリーゴーラウンド","nameRu":"Карусель","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/carousel.ogg","isSeamless":true,"format":"ogg"},{"id":"laboratory","name":"实验室","nameEn":"Laboratory","nameZhTW":"實驗室","nameKo":"연구실","nameJa":"実験室","nameRu":"Лаборатория","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/laboratory.ogg","isSeamless":true,"format":"ogg"},{"id":"laundry-room","name":"洗衣房","nameEn":"Laundry Room","nameZhTW":"洗衣房","nameKo":"세탁실","nameJa":"ランドリールーム","nameRu":"Прачечная","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/laundry-room.ogg","isSeamless":true,"format":"ogg"},{"id":"restaurant","name":"餐厅","nameEn":"Restaurant","nameZhTW":"餐廳","nameKo":"레스토랑","nameJa":"レストラン","nameRu":"Ресторан","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/restaurant.ogg","isSeamless":true,"format":"ogg"},{"id":"library","name":"图书馆","nameEn":"Library","nameZhTW":"圖書館","nameKo":"도서관","nameJa":"図書館","nameRu":"Библиотека","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/library.ogg","isSeamless":true,"format":"ogg"},{"id":"kitchen","name":"厨房烹饪","nameEn":"Kitchen Cooking","nameZhTW":"廚房烹飪","nameKo":"주방","nameJa":"キッチン","nameRu":"Кухня","category":"places","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/places/kitchen.ogg","isSeamless":true,"format":"ogg"},{"id":"train","name":"火车","nameEn":"Train","nameZhTW":"火車","nameKo":"기차","nameJa":"電車","nameRu":"Поезд","category":"transport","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/transport/train.ogg","isSeamless":true,"format":"ogg"},{"id":"inside-a-train","name":"火车内","nameEn":"Inside a Train","nameZhTW":"火車內","nameKo":"기차 안","nameJa":"電車内","nameRu":"Внутри поезда","category":"transport","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/transport/inside-a-train.ogg","isSeamless":true,"format":"ogg"},{"id":"airplane","name":"飞机","nameEn":"Airplane","nameZhTW":"飛機","nameKo":"비행기","nameJa":"飛行機","nameRu":"Самолёт","category":"transport","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/transport/airplane.ogg","isSeamless":true,"format":"ogg"},{"id":"submarine","name":"潜艇","nameEn":"Submarine","nameZhTW":"潛艇","nameKo":"잠수함","nameJa":"潜水艦","nameRu":"Подводная лодка","category":"transport","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/transport/submarine.ogg","isSeamless":true,"format":"ogg"},{"id":"sailboat","name":"帆船","nameEn":"Sailboat","nameZhTW":"帆船","nameKo":"범선","nameJa":"ヨット","nameRu":"Парусник","category":"transport","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/transport/sailboat.ogg","isSeamless":true,"format":"ogg"},{"id":"rowing-boat","name":"划船","nameEn":"Rowing Boat","nameZhTW":"划船","nameKo":"노젓기","nameJa":"手漕ぎボート","nameRu":"Гребная лодка","category":"transport","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/transport/rowing-boat.ogg","isSeamless":true,"format":"ogg"},{"id":"keyboard","name":"键盘","nameEn":"Keyboard","nameZhTW":"鍵盤","nameKo":"키보드","nameJa":"キーボード","nameRu":"Клавиатура","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/keyboard.ogg","isSeamless":true,"format":"ogg"},{"id":"typewriter","name":"打字机","nameEn":"Typewriter","nameZhTW":"打字機","nameKo":"타자기","nameJa":"タイプライター","nameRu":"Печатная машинка","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/typewriter.ogg","isSeamless":true,"format":"ogg"},{"id":"paper","name":"纸张","nameEn":"Paper","nameZhTW":"紙張","nameKo":"종이","nameJa":"紙","nameRu":"Бумага","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/paper.ogg","isSeamless":true,"format":"ogg"},{"id":"clock","name":"时钟","nameEn":"Clock","nameZhTW":"時鐘","nameKo":"시계","nameJa":"時計","nameRu":"Часы","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/clock.ogg","isSeamless":true,"format":"ogg"},{"id":"wind-chimes","name":"风铃","nameEn":"Wind Chimes","nameZhTW":"風鈴","nameKo":"풍경","nameJa":"風鈴","nameRu":"Колокольчики ветра","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/wind-chimes.ogg","isSeamless":true,"format":"ogg"},{"id":"singing-bowl","name":"颂钵","nameEn":"Singing Bowl","nameZhTW":"頌缽","nameKo":"명상 그릇","nameJa":"シンギングボウル","nameRu":"Поющая чаша","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/singing-bowl.ogg","isSeamless":true,"format":"ogg"},{"id":"ceiling-fan","name":"吊扇","nameEn":"Ceiling Fan","nameZhTW":"吊扇","nameKo":"천장 선풍기","nameJa":"シーリングファン","nameRu":"Потолочный вентилятор","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/ceiling-fan.ogg","isSeamless":true,"format":"ogg"},{"id":"dryer","name":"烘干机","nameEn":"Dryer","nameZhTW":"烘乾機","nameKo":"건조기","nameJa":"乾燥機","nameRu":"Сушилка","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/dryer.ogg","isSeamless":true,"format":"ogg"},{"id":"slide-projector","name":"幻灯机","nameEn":"Slide Projector","nameZhTW":"幻燈機","nameKo":"슬라이드 프로젝터","nameJa":"スライドプロジェクター","nameRu":"Слайд-проектор","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/slide-projector.ogg","isSeamless":true,"format":"ogg"},{"id":"boiling-water","name":"沸水","nameEn":"Boiling Water","nameZhTW":"沸水","nameKo":"끓는 물","nameJa":"沸騰したお湯","nameRu":"Кипящая вода","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/boiling-water.ogg","isSeamless":true,"format":"ogg"},{"id":"bubbles","name":"气泡","nameEn":"Bubbles","nameZhTW":"氣泡","nameKo":"거품","nameJa":"泡","nameRu":"Пузырьки","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/bubbles.ogg","isSeamless":true,"format":"ogg"},{"id":"tuning-radio","name":"调频收音机","nameEn":"Tuning Radio","nameZhTW":"調頻收音機","nameKo":"라디오 채널 돌리기","nameJa":"ラジオチューニング","nameRu":"Настройка радио","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/tuning-radio.ogg","isSeamless":true,"format":"ogg"},{"id":"morse-code","name":"摩尔斯电码","nameEn":"Morse Code","nameZhTW":"摩爾斯電碼","nameKo":"모스 부호","nameJa":"モールス信号","nameRu":"Азбука Морзе","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/morse-code.ogg","isSeamless":true,"format":"ogg"},{"id":"washing-machine","name":"洗衣机","nameEn":"Washing Machine","nameZhTW":"洗衣機","nameKo":"세탁기","nameJa":"洗濯機","nameRu":"Стиральная машина","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/washing-machine.ogg","isSeamless":true,"format":"ogg"},{"id":"vinyl-effect","name":"黑胶效果","nameEn":"Vinyl Effect","nameZhTW":"黑膠效果","nameKo":"바이닐 효과","nameJa":"レコード効果","nameRu":"Эффект винила","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/vinyl-effect.ogg","isSeamless":true,"format":"ogg"},{"id":"windshield-wipers","name":"雨刷","nameEn":"Windshield Wipers","nameZhTW":"雨刷","nameKo":"와이퍼","nameJa":"ワイパー","nameRu":"Стеклоочистители","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/windshield-wipers.ogg","isSeamless":true,"format":"ogg"},{"id":"ear-cleaning-1","name":"掏耳朵1","nameEn":"Ear Cleaning 1","nameZhTW":"掏耳朵1","nameKo":"귀 청소 1","nameJa":"耳かき1","nameRu":"Чистка ушей 1","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/ear-cleaning-1.ogg","isSeamless":true,"format":"ogg"},{"id":"ear-cleaning-2","name":"掏耳朵2","nameEn":"Ear Cleaning 2","nameZhTW":"掏耳朵2","nameKo":"귀 청소 2","nameJa":"耳かき2","nameRu":"Чистка ушей 2","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/ear-cleaning-2.ogg","isSeamless":true,"format":"ogg"},{"id":"guitar","name":"吉他","nameEn":"Guitar","nameZhTW":"吉他","nameKo":"기타","nameJa":"ギター","nameRu":"Гитара","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/guitar.ogg","isSeamless":true,"format":"ogg"},{"id":"light-piano","name":"轻钢琴","nameEn":"Light Piano","nameZhTW":"輕鋼琴","nameKo":"가벼운 피아노","nameJa":"軽やかなピアノ","nameRu":"Лёгкое пианино","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/light-piano.ogg","isSeamless":true,"format":"ogg"},{"id":"guzheng","name":"古筝","nameEn":"Guzheng","nameZhTW":"古箏","nameKo":"구정","nameJa":"古筝","nameRu":"Гучжэн","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/guzheng.ogg","isSeamless":true,"format":"ogg"},{"id":"elegant-piano","name":"优雅钢琴","nameEn":"Elegant Piano","nameZhTW":"優雅鋼琴","nameKo":"우아한 피아노","nameJa":"エレガントピアノ","nameRu":"Элегантное пианино","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/优雅钢琴.ogg","isSeamless":true,"format":"ogg"},{"id":"meditation-harp","name":"冥想琴音","nameEn":"Meditation Harp","nameZhTW":"冥想琴音","nameKo":"명상 하프","nameJa":"瞑想ハープ","nameRu":"Медитативная арфа","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/冥想琴音.ogg","isSeamless":true,"format":"ogg"},{"id":"daydream","name":"发呆音","nameEn":"Daydream","nameZhTW":"發呆音","nameKo":"멍때리기","nameJa":"ぼんやり","nameRu":"Мечтание","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/发呆音.ogg","isSeamless":true,"format":"ogg"},{"id":"fan","name":"风扇","nameEn":"Fan","nameZhTW":"風扇","nameKo":"선풍기","nameJa":"扇風機","nameRu":"Вентилятор","category":"things","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/things/风扇.ogg","isSeamless":true,"format":"ogg"},{"id":"white-noise","name":"白噪音","nameEn":"White Noise","nameZhTW":"白噪音","nameKo":"백색 소음","nameJa":"ホワイトノイズ","nameRu":"Белый шум","category":"noise","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/noise/white-noise.ogg","isSeamless":true,"format":"ogg"},{"id":"pink-noise","name":"粉红噪音","nameEn":"Pink Noise","nameZhTW":"粉紅噪音","nameKo":"핑크 노이즈","nameJa":"ピンクノイズ","nameRu":"Розовый шум","category":"noise","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/noise/pink-noise.ogg","isSeamless":true,"format":"ogg"},{"id":"brown-noise","name":"棕噪音","nameEn":"Brown Noise","nameZhTW":"棕噪音","nameKo":"브라운 노이즈","nameJa":"ブラウンノイズ","nameRu":"Коричневый шум","category":"noise","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/noise/brown-noise.ogg","isSeamless":true,"format":"ogg"},{"id":"study","name":"学习","nameEn":"Study","nameZhTW":"學習","nameKo":"공부","nameJa":"勉強","nameRu":"Учёба","category":"noise","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/noise/study.ogg","isSeamless":true,"format":"ogg"},{"id":"eating-chips","name":"吃薯片","nameEn":"Eating Chips","nameZhTW":"吃薯片","nameKo":"과자 먹는 소리","nameJa":"ポテトチップスを食べる","nameRu":"Хруст чипсов","category":"noise","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/noise/eating-chips.ogg","isSeamless":true,"format":"ogg"},{"id":"piano","name":"钢琴声","nameEn":"Piano","nameZhTW":"鋼琴聲","nameKo":"피아노","nameJa":"ピアノ","nameRu":"Пианино","category":"noise","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/noise/piano.ogg","isSeamless":true,"format":"ogg"},{"id":"summer-night-insects","name":"夏夜虫鸣","nameEn":"Summer Night Insects","nameZhTW":"夏夜蟲鳴","nameKo":"여름밤 곤충소리","nameJa":"夏の夜の虫の声","nameRu":"Летние ночные насекомые","category":"nature","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/nature/夏夜虫鸣.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-awning","name":"雨棚","nameEn":"Rain on Awning","nameZhTW":"雨棚","nameKo":"비가림 빗소리","nameJa":"雨除けの雨","nameRu":"Дождь по навесу","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/雨棚.ogg","isSeamless":true,"format":"ogg"},{"id":"light-rain-with-wind","name":"小雨加风","nameEn":"Light Rain with Wind","nameZhTW":"小雨加風","nameKo":"바람 섞인 약한 비","nameJa":"風を伴う小雨","nameRu":"Мелкий дождь с ветром","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/小雨加风.ogg","isSeamless":true,"format":"ogg"},{"id":"streaming-rain","name":"尖尖流雨","nameEn":"Streaming Rain","nameZhTW":"尖尖流雨","nameKo":"가느다란 빗줄기","nameJa":"細い雨筋","nameRu":"Струящийся дождь","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/尖尖流雨.ogg","isSeamless":true,"format":"ogg"},{"id":"bright-rain","name":"敞亮雨","nameEn":"Bright Rain","nameZhTW":"敞亮雨","nameKo":"시원한 빗소리","nameJa":"開放的な雨","nameRu":"Просторный дождь","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/敞亮雨.ogg","isSeamless":true,"format":"ogg"},{"id":"rain-on-ceiling","name":"顶棚雨","nameEn":"Rain on Ceiling","nameZhTW":"頂棚雨","nameKo":"천장 빗소리","nameJa":"天井に当たる雨","nameRu":"Дождь по потолку","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/顶棚雨.ogg","isSeamless":true,"format":"ogg"},{"id":"dripping-eaves","name":"屋檐落雨","nameEn":"Dripping Eaves","nameZhTW":"屋簷落雨","nameKo":"처마 물방울","nameJa":"軒先の滴る雨","nameRu":"Капель с карниза","category":"rain","remoteUrl":"https://raw.githubusercontent.com/Tosencen/XMSLEEP/main/audio/rain/屋檐落雨.ogg","isSeamless":true,"format":"ogg"}]};
+
+const LANG = {
+  zh: {title:'XMSLEEP — 在线白噪音播放',desc:'在浏览器中直接播放 XMSLEEP 的 113 款自然声音，自由混音',logoSub:'在线白噪音',playingLabel:'播放',playingList:'正在播放',stopAll:'停止',timer:'定时',timerOff:'未设置',minUnit:'分钟',timerNone:'不设置',timerCustom:'自定义分钟',safari:'当前浏览器不支持 Ogg 音频，建议使用 Chrome / Edge / Firefox 打开以获得最佳体验。',footerText:'XMSLEEP 在线白噪音 · 113 种自然声音自由混音 · 无缝循环 · 完全免费',langZh:'简体中文',langTw:'繁體中文',langEn:'English',langJa:'日本語',langKo:'한국어',langRu:'Русский'},
+  tw: {title:'XMSLEEP — 線上白噪音播放',desc:'在瀏覽器中直接播放 XMSLEEP 的 113 款自然聲音，自由混音',logoSub:'線上白噪音',playingLabel:'播放',playingList:'正在播放',stopAll:'停止',timer:'定時',timerOff:'未設定',minUnit:'分鐘',timerNone:'不設定',timerCustom:'自訂分鐘',safari:'目前瀏覽器不支援 Ogg 音訊，建議使用 Chrome / Edge / Firefox 開啟以獲得最佳體驗。',footerText:'XMSLEEP 線上白噪音 · 113 種自然聲音自由混音 · 無縫循環 · 完全免費',langZh:'简体中文',langTw:'繁體中文',langEn:'English',langJa:'日本語',langKo:'한국어',langRu:'Русский'},
+  en: {title:'XMSLEEP — Online White Noise',desc:'Play all 113 XMSLEEP ambient sounds right in your browser, mix them freely',logoSub:'Online White Noise',playingLabel:'playing',playingList:'Now Playing',stopAll:'Stop',timer:'Timer',timerOff:'Not set',minUnit:'min',timerNone:'Off',timerCustom:'Custom minutes',safari:'Your browser does not support Ogg audio. Use Chrome, Edge or Firefox for the best experience.',footerText:'XMSLEEP Online White Noise · 113 ambient sounds, mix freely · Seamless looping · Free forever',langZh:'简体中文',langTw:'繁體中文',langEn:'English',langJa:'日本語',langKo:'한국어',langRu:'Русский'},
+  ja: {title:'XMSLEEP — オンライン環境音',desc:'XMSLEEP の113の自然音をブラウザで直接再生、自由にミックス',logoSub:'オンライン環境音',playingLabel:'再生中',playingList:'再生中',stopAll:'停止',timer:'タイマー',timerOff:'未設定',minUnit:'分',timerNone:'解除',timerCustom:'分を指定',safari:'このブラウザはOggオーディオに対応していません。Chrome / Edge / Firefoxをご利用ください。',footerText:'XMSLEEP オンライン環境音 · 113種の自然音を自由にミックス · シームレス再生 · 完全無料',langZh:'简体中文',langTw:'繁體中文',langEn:'English',langJa:'日本語',langKo:'한국어',langRu:'Русский'},
+  ko: {title:'XMSLEEP — 온라인 화이트노이즈',desc:'XMSLEEP의 113가지 자연 소리를 브라우저에서 바로 재생, 자유롭게 믹싱',logoSub:'온라인 화이트노이즈',playingLabel:'재생 중',playingList:'재생 중',stopAll:'중지',timer:'타이머',timerOff:'설정 안 됨',minUnit:'분',timerNone:'해제',timerCustom:'분 직접 입력',safari:'이 브라우저는 Ogg 오디오를 지원하지 않습니다. Chrome / Edge / Firefox를 사용해 주세요.',footerText:'XMSLEEP 온라인 화이트노이즈 · 113가지 자연 소리 자유 믹싱 · 끊김 없는 반복 · 완전 무료',langZh:'简体中文',langTw:'繁體中文',langEn:'English',langJa:'日本語',langKo:'한국어',langRu:'Русский'},
+  ru: {title:'XMSLEEP — Белый шум онлайн',desc:'Слушайте все 113 звуков XMSLEEP прямо в браузере и смешивайте их',logoSub:'Белый шум онлайн',playingLabel:'играет',playingList:'Сейчас играет',stopAll:'Стоп',timer:'Таймер',timerOff:'Не задан',minUnit:'мин',timerNone:'Выкл',timerCustom:'Свои минуты',safari:'Ваш браузер не поддерживает аудио Ogg. Используйте Chrome, Edge или Firefox.',footerText:'XMSLEEP Белый шум онлайн · 113 звуков, свободное смешивание · Бесшовный цикл · Полностью бесплатно',langZh:'简体中文',langTw:'繁體中文',langEn:'English',langJa:'日本語',langKo:'한국어',langRu:'Русский'},
+};
+const LANG_KEY = 'xmsleep_web_lang';
+const HTML_LANG_MAP = {zh:'zh-CN',tw:'zh-TW',en:'en',ko:'ko',ru:'ru',ja:'ja'};
+const LANG_LABEL = {zh:'简',tw:'繁',en:'EN',ja:'日',ko:'한',ru:'RU'};
+
+/* MD3 Material Symbols 声音图标 */
+const SOUND_ICONS = {
+  'river':'water','waves':'tsunami','campfire':'local_fire_department','wind':'air','howling-wind':'cyclone',
+  'wind-in-trees':'eco','waterfall':'waterfall_chart','walk-in-snow':'ac_unit','walk-on-leaves':'dry',
+  'walk-on-gravel':'terrain','droplets':'water_drop','jungle':'park','field':'landscape','lake':'pool',
+  'summer-night-insects':'nights_stay',
+  'light-rain':'grain','heavy-rain':'thunderstorm','rain-on-car-roof':'directions_car','rain-on-umbrella':'umbrella',
+  'rain-on-tent':'camping','rain-on-leaves':'local_florist','rain-on-raincoat':'checkroom','rain-on-windowsill':'window',
+  'rain-on-wooden-house':'home','thunderstorm':'storm','rain-while-driving':'commute','rain-on-empty-street':'streetview',
+  'drizzle':'blur_on','rain-on-eaves':'roofing','heavy-rain-on-glass':'invert_colors','rain-on-awning':'beach_access',
+  'light-rain-with-wind':'tornado','streaming-rain':'shower','bright-rain':'partly_cloudy_day',
+  'rain-on-ceiling':'apartment','dripping-eaves':'water_damage',
+  'birds':'raven','seagulls':'flight_takeoff','crickets':'bug_report','wolf':'dark_mode','owl':'visibility',
+  'frog':'pets','dog-barking':'campaign','horse-gallop':'sports_motorsports','cat-purring':'cruelty_free',
+  'crows':'flutter_dash','whale':'sailing','beehive':'hive','woodpecker':'handyman','chickens':'egg',
+  'cows':'grass','sheep':'cloud',
+  'highway':'route','road':'alt_route','ambulance-siren':'emergency','busy-street':'traffic','crowd':'groups',
+  'traffic':'merge','fireworks':'celebration',
+  'cafe':'coffee','airport':'connecting_airports','church':'church','temple':'temple_buddhist',
+  'construction-site':'construction','underwater':'opacity','crowded-bar':'local_bar',
+  'night-village':'bedtime','subway-station':'subway','office':'business_center','supermarket':'storefront',
+  'carousel':'toys','laboratory':'science','laundry-room':'iron','restaurant':'restaurant',
+  'library':'local_library','kitchen':'countertops',
+  'train':'train','inside-a-train':'railway_alert','airplane':'flight','submarine':'scuba_diving',
+  'sailboat':'directions_boat','rowing-boat':'rowing',
+  'keyboard':'keyboard','typewriter':'print','paper':'description','clock':'schedule','wind-chimes':'music_note',
+  'singing-bowl':'self_improvement','ceiling-fan':'cycle','dryer':'loop','slide-projector':'slideshow',
+  'boiling-water':'whatshot','bubbles':'bubble_chart','tuning-radio':'radio','morse-code':'sos',
+  'washing-machine':'local_laundry_service','vinyl-effect':'album','windshield-wipers':'cleaning_services',
+  'ear-cleaning-1':'hearing','ear-cleaning-2':'hearing','guitar':'music_video','light-piano':'queue_music',
+  'guzheng':'library_music','elegant-piano':'piano','meditation-harp':'spa','daydream':'weekend','fan':'mode_fan',
+  'white-noise':'graphic_eq','pink-noise':'equalizer','brown-noise':'bar_chart','study':'menu_book',
+  'eating-chips':'fastfood','piano':'piano',
+};
+const CAT_ICONS = {nature:"forest",rain:"water_drop",animals:"pets",urban:"city",places:"apartment",transport:"directions_car",things:"toys",noise:"graphic_eq"};
+
+let DATA = null;
+let currentLang = 'zh';
+const playing = new Map();
+
+/* ---------- 分类 ---------- */
+function localName(s){
+  const m = {zh:'name',tw:'nameZhTW',en:'nameEn',ja:'nameJa',ko:'nameKo',ru:'nameRu'};
+  return s[m[currentLang]] || s.nameEn || s.name;
+}
+
+/* ---------- 分类区块渲染 ---------- */
+function cardHtml(s){
+  const icon = SOUND_ICONS[s.id] || CAT_ICONS[s.category] || 'music_note';
+  const isPlay = playing.has(s.id);
+  return `<div class="card ${isPlay?'playing':''}" data-id="${s.id}" title="${localName(s)}">
+    <div class="card-icon"><span class="material-symbols-outlined">${icon}</span></div>
+    <div class="card-name">${localName(s)}</div>
+    <div class="eq"><span></span><span></span><span></span></div>
+  </div>`;
+}
+function renderSections(){
+  const box = document.getElementById('sections');
+  box.innerHTML = DATA.categories.map(c=>{
+    const nm = {zh:c.name,tw:c.nameZhTW,en:c.nameEn,ja:c.nameJa,ko:c.nameKo,ru:c.nameRu}[currentLang] || c.nameEn || c.name;
+    const list = DATA.sounds.filter(s=>s.category===c.id);
+    return `<section class="section" id="cat-${c.id}">
+      <h2 class="section-title">${nm}</h2>
+      <div class="grid">${list.map(cardHtml).join('')}</div>
+    </section>`;
+  }).join('');
+  box.querySelectorAll('.card').forEach(card=>{
+    card.addEventListener('click', ()=>toggleSound(card.dataset.id, card));
+    card.querySelector('.eq').addEventListener('click', e=>{
+      e.stopPropagation();
+      const item = playing.get(card.dataset.id);
+      if(!item) return;
+      const existing = card.querySelector('.vol-pop');
+      if(existing){ existing.remove(); return; }
+      closeVolPops();
+      const pop = document.createElement('div');
+      pop.className = 'vol-pop';
+      const v = Math.round(item.gain.gain.value*100);
+      pop.innerHTML = `<input class="pl-vol" type="range" min="0" max="100" value="${v}"><span class="vol-pop-val">${v}%</span>`;
+      pop.addEventListener('click', e=>e.stopPropagation());
+      // 鼠标悬停在弹窗上时不消失，移出后重新计时
+      pop.addEventListener('mouseenter', ()=>clearTimeout(volPopTimer));
+      pop.addEventListener('mouseleave', ()=>arm());
+      const arm = ()=>{
+        clearTimeout(volPopTimer);
+        volPopTimer = setTimeout(()=>closeVolPops(), 1200);
+      };
+      pop.querySelector('input').addEventListener('input', e=>{
+        item.gain.gain.value = e.target.value/100;
+        pop.querySelector('.vol-pop-val').textContent = e.target.value + '%';
+        const pl = document.querySelector(`#playingList .pl-item[data-id="${card.dataset.id}"] input`);
+        if(pl) pl.value = e.target.value;
+        arm();
+      });
+      card.appendChild(pop);
+      // 左侧卡片弹窗右对齐会溢出屏幕，改为从左边缘展开
+      const pr = pop.getBoundingClientRect();
+      if(pr.left < 8){ pop.style.left = '10px'; pop.style.right = 'auto'; }
+      arm();
+    });
+  });
+}
+let volPopTimer = null;
+function closeVolPops(){
+  clearTimeout(volPopTimer);
+  document.querySelectorAll('.vol-pop').forEach(p=>p.remove());
+}
+
+/* ---------- 音频缓存（预加载 + LRU） ---------- */
+const bufCache = new Map();   // id -> ArrayBuffer（下载缓存）
+const decCache = new Map();   // id -> AudioBuffer（解码缓存）
+const BUF_LIMIT = 12, DEC_LIMIT = 6;
+function cacheSet(map, limit, id, val){
+  map.delete(id);
+  map.set(id, val);
+  if(map.size > limit) map.delete(map.keys().next().value);  // 淘汰最旧的
+}
+async function fetchBuffer(id){
+  if(bufCache.has(id)) return bufCache.get(id);
+  const s = DATA.sounds.find(x=>x.id===id);
+  if(!s) return null;
+  const res = await fetch(s.remoteUrl);
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const ab = await res.arrayBuffer();
+  cacheSet(bufCache, BUF_LIMIT, id, ab);
+  return ab;
+}
+async function getDecoded(id){
+  if(decCache.has(id)) return decCache.get(id);
+  const ctx = ensureCtx();
+  const buf = await fetchBuffer(id);
+  const ab = await ctx.decodeAudioData(buf);
+  cacheSet(decCache, DEC_LIMIT, id, ab);
+  return ab;
+}
+/* 首屏预取：页面加载后静默下载前 8 个声音（只下载不解码） */
+async function prefetchFirstScreen(){
+  await Promise.allSettled(DATA.sounds.slice(0, 8).map(s=>fetchBuffer(s.id)));
+}
+
+/* ---------- 播放控制（Web Audio 无缝循环） ---------- */
+let audioCtx = null;
+function ensureCtx(){
+  if(!audioCtx) audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  if(audioCtx.state==='suspended') audioCtx.resume();
+  return audioCtx;
+}
+const loadingIds = new Set();
+async function toggleSound(id, card){
+  closeVolPops();
+  if(playing.has(id)){ stopOne(id); return; }
+  if(loadingIds.has(id)) return;   // 正在下载/解码，忽略重复点击
+  const s = DATA.sounds.find(x=>x.id===id);
+  if(!s) return;
+  card.classList.add('loading');
+  loadingIds.add(id);
+  try{
+    const ctx = ensureCtx();
+    const ab = await getDecoded(id);   // 命中解码/下载缓存时秒开
+    if(!loadingIds.has(id)) return;  // 期间被取消
+    const src = ctx.createBufferSource();
+    src.buffer = ab;
+    src.loop = true;                 // 采样级无缝循环
+    const gain = ctx.createGain();
+    gain.gain.value = 0.8;
+    src.connect(gain).connect(ctx.destination);
+    src.start();
+    playing.set(id, {src, gain, el:card});
+    card.classList.remove('loading');
+    card.classList.add('playing');
+    updateCount();
+  }catch(e){
+    card.classList.remove('loading');
+    playing.delete(id);
+    updateCount();
+  }finally{
+    loadingIds.delete(id);
+  }
+}
+
+/* 停止单个声音 */
+function stopOne(id){
+  closeVolPops();
+  const item = playing.get(id);
+  if(item){
+    try{ item.src.stop(); }catch(_){}
+    try{ item.src.disconnect(); }catch(_){}
+    try{ item.gain.disconnect(); }catch(_){}
+    playing.delete(id);
+  }
+  const card = document.querySelector(`.card[data-id="${id}"]`);
+  if(card) card.classList.remove('playing','loading');
+  updateCount();
+  if(playing.size===0) closeDropdown('playingMenu');
+}
+
+function stopAll(){
+  closeVolPops();
+  playing.forEach((item)=>{
+    try{ item.src.stop(); }catch(_){}
+    try{ item.src.disconnect(); }catch(_){}
+    try{ item.gain.disconnect(); }catch(_){}
+  });
+  playing.clear();
+  document.querySelectorAll('.card.playing,.card.loading').forEach(c=>c.classList.remove('playing','loading'));
+  updateCount();
+  closeDropdown('playingMenu');
+}
+
+/* 更新计数 + 播放列表 + 停止键状态 */
+function updateCount(){
+  const n = playing.size;
+  document.getElementById('playingCount').textContent = n;
+  document.getElementById('stopAllBtn').disabled = n === 0;
+  document.getElementById('countBtn').classList.toggle('has', n>0);
+  renderPlayingList();
+}
+function renderPlayingList(){
+  const box = document.getElementById('playingList');
+  if(playing.size===0){ box.innerHTML=''; return; }
+  box.innerHTML = [...playing.keys()].map(id=>{
+    const s = DATA.sounds.find(x=>x.id===id);
+    const vol = Math.round(playing.get(id).gain.gain.value*100);
+    return `<div class="pl-item" data-id="${id}">
+      <button class="pl-name" title="${localName(s)}">${localName(s)}</button>
+      <input class="pl-vol" type="range" min="0" max="100" value="${vol}" data-vol="${id}">
+      <span class="material-symbols-outlined pl-x">stop_circle</span>
+    </div>`;
+  }).join('');
+  box.querySelectorAll('.pl-item').forEach(it=>{
+    const id = it.dataset.id;
+    it.querySelector('.pl-name').addEventListener('click', ()=>stopOne(id));
+    it.querySelector('.pl-x').addEventListener('click', ()=>stopOne(id));
+    const vol = it.querySelector('input[data-vol]');
+    vol.addEventListener('click', e=>e.stopPropagation());
+    vol.addEventListener('input', e=>{
+      const a = playing.get(e.target.dataset.vol);
+      if(a) a.gain.gain.value = e.target.value/100;
+    });
+  });
+}
+
+/* ---------- 定时 ---------- */
+let timerEnd = 0, timerId = null;
+function timerText(){
+  const remain = Math.max(0, Math.round((timerEnd-Date.now())/1000));
+  return `${Math.floor(remain/60)}:${String(remain%60).padStart(2,'0')}`;
+}
+function setTimer(min){
+  clearInterval(timerId);
+  timerEnd = min>0 ? Date.now()+min*60000 : 0;
+  const btn = document.getElementById('timerBtn');
+  const info = document.getElementById('timerInfo');
+  const label = document.getElementById('timerLabel');
+  if(min>0){
+    btn.classList.add('active');
+    const tick = ()=>{
+      const t = timerText();
+      info.textContent = t;
+      label.textContent = t;
+      if(timerEnd-Date.now()<=0){ stopAll(); setTimer(0); }
+    };
+    tick();
+    timerId = setInterval(tick, 500);
+  }else{
+    btn.classList.remove('active');
+    info.textContent = LANG[currentLang].timerOff;
+    label.textContent = LANG[currentLang].timer;
+  }
+  closeDropdown('timerMenu');
+}
+
+/* ---------- 下拉 ---------- */
+function closeDropdown(id){
+  document.getElementById(id).classList.remove('open');
+}
+document.getElementById('timerBtn').addEventListener('click', e=>{
+  e.stopPropagation();
+  document.getElementById('timerMenu').classList.toggle('open');
+  document.getElementById('langMenu').classList.remove('open');
+  document.getElementById('playingMenu').classList.remove('open');
+});
+document.getElementById('langBtn').addEventListener('click', e=>{
+  e.stopPropagation();
+  document.getElementById('langMenu').classList.toggle('open');
+  document.getElementById('timerMenu').classList.remove('open');
+  document.getElementById('playingMenu').classList.remove('open');
+});
+document.getElementById('countBtn').addEventListener('click', e=>{
+  e.stopPropagation();
+  if(playing.size===0) return;
+  document.getElementById('playingMenu').classList.toggle('open');
+  document.getElementById('timerMenu').classList.remove('open');
+  document.getElementById('langMenu').classList.remove('open');
+});
+document.addEventListener('click', ()=>{
+  closeDropdown('timerMenu'); closeDropdown('langMenu'); closeDropdown('playingMenu');
+});
+document.getElementById('timerMenu').querySelectorAll('button[data-min]').forEach(b=>{
+  b.addEventListener('click', ()=>setTimer(parseInt(b.dataset.min)));
+});
+document.getElementById('timerCustomBtn').addEventListener('click', e=>{
+  e.stopPropagation();
+  const input = document.getElementById('timerCustomInput');
+  const v = parseInt(input.value);
+  if(v>0 && v<=600){ input.classList.remove('invalid'); setTimer(v); return; }
+  // 无效输入：红框 + 抖动反馈，避免静默无反应
+  input.classList.remove('invalid');
+  void input.offsetWidth;
+  input.classList.add('invalid');
+  input.focus();
+  setTimeout(()=>input.classList.remove('invalid'), 1200);
+});
+
+document.getElementById('timerCustomInput').addEventListener('click', e=>e.stopPropagation());
+document.getElementById('timerCustomInput').addEventListener('keydown', e=>{
+  if(e.key==='Enter'){
+    const input = e.target;
+    const v = parseInt(input.value);
+    if(v>0 && v<=600) setTimer(v);
+    else{ input.classList.remove('invalid'); void input.offsetWidth; input.classList.add('invalid'); input.focus(); setTimeout(()=>input.classList.remove('invalid'), 1200); }
+  }
+});
+document.getElementById('langMenu').querySelectorAll('button[data-lang]').forEach(b=>{
+  b.addEventListener('click', ()=>applyLang(b.dataset.lang));
+});
+document.getElementById('stopAllBtn').addEventListener('click', stopAll);
+
+/* ---------- 语言 ---------- */
+function applyLang(lang){
+  if(!LANG[lang]) return;
+  currentLang = lang;
+  const L = LANG[lang];
+  try{ localStorage.setItem(LANG_KEY, lang); }catch(_){}
+  document.documentElement.lang = HTML_LANG_MAP[lang];
+  document.getElementById('langLabel').textContent = LANG_LABEL[lang];
+  document.querySelectorAll('[lang-key]').forEach(el=>{
+    const k = el.getAttribute('lang-key');
+    if(L[k]) el.textContent = L[k];
+  });
+  if(timerEnd>0) document.getElementById('timerLabel').textContent = timerText();
+  if(HTML_LANG_MAP[lang] && document.title) document.title = L.title;
+  const meta = document.querySelector('meta[name="description"]');
+  if(meta && L.desc) meta.setAttribute('content', L.desc);
+  if(timerEnd===0) document.getElementById('timerInfo').textContent = L.timerOff;
+  const cInput = document.getElementById('timerCustomInput');
+  if(cInput && L.timerCustom) cInput.placeholder = L.timerCustom;
+  document.querySelectorAll('#langMenu button').forEach(b=>{
+    b.classList.toggle('active', b.dataset.lang===lang);
+  });
+  renderSections();
+  renderPlayingList();
+}
+
+/* ---------- 初始化 ---------- */
+(async function init(){
+  // Safari / Ogg 检测
+  const a = document.createElement('audio');
+  const oggOk = a.canPlayType ? !!(a.canPlayType('audio/ogg') || a.canPlayType('audio/ogg; codecs="vorbis"')) : false;
+  if(!oggOk) document.getElementById('safariBanner').classList.add('show');
+
+  // 使用内嵌声音清单（与 App 的 sounds_remote.json 同步）
+  DATA = BUILTIN_DATA;
+  let saved = null;
+  try{ saved = localStorage.getItem(LANG_KEY); }catch(_){}
+  applyLang(saved && LANG[saved] ? saved : 'zh');
+  // 静默预取首屏声音（避开首帧渲染竞争）
+  const idle = window.requestIdleCallback || (fn=>setTimeout(fn, 300));
+  idle(()=>{ prefetchFirstScreen().catch(()=>{}); });
+})();
+</script>
+</body>
+</html>
