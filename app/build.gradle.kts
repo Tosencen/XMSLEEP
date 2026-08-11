@@ -149,7 +149,7 @@ dependencies {
     
     // AndroidX
     implementation("androidx.core:core-ktx:1.15.0")
-    implementation("androidx.core:core-splashscreen:1.0.1")
+    implementation("androidx.core:core-splashscreen:1.2.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
     implementation("androidx.activity:activity-compose:1.9.3")
     implementation("androidx.navigation:navigation-compose:2.9.5")
@@ -192,13 +192,13 @@ dependencies {
     implementation("androidx.media3:media3-ui:1.8.0")
     implementation("androidx.media3:media3-common:1.8.0")
     implementation("androidx.media3:media3-session:1.8.0")
-    implementation("androidx.media:media:1.7.0")
+    implementation("androidx.media:media:1.8.0")
     
     // OkHttp - 用于网络请求和文件下载
-    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:okhttp:5.3.2")
     
     // Gson - 用于JSON解析
-    implementation("com.google.code.gson:gson:2.10.1")
+    implementation("com.google.code.gson:gson:2.11.0")
     
     // Haze - 用于实现真正的毛玻璃效果（backdrop blur）
     implementation("dev.chrisbanes.haze:haze:1.1.0")
