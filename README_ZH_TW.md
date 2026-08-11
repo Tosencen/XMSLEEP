@@ -98,8 +98,8 @@ XMSLEEP 是一個專注於白噪音播放的 Android 應用，提供多種自然
 
 ## 📦 目前版本
 
-- **版本號**: 2.3.0
-- **Version Code**: 45
+- **版本號**: 2.3.1
+- **Version Code**: 46
 - **最低支援**: Android 8.0 (API 26)
 - **目標版本**: Android 15 (API 35)
 
@@ -199,6 +199,10 @@ XMSLEEP 是一個專注於白噪音播放的 Android 應用，提供多種自然
 - **第三方資源**：部分聲音來自第三方提供者，遵循相應的許可協議
   - 遵循 **Pixabay Content License** 的聲音：[Pixabay Content License](https://pixabay.com/service/license-summary/)
   - 遵循 **CC0** 的聲音：[Creative Commons Zero License](https://creativecommons.org/publicdomain/zero/1.0/)
+
+## 🔒 隱私說明
+
+本應用重視您的隱私保護。為改進產品體驗，應用會收集**匿名**使用統計（如活躍用戶數、崩潰報告），**不會**收集任何個人身份資訊。
 
 ## 📄 許可證
 

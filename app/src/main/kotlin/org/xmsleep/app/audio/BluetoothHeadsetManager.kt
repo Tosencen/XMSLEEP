@@ -17,6 +17,7 @@ import org.xmsleep.app.utils.Logger
  * 蓝牙耳机管理器
  * 监听蓝牙耳机连接/断开事件，在断开时自动暂停音频播放
  */
+@SuppressLint("StaticFieldLeak")
 class BluetoothHeadsetManager private constructor() {
     
     companion object {
@@ -127,21 +128,12 @@ class BluetoothHeadsetManager private constructor() {
     @SuppressLint("MissingPermission")
     fun isBluetoothHeadsetConnected(context: Context): Boolean {
         return try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as SystemAudioManager
-                val devices = audioManager.getDevices(SystemAudioManager.GET_DEVICES_OUTPUTS)
-                
-                devices.any { device ->
-                    device.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
-                    device.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO
-                }
-            } else {
-                // Android 6.0 以下使用 BluetoothAdapter
-                val bluetoothAdapter = BluetoothAdapter.getDefaultAdapter()
-                @Suppress("WrongConstant")
-                val connected = bluetoothAdapter?.isEnabled == true &&
-                    bluetoothAdapter.getProfileConnectionState(BluetoothProfile.HEADSET) == BluetoothProfile.STATE_CONNECTED
-                connected
+            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as SystemAudioManager
+            val devices = audioManager.getDevices(SystemAudioManager.GET_DEVICES_OUTPUTS)
+            
+            devices.any { device ->
+                device.type == AudioDeviceInfo.TYPE_BLUETOOTH_A2DP ||
+                device.type == AudioDeviceInfo.TYPE_BLUETOOTH_SCO
             }
         } catch (e: Exception) {
             Logger.e(TAG, "检查蓝牙耳机连接状态失败: ${e.message}")

@@ -68,13 +68,7 @@ object LanguageManager {
         val appConfig = Configuration(context.applicationContext.resources.configuration)
         appConfig.setLocale(language.locale)
         
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context.applicationContext.createConfigurationContext(appConfig)
-        } else {
-            @Suppress("DEPRECATION")
-            context.resources.updateConfiguration(appConfig, context.resources.displayMetrics)
-            context
-        }
+        return context.applicationContext.createConfigurationContext(appConfig)
     }
     
     /**
@@ -87,13 +81,7 @@ object LanguageManager {
         val config = Configuration(context.resources.configuration)
         config.setLocale(locale)
 
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            context.createConfigurationContext(config)
-        } else {
-            @Suppress("DEPRECATION")
-            context.resources.updateConfiguration(config, context.resources.displayMetrics)
-            context
-        }
+        return context.createConfigurationContext(config)
     }
 }
 

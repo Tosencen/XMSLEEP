@@ -37,7 +37,7 @@ fun TomatoTimerScreen(
     val screenCornerRadius = remember {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val insets = view.rootWindowInsets
-            val cornerRadiusPx = insets?.getRoundedCorner(0)?.radius ?: 0
+            val cornerRadiusPx = insets?.getRoundedCorner(android.view.RoundedCorner.POSITION_TOP_LEFT)?.radius ?: 0
             if (cornerRadiusPx > 0) {
                 with(density) { cornerRadiusPx.toFloat().toDp() }
             } else {

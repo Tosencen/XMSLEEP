@@ -1,5 +1,6 @@
 package org.xmsleep.app.quote
 
+import android.annotation.SuppressLint
 import android.content.Context
 import org.xmsleep.app.utils.Logger
 import org.xmsleep.app.utils.NetworkClient
@@ -13,6 +14,7 @@ import java.time.LocalDate
  * 名句管理器
  * 负责获取每日一言，支持在线API和本地备用
  */
+@SuppressLint("StaticFieldLeak")
 class QuoteManager private constructor(private val context: Context) {
     
     companion object {

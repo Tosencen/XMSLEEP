@@ -21,6 +21,7 @@ object PreferencesManager {
     private val KEY_SELECTED_COLOR = Constants.PrefsKeys.SELECTED_COLOR
     private val KEY_USE_DYNAMIC_COLOR = Constants.PrefsKeys.USE_DYNAMIC_COLOR
     private val KEY_USE_BLACK_BACKGROUND = Constants.PrefsKeys.USE_BLACK_BACKGROUND
+    private val KEY_USE_MONOCHROME = Constants.PrefsKeys.USE_MONOCHROME
     private val KEY_HIDE_ANIMATION = Constants.PrefsKeys.HIDE_ANIMATION
     private val KEY_SOUND_CARDS_COLUMNS_COUNT = Constants.PrefsKeys.SOUND_CARDS_COLUMNS
     private val KEY_STAR_SKY_COLUMNS_COUNT = Constants.PrefsKeys.STAR_SKY_COLUMNS_COUNT
@@ -296,6 +297,22 @@ object PreferencesManager {
     fun getUseBlackBackground(context: Context, default: Boolean = false): Boolean {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return prefs.getBoolean(KEY_USE_BLACK_BACKGROUND, default)
+    }
+    
+    /**
+     * 保存黑白模式设置
+     */
+    fun saveUseMonochrome(context: Context, useMonochrome: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean(KEY_USE_MONOCHROME, useMonochrome).apply()
+    }
+    
+    /**
+     * 获取黑白模式设置
+     */
+    fun getUseMonochrome(context: Context, default: Boolean = false): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_USE_MONOCHROME, default)
     }
     
     /**

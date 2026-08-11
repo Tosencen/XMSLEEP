@@ -101,8 +101,8 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.3.0
-- **Version Code**: 45
+- **Version**: 2.3.1
+- **Version Code**: 46
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 
@@ -238,6 +238,10 @@ Sound sources in this app are as follows:
 - **Third-party Resources**: Some sounds from third-party providers, following respective licenses
   - Sounds following **Pixabay Content License**: [Pixabay Content License](https://pixabay.com/service/license-summary/)
   - Sounds following **CC0**: [Creative Commons Zero License](https://creativecommons.org/publicdomain/zero/1.0/)
+
+## 🔒 Privacy
+
+This app values your privacy. To improve the product, it collects **anonymous** usage statistics (e.g., active user counts, crash reports) and does **not** collect any personally identifiable information.
 
 ## 📄 License
 

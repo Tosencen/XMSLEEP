@@ -293,6 +293,9 @@ fun XMSLEEPApp() {
     var useBlackBackground by remember { 
         mutableStateOf(PreferencesManager.getUseBlackBackground(context))
     }
+    var useMonochrome by remember { 
+        mutableStateOf(PreferencesManager.getUseMonochrome(context))
+    }
     var hideAnimation by remember { 
         mutableStateOf(PreferencesManager.getHideAnimation(context))
     }
@@ -359,7 +362,8 @@ fun XMSLEEPApp() {
         isDark = isDark,
         seedColor = selectedColor,
         useDynamicColor = useDynamicColor,
-        useBlackBackground = useBlackBackground
+        useBlackBackground = useBlackBackground,
+        useMonochrome = useMonochrome
     ) {
         // 在 CompositionLocalProvider 之前创建 ViewModel，保留 Activity context
         val mainViewModel: MainViewModel = hiltViewModel()
@@ -379,6 +383,7 @@ fun XMSLEEPApp() {
                     selectedColor = selectedColor,
                     useDynamicColor = useDynamicColor,
                     useBlackBackground = useBlackBackground,
+                    useMonochrome = useMonochrome,
                     hideAnimation = hideAnimation,
                     backgroundSelection = backgroundSelection,
                     soundCardsColumnsCount = soundCardsColumnsCount,
@@ -404,6 +409,10 @@ fun XMSLEEPApp() {
                     onBlackBackgroundChange = { 
                         useBlackBackground = it
                         PreferencesManager.saveUseBlackBackground(context, it)
+                    },
+                    onMonochromeChange = { 
+                        useMonochrome = it
+                        PreferencesManager.saveUseMonochrome(context, it)
                     },
                     onHideAnimationChange = { 
                         hideAnimation = it

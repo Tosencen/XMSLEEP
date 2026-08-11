@@ -1,9 +1,10 @@
 package org.xmsleep.app.update
 
+import android.app.Application
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -19,11 +20,11 @@ import java.io.IOException
 /**
  * 更新状态管理 ViewModel
  */
-class UpdateViewModel(private val context: Context) : ViewModel() {
+class UpdateViewModel(private val app: Application) : AndroidViewModel(app) {
     
     private val updateChecker = UpdateChecker()
     private val fileDownloader = FileDownloader()
-    private val updateInstaller = UpdateInstaller(context)
+    private val updateInstaller = UpdateInstaller(app)
     
     private val _updateState = MutableStateFlow<UpdateState>(UpdateState.Idle)
     val updateState: StateFlow<UpdateState> = _updateState.asStateFlow()
@@ -38,7 +39,7 @@ class UpdateViewModel(private val context: Context) : ViewModel() {
     private var lastCheckTime: Long = 0L
     
     // SharedPreferences 用于持久化下载状态
-    private val prefs = context.getSharedPreferences("update_prefs", Context.MODE_PRIVATE)
+    private val prefs = app.getSharedPreferences("update_prefs", Context.MODE_PRIVATE)
     
     /**
      * 自动检查更新（带时间间隔限制，1小时内只检查一次）
@@ -146,7 +147,7 @@ class UpdateViewModel(private val context: Context) : ViewModel() {
      */
     private fun verifyApkSignatureMatchesCurrentApp(apkFile: File): Boolean {
         val currentSignatures = getInstalledAppSignatures() ?: return false
-        val pm = context.packageManager
+        val pm = app.packageManager
 
         val archiveInfo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             pm.getPackageArchiveInfo(apkFile.absolutePath, PackageManager.GET_SIGNING_CERTIFICATES)
@@ -174,10 +175,10 @@ class UpdateViewModel(private val context: Context) : ViewModel() {
     private fun getInstalledAppSignatures(): List<android.content.pm.Signature>? {
         return try {
             val info = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+                app.packageManager.getPackageInfo(app.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
             } else {
                 @Suppress("DEPRECATION")
-                context.packageManager.getPackageInfo(context.packageName, PackageManager.GET_SIGNATURES)
+                app.packageManager.getPackageInfo(app.packageName, PackageManager.GET_SIGNATURES)
             }
             extractSignatures(info)
         } catch (e: Exception) {
@@ -243,7 +244,7 @@ class UpdateViewModel(private val context: Context) : ViewModel() {
             _updateState.value = UpdateState.Downloading(0f)
             
             // 获取下载目录
-            val downloadDir = File(context.getExternalFilesDir(null), "updates")
+            val downloadDir = File(app.getExternalFilesDir(null), "updates")
             downloadDir.mkdirs()
             
             val apkFile = File(downloadDir, "XMSLEEP-${version.version}.apk")

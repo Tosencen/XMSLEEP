@@ -75,6 +75,7 @@ object Constants {
         const val SELECTED_COLOR = "selected_color"
         const val USE_DYNAMIC_COLOR = "use_dynamic_color"
         const val USE_BLACK_BACKGROUND = "use_black_background"
+        const val USE_MONOCHROME = "use_monochrome"
         const val HIDE_ANIMATION = "hide_animation"
         const val SOUND_CARDS_COLUMNS = "sound_cards_columns_count"
         const val LANGUAGE = "language"

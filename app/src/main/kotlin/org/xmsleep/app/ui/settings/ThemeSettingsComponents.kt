@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.xmsleep.app.R
 import org.xmsleep.app.theme.DarkModeOption
+import org.xmsleep.app.ui.icons.Tonality
 
 /**
  * 主题设置屏幕
@@ -29,10 +30,12 @@ fun ThemeSettingsScreen(
     selectedColor: Color,
     useDynamicColor: Boolean,
     useBlackBackground: Boolean,
+    useMonochrome: Boolean,
     onDarkModeChange: (DarkModeOption) -> Unit,
     onColorChange: (Color) -> Unit,
     onDynamicColorChange: (Boolean) -> Unit,
     onBlackBackgroundChange: (Boolean) -> Unit,
+    onMonochromeChange: (Boolean) -> Unit,
     onBack: () -> Unit,
     onScrollDetected: () -> Unit = {} // 滚动检测回调
 ) {
@@ -150,7 +153,29 @@ fun ThemeSettingsScreen(
                         )
                     )
                     
-                    // 3. 纯黑色
+                    // 3. 黑白模式
+                    add(
+                        SettingsCategoryItem(
+                            icon = Tonality,
+                            title = { Text(context.getString(R.string.monochrome_mode)) },
+                            description = { 
+                                Text(
+                                    context.getString(R.string.monochrome_mode_description),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            },
+                            trailingContent = {
+                                Switch(
+                                    checked = useMonochrome,
+                                    onCheckedChange = onMonochromeChange
+                                )
+                            },
+                            onClick = { onMonochromeChange(!useMonochrome) }
+                        )
+                    )
+                    
+                    // 4. 纯黑色
                     add(
                         SettingsCategoryItem(
                             icon = Icons.Filled.Contrast,

@@ -59,19 +59,17 @@ class BreathingService : Service() {
     }
     
     private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val lc = localizedContext()
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                lc.getString(R.string.breathing_exercise),
-                NotificationManager.IMPORTANCE_LOW
-            ).apply {
-                description = lc.getString(R.string.breathing_channel_description)
-            }
-            
-            val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val lc = localizedContext()
+        val channel = NotificationChannel(
+            CHANNEL_ID,
+            lc.getString(R.string.breathing_exercise),
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = lc.getString(R.string.breathing_channel_description)
         }
+        
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
     
     private fun createNotification(timeLeft: Long): android.app.Notification {

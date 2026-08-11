@@ -39,7 +39,6 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.xmsleep.app.R
-import org.xmsleep.app.ui.components.pagerTabIndicatorOffset
 import org.xmsleep.app.utils.Logger
 
 /**
@@ -211,7 +210,7 @@ fun StarSkyScreen(
     
     // 添加调试日志的辅助函数
     val addDebugLog: (String) -> Unit = { message ->
-        val timestamp = java.text.SimpleDateFormat("HH:mm:ss.SSS").format(java.util.Date())
+        val timestamp = java.text.SimpleDateFormat("HH:mm:ss.SSS", java.util.Locale.US).format(java.util.Date())
         debugLogs = debugLogs + "[$timestamp] $message"
     }
     

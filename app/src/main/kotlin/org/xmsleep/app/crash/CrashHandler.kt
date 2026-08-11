@@ -1,5 +1,7 @@
 package org.xmsleep.app.crash
 
+import android.annotation.SuppressLint
+
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -14,6 +16,7 @@ import java.util.*
  * 全局异常处理器
  * 捕获未处理的异常并显示崩溃页面
  */
+@SuppressLint("StaticFieldLeak")
 class CrashHandler private constructor(private val context: Context) : Thread.UncaughtExceptionHandler {
     
     private val defaultHandler = Thread.getDefaultUncaughtExceptionHandler()

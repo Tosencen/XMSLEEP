@@ -19,27 +19,21 @@ class UpdateInstaller(private val context: Context) {
      * @return 是否有安装权限
      */
     fun hasInstallPermission(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.packageManager.canRequestPackageInstalls()
-        } else {
-            true
-        }
+        return context.packageManager.canRequestPackageInstalls()
     }
     
     /**
      * 请求安装权限（打开设置页面）
      */
     fun requestInstallPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            try {
-                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                    data = Uri.parse("package:${context.packageName}")
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-                context.startActivity(intent)
-            } catch (e: Exception) {
-                Logger.e("UpdateInstaller", "请求安装权限失败", e)
+        try {
+            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                data = Uri.parse("package:${context.packageName}")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
+            context.startActivity(intent)
+        } catch (e: Exception) {
+            Logger.e("UpdateInstaller", "请求安装权限失败", e)
         }
     }
     
@@ -50,12 +44,10 @@ class UpdateInstaller(private val context: Context) {
      */
     fun install(apkFile: File): Boolean {
         return try {
-            // Android 8.0+ 需要请求安装权限
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (!hasInstallPermission()) {
-                    // 没有权限，返回 false，由调用方处理
-                    return false
-                }
+            // 需要请求安装权限
+            if (!hasInstallPermission()) {
+                // 没有权限，返回 false，由调用方处理
+                return false
             }
             
             // 检查文件是否存在

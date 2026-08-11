@@ -1,3 +1,6 @@
+import java.io.File
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,6 +8,12 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization")
     id("com.google.dagger.hilt.android")
     id("org.jetbrains.kotlin.kapt")
+}
+
+// Firebase：无 google-services.json 时跳过，保证 F-Droid/CI 无此文件也能构建
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
 }
 
 android {
@@ -15,8 +24,8 @@ android {
         applicationId = "org.xmsleep.app"
         minSdk = 26
         targetSdk = 35
-		versionCode = 45
-		versionName = "2.3.0"
+		versionCode = 46
+		versionName = "2.3.1"
         
         // 只保留 arm64-v8a 架构以减小 APK 体积（现代设备都支持）
         ndk {
@@ -27,12 +36,21 @@ android {
     
     signingConfigs {
         create("release") {
-            val keystoreFile = project.findProperty("RELEASE_STORE_FILE") as String? ?: "${System.getProperty("user.home")}/XMSLEEP_KEYSTORE_SECURE/release.keystore"
-            val keystorePassword = project.findProperty("RELEASE_STORE_PASSWORD") as String? ?: ""
-            val keyAliasName = project.findProperty("RELEASE_KEY_ALIAS") as String? ?: "xmsleep"
-            val keyAliasPassword = project.findProperty("RELEASE_KEY_PASSWORD") as String? ?: ""
-            
-            storeFile = file(keystoreFile)
+            // 签名凭据优先级：gradle.properties / -P 参数 > gradle.properties.local（gitignore 的本地文件）> 默认值
+            val localProps = Properties().apply {
+                val f = rootProject.file("gradle.properties.local")
+                if (f.exists()) f.inputStream().use { load(it) }
+            }
+            fun localOrProject(name: String): String? =
+                project.findProperty(name) as String? ?: localProps.getProperty(name)
+
+            val keystoreFile = localOrProject("RELEASE_STORE_FILE")
+                ?: "${System.getProperty("user.home")}/XMSLEEP_KEYSTORE_SECURE/release.keystore"
+            val keystorePassword = localOrProject("RELEASE_STORE_PASSWORD") ?: ""
+            val keyAliasName = localOrProject("RELEASE_KEY_ALIAS") ?: "xmsleep"
+            val keyAliasPassword = localOrProject("RELEASE_KEY_PASSWORD") ?: ""
+
+            storeFile = if (File(keystoreFile).isAbsolute) file(keystoreFile) else rootProject.file(keystoreFile)
             storePassword = keystorePassword
             keyAlias = keyAliasName
             keyPassword = keyAliasPassword
@@ -162,6 +180,11 @@ dependencies {
     // Lottie - 用于显示JSON动画
     implementation("com.airbnb.android:lottie:6.3.0")
     implementation("com.airbnb.android:lottie-compose:6.3.0")
+    
+    // Firebase - 匿名使用统计与崩溃上报（不采集个人身份信息）
+    implementation(platform("com.google.firebase:firebase-bom:34.17.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-crashlytics")
     
     // ExoPlayer/Media3 - 用于无缝循环播放音频（声音模块需要）
     implementation("androidx.media3:media3-exoplayer:1.8.0")

@@ -1,5 +1,6 @@
 package org.xmsleep.app.audio
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ContentValues
 import android.content.Context
@@ -23,6 +24,7 @@ import kotlin.coroutines.resume
  * 本地音频媒体服务
  * 处理本地音频文件的删除和重命名操作
  */
+@SuppressLint("StaticFieldLeak")
 class LocalAudioMediaService private constructor(
     private val context: Context
 ) {

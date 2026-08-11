@@ -4,8 +4,10 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.os.SystemClock
 import androidx.media3.common.util.UnstableApi
 import org.xmsleep.app.R
+import org.xmsleep.app.analytics.AnalyticsLogger
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.utils.Logger
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -74,6 +76,26 @@ class AudioManager private constructor() {
 
     // 播放顺序队列，用于限制最多同时播放的声音数量
     private val playingQueue = ConcurrentLinkedQueue<PlayingItem>()
+
+    // 收听时长统计（匿名）：记录本次连续收听开始时间，息屏/后台播放同样计入
+    private var listeningStartRealtime: Long = 0L
+
+    private fun onListeningStarted() {
+        if (listeningStartRealtime == 0L) {
+            listeningStartRealtime = SystemClock.elapsedRealtime()
+            AnalyticsLogger.logListeningStart()
+        }
+    }
+
+    private fun onListeningStopped() {
+        if (listeningStartRealtime != 0L) {
+            val durationSeconds = (SystemClock.elapsedRealtime() - listeningStartRealtime) / 1000
+            listeningStartRealtime = 0L
+            if (durationSeconds > 0) {
+                AnalyticsLogger.logListeningEnd(durationSeconds)
+            }
+        }
+    }
 
     // 响应式状态：电台播放
     private val _radioPlaying = MutableStateFlow(false)
@@ -214,6 +236,9 @@ class AudioManager private constructor() {
                 playingQueue.offer(PlayingItem.LocalSound(sound))
             } else {
                 playingQueue.remove(PlayingItem.LocalSound(sound))
+                if (playingQueue.isEmpty()) {
+                    onListeningStopped()
+                }
             }
             notifyServicePlayingStateChanged()
         }
@@ -226,6 +251,9 @@ class AudioManager private constructor() {
                 playingQueue.offer(PlayingItem.RemoteSound(soundId))
             } else {
                 playingQueue.remove(PlayingItem.RemoteSound(soundId))
+                if (playingQueue.isEmpty()) {
+                    onListeningStopped()
+                }
             }
             notifyServicePlayingStateChanged()
         }
@@ -283,6 +311,10 @@ class AudioManager private constructor() {
             return
         }
 
+        // 埋点：播放声音 + 收听开始（首次播放时启动计时，含息屏/后台）
+        onListeningStarted()
+        AnalyticsLogger.logSoundPlay(sound.name)
+
         // 检查是否已达到最大播放数量
         if (playingQueue.size >= MAX_CONCURRENT_SOUNDS) {
             val oldestItem = playingQueue.poll()
@@ -330,6 +362,7 @@ class AudioManager private constructor() {
             remoteSoundPlayer.pauseAllRemoteSounds()
 
             playingQueue.clear()
+            onListeningStopped()
             notifyServicePlayingStateChanged()
 
             Logger.d(TAG, "所有声音已暂停（电台除外）")
@@ -351,6 +384,7 @@ class AudioManager private constructor() {
             onStopRadioRequested?.invoke()
 
             playingQueue.clear()
+            onListeningStopped()
             notifyServicePlayingStateChanged()
 
             Logger.d(TAG, "所有声音已暂停")
@@ -374,6 +408,7 @@ class AudioManager private constructor() {
             org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().stop()
 
             playingQueue.clear()
+            onListeningStopped()
             notifyServicePlayingStateChanged()
 
             Logger.d(TAG, "停止所有声音完成")
@@ -423,6 +458,7 @@ class AudioManager private constructor() {
             unregisterAudioBecomingNoisyReceiver()
             audioFocusManager.abandonAudioFocus(applicationContext ?: return)
             musicServiceManager.release()
+            onListeningStopped()
 
             applicationContext = null
             Logger.d(TAG, "已释放所有播放器资源")
@@ -564,6 +600,10 @@ class AudioManager private constructor() {
             Logger.w(TAG, "无法获取音频焦点，取消播放")
             return
         }
+
+        // 埋点：播放网络声音 + 收听开始
+        onListeningStarted()
+        AnalyticsLogger.logSoundPlay("remote:${metadata.id}")
 
         remoteSoundPlayer.playRemoteSound(context, metadata, uri, MAX_CONCURRENT_SOUNDS)
     }

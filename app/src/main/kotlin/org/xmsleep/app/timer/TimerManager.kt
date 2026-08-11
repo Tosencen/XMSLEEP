@@ -2,6 +2,7 @@ package org.xmsleep.app.timer
 
 import android.os.Handler
 import android.os.Looper
+import org.xmsleep.app.analytics.AnalyticsLogger
 import org.xmsleep.app.utils.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -77,6 +78,7 @@ class TimerManager private constructor() {
                 return
             }
 
+            AnalyticsLogger.logCountdownSet(durationMinutes)
             currentTimerMinutes = durationMinutes
             _isTimerActive.value = true
             hasFinished = false
