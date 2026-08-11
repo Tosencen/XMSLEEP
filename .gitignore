@@ -104,3 +104,4 @@ gradle.properties.local
 *.backup
 *.tmp
 *.bak
+.freebuff/
