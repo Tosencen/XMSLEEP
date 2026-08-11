@@ -801,7 +801,7 @@ fun MainScreen(
                 ) {
                     Row(
                         modifier = Modifier
-                            .padding(horizontal = 8.dp)
+                            .padding(horizontal = 4.dp)
                             .fillMaxWidth()
                             .height(80.dp),
                         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -1077,7 +1077,7 @@ private fun NavigationBarItem(
                 onClick = onClick,
                 onLongClick = onLongClick
             )
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 6.dp, vertical = 8.dp)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
