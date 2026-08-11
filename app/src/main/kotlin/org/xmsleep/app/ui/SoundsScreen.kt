@@ -95,6 +95,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.toArgb
@@ -1506,7 +1507,7 @@ fun SoundsScreen(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(bottom = presetPlayFABBottomPadding, end = 16.dp)
-                    .offset(x = presetPlayFABOffsetX)
+                    .offset { IntOffset(presetPlayFABOffsetX.roundToPx(), 0) }
             )
         }
         
@@ -1518,7 +1519,7 @@ fun SoundsScreen(
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = timerFABBottomPadding, end = 16.dp)
-                .offset(x = timerFABOffsetX)
+                .offset { IntOffset(timerFABOffsetX.roundToPx(), 0) }
         )
     }
     }
@@ -1533,7 +1534,7 @@ fun SoundsScreen(
                     val hasPlaying = audioManager.hasAnyPlayingSounds()
                     if (hasPlaying) {
                         timerManager.startTimer(minutes)
-                        android.widget.Toast.makeText(context, context.getString(R.string.countdown_set_minutes, minutes), android.widget.Toast.LENGTH_SHORT).show()
+                        android.widget.Toast.makeText(context, context.resources.getQuantityString(R.plurals.countdown_set_minutes, minutes, minutes), android.widget.Toast.LENGTH_SHORT).show()
                     } else {
                         android.widget.Toast.makeText(context, context.getString(R.string.please_play_sound_before_timer), android.widget.Toast.LENGTH_SHORT).show()
                     }

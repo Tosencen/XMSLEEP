@@ -191,16 +191,16 @@ fun AnimatedBackground(
 @Composable
 private fun CrossfadeVideoPlayer(
     uri: Uri,
+    modifier: Modifier = Modifier,
     backgroundOpacity: Float = 0.2f,
     backgroundBlurRadius: Float = 0f,
-    onReady: () -> Unit = {},
-    modifier: Modifier = Modifier
+    onReady: () -> Unit = {}
 ) {
     AndroidView(
         factory = { ctx ->
             val container = FrameLayout(ctx)
 
-            val playerView = LayoutInflater.from(ctx).inflate(R.layout.video_background_player, null) as PlayerView
+            val playerView = LayoutInflater.from(ctx).inflate(R.layout.video_background_player, container, false) as PlayerView
             val player = ExoPlayer.Builder(ctx).build().apply {
                 setMediaItem(MediaItem.fromUri(uri))
                 repeatMode = Player.REPEAT_MODE_ALL

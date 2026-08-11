@@ -245,13 +245,13 @@ fun StarSkySimpleContent(
                     timerManager.startTimer(minutes)
                     Toast.makeText(
                         context,
-                        context.getString(R.string.countdown_set_minutes, minutes),
+                        context.resources.getQuantityString(R.plurals.countdown_set_minutes, minutes, minutes),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
                 showTimerDialog = false
             },
-            currentTimerMinutes = if (timerManager.isTimerActive.value) timerManager.getCurrentTimerMinutes() else 0
+            currentTimerMinutes = if (isTimerActive) timerManager.getCurrentTimerMinutes() else 0
         )
     }
 

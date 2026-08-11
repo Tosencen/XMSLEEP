@@ -1,28 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">XMSLEEP</string>
     <string name="language">언어</string>
     <string name="language_description">표시 언어 선택</string>
-    <string name="language_simplified_chinese">简体中文</string>
-    <string name="language_traditional_chinese">繁體中文</string>
-    <string name="language_english">English</string>
-    <string name="language_korean">한국어</string>
-    <string name="language_japanese">日本語</string>
-    <string name="language_russian">Русский</string>
     <string name="select_language">언어 선택</string>
     <string name="white_noise">백색 소음</string>
-    <string name="breathing">호흡</string>
     <string name="star_sky">별하늘</string>
     <string name="star_sky_more_sounds_hint">더 많은 소리가 여기에 표시됩니다</string>
     <string name="settings">설정</string>
     <string name="theme_and_colors">테마 &amp; 색상</string>
-    <string name="clear_cache">캐시 지우기</string>
     <string name="software_update">소프트웨어 업데이트</string>
     <string name="about_xmsleep">XMSLEEP 정보</string>
     <string name="ok">확인</string>
     <string name="cancel">취소</string>
-    <string name="color_palette">색상 팔레트</string>
-    <string name="confirm_clear_cache">모든 캐시 데이터를 지우시겠습니까?</string>
     <string name="appearance">기능</string>
     <string name="system">시스템</string>
     <string name="other">기타</string>
@@ -30,134 +20,85 @@
     <string name="feature_settings">기능 설정</string>
     <string name="feature_settings_description">기능 설정을 사용자 지정합니다</string>
     <string name="feature_dialog_title">기능</string>
-
-    <string name="clear_app_cache_data">앱 캐시 데이터 지우기</string>
-    <string name="check_and_update_to_latest_version">최신 버전 확인 및 업데이트</string>
-    <string name="view_app_info_version_copyright">앱 정보, 버전 및 저작권 보기</string>
-    <string name="clearing">지우는 중…</string>
-    <string name="this_will_clear_all_cache_data">이미지, 동영상, 임시 파일 등 앱의 모든 캐시 데이터가 지워집니다.</string>
     <string name="version">버전: %1$s (빌드 %2$d)</string>
-    <string name="app_description_title">앱 설명</string>
     <string name="app_description">XMSLEEP는 고품질 오디오 경험을 제공하기 위해 설계된 전문 백색 소음 및 자연 소리 재생 앱입니다. 비, 천둥, 캠프파이어, 새소리 등 엄선된 다양한 자연 소리를 통해 긴장을 풀고 집중력을 향상시키며 수면의 질을 높일 수 있습니다.\n\nMaterial Design 3 규격을 적용하여 깔끔하고 아름다운 인터페이스와 부드럽고 직관적인 조작감을 제공합니다. 다국어 전환, 테마 사용자 지정, 개별 볼륨 조절, 고정 사운드 영역, 즐겨찾기 등 다양한 기능을 지원하여 개인 맞춤형 사운드 경험을 즐길 수 있습니다.</string>
-    <string name="usage_instructions_title">사용 방법</string>
-    <string name="usage_instructions">• 사운드 카드를 탭하여 재생, 다시 탭하여 정지
-• 볼륨 아이콘을 탭하여 각 사운드의 볼륨을 개별 조절
-• 제목을 탭하여 고정 사운드 영역 또는 즐겨찾기 설정
-• 핀 아이콘을 탭하여 여러 사운드를 고정 사운드 영역에 일괄 추가
-• 카운트다운 기능으로 자동 재생 정지 시간 설정
-• 설정에서 테마 조정, 애니메이션 숨기기, 레이아웃 전환 등 가능</string>
-    <string name="sound_usage_title">사운드 사용 방법</string>
-    <string name="sound_usage">• 내장 사운드: 네트워크 불필요, 바로 재생 가능
-• 네트워크 사운드: 첫 사용 시 다운로드 필요, 다운로드 후 오프라인 재생 가능
-• 고정 사운드 영역: 최대 3개 사운드 추가 가능, 로컬 및 네트워크 사운드 혼합 사용 지원
-• 즐겨찾기: 즐겨찾는 사운드를 목록에 추가하여 빠르게 접근
-• 볼륨 조절: 각 사운드 개별 조절 가능, 0-100%% 정밀 제어 지원
-• 카운트다운 기능: 재생 시간 설정 가능, 시간 종료 시 모든 사운드 자동 정지</string>
     <string name="sound_source_title">사운드 출처 정보</string>
     <string name="sound_source">이 앱에서 제공하는 모든 오디오 콘텐츠는 공개 오디오 리소스 라이브러리에서 제공되며, 이에 국한되지 않습니다:
 \n• 내장 사운드: 앱에 내장된 사운드 파일은 오픈소스 오디오 리소스 라이브러리에서 가져와 엄선 및 최적화되어 장시간 재생에 적합한 선명한 음질을 보장합니다.
 \n• 네트워크 사운드: 네트워크를 통해 로드되는 사운드 리소스는 오픈소스 앰비언트 사운드 프로젝트인 moodist(https://github.com/remvze/moodist)에서 제공됩니다. 모든 리소스는 MIT 오픈소스 라이선스를 따릅니다.
 \n• 저작권 고지: 이 앱은 오디오 재생 기능만 제공하며, 어떤 오디오 콘텐츠의 저작권도 소유하지 않습니다. 모든 오디오 콘텐츠는 개인 학습 및 엔터테인먼트 용도로만 사용해야 하며, 상업적 목적으로 사용할 수 없습니다. 저작권을 침해하는 오디오 콘텐츠를 발견하시면 연락 주시기 바랍니다. 신속히 처리하겠습니다.</string>
-    <string name="technical_info_title">기술 정보</string>
     <string name="copyright">© XMSLEEP. All rights reserved.\n\n이 앱이 제공하는 오디오 콘텐츠는 개인 학습 및 엔터테인먼트 용도로만 사용됩니다.\n관련 오디오 리소스의 저작권을 존중해 주시고, 상업적 목적으로 사용하지 말아 주십시오.</string>
-    <string name="hide_animation">WebP 애니메이션 숨기기</string>
-    <string name="hide_lottie_animation_in_sound_cards">사운드 카드의 WebP 애니메이션 숨기기</string>
     <string name="background_settings">배경 설정</string>
-    <string name="background_animation">배경 애니메이션</string>
     <string name="select_background">배경 선택</string>
     <string name="no_background">배경 없음</string>
     <string name="custom_background">사용자 정의</string>
     <string name="background_1">배경 1</string>
-    <string name="background_2">배경 2</string>
-    <string name="background_3">배경 3</string>
-    <string name="background_4">배경 4</string>
-    <string name="background_5">배경 5</string>
     <string name="background_6">배경 6</string>
-    <string name="background_7">배경 7</string>
     <string name="theme_color">테마 색상</string>
-    <string name="theme_color_disabled_hint">테마 색상을 변경하려면 \"배경 없음\"을 선택하세요</string>
     <string name="change_background">배경 변경</string>
     <string name="built_in_background">내장 배경</string>
     <string name="opacity">불투명도</string>
     <string name="blur_amount">블러</string>
     <string name="off">끔</string>
-    <string name="background_preview">배경 미리보기</string>
     <string name="white_noise_cards">백색 소음 카드</string>
-    <string name="builtin_sounds_offline_hint">내장 사운드, 네트워크 불필요</string>
-    <string name="selected_count">선택됨 (%1$d)</string>
-    <string name="max_select_hint">고정 영역에는 최대 3개의 사운드를 추가할 수 있습니다</string>
-    <string name="batch_select_default">기본 일괄 선택</string>
-    <string name="cancel_batch_select">일괄 선택 취소</string>
-    <string name="default_playback_area">고정 사운드 영역</string>
-    <string name="click_play_button_to_play_all">편리한 사운드 재생</string>
     <string name="play_preset">프리셋 재생</string>
     <string name="pause_preset">프리셋 일시 정지</string>
     <string name="preset">프리셋</string>
     <string name="done">완료</string>
-    <string name="max_3_sounds_limit">고정 사운드 영역에는 최대 3개의 사운드만 추가할 수 있습니다</string>
-    <string name="default_area_updated">고정 사운드 영역이 업데이트되었습니다</string>
-    <string name="selected">선택됨</string>
+    <string name="selected" tools:override="true">선택됨</string>
     <string name="unselected">선택 해제</string>
-    <string name="switch_to_light_mode">라이트 모드로 전환</string>
-    <string name="switch_to_dark_mode">다크 모드로 전환</string>
     <string name="switch_to_3_columns">3열로 전환</string>
     <string name="switch_to_2_columns">2열로 전환</string>
     <string name="switch_to_slide_layout">슬라이드 레이아웃으로 전환</string>
     <string name="pause">일시 정지</string>
     <string name="play">재생</string>
-    <string name="now_playing">현재 재생 중</string>
     <string name="edit">편집</string>
     <string name="remove">제거</string>
     <string name="adjust_volume">볼륨 조절</string>
     <string name="set_countdown">카운트다운 설정</string>
     <string name="countdown_ended_stopped">카운트다운 종료, 재생이 중지되었습니다</string>
-    <string name="countdown_set_minutes">%1$d분 카운트다운이 설정되었습니다</string>
+    <plurals name="countdown_set_minutes">
+        <item quantity="other">%1$d분 카운트다운이 설정되었습니다</item>
+    </plurals>
     <string name="countdown_cancelled">카운트다운이 취소되었습니다</string>
-    <string name="adjust_volume_for">볼륨 조절 - %1$s</string>
     <string name="cancel_countdown">카운트다운 취소</string>
-    <string name="minutes">%1$d분</string>
+    <plurals name="minutes">
+        <item quantity="other">%1$d분</item>
+    </plurals>
     <string name="set_as_default">프리셋에 추가</string>
     <string name="cancel_default">프리셋에서 제거</string>
-    <string name="favorite">즐겨찾기</string>
-    <string name="cancel_favorite">즐겨찾기 해제</string>
     <string name="pinned_success">프리셋에 추가됨</string>
     <string name="unpinned_success">프리셋에서 제거됨</string>
     <string name="rename_preset">프리셋 이름 변경</string>
     <string name="new_preset">새 프리셋</string>
     <string name="preset_name_template">프리셋%d</string>
-    <string name="favorited_success">즐겨찾기에 추가됨</string>
-    <string name="unfavorited_success">즐겨찾기 해제됨</string>
     <string name="current_countdown">현재 카운트다운: %1$s</string>
     <string name="last_timer_hint">마지막 타이머: %1$s</string>
     <string name="please_play_sound_before_timer">카운트다운을 설정하려면 먼저 사운드를 재생해 주세요</string>
     <string name="quick_select">빠른 선택</string>
-    <string name="tab_builtin">내장</string>
-    <string name="tab_favorite">즐겨찾기</string>
     <string name="go_back">뒤로</string>
-    <string name="tab_online">온라인</string>
     <string name="no_online_content">온라인 콘텐츠 없음</string>
     <string name="online_sounds_will_show_here">온라인 사운드가 여기에 표시됩니다</string>
     <string name="dynamic_color">다이내믹 색상</string>
     <string name="use_wallpaper_color_as_theme">배경화면 색상을 테마 색상으로 사용</string>
     <string name="high_contrast">고대비</string>
     <string name="use_pure_black_background_in_dark_mode">다크 모드에서 순수 검정 배경 사용</string>
-    <string name="lottie_animation">Lottie 애니메이션</string>
-    <string name="cache_auto_cleared">캐시가 200M를 초과하여 자동으로 삭제되었습니다</string>
+    <string name="monochrome_mode">흑백 모드</string>
+    <string name="monochrome_mode_description">흑백 배색으로 색상 자극을 줄여 잠들기 전에 적합합니다</string>
     <string name="must_download_before_pin">고정 사운드 영역에 추가하려면 먼저 오디오를 다운로드해 주세요</string>
-    <string name="auto_clear_failed">자동 삭제 실패: %1$s</string>
     <string name="downloaded">다운로드 완료</string>
     <string name="cloud_audio">클라우드 오디오</string>
     <string name="light_mode">라이트</string>
     <string name="dark_mode">다크</string>
     <string name="auto_mode">자동</string>
-    <string name="no_favorites">즐겨찾기 없음</string>
-    <string name="favorites_will_show_here">즐겨찾는 사운드가 여기에 표시됩니다</string>
     <string name="hours">시간</string>
     <string name="minutes_label">분</string>
-    <string name="hours_minutes">%1$d시간 %2$d분</string>
-    <string name="minutes_only">%1$d분</string>
-    <string name="five_minutes">5분</string>
-    <string name="three_hours">3시간</string>
+    <plurals name="hours_minutes">
+        <item quantity="other">%1$d시간 %2$d분</item>
+    </plurals>
+    <plurals name="minutes_only">
+        <item quantity="other">%1$d분</item>
+    </plurals>
     <string name="checking_update">업데이트 확인 중…</string>
     <string name="up_to_date">이미 최신 버전입니다</string>
     <string name="current_version">현재 버전: %1$s</string>
@@ -199,12 +140,6 @@
     <string name="join_qq_description">QQ 그룹에서 피드백 공유</string>
     <string name="load_failed">로드 실패: %1$s</string>
     <string name="all_categories">전체</string>
-    <string name="privacy_policy_title">개인정보 처리방침</string>
-    <string name="privacy_policy">이 앱은 사용자의 개인정보 보호를 소중히 여깁니다.
-\n• 데이터 수집: 이 앱은 개인 식별 정보를 수집하지 않으며, 사용자 활동을 추적하지 않습니다.
-\n• 권한: 이 앱은 필요한 오디오 재생 권한만 요청하며, 연락처, 위치 등의 민감한 정보에 접근하지 않습니다.
-\n• 데이터 보안: 데이터 암호화 및 접근 제어 등 업계 표준 보안 조치를 채택하여 사용자의 데이터를 보호합니다.
-\n문의 사항이 있으시면 앱 내 연락처를 통해 연락해 주십시오.</string>
     <string name="wish_good_sleep">~ 좋은 꿈 꾸세요 ~</string>
 
     <!-- Auto Countdown -->
@@ -215,15 +150,15 @@
     <string name="countdown_30_minutes">30분</string>
     <string name="countdown_45_minutes">45분</string>
     <string name="countdown_60_minutes">60분</string>
-    <string name="countdown_1_hour">1시간</string>
     <string name="countdown_2_hours">2시간</string>
     <string name="current_setting">현재 설정</string>
 
     <!-- Floating Play Button -->
     <string name="collapse">접기</string>
-    <string name="expand">펼치기</string>
     <string name="playing_title">현재 재생 중 (%1$d)</string>
-    <string name="playing_audio_count">오디오 %1$d개</string>
+    <plurals name="playing_audio_count">
+        <item quantity="other">오디오 %1$d개</item>
+    </plurals>
     <string name="notification_quit">나가기</string>
     <string name="paused">일시정지됨</string>
     <string name="breathing_notification_title">호흡 운동 중</string>
@@ -232,29 +167,18 @@
     <string name="music_playback_channel_name">음악 재생</string>
     <string name="music_playback_channel_description">현재 재생 중인 음악 및 컨트롤 버튼 표시</string>
     <string name="timer_paused_suffix">(일시정지)</string>
-    <string name="audio_import_unsupported_format">지원되지 않는 오디오 형식입니다. 지원 형식: %1$s</string>
-    <string name="audio_import_corrupted">오디오 파일 정보를 읽을 수 없습니다. 파일이 손상되었을 수 있습니다</string>
-    <string name="audio_import_validation_failed">파일 검증 실패: %1$s</string>
-    <string name="audio_import_invalid_format">잘못된 파일 형식</string>
-    <string name="audio_import_storage_full">내부 저장소에 파일을 저장할 수 없습니다</string>
-    <string name="audio_import_permission_denied">파일에 접근할 권한이 없습니다</string>
-    <string name="audio_import_write_failed">저장 공간이 부족하거나 파일 쓰기에 실패했습니다</string>
-    <string name="audio_import_failed">가져오기 실패: %1$s</string>
     <string name="stop_all">모두 중지</string>
     <string name="stop_all_confirm_title">모든 재생 중지</string>
     <string name="stop_all_confirm_message">모든 재생 중인 오디오를 중지하시겠습니까?</string>
     <string name="stop">중지</string>
     <string name="volume">볼륨</string>
-    <string name="drag_to_stop_play">여기로 드래그하여 재생 중지</string>
     <string name="add_to_preset">프리셋에 추가</string>
-    <string name="added_to_preset">%1$d개의 사운드가 프리셋 %2$d에 추가됨</string>
-    <string name="preset_full">프리셋 %1$d이(가) 가득 찼습니다 (최대 10개)</string>
+    <plurals name="added_to_preset">
+        <item quantity="other">%1$d개의 사운드가 프리셋 %2$d에 추가됨</item>
+    </plurals>
     <string name="no_playing_sounds">현재 재생 중인 사운드가 없습니다</string>
 
     <!-- Preset Module -->
-    <string name="preset_1">프리셋 1</string>
-    <string name="preset_2">프리셋 2</string>
-    <string name="preset_3">프리셋 3</string>
     <string name="preset_max_reached">현재 프리셋이 최대 10개 사운드에 도달했습니다</string>
 
     <!-- Local Sound Names -->
@@ -278,7 +202,6 @@
 
     <!-- Preset Empty State Hint -->
     <string name="preset_rename_hint">프리셋 이름을 탭하여 수정</string>
-    
     <string name="preset_empty_hint">사운드 카드를 길게 눌러 추가하세요</string>
     <string name="close">닫기</string>
 
@@ -291,14 +214,10 @@
     <string name="no_search_results">일치하는 오디오를 찾을 수 없습니다</string>
     <string name="no_local_audio">아직 로컬 오디오가 없습니다</string>
     <string name="no_audio_files_found">기기에서 오디오 파일을 찾을 수 없습니다</string>
-    <string name="grant_storage_permission_hint">로컬 오디오에 접근하려면 설정에서 저장소 권한을 허용해 주세요</string>
-    <string name="grant_permission">권한 부여</string>
     <string name="rename">이름 변경</string>
-    <string name="permission_permanently_denied_hint">권한이 거부되었습니다. 설정에서 저장소 권한을 수동으로 허용해 주세요</string>
-    <string name="renaming">이름 변경 중...</string>
+    <string name="renaming">이름 변경 중…</string>
     <string name="rename_success">이름이 변경되었습니다</string>
     <string name="rename_failed">이름 변경 실패 또는 취소됨</string>
-    <string name="new_name">새 이름</string>
     <string name="delete">삭제</string>
     <string name="delete_success">삭제되었습니다</string>
     <string name="delete_cancelled">삭제가 취소되었습니다</string>
@@ -308,7 +227,7 @@
     <string name="remove_from_favorite">즐겨찾기에서 제거</string>
     <string name="added_to_favorite">즐겨찾기에 추가됨</string>
     <string name="removed_from_favorite">즐겨찾기에서 제거됨</string>
-    <string name="scanning_local_audio">로컬 오디오 파일을 검색하는 중...</string>
+    <string name="scanning_local_audio">로컬 오디오 파일을 검색하는 중…</string>
 
     <!-- Daily Quote Feature -->
     <string name="daily_quote">오늘의 명언</string>
@@ -321,9 +240,9 @@
     <string name="clear">지우기</string>
     <string name="share">공유</string>
     <string name="save_image">이미지 저장</string>
-    <string name="sharing">공유 중...</string>
-    <string name="saving">저장 중...</string>
-    <string name="loading_quote">명언 로딩 중...</string>
+    <string name="sharing">공유 중…</string>
+    <string name="saving">저장 중…</string>
+    <string name="loading_quote">명언 로딩 중…</string>
     <string name="refresh_quote">새로고침</string>
 
     <!-- Recent Play -->
@@ -444,7 +363,7 @@
         <item>저녁 바람은 불어오고 있나요?</item>
         <item>작은 불씨도 초원의 불을 만들 수 있어요</item>
         <item>어려움은 일시적이고, 성장은 지속적이에요</item>
-        <item>비밀 하나 알려줄까요... 쉿...</item>
+        <item>비밀 하나 알려줄까요… 쉿…</item>
         <item>안녕히 주무세요, 진정한 나 자신으로</item>
         <item>잘 먹고, 잘 자요</item>
         <item>피로를 내려놓고, 좋은 꿈을 만나요</item>
@@ -461,12 +380,9 @@
     <!-- Weather Smart Recommend -->
     <string name="weather_smart_recommend">날씨 스마트 추천</string>
     <string name="weather_smart_recommend_desc">날씨에 따라 백색 소음을 자동 추천</string>
-    <string name="weather_quote">조용한 나만의 시간을 가져보세요</string>
     <string name="weather_sound_mapping">날씨 사운드 매핑</string>
     <string name="save">저장</string>
-    <string name="weather_edit_title">날씨 사운드 매핑</string>
-    <string name="weather_refresh">날씨 새로고침</string>
-    <string name="weather_current">현재 날씨: %1$s</string>
+    <string name="weather_current">현재 날씨:</string>
     <string name="weather_select_type">날씨 유형 선택</string>
     <string name="weather_select_sound">재생할 백색 소음 선택</string>
     <string name="weather_loading">날씨 정보를 불러오는 중…</string>
@@ -479,7 +395,6 @@
     <string name="weather_sound_wind">바람</string>
     <string name="weather_sound_birds">새소리</string>
     <string name="weather_sound_river">강물</string>
-    <string name="weather_sound_forest">숲</string>
     <string name="weather_sound_fireplace">캠프파이어</string>
     <string name="weather_sound_waves">파도</string>
     <string name="weather_sound_jungle">정글</string>
@@ -535,23 +450,18 @@
     <string name="weather_snow_shower">눈보라</string>
     <string name="weather_thunderstorm">뇌우</string>
     <string name="weather_thunderstorm_hail">우박을 동반한 뇌우</string>
-    <string name="wind_speed">바람</string>
     <string name="humidity">습도</string>
     <string name="feels_like">체감 온도</string>
-    <string name="downloading">다운로드 중</string>
-    <string name="tap_to_download_and_play">탭하여 다운로드 및 재생</string>
     <string name="playing">재생 중</string>
-    <string name="play_recommended">추천 오디오 재생</string>
-    <string name="download_and_play">다운로드 및 재생</string>
-    <string name="weather_location_required">위치 권한이 필요합니다</string>
-
     <!-- Breathing Exercise -->
     <string name="breathing_exercise">호흡</string>
     <string name="meditation">명상</string>
     <string name="select_audio">오디오 선택</string>
     <string name="loop_play">반복 재생</string>
     <string name="meditation_repeat_times">반복 횟수</string>
-    <string name="meditation_repeat_count">%1$d회 반복</string>
+    <plurals name="meditation_repeat_count">
+        <item quantity="other">%1$d회 반복</item>
+    </plurals>
     <string name="meditation_sleep_subtitle">깊은 이완 ·身心 안정 · 수면 가이드</string>
     <string name="meditation_practice_subtitle">호흡 가이드 · 집중 훈련 · 내면 탐구</string>
     <string name="meditation_relax_subtitle">스트레스 해소 · 평정 회복 · 감정 조절</string>
@@ -560,32 +470,33 @@
     <string name="tag_practice">연습</string>
     <string name="tag_relax">이완</string>
     <string name="tag_mindfulness">마음챙김</string>
-    <string name="tap_to_start">탭하여 시작</string>
-    <string name="inhale">들이마시기...</string>
-    <string name="hold">멈춤...</string>
-    <string name="exhale">내쉬기...</string>
+    <string name="inhale">들이마시기…</string>
+    <string name="hold">멈춤…</string>
+    <string name="exhale">내쉬기…</string>
     <string name="breath_count">%1$d번째 호흡</string>
 
     <!-- Breathing Guide -->
-    <string name="breathing_guide_title">호흡 운동 가이드</string>
-    <string name="breathing_guide_step1">1. 아래 재생 버튼을 눌러 시작</string>
-    <string name="breathing_guide_step2">2. 들이마시기(4초): 커지는 원을 따라가세요</string>
-    <string name="breathing_guide_step3">3. 멈춤(4초): 최대 크기에서 유지</string>
-    <string name="breathing_guide_step4">4. 내쉬기(4초): 작아지는 원을 따라가세요</string>
-    <string name="breathing_guide_step5">5. 지속 시간: 5분, 자동 종료</string>
     <string name="got_it">알겠어요</string>
-    <string name="hold_after">멈춤...</string>
+    <string name="hold_after">멈춤…</string>
     
     <!-- 호흡법 상세 -->
     <string name="operation_steps">작동 단계</string>
     <string name="breathing_rhythm">호흡 리듬</string>
-    <string name="breathing_rhythm_detail">들이마시기 %1$d초 → 멈춤 %2$d초 → 내쉬기 %3$d초 → 멈춤 %4$d초</string>
+    <plurals name="breathing_rhythm_inhale">
+        <item quantity="other">들이마시기 %1$d초</item>
+    </plurals>
+    <plurals name="breathing_rhythm_hold">
+        <item quantity="other">멈춤 %1$d초</item>
+    </plurals>
+    <plurals name="breathing_rhythm_exhale">
+        <item quantity="other">내쉬기 %1$d초</item>
+    </plurals>
     <string name="preset_duration">기본 시간</string>
     <string name="select_duration">시간 선택</string>
     <string name="custom_duration">사용자 정의 시간</string>
     
-    <!-- 호흡법: 4-7-8 -->
-    <string name="breathing_method_478_name">4-7-8 수면 호흡법</string>
+    <!-- 호흡법: 4–7–8 -->
+    <string name="breathing_method_478_name">4–7–8 수면 호흡법</string>
     <string name="breathing_method_478_subtitle">추천・불면증에</string>
     <string name="breathing_method_478_desc">하버드 의대 앤드루 웨일 박사가 개발한 "천연 수면제". 긴 날숨이 심박수를 강제로 낮추고 대뇌 피질 활동을 줄여, 잠들기 전 잡생각, 입면 장애, 야간 각성을 빠르게 완화합니다. 2주간 꾸준히 하면 입면 시간이 크게 단축됩니다.</string>
     <string name="breathing_method_478_step1">눕고 편안히, 혀끝을 입천장에 가볍게 대고 입으로 완전히 숨을 내쉰다</string>
@@ -622,8 +533,8 @@
     <string name="breathing_method_belly_tag2">일상의 평온</string>
     <string name="breathing_method_belly_tag3">기초</string>
     
-    <!-- 호흡법: 4-2-6 -->
-    <string name="breathing_method_426_name">4-2-6 빠른 스트레스 해소</string>
+    <!-- 호흡법: 4–2–6 -->
+    <string name="breathing_method_426_name">4–2–6 빠른 스트레스 해소</string>
     <string name="breathing_method_426_subtitle">빠른 진정・긴장 순간</string>
     <string name="breathing_method_426_desc">가벼운 짧은 리듬. 갑작스러운 불안, 감정 폭발, 잠들기 전 짜증에 적합. 진입 장벽이 매우 낮음. 스트레스 호르몬 코르티솔을 빠르게 낮추고 1분 이내에 심장 박동과 긴장 떨림을 진정시킴. 출퇴근, 회의 전, 감정이 북받칠 때 빠른 완충제로 적합.</string>
     <string name="breathing_method_426_step1">눈을 감고 어깨를 편안히, 코로 4초간 들이마신다</string>
@@ -632,7 +543,6 @@
     <string name="breathing_method_426_tag1">빠른 해소</string>
     <string name="breathing_method_426_tag2">즉각적인 진정</string>
     <string name="breathing_method_426_tag3">짧은 이완</string>
-    
     <string name="breathing_method_primary">추천</string>
     
     <!-- Bottom Navigation Tabs -->
@@ -644,7 +554,9 @@
 
     <!-- Tomato Timer -->
     <string name="tomato_timer_title">집중 타이머</string>
-    <string name="tomato_today_completed">오늘: %1$d회 완료</string>
+    <plurals name="tomato_today_completed">
+        <item quantity="other">오늘: %1$d회 완료</item>
+    </plurals>
     <string name="tomato_focus">집중 중</string>
     <string name="tomato_break">휴식 중</string>
     <string name="tomato_start">시작</string>
@@ -655,13 +567,7 @@
     <string name="tomato_break_complete_title">휴식 종료</string>
     <string name="tomato_break_complete_desc">다시 집중할 준비가 되셨나요?</string>
     <string name="tomato_start_break">휴식 시작</string>
-    <string name="tomato_start_focus">집중 시작</string>
     <string name="tomato_skip_break">휴식 건너뛰기</string>
-    <string name="tomato_start_later">나중에 시작</string>
-    <string name="tomato_custom_time_title">커스텀 시간</string>
-    <string name="tomato_custom_time_range">1 ~ 180 분</string>
-    <string name="tomato_custom_time_label">집중 시간</string>
-    <string name="tomato_custom_time_suffix">분</string>
     <string name="tomato_settings_title">토마토 설정</string>
     <string name="tomato_ringtone_label">종료 벨소리</string>
     <string name="tomato_ringtone_none">벨소리 없음</string>
@@ -690,17 +596,7 @@
     <string name="flip_clock_font_oswald_desc">산업용 빈티지 스타일</string>
 
     <!-- Widget -->
-    <string name="add_quote_widget">위젯 추가</string>
-    <string name="add_quote_widget_description">홈 화면에 오늘의 명언 위젯 추가</string>
-    <string name="widget_add_hint">홈 화면의 빈 영역을 길게 누르고 \"위젯\"을 선택한 후 XMSLEEP를 찾아 명언 위젯을 추가하세요</string>
-    <string name="widget_add_hint_manual">홈 화면의 빈 영역을 길게 누르고 \"위젯\"을 선택한 후 XMSLEEP를 찾아 명언 위젯을 추가하세요</string>
-    <string name="widget_add_failed">홈 화면을 열 수 없습니다. 수동으로 위젯을 추가해 주세요</string>
     <string name="widget_description">오늘의 명언 - 영감을 주는 글귀</string>
-    <string name="widget_default_quote">인생은 지금뿐만 아니라 시와 먼 곳도 함께하는 것입니다.</string>
-    <string name="widget_default_author">작자 미상</string>
-    <string name="widget_loading">로딩 중...</string>
-    <string name="widget_refresh_failed">새로고침 실패</string>
-
     <!-- Recent play dialog settings -->
     <string name="show_recent_play_dialog">최근 재생</string>
     <string name="show_recent_play_dialog_description">앱 실행 시 최근 재생 팝업 표시</string>
@@ -710,7 +606,9 @@
     <string name="tip">알림</string>
 
     <!-- MediaSession 잠금화면 부제 -->
-    <string name="aggregate_others_format">외 %1$d개</string>
+    <plurals name="aggregate_others_format">
+        <item quantity="other">외 %1$d개</item>
+    </plurals>
 
     <!-- Keep screen on -->
     <string name="keep_screen_on">화면 켜기 유지</string>
@@ -732,11 +630,7 @@
     <string name="unable_to_open_link">링크를 열 수 없습니다</string>
     <string name="unable_to_open_link_check_telegram">링크를 열 수 없습니다. Telegram이나 브라우저가 설치되어 있는지 확인하세요</string>
     
-    <!-- Audio import permission dialog -->
-    <string name="audio_file_access_permission_title">오디오 파일 접근 권한 필요</string>
-    <string name="audio_file_access_permission_description">자신만의 오디오 파일을 가져와 사용하려면 앱이 기기의 오디오 파일에 접근해야 합니다.\n\n귀하의 개인정보는 중요하며, 선택하신 오디오 파일만 접근합니다.</string>
-    <string name="cd_import_audio">오디오 가져오기</string>
-    
+    <!-- Audio import permission dialog -->    
     <!-- Weather manual selection -->
     <string name="weather_option_sunny">☀️ 맑음</string>
     <string name="weather_option_partly_cloudy">⛅ 구름 조금</string>
@@ -759,16 +653,21 @@
     <string name="diary_empty">아직 기록이 없습니다</string>
     <string name="diary_empty_hint">카운트다운 타이머로 사운드를 재생하면 자동으로 기록됩니다</string>
     <string name="diary_clear_history_confirm">모든 청음 기록을 지우시겠습니까? 이 작업은 되돌릴 수 없습니다.</string>
-    <string name="diary_summary_high_freq">이번 주 %1$d회 휴식했습니다 (총 %2$s)</string>
-    <string name="diary_summary_medium_freq">이번 주 %1$d회 휴식했습니다 (총 %2$s)</string>
-    <string name="diary_summary_low_freq">이번 주 %1$d회 휴식했습니다 (총 %2$s)</string>
+    <plurals name="diary_summary_high_freq">
+        <item quantity="other">이번 주 %1$d회 휴식했습니다 (총 %2$s)</item>
+    </plurals>
+    <plurals name="diary_summary_medium_freq">
+        <item quantity="other">이번 주 %1$d회 휴식했습니다 (총 %2$s)</item>
+    </plurals>
+    <plurals name="diary_summary_low_freq">
+        <item quantity="other">이번 주 %1$d회 휴식했습니다 (총 %2$s)</item>
+    </plurals>
     <string name="diary_summary_top_sound">, "%1$s"이/가 가장 좋아하는 사운드입니다</string>
     <string name="diary_duration_hours">%1$d시간 %2$d분</string>
     <string name="diary_duration_minutes">%1$d분</string>
     <string name="diary_stat_sessions">세션</string>
     <string name="diary_stat_duration">시간</string>
     <string name="diary_stat_favorite">즐겨찾기</string>
-
     <string name="tag_healing">힐링</string>
     <string name="tag_stress_relief">스트레스 해소</string>
 
@@ -776,13 +675,10 @@
     <string name="developer_letter_title">개발자가 보내는 편지</string>
     <string name="developer_letter_content">친애하는 친구에게,\n\n이 편지를 발견했다면, 제가 코드 속에 숨겨둔 마음이 전해졌기를 바랍니다.\n\nXMSLEEP는 단순한 기술 프로젝트가 아니었습니다. 빗소리, 모닥불, 키보드 소리를 들으며 보낸 수많은 밤, 당신을 위해 만들어낸 작은 안식처였습니다.\n\n삶은 때로 시끄럽고, 일은 바쁘고, 감정은 무거울 수 있습니다. 이 소리들이 당신에게 단 한 순간이라도 평화를 가져다줄 수 있다면, 그 모든 것이 가치 있었습니다.\n\nXMSLEEP를 사용해 주셔서 감사합니다. 이 작은 세상에 의미를 주셔서 감사합니다.\n\n오늘 밤 좋은 꿈 꾸세요.\n\n—— Tosencen</string>
     <string name="radio_station_noise">라디오 소음</string>
-    <string name="search_room_hint">방 검색...</string>
     <string name="tag_white_noise">백색소음</string>
     <string name="tag_study_room">스터디룸</string>
-    <string name="tag_lofi">경음악</string>
     <string name="refresh">새로고침</string>
     <string name="recommended">추천</string>
-    <string name="more_live">더 많은 라이브</string>
     <string name="no_live">현재 라이브 방송이 없습니다</string>
     <string name="room_not_live">이 방송국은 현재 라이브 중이 아닙니다</string>
     <string name="show_radio_tab">라디오 탭</string>
@@ -791,13 +687,6 @@
     <string name="show_breathing_tab_description">하단 탐색 표시줄에 호흡 탭 표시</string>
     <string name="bilibili_room_list_hint">다음 목록은 빌리빌리의 실시간 방송방 내용입니다</string>
     <string name="search_result">%s 검색 결과</string>
-    
-    
-    
-    
-    
-    
-
     <string name="storage_management">저장소 관리</string>
     <string name="clear_downloaded">다운로드 삭제</string>
     <string name="storage_space">사용 공간: %s</string>

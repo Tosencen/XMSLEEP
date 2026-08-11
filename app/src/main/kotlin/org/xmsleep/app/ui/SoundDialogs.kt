@@ -134,9 +134,9 @@ fun TimerDialog(
                     val hours = currentTimerMinutes / 60
                     val mins = currentTimerMinutes % 60
                     val statusText = if (hours > 0) {
-                        context.getString(R.string.hours_minutes, hours, if (mins > 0) mins else 0)
+                        context.resources.getQuantityString(R.plurals.hours_minutes, hours, hours, if (mins > 0) mins else 0)
                     } else {
-                        context.getString(R.string.minutes_only, mins)
+                        context.resources.getQuantityString(R.plurals.minutes_only, mins, mins)
                     }
                     Text(
                         text = context.getString(R.string.current_countdown, statusText),
@@ -147,9 +147,9 @@ fun TimerDialog(
                     val lastHours = lastTimerMinutes / 60
                     val lastMins = lastTimerMinutes % 60
                     val lastText = if (lastHours > 0) {
-                        context.getString(R.string.hours_minutes, lastHours, if (lastMins > 0) lastMins else 0)
+                        context.resources.getQuantityString(R.plurals.hours_minutes, lastHours, lastHours, if (lastMins > 0) lastMins else 0)
                     } else {
-                        context.getString(R.string.minutes_only, lastMins)
+                        context.resources.getQuantityString(R.plurals.minutes_only, lastMins, lastMins)
                     }
                     Text(
                         text = context.getString(R.string.last_timer_hint, lastText),
@@ -178,7 +178,7 @@ fun TimerDialog(
                                         selectedHour = mins / 60
                                         selectedMinute = mins % 60
                                     },
-                                    label = { Text(context.getString(R.string.minutes, mins)) },
+                                    label = { Text(context.resources.getQuantityString(R.plurals.minutes, mins, mins)) },
                                     selected = (selectedHour * 60 + selectedMinute) == mins,
                                     modifier = Modifier.weight(1f)
                                 )
@@ -240,12 +240,12 @@ fun TimerDialog(
                 Text(
                     text = if (totalMinutes > 0) {
                         if (selectedHour > 0) {
-                            context.getString(R.string.hours_minutes, selectedHour, selectedMinute)
+                            context.resources.getQuantityString(R.plurals.hours_minutes, selectedHour, selectedHour, selectedMinute)
                         } else {
-                            context.getString(R.string.minutes_only, selectedMinute)
+                            context.resources.getQuantityString(R.plurals.minutes_only, selectedMinute, selectedMinute)
                         }
                     } else {
-                        context.getString(R.string.minutes_only, 0)
+                        context.resources.getQuantityString(R.plurals.minutes_only, 0, 0)
                     },
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,

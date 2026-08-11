@@ -522,7 +522,7 @@ private fun DurationDialog(
                         FilterChip(
                             selected = selectedMinutes == minutes,
                             onClick = { onDurationChange(minutes) },
-                            label = { Text(context.getString(R.string.minutes, minutes)) }
+                            label = { Text(context.resources.getQuantityString(R.plurals.minutes, minutes, minutes)) }
                         )
                     }
                 }
@@ -537,7 +537,7 @@ private fun DurationDialog(
                         FilterChip(
                             selected = selectedMinutes == minutes,
                             onClick = { onDurationChange(minutes) },
-                            label = { Text(context.getString(R.string.minutes, minutes)) }
+                            label = { Text(context.resources.getQuantityString(R.plurals.minutes, minutes, minutes)) }
                         )
                     }
                 }
@@ -555,7 +555,7 @@ private fun DurationDialog(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 Text(
-                    text = context.getString(R.string.minutes, selectedMinutes),
+                    text = context.resources.getQuantityString(R.plurals.minutes, selectedMinutes, selectedMinutes),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
@@ -667,7 +667,7 @@ private fun DurationSelector(
                 FilterChip(
                     selected = selectedMinutes == minutes,
                     onClick = { onDurationChange(minutes) },
-                    label = { Text(context.getString(R.string.minutes, minutes)) }
+                    label = { Text(context.resources.getQuantityString(R.plurals.minutes, minutes, minutes)) }
                 )
             }
         }
@@ -685,7 +685,7 @@ private fun DurationSelector(
         Spacer(modifier = Modifier.height(8.dp))
         
         Text(
-            text = context.getString(R.string.minutes, selectedMinutes),
+            text = context.resources.getQuantityString(R.plurals.minutes, selectedMinutes, selectedMinutes),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold
@@ -771,14 +771,14 @@ private fun BreathingMethodTutorialDialog(
                     fontWeight = FontWeight.Bold
                 )
                 
+                val rhythmDetail = listOf(
+                    context.resources.getQuantityString(R.plurals.breathing_rhythm_inhale, method.inhale, method.inhale),
+                    context.resources.getQuantityString(R.plurals.breathing_rhythm_hold, method.hold, method.hold),
+                    context.resources.getQuantityString(R.plurals.breathing_rhythm_exhale, method.exhale, method.exhale),
+                    context.resources.getQuantityString(R.plurals.breathing_rhythm_hold, method.holdAfter, method.holdAfter)
+                ).joinToString(" → ")
                 Text(
-                    text = context.getString(
-                        R.string.breathing_rhythm_detail,
-                        method.inhale,
-                        method.hold,
-                        method.exhale,
-                        method.holdAfter
-                    ),
+                    text = rhythmDetail,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

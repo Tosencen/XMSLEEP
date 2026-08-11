@@ -2,6 +2,7 @@ package org.xmsleep.app.ui
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
+import androidx.core.content.res.ResourcesCompat
 import org.xmsleep.app.R
 import org.xmsleep.app.utils.Logger
 
@@ -49,7 +50,7 @@ enum class BackgroundSelection(
     fun isResourceValid(context: Context): Boolean {
         if (this == None || this == Custom) return true
         return try {
-            context.resources.getDrawable(resourceId!!, null)
+            ResourcesCompat.getDrawable(context.resources, resourceId!!, null)
             true
         } catch (e: Exception) {
             Logger.e("BackgroundSelection", "Failed to load resource: $resourceId", e)

@@ -509,12 +509,12 @@ private fun CountdownDialog(
                 Text(
                     text = if (totalMinutes > 0) {
                         if (selectedHour > 0) {
-                            context.getString(R.string.hours_minutes, selectedHour, selectedMinute)
+                            context.resources.getQuantityString(R.plurals.hours_minutes, selectedHour, selectedHour, selectedMinute)
                         } else {
-                            context.getString(R.string.minutes_only, selectedMinute)
+                            context.resources.getQuantityString(R.plurals.minutes_only, selectedMinute, selectedMinute)
                         }
                     } else {
-                        context.getString(R.string.minutes_only, 0)
+                        context.resources.getQuantityString(R.plurals.minutes_only, 0, 0)
                     },
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.primary,

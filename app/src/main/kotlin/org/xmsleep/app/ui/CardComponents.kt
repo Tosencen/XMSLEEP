@@ -35,11 +35,11 @@ import org.xmsleep.app.utils.ToastUtils
 fun SimpleSoundCard2Columns(
     item: SoundItem,
     isPlaying: Boolean,
-    isPinned: Boolean = false,
     onToggle: (AudioManager.Sound) -> Unit,
+    modifier: Modifier = Modifier,
+    isPinned: Boolean = false,
     onVolumeClick: () -> Unit = {},
-    onPinnedChange: (Boolean) -> Unit = {},
-    modifier: Modifier = Modifier
+    onPinnedChange: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     var showTitleMenu by remember { mutableStateOf(false) }
@@ -162,11 +162,11 @@ fun SimpleSoundCard2Columns(
 fun SimpleSoundCard3Columns(
     item: SoundItem,
     isPlaying: Boolean,
-    isPinned: Boolean = false,
     onToggle: (AudioManager.Sound) -> Unit,
+    modifier: Modifier = Modifier,
+    isPinned: Boolean = false,
     onVolumeClick: () -> Unit = {},
-    onPinnedChange: (Boolean) -> Unit = {},
-    modifier: Modifier = Modifier
+    onPinnedChange: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     var showTitleMenu by remember { mutableStateOf(false) }
@@ -296,10 +296,10 @@ fun SimpleSoundCard3Columns(
 fun QuickPlayCard(
     item: SoundItem,
     isPlaying: Boolean,
-    isEditMode: Boolean = false,
     onToggle: (AudioManager.Sound) -> Unit,
-    onRemove: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isEditMode: Boolean = false,
+    onRemove: () -> Unit = {}
 ) {
     val context = LocalContext.current
     

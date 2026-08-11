@@ -38,17 +38,17 @@ import java.util.concurrent.TimeUnit
 fun SoundCard(
     item: SoundItem,
     isPlaying: Boolean,
+    onToggle: (AudioManager.Sound) -> Unit,
+    modifier: Modifier = Modifier,
     hideAnimation: Boolean = false,
     columnsCount: Int = 2,
     isPinned: Boolean = false,
     isBatchSelectMode: Boolean = false,
     isSelected: Boolean = false,
     canSelect: Boolean = true,
-    onToggle: (AudioManager.Sound) -> Unit,
     onVolumeClick: () -> Unit = {},
     onTitleClick: () -> Unit = {},
-    onPinnedChange: (Boolean) -> Unit = {},
-    modifier: Modifier = Modifier
+    onPinnedChange: (Boolean) -> Unit = {}
 ) {
     val context = LocalContext.current
     var showTitleMenu by remember { mutableStateOf(false) }
@@ -391,8 +391,8 @@ fun TimerFAB(
     isTimerActive: Boolean,
     timeLeftMillis: Long,
     onClick: () -> Unit,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     val context = LocalContext.current
     key(timeLeftMillis, isTimerActive, enabled) {

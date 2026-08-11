@@ -378,7 +378,8 @@ class MusicService : Service() {
             descriptions.size <= 3 -> descriptions.joinToString(" + ")
             else -> {
                 val first = descriptions.take(2).joinToString(" + ")
-                val others = getString(R.string.aggregate_others_format, descriptions.size - 2)
+                val othersCount = descriptions.size - 2
+                val others = resources.getQuantityString(R.plurals.aggregate_others_format, othersCount, othersCount)
                 "$first + $others"
             }
         }

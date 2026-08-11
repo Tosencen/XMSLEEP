@@ -497,8 +497,8 @@ fun AnimatedWebPImage(
 fun PullRingControl(
     isContentHidden: Boolean,
     onToggle: () -> Unit,
-    animationProgress: Float = 1f,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    animationProgress: Float = 1f
 ) {
     var dragOffset by remember { mutableStateOf(0f) }
     val threshold = 100f // 拖拽阈值（像素）

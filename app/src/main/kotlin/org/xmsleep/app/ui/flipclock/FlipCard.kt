@@ -21,10 +21,10 @@ import androidx.compose.ui.unit.sp
 @Composable
 fun FlipCard(
     value: Int,
+    modifier: Modifier = Modifier,
     fontFamily: FontFamily = FontFamily.Monospace,
     verticalOffset: Int = 0,
-    fontSize: Int = 240,
-    modifier: Modifier = Modifier
+    fontSize: Int = 240
 ) {
     val displayValue = value.toString().padStart(2, '0')
 
@@ -55,10 +55,10 @@ fun FlipCard(
 fun FlipCardWithSeconds(
     value: Int,
     seconds: Int,
+    modifier: Modifier = Modifier,
     fontFamily: FontFamily = FontFamily.Monospace,
     verticalOffset: Int = 0,
-    fontSize: Int = 240,
-    modifier: Modifier = Modifier
+    fontSize: Int = 240
 ) {
     val displayValue = value.toString().padStart(2, '0')
 

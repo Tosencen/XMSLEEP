@@ -1,28 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">XMSLEEP</string>
     <string name="language">言語</string>
     <string name="language_description">表示言語を選択</string>
-    <string name="language_simplified_chinese">简体中文</string>
-    <string name="language_traditional_chinese">繁體中文</string>
-    <string name="language_english">English</string>
-    <string name="language_korean">한국어</string>
-    <string name="language_japanese">日本語</string>
-    <string name="language_russian">Русский</string>
     <string name="select_language">言語を選択</string>
     <string name="white_noise">ホワイトノイズ</string>
-    <string name="breathing">呼吸</string>
     <string name="star_sky">星空</string>
     <string name="star_sky_more_sounds_hint">ここにさらにサウンドが表示されます</string>
     <string name="settings">設定</string>
     <string name="theme_and_colors">テーマと色</string>
-    <string name="clear_cache">キャッシュを消去</string>
     <string name="software_update">ソフトウェア更新</string>
     <string name="about_xmsleep">XMSLEEPについて</string>
     <string name="ok">OK</string>
     <string name="cancel">キャンセル</string>
-    <string name="color_palette">カラーパレット</string>
-    <string name="confirm_clear_cache">すべてのキャッシュデータを消去してもよろしいですか？</string>
     <string name="appearance">機能</string>
     <string name="system">システム</string>
     <string name="other">その他</string>
@@ -30,29 +20,8 @@
     <string name="feature_settings">機能設定</string>
     <string name="feature_settings_description">機能設定をカスタマイズ</string>
     <string name="feature_dialog_title">機能</string>
-
-    <string name="clear_app_cache_data">アプリのキャッシュデータを消去</string>
-    <string name="check_and_update_to_latest_version">最新バージョンを確認して更新</string>
-    <string name="view_app_info_version_copyright">アプリ情報、バージョン、著作権を表示</string>
-    <string name="clearing">消去中…</string>
-    <string name="this_will_clear_all_cache_data">画像、動画、一時ファイルなどのアプリのキャッシュデータをすべて消去します。</string>
     <string name="version">バージョン: %1$s (ビルド %2$d)</string>
-    <string name="app_description_title">アプリの説明</string>
     <string name="app_description">XMSLEEPは、プロ仕様のホワイトノイズ＆自然音再生アプリで、高品質なオーディオ体験を提供します。雨、雷、キャンプファイヤー、鳥のさえずりなど、厳選された自然音を多数収録し、リラックス、集中力向上、睡眠の質の向上をサポートします。\n\n本アプリはMaterial Design 3を採用し、クリーンで美しいインターフェースとスムーズで直感的な操作を実現。多言語対応、テーマカスタマイズ、個別音量調整、ピン留め、お気に入りなど、豊富な機能でパーソナライズされたサウンド体験をお楽しみいただけます。</string>
-    <string name="usage_instructions_title">使い方</string>
-    <string name="usage_instructions">• サウンドカードをタップして再生、再度タップで停止
-• 音量アイコンをタップして各サウンドの音量を個別調整
-• タイトルをタップしてピン留めエリアやお気に入りを設定
-• ピンマークアイコンをタップして複数選択し、ピン留めエリアに追加
-• カウントダウン機能で自動停止時間を設定
-• 設定でテーマの変更、アニメーション非表示、レイアウト切替など</string>
-    <string name="sound_usage_title">サウンドの使い方</string>
-    <string name="sound_usage">• 内蔵サウンド: ネットワーク不要で直接再生可能
-• ネットワークサウンド: 初回ダウンロードが必要、ダウンロード後はオフライン再生可
-• ピン留めエリア: 最大3つまで追加可能、ローカルとネットワークの併用可
-• お気に入り: 好きなサウンドをお気に入りリストに追加してすぐにアクセス
-• 音量調整: 各サウンドを個別に調整可能、0〜100%%の精密調整に対応
-• カウントダウン機能: 再生時間を設定でき、時間になると全サウンドが自動停止</string>
     <string name="sound_source_title">サウンドソース情報</string>
     <string name="sound_source">本アプリが提供するすべてのオーディオコンテンツは、公開されているオーディオリソースライブラリから提供されています。これには以下が含まれますが、これに限定されません：
 \n
@@ -61,106 +30,78 @@
 • ネットワークサウンド: ネットワーク経由で読み込まれるサウンドリソースは、moodistプロジェクト（https://github.com/remvze/moodist）から提供されています。これはオープンソースの環境音プロジェクトであり、すべてのリソースはMITオープンソースライセンスに従います。
 \n
 • 著作権について: 本アプリはオーディオ再生機能のみを提供し、オーディオコンテンツの著作権を所有しません。すべてのオーディオコンテンツは個人の学習および娯楽のみを目的としており、商業目的での使用は禁止されています。著作権を侵害するコンテンツを見つけた場合は、ご連絡ください。迅速に対応いたします。</string>
-    <string name="technical_info_title">技術情報</string>
     <string name="copyright">© XMSLEEP. All rights reserved.\n\n本アプリが提供するオーディオコンテンツは、個人の学習および娯楽のみを目的としています。\n関連するオーディオリソースの著作権を尊重し、商業目的での使用はご遠慮ください。</string>
-    <string name="hide_animation">WebPアニメーションを非表示</string>
-    <string name="hide_lottie_animation_in_sound_cards">サウンドカードのWebPアニメーションを非表示</string>
     <string name="background_settings">背景設定</string>
-    <string name="background_animation">背景アニメーション</string>
     <string name="select_background">背景を選択</string>
     <string name="no_background">背景なし</string>
     <string name="custom_background">カスタム</string>
     <string name="background_1">背景 1</string>
-    <string name="background_2">背景 2</string>
-    <string name="background_3">背景 3</string>
-    <string name="background_4">背景 4</string>
-    <string name="background_5">背景 5</string>
     <string name="background_6">背景 6</string>
-    <string name="background_7">背景 7</string>
     <string name="theme_color">テーマカラー</string>
-    <string name="theme_color_disabled_hint">「背景なし」を選択するとテーマカラーが変更できます</string>
     <string name="change_background">背景を変更</string>
     <string name="built_in_background">内蔵背景</string>
     <string name="opacity">透明度</string>
     <string name="blur_amount">ぼかし</string>
     <string name="off">オフ</string>
-    <string name="background_preview">背景をプレビュー</string>
     <string name="white_noise_cards">ホワイトノイズカード</string>
-    <string name="builtin_sounds_offline_hint">内蔵サウンド、ネットワーク不要</string>
-    <string name="selected_count">選択中 (%1$d)</string>
-    <string name="max_select_hint">ピン留めエリアに追加できるのは最大3つまでです</string>
-    <string name="batch_select_default">デフォルトを一括選択</string>
-    <string name="cancel_batch_select">一括選択をキャンセル</string>
-    <string name="default_playback_area">ピン留めエリア</string>
-    <string name="click_play_button_to_play_all">便利なサウンド再生</string>
     <string name="play_preset">プリセットを再生</string>
     <string name="pause_preset">プリセットを一時停止</string>
     <string name="preset">プリセット</string>
     <string name="done">完了</string>
-    <string name="max_3_sounds_limit">ピン留めエリアに追加できるのは最大3つまでです</string>
-    <string name="default_area_updated">ピン留めエリアを更新しました</string>
-    <string name="selected">選択済み</string>
+    <string name="selected" tools:override="true">選択済み</string>
     <string name="unselected">未選択</string>
-    <string name="switch_to_light_mode">ライトモードに切替</string>
-    <string name="switch_to_dark_mode">ダークモードに切替</string>
     <string name="switch_to_3_columns">3列に切替</string>
     <string name="switch_to_2_columns">2列に切替</string>
     <string name="switch_to_slide_layout">スライドレイアウトに切り替え</string>
     <string name="pause">一時停止</string>
     <string name="play">再生</string>
-    <string name="now_playing">再生中</string>
     <string name="edit">編集</string>
     <string name="remove">削除</string>
     <string name="adjust_volume">音量調整</string>
     <string name="set_countdown">カウントダウン設定</string>
     <string name="countdown_ended_stopped">カウントダウン終了、再生を停止しました</string>
-    <string name="countdown_set_minutes">%1$d分のカウントダウンを設定しました</string>
+    <plurals name="countdown_set_minutes">
+        <item quantity="other">%1$d分のカウントダウンを設定しました</item>
+    </plurals>
     <string name="countdown_cancelled">カウントダウンをキャンセルしました</string>
-    <string name="adjust_volume_for">音量調整 - %1$s</string>
     <string name="cancel_countdown">カウントダウンをキャンセル</string>
-    <string name="minutes">%1$d分</string>
+    <plurals name="minutes">
+        <item quantity="other">%1$d分</item>
+    </plurals>
     <string name="set_as_default">プリセットに追加</string>
     <string name="cancel_default">プリセットから削除</string>
-    <string name="favorite">お気に入り</string>
-    <string name="cancel_favorite">お気に入り解除</string>
     <string name="pinned_success">プリセットに追加しました</string>
     <string name="unpinned_success">プリセットから削除しました</string>
     <string name="rename_preset">プリセット名を変更</string>
     <string name="new_preset">新規プリセット</string>
     <string name="preset_name_template">プリセット%d</string>
-    <string name="favorited_success">お気に入りに追加しました</string>
-    <string name="unfavorited_success">お気に入り解除しました</string>
     <string name="current_countdown">現在のカウントダウン: %1$s</string>
     <string name="last_timer_hint">前回のタイマー: %1$s</string>
     <string name="please_play_sound_before_timer">カウントダウンを設定する前にサウンドを再生してください</string>
     <string name="quick_select">クイック選択</string>
-    <string name="tab_builtin">内蔵</string>
-    <string name="tab_favorite">お気に入り</string>
     <string name="go_back">戻る</string>
-    <string name="tab_online">オンライン</string>
     <string name="no_online_content">オンラインコンテンツがありません</string>
     <string name="online_sounds_will_show_here">オンラインサウンドがここに表示されます</string>
     <string name="dynamic_color">ダイナミックカラー</string>
     <string name="use_wallpaper_color_as_theme">壁紙の色をテーマカラーとして使用</string>
     <string name="high_contrast">ハイコントラスト</string>
     <string name="use_pure_black_background_in_dark_mode">ダークモードで純粋な黒背景を使用</string>
-    <string name="lottie_animation">Lottieアニメーション</string>
-    <string name="cache_auto_cleared">キャッシュが200Mを超えたため、自動的に消去しました</string>
+    <string name="monochrome_mode">モノクロモード</string>
+    <string name="monochrome_mode_description">白黒の配色で色彩の刺激を抑え、就寝前に最適です</string>
     <string name="must_download_before_pin">ピン留めエリアに追加する前にオーディオをダウンロードしてください</string>
-    <string name="auto_clear_failed">自動消去に失敗しました: %1$s</string>
     <string name="downloaded">ダウンロード済み</string>
     <string name="cloud_audio">クラウドオーディオ</string>
     <string name="light_mode">ライト</string>
     <string name="dark_mode">ダーク</string>
     <string name="auto_mode">自動</string>
-    <string name="no_favorites">お気に入りはありません</string>
-    <string name="favorites_will_show_here">お気に入りに追加したサウンドがここに表示されます</string>
     <string name="hours">時間</string>
     <string name="minutes_label">分</string>
-    <string name="hours_minutes">%1$d時間%2$d分</string>
-    <string name="minutes_only">%1$d分</string>
-    <string name="five_minutes">5分</string>
-    <string name="three_hours">3時間</string>
+    <plurals name="hours_minutes">
+        <item quantity="other">%1$d時間%2$d分</item>
+    </plurals>
+    <plurals name="minutes_only">
+        <item quantity="other">%1$d分</item>
+    </plurals>
     <string name="checking_update">更新を確認中…</string>
     <string name="up_to_date">最新です</string>
     <string name="current_version">現在のバージョン: %1$s</string>
@@ -202,16 +143,6 @@
     <string name="join_qq_description">QQグループでフィードバック</string>
     <string name="load_failed">読み込みに失敗しました: %1$s</string>
     <string name="all_categories">すべて</string>
-    <string name="privacy_policy_title">プライバシーポリシー</string>
-    <string name="privacy_policy">本アプリはお客様のプライバシー保護を重視しています。
-\n
-• データ収集: 本アプリは個人を特定できる情報を一切収集せず、ユーザー活動の追跡も行いません。
-\n
-• 許可: 本アプリは必要なオーディオ再生許可のみを要求し、連絡先、位置情報、その他の機密情報にはアクセスしません。
-\n
-• データセキュリティ: データ暗号化やアクセス制御など、業界標準のセキュリティ対策を採用してデータを保護します。
-\n
-ご質問がある場合は、アプリ内のお問い合わせ方法からご連絡ください。</string>
     <string name="wish_good_sleep">〜いい夢が見られますように〜</string>
     
     <!-- Auto Countdown -->
@@ -222,15 +153,15 @@
     <string name="countdown_30_minutes">30分</string>
     <string name="countdown_45_minutes">45分</string>
     <string name="countdown_60_minutes">60分</string>
-    <string name="countdown_1_hour">1時間</string>
     <string name="countdown_2_hours">2時間</string>
     <string name="current_setting">現在の設定</string>
     
     <!-- Floating Play Button -->
     <string name="collapse">折りたたむ</string>
-    <string name="expand">展開</string>
     <string name="playing_title">再生中 (%1$d)</string>
-    <string name="playing_audio_count">オーディオ %1$d</string>
+    <plurals name="playing_audio_count">
+        <item quantity="other">オーディオ %1$d</item>
+    </plurals>
     <string name="notification_quit">退出</string>
     <string name="paused">一時停止</string>
     <string name="breathing_notification_title">呼吸練習中</string>
@@ -239,29 +170,18 @@
     <string name="music_playback_channel_name">音楽再生</string>
     <string name="music_playback_channel_description">再生中の音楽と操作ボタンを表示</string>
     <string name="timer_paused_suffix">(一時停止)</string>
-    <string name="audio_import_unsupported_format">対応していないオーディオ形式です。対応形式: %1$s</string>
-    <string name="audio_import_corrupted">オーディオファイル情報を読み取れません。ファイルが破損している可能性があります</string>
-    <string name="audio_import_validation_failed">ファイル検証失敗: %1$s</string>
-    <string name="audio_import_invalid_format">ファイル形式が無効です</string>
-    <string name="audio_import_storage_full">内部ストレージにファイルを保存できません</string>
-    <string name="audio_import_permission_denied">ファイルにアクセスする権限がありません</string>
-    <string name="audio_import_write_failed">ストレージ容量が不足しているか、書き込みに失敗しました</string>
-    <string name="audio_import_failed">インポート失敗: %1$s</string>
     <string name="stop_all">すべて停止</string>
     <string name="stop_all_confirm_title">すべての再生を停止</string>
     <string name="stop_all_confirm_message">再生中のオーディオをすべて停止してもよろしいですか？</string>
     <string name="stop">停止</string>
     <string name="volume">音量</string>
-    <string name="drag_to_stop_play">ここにドラッグして再生を停止</string>
     <string name="add_to_preset">プリセットに追加</string>
-    <string name="added_to_preset">%1$d個のサウンドをプリセット%2$dに追加しました</string>
-    <string name="preset_full">プリセット%1$dがいっぱいです（最大10）</string>
+    <plurals name="added_to_preset">
+        <item quantity="other">%1$d個のサウンドをプリセット%2$dに追加しました</item>
+    </plurals>
     <string name="no_playing_sounds">現在再生中のサウンドはありません</string>
     
     <!-- Preset Module -->
-    <string name="preset_1">プリセット 1</string>
-    <string name="preset_2">プリセット 2</string>
-    <string name="preset_3">プリセット 3</string>
     <string name="preset_max_reached">現在のプリセットは最大10個のサウンドに達しました</string>
     
     <!-- Local Sound Names -->
@@ -285,7 +205,6 @@
     
     <!-- Preset Empty State Hint -->
     <string name="preset_rename_hint">プリセット名をタップして変更</string>
-    
     <string name="preset_empty_hint">サウンドカードを長押しして追加</string>
     <string name="close">閉じる</string>
     
@@ -298,14 +217,10 @@
     <string name="no_search_results">該当するオーディオが見つかりません</string>
     <string name="no_local_audio">ローカルオーディオはまだありません</string>
     <string name="no_audio_files_found">端末にオーディオファイルが見つかりません</string>
-    <string name="grant_storage_permission_hint">設定からストレージ権限を許可してローカルオーディオにアクセスしてください</string>
-    <string name="grant_permission">権限を許可</string>
     <string name="rename">名前変更</string>
-    <string name="permission_permanently_denied_hint">権限が永続的に拒否されました。設定から手動でストレージ権限を許可してください</string>
     <string name="renaming">名前変更中…</string>
     <string name="rename_success">名前を変更しました</string>
     <string name="rename_failed">名前変更に失敗したかキャンセルされました</string>
-    <string name="new_name">新しい名前</string>
     <string name="delete">削除</string>
     <string name="delete_success">削除しました</string>
     <string name="delete_cancelled">削除をキャンセルしました</string>
@@ -468,12 +383,9 @@
     <!-- Weather Smart Recommend -->
     <string name="weather_smart_recommend">天気スマートレコメンド</string>
     <string name="weather_smart_recommend_desc">天気に基づいてホワイトノイズを自動提案</string>
-    <string name="weather_quote">自分に静かなひとときを</string>
     <string name="weather_sound_mapping">天気サウンドマッピング</string>
     <string name="save">保存</string>
-    <string name="weather_edit_title">天気サウンドマッピング</string>
-    <string name="weather_refresh">天気を更新</string>
-    <string name="weather_current">現在の天気: %1$s</string>
+    <string name="weather_current">現在の天気:</string>
     <string name="weather_select_type">天気の種類を選択</string>
     <string name="weather_select_sound">再生するホワイトノイズを選択</string>
     <string name="weather_loading">天気を取得中…</string>
@@ -486,7 +398,6 @@
     <string name="weather_sound_wind">風</string>
     <string name="weather_sound_birds">鳥</string>
     <string name="weather_sound_river">川</string>
-    <string name="weather_sound_forest">森</string>
     <string name="weather_sound_fireplace">キャンプファイヤー</string>
     <string name="weather_sound_waves">波</string>
     <string name="weather_sound_jungle">ジャングル</string>
@@ -542,23 +453,18 @@
     <string name="weather_snow_shower">雪あられ</string>
     <string name="weather_thunderstorm">雷雨</string>
     <string name="weather_thunderstorm_hail">雷雨を伴う雹</string>
-    <string name="wind_speed">風</string>
     <string name="humidity">湿度</string>
     <string name="feels_like">体感温度</string>
-    <string name="downloading">ダウンロード中</string>
-    <string name="tap_to_download_and_play">タップしてダウンロード＆再生</string>
-    <string name="playing">再生中</string>
-    <string name="play_recommended">おすすめのオーディオを再生</string>
-    <string name="download_and_play">ダウンロードして再生</string>
-    <string name="weather_location_required">位置情報の許可が必要です</string>
-    
+    <string name="playing">再生中</string>    
     <!-- Breathing Exercise -->
     <string name="breathing_exercise">呼吸</string>
     <string name="meditation">メディテーション</string>
     <string name="select_audio">オーディオを選択</string>
     <string name="loop_play">ループ再生</string>
     <string name="meditation_repeat_times">繰り返し回数</string>
-    <string name="meditation_repeat_count">%1$d回繰り返し</string>
+    <plurals name="meditation_repeat_count">
+        <item quantity="other">%1$d回繰り返し</item>
+    </plurals>
     <string name="meditation_sleep_subtitle">深いリラックス · 身心の安らぎ · 入眠ガイド</string>
     <string name="meditation_practice_subtitle">呼吸ガイド · 集中訓練 · 内なる探求</string>
     <string name="meditation_relax_subtitle">ストレス解放 · 平静回復 · 感情調整</string>
@@ -567,32 +473,33 @@
     <string name="tag_practice">練習</string>
     <string name="tag_relax">リラックス</string>
     <string name="tag_mindfulness">マインドフルネス</string>
-    <string name="tap_to_start">タップして開始</string>
     <string name="inhale">吸う…</string>
     <string name="hold">止める…</string>
     <string name="exhale">吐く…</string>
     <string name="breath_count">呼吸 %1$d</string>
     
     <!-- Breathing Guide -->
-    <string name="breathing_guide_title">呼吸法ガイド</string>
-    <string name="breathing_guide_step1">1. 下の再生ボタンをクリックして開始</string>
-    <string name="breathing_guide_step2">2. 吸う（4秒）：円が拡大するのに合わせて</string>
-    <string name="breathing_guide_step3">3. 止める（4秒）：最大サイズを維持</string>
-    <string name="breathing_guide_step4">4. 吐く（4秒）：円が縮小するのに合わせて</string>
-    <string name="breathing_guide_step5">5. 時間：5分間、自動的に停止</string>
     <string name="got_it">わかりました</string>
     <string name="hold_after">止める…</string>
     
     <!-- 呼吸法詳細 -->
     <string name="operation_steps">操作手順</string>
     <string name="breathing_rhythm">呼吸リズム</string>
-    <string name="breathing_rhythm_detail">吸う %1$d 秒 → 止める %2$d 秒 → 吐く %3$d 秒 → 止める %4$d 秒</string>
+    <plurals name="breathing_rhythm_inhale">
+        <item quantity="other">吸う %1$d 秒</item>
+    </plurals>
+    <plurals name="breathing_rhythm_hold">
+        <item quantity="other">止める %1$d 秒</item>
+    </plurals>
+    <plurals name="breathing_rhythm_exhale">
+        <item quantity="other">吐く %1$d 秒</item>
+    </plurals>
     <string name="preset_duration">標準時間</string>
     <string name="select_duration">時間を選択</string>
     <string name="custom_duration">カスタム時間</string>
     
-    <!-- 呼吸法: 4-7-8 -->
-    <string name="breathing_method_478_name">4-7-8 睡眠呼吸法</string>
+    <!-- 呼吸法: 4–7–8 -->
+    <string name="breathing_method_478_name">4–7–8 睡眠呼吸法</string>
     <string name="breathing_method_478_subtitle">おすすめ・不眠に</string>
     <string name="breathing_method_478_desc">ハーバード医科大学のアンドリュー・ワイル博士が開発した「天然の睡眠薬」。長い呼気で心拍数を強制的に下げ、大脳皮質の活性を抑え、寝る前の考えすぎや入眠困難、夜中に目覚める症状を素早く緩和。2週間の継続で入眠時間が大幅に短縮されます。</string>
     <string name="breathing_method_478_step1">仰向けにリラックスし、舌先を上あごに軽く当て、口から完全に息を吐き出す</string>
@@ -629,8 +536,8 @@
     <string name="breathing_method_belly_tag2">日常の安らぎ</string>
     <string name="breathing_method_belly_tag3">基礎</string>
     
-    <!-- 呼吸法: 4-2-6 -->
-    <string name="breathing_method_426_name">4-2-6 クイックストレス解消</string>
+    <!-- 呼吸法: 4–2–6 -->
+    <string name="breathing_method_426_name">4–2–6 クイックストレス解消</string>
     <string name="breathing_method_426_subtitle">クイックカーム・緊張時に</string>
     <string name="breathing_method_426_desc">軽量な短いリズム。突然のパニック、感情の崩壊、寝る前のイライラに最適。非常に低いハードル。ストレスホルモンのコルチゾールを急速に低下させ、1分以内に心拍数の上昇や緊張による震えを鎮める。通勤中、会議前、感情が高ぶった時のクイックバッファーに。</string>
     <string name="breathing_method_426_step1">目を閉じて肩の力を抜き、鼻から4秒かけて吸う</string>
@@ -639,7 +546,6 @@
     <string name="breathing_method_426_tag1">クイック解消</string>
     <string name="breathing_method_426_tag2">インスタントカーム</string>
     <string name="breathing_method_426_tag3">ショートリラックス</string>
-    
     <string name="breathing_method_primary">おすすめ</string>
     
     <!-- Bottom Navigation Tabs -->
@@ -651,7 +557,9 @@
     
     <!-- Tomato Timer -->
     <string name="tomato_timer_title">集中タイマー</string>
-    <string name="tomato_today_completed">今日: %1$dポモドーロ</string>
+    <plurals name="tomato_today_completed">
+        <item quantity="other">今日: %1$dポモドーロ</item>
+    </plurals>
     <string name="tomato_focus">集中中</string>
     <string name="tomato_break">休憩中</string>
     <string name="tomato_start">開始</string>
@@ -662,13 +570,7 @@
     <string name="tomato_break_complete_title">休憩終了</string>
     <string name="tomato_break_complete_desc">もう一度集中しますか？</string>
     <string name="tomato_start_break">休憩する</string>
-    <string name="tomato_start_focus">集中開始</string>
     <string name="tomato_skip_break">休憩をスキップ</string>
-    <string name="tomato_start_later">後で開始</string>
-    <string name="tomato_custom_time_title">カスタム時間</string>
-    <string name="tomato_custom_time_range">1 ~ 180 分</string>
-    <string name="tomato_custom_time_label">集中時間</string>
-    <string name="tomato_custom_time_suffix">分</string>
     <string name="tomato_settings_title">トマト設定</string>
     <string name="tomato_ringtone_label">終了音</string>
     <string name="tomato_ringtone_none">音なし</string>
@@ -697,17 +599,7 @@
     <string name="flip_clock_font_oswald_desc">インダストリアルなビンテージスタイル</string>
     
     <!-- Widget -->
-    <string name="add_quote_widget">ウィジェットを追加</string>
-    <string name="add_quote_widget_description">ホーム画面に日替わり名言ウィジェットを追加</string>
-    <string name="widget_add_hint">ホーム画面の空きエリアを長押し、「ウィジェット」からXMSLEEPを選択して名言ウィジェットを追加</string>
-    <string name="widget_add_hint_manual">ホーム画面の空きエリアを長押し、「ウィジェット」からXMSLEEPを選択して名言ウィジェットを追加</string>
-    <string name="widget_add_failed">ホーム画面を開けません。手動でウィジェットを追加してください</string>
     <string name="widget_description">日替わり名言 - 心に響く言葉</string>
-    <string name="widget_default_quote">人生とは現在だけではなく、詩と遠くの場所でもある。</string>
-    <string name="widget_default_author">不明</string>
-    <string name="widget_loading">読み込み中…</string>
-    <string name="widget_refresh_failed">更新に失敗しました</string>
-
     <!-- Recent play dialog settings -->
     <string name="show_recent_play_dialog">最近再生したもの</string>
     <string name="show_recent_play_dialog_description">起動時に最近再生したポップアップを表示</string>
@@ -717,7 +609,9 @@
     <string name="tip">ヒント</string>
 
     <!-- MediaSession 集約サブタイトル -->
-    <string name="aggregate_others_format">他 %1$d 個</string>
+    <plurals name="aggregate_others_format">
+        <item quantity="other">他 %1$d 個</item>
+    </plurals>
 
     <!-- Keep screen on -->
     <string name="keep_screen_on">画面をオンに保つ</string>
@@ -739,11 +633,7 @@
     <string name="unable_to_open_link">リンクを開けません</string>
     <string name="unable_to_open_link_check_telegram">リンクを開けません。Telegramまたはブラウザがインストールされているか確認してください</string>
     
-    <!-- Audio import permission dialog -->
-    <string name="audio_file_access_permission_title">オーディオファイルへのアクセス権限が必要です</string>
-    <string name="audio_file_access_permission_description">独自のオーディオファイルをインポートして使用するために、アプリはデバイス上のオーディオファイルへのアクセスが必要です。\n\nお客様のプライバシーは重要であり、選択したオーディオファイルのみにアクセスします。</string>
-    <string name="cd_import_audio">オーディオをインポート</string>
-    
+    <!-- Audio import permission dialog -->    
     <!-- Weather manual selection -->
     <string name="weather_option_sunny">☀️ 晴れ</string>
     <string name="weather_option_partly_cloudy">⛅ 晴れ時々曇り</string>
@@ -766,16 +656,21 @@
     <string name="diary_empty">まだ記録がありません</string>
     <string name="diary_empty_hint">カウントダウンタイマーで音声を再生すると、ここに自動的に記録されます</string>
     <string name="diary_clear_history_confirm">すべての聴音記録を消去してもよろしいですか？この操作は元に戻せません。</string>
-    <string name="diary_summary_high_freq">今週 %1$d 回リラックスしました（合計 %2$s）</string>
-    <string name="diary_summary_medium_freq">今週 %1$d 回リラックスしました（合計 %2$s）</string>
-    <string name="diary_summary_low_freq">今週 %1$d 回リラックスしました（合計 %2$s）</string>
+    <plurals name="diary_summary_high_freq">
+        <item quantity="other">今週 %1$d 回リラックスしました（合計 %2$s）</item>
+    </plurals>
+    <plurals name="diary_summary_medium_freq">
+        <item quantity="other">今週 %1$d 回リラックスしました（合計 %2$s）</item>
+    </plurals>
+    <plurals name="diary_summary_low_freq">
+        <item quantity="other">今週 %1$d 回リラックスしました（合計 %2$s）</item>
+    </plurals>
     <string name="diary_summary_top_sound">、「%1$s」が一番のお気に入りです</string>
     <string name="diary_duration_hours">%1$d時間%2$d分</string>
     <string name="diary_duration_minutes">%1$d分</string>
     <string name="diary_stat_sessions">回数</string>
     <string name="diary_stat_duration">時間</string>
     <string name="diary_stat_favorite">お気に入り</string>
-
     <string name="tag_healing">癒し</string>
     <string name="tag_stress_relief">ストレス解消</string>
 
@@ -783,13 +678,10 @@
     <string name="developer_letter_title">開発者からの手紙</string>
     <string name="developer_letter_content">親愛なるあなたへ\n\nこの手紙を見つけたとき、コードの中に隠した私の想いが届いていれば嬉しいです。\n\nXMSLEEP は、決して単なる技術プロジェクトではありませんでした。雨音やキャンプファイヤー、キーボードの音を聴きながら、数えきれない夜更かしの中で、あなたのために作り上げた小さな避難所です。\n\n人生は時に騒がしく、仕事は忙しく、心は重くなることもあります。もしこれらの音が、一瞬でも、ほんの数秒でも、あなたに安らぎをもたらすなら、それだけで全てに意味があります。\n\nXMSLEEP を使ってくれてありがとう。この小さな世界に意味をくれてありがとう。\n\nどうか今夜は良い眠りを。\n\n—— Tosencen</string>
     <string name="radio_station_noise">ラジオノイズ</string>
-    <string name="search_room_hint">ルームを検索...</string>
     <string name="tag_white_noise">ホワイトノイズ</string>
     <string name="tag_study_room">自習室</string>
-    <string name="tag_lofi">軽音楽</string>
     <string name="refresh">更新</string>
     <string name="recommended">おすすめ</string>
-    <string name="more_live">その他の配信</string>
     <string name="no_live">現在配信中のルームはありません</string>
     <string name="room_not_live">このルームは現在配信していません</string>
     <string name="show_radio_tab">ラジオタブ</string>
@@ -798,13 +690,6 @@
     <string name="show_breathing_tab_description">下部ナビゲーションバーに呼吸タブを表示</string>
     <string name="bilibili_room_list_hint">以下はBilibiliのリアルタイム配信ルーム一覧です</string>
     <string name="search_result">「%s」の検索結果</string>
-    
-    
-    
-    
-    
-    
-
     <string name="storage_management">ストレージ管理</string>
     <string name="clear_downloaded">ダウンロードをクリア</string>
     <string name="storage_space">使用容量: %s</string>

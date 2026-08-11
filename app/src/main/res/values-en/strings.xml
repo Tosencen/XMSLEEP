@@ -1,28 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">XMSLEEP</string>
     <string name="language">Language</string>
     <string name="language_description">Select display language</string>
-    <string name="language_simplified_chinese">简体中文</string>
-    <string name="language_traditional_chinese">繁體中文</string>
-    <string name="language_english">English</string>
-    <string name="language_korean">한국어</string>
-    <string name="language_japanese">日本語</string>
-    <string name="language_russian">Русский</string>
     <string name="select_language">Select Language</string>
     <string name="white_noise">White Noise</string>
-    <string name="breathing">Breathing</string>
     <string name="star_sky">Star Sky</string>
     <string name="star_sky_more_sounds_hint">More sounds will appear here</string>
     <string name="settings">Settings</string>
     <string name="theme_and_colors">Theme &amp; Colors</string>
-    <string name="clear_cache">Clear Cache</string>
     <string name="software_update">Software Update</string>
     <string name="about_xmsleep">About XMSLEEP</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
-    <string name="color_palette">Color Palette</string>
-    <string name="confirm_clear_cache">Are you sure you want to clear all cache data?</string>
     <string name="appearance">Features</string>
     <string name="system">System</string>
     <string name="other">Other</string>
@@ -30,29 +20,8 @@
     <string name="feature_settings">Feature Settings</string>
     <string name="feature_settings_description">Customize feature settings</string>
     <string name="feature_dialog_title">Features</string>
-
-    <string name="clear_app_cache_data">Clear App Cache Data</string>
-    <string name="check_and_update_to_latest_version">Check and Update to Latest Version</string>
-    <string name="view_app_info_version_copyright">View App Info, Version and Copyright</string>
-    <string name="clearing">Clearing…</string>
-    <string name="this_will_clear_all_cache_data">This will clear all cached data of the app, including images, videos, temporary files, etc.</string>
     <string name="version">Version: %1$s (Build %2$d)</string>
-    <string name="app_description_title">App Description</string>
     <string name="app_description">XMSLEEP is a professional white noise and natural sound playback app dedicated to providing you with high-quality audio experiences. The app features multiple carefully selected natural sounds, including rain, thunder, campfire, birdsong, etc., to help you relax, improve focus, and enhance sleep quality.\n\nThe app adopts Material Design 3 specifications with a clean and beautiful interface and smooth and intuitive operation. It supports rich features such as multi-language switching, theme customization, independent volume adjustment, pinned sound area, favorites, etc., allowing you to enjoy a personalized sound experience.</string>
-    <string name="usage_instructions_title">Usage Instructions</string>
-    <string name="usage_instructions">• Tap a sound card to start playback, tap again to stop
-• Tap the volume icon to adjust each sound\'s volume individually
-• Tap the title to set pinned sound area or favorite sounds
-• Tap the pushpin icon to batch select sounds to add to pinned sound area
-• Use the countdown function to set automatic stop playback time
-• In settings, you can adjust themes, hide animations, switch layouts, etc.</string>
-    <string name="sound_usage_title">Sound Usage Instructions</string>
-    <string name="sound_usage">• Built-in sounds: No network required, can be played directly
-• Network sounds: Need to download on first use, can be played offline after downloading
-• Pinned sound area: Can add up to 3 sounds, supports mixed use of local and network sounds
-• Favorites: Can add favorite sounds to the favorites list for quick access
-• Volume adjustment: Each sound can be adjusted independently, supports 0-100%% precise control
-• Countdown function: Can set playback duration, automatically stops all sounds when time is up</string>
     <string name="sound_source_title">Sound Source Information</string>
     <string name="sound_source">All audio content provided by this app comes from publicly available audio resource libraries, including but not limited to:
 
@@ -61,106 +30,82 @@
 • Network sounds: Sound resources loaded through the network come from the moodist project (https://github.com/remvze/moodist), an open-source ambient sound project. All resources follow the MIT open-source license.
 
 • Copyright Notice: This app only provides audio playback functions and does not own the copyright of any audio content. All audio content is for personal learning and entertainment only and should not be used for commercial purposes. If you find any audio content that infringes your copyright, please contact us and we will handle it promptly.</string>
-    <string name="technical_info_title">Technical Information</string>
     <string name="copyright">© XMSLEEP. All rights reserved.\n\nThe audio content provided by this app is for personal learning and entertainment only.\nPlease respect the copyright of related audio resources and do not use them for commercial purposes.</string>
-    <string name="hide_animation">Hide WebP Animation</string>
-    <string name="hide_lottie_animation_in_sound_cards">Hide WebP animation in sound cards</string>
     <string name="background_settings">Background Settings</string>
-    <string name="background_animation">Background Animation</string>
     <string name="select_background">Select Background</string>
     <string name="no_background">No Background</string>
     <string name="custom_background">Custom</string>
     <string name="background_1">Background 1</string>
-    <string name="background_2">Background 2</string>
-    <string name="background_3">Background 3</string>
-    <string name="background_4">Background 4</string>
-    <string name="background_5">Background 5</string>
     <string name="background_6">Background 6</string>
-    <string name="background_7">Background 7</string>
     <string name="theme_color">Theme Color</string>
-    <string name="theme_color_disabled_hint">Select \"No Background\" to change theme color</string>
     <string name="change_background">Change Background</string>
     <string name="built_in_background">Built-in</string>
     <string name="opacity">Opacity</string>
     <string name="blur_amount">Blur</string>
     <string name="off">Off</string>
-    <string name="background_preview">Preview Background</string>
     <string name="white_noise_cards">White Noise Cards</string>
-    <string name="builtin_sounds_offline_hint">Built-in sounds, no network required</string>
-    <string name="selected_count">Selected (%1$d)</string>
-    <string name="max_select_hint">Maximum 3 sounds can be added to pinned area</string>
-    <string name="batch_select_default">Batch Select Default</string>
-    <string name="cancel_batch_select">Cancel Batch Select</string>
-    <string name="default_playback_area">Pinned Sound Area</string>
-    <string name="click_play_button_to_play_all">Convenient sound playback</string>
     <string name="play_preset">Play Preset</string>
     <string name="pause_preset">Pause Preset</string>
     <string name="preset">Preset</string>
     <string name="done">Done</string>
-    <string name="max_3_sounds_limit">Pinned sound area can only add up to 3 sounds</string>
-    <string name="default_area_updated">Pinned sound area updated</string>
-    <string name="selected">Selected</string>
+    <string name="selected" tools:override="true">Selected</string>
     <string name="unselected">Unselected</string>
-    <string name="switch_to_light_mode">Switch to Light Mode</string>
-    <string name="switch_to_dark_mode">Switch to Dark Mode</string>
     <string name="switch_to_3_columns">Switch to 3 Columns</string>
     <string name="switch_to_2_columns">Switch to 2 Columns</string>
     <string name="switch_to_slide_layout">Switch to Slide Layout</string>
     <string name="pause">Pause</string>
     <string name="play">Play</string>
-    <string name="now_playing">Now Playing</string>
     <string name="edit">Edit</string>
     <string name="remove">Remove</string>
     <string name="adjust_volume">Adjust Volume</string>
     <string name="set_countdown">Set Countdown</string>
     <string name="countdown_ended_stopped">Countdown ended, playback stopped</string>
-    <string name="countdown_set_minutes">Countdown set for %1$d minutes</string>
+    <plurals name="countdown_set_minutes">
+        <item quantity="one">Countdown set for %1$d minute</item>
+        <item quantity="other">Countdown set for %1$d minutes</item>
+    </plurals>
     <string name="countdown_cancelled">Countdown cancelled</string>
-    <string name="adjust_volume_for">Adjust Volume - %1$s</string>
     <string name="cancel_countdown">Cancel Countdown</string>
-    <string name="minutes">%1$d minutes</string>
+    <plurals name="minutes">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
     <string name="set_as_default">Add to Preset</string>
     <string name="cancel_default">Remove from Preset</string>
-    <string name="favorite">Favorite</string>
-    <string name="cancel_favorite">Unfavorite</string>
     <string name="pinned_success">Added to Preset</string>
     <string name="unpinned_success">Removed from Preset</string>
     <string name="rename_preset">Rename Preset</string>
     <string name="new_preset">New Preset</string>
     <string name="preset_name_template">Preset %d</string>
-    <string name="favorited_success">Favorited</string>
-    <string name="unfavorited_success">Unfavorited</string>
     <string name="current_countdown">Current countdown: %1$s</string>
     <string name="last_timer_hint">Last timer: %1$s</string>
     <string name="please_play_sound_before_timer">Please play a sound before setting countdown</string>
     <string name="quick_select">Quick Select</string>
-    <string name="tab_builtin">Built-in</string>
-    <string name="tab_favorite">Favorites</string>
     <string name="go_back">Back</string>
-    <string name="tab_online">Online</string>
     <string name="no_online_content">No online content</string>
     <string name="online_sounds_will_show_here">Online sounds will show here</string>
     <string name="dynamic_color">Dynamic Color</string>
     <string name="use_wallpaper_color_as_theme">Use wallpaper color as theme color</string>
     <string name="high_contrast">High Contrast</string>
     <string name="use_pure_black_background_in_dark_mode">Use pure black background in dark mode</string>
-    <string name="lottie_animation">Lottie Animation</string>
-    <string name="cache_auto_cleared">Cache exceeded 200M, automatically cleared</string>
+    <string name="monochrome_mode">Monochrome Mode</string>
+    <string name="monochrome_mode_description">Black-and-white palette reduces visual stimulation — great before sleep</string>
     <string name="must_download_before_pin">Please download audio before adding to pinned sound area</string>
-    <string name="auto_clear_failed">Auto clear failed: %1$s</string>
     <string name="downloaded">Downloaded</string>
     <string name="cloud_audio">Cloud Audio</string>
     <string name="light_mode">Light</string>
     <string name="dark_mode">Dark</string>
     <string name="auto_mode">Auto</string>
-    <string name="no_favorites">No Favorites</string>
-    <string name="favorites_will_show_here">Favorited sounds will show here</string>
     <string name="hours">hours</string>
     <string name="minutes_label">minutes</string>
-    <string name="hours_minutes">%1$d hours %2$d minutes</string>
-    <string name="minutes_only">%1$d minutes</string>
-    <string name="five_minutes">5 minutes</string>
-    <string name="three_hours">3 hours</string>
+    <plurals name="hours_minutes">
+        <item quantity="one">%1$d hour %2$d minutes</item>
+        <item quantity="other">%1$d hours %2$d minutes</item>
+    </plurals>
+    <plurals name="minutes_only">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
     <string name="checking_update">Checking for updates…</string>
     <string name="up_to_date">Already up to date</string>
     <string name="current_version">Current version: %1$s</string>
@@ -202,16 +147,6 @@
     <string name="join_qq_description">Join our QQ group for feedback</string>
     <string name="load_failed">Load failed: %1$s</string>
     <string name="all_categories">All</string>
-    <string name="privacy_policy_title">Privacy Policy</string>
-    <string name="privacy_policy">This app highly values your privacy protection.
-
-• Data Collection: This app does not collect any personally identifiable information and does not track user activities.
-
-• Permissions: This app only requests necessary audio playback permissions and will not access your contacts, location, or other sensitive information.
-
-• Data Security: We adopt industry-standard security measures to protect your data, including data encryption and access control.
-
-If you have any questions, please contact us through the in-app contact method.</string>
     <string name="wish_good_sleep">~ May you have sweet dreams ~</string>
     
     <!-- Auto Countdown -->
@@ -222,15 +157,16 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="countdown_30_minutes">30 Minutes</string>
     <string name="countdown_45_minutes">45 Minutes</string>
     <string name="countdown_60_minutes">60 Minutes</string>
-    <string name="countdown_1_hour">1 Hour</string>
     <string name="countdown_2_hours">2 Hours</string>
     <string name="current_setting">Current Setting</string>
     
     <!-- Floating Play Button -->
     <string name="collapse">Collapse</string>
-    <string name="expand">Expand</string>
     <string name="playing_title">Now Playing (%1$d)</string>
-    <string name="playing_audio_count">%1$d audio</string>
+    <plurals name="playing_audio_count">
+        <item quantity="one">%1$d audio</item>
+        <item quantity="other">%1$d audios</item>
+    </plurals>
     <string name="notification_quit">Exit</string>
     <string name="paused">Paused</string>
     <string name="breathing_notification_title">Breathing exercise in progress</string>
@@ -239,29 +175,19 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="music_playback_channel_name">Music playback</string>
     <string name="music_playback_channel_description">Shows the currently playing music and controls</string>
     <string name="timer_paused_suffix">(Paused)</string>
-    <string name="audio_import_unsupported_format">Unsupported audio format. Supported formats: %1$s</string>
-    <string name="audio_import_corrupted">Cannot read audio file information. The file may be corrupted</string>
-    <string name="audio_import_validation_failed">File validation failed: %1$s</string>
-    <string name="audio_import_invalid_format">Invalid file format</string>
-    <string name="audio_import_storage_full">Cannot save file to internal storage</string>
-    <string name="audio_import_permission_denied">No permission to access the file</string>
-    <string name="audio_import_write_failed">Insufficient storage or file write failed</string>
-    <string name="audio_import_failed">Import failed: %1$s</string>
     <string name="stop_all">Stop All</string>
     <string name="stop_all_confirm_title">Stop All Playback</string>
     <string name="stop_all_confirm_message">Are you sure you want to stop all playing audio?</string>
     <string name="stop">Stop</string>
     <string name="volume">Volume</string>
-    <string name="drag_to_stop_play">Drag here to stop playback</string>
     <string name="add_to_preset">Add to Preset</string>
-    <string name="added_to_preset">Added %1$d sounds to Preset %2$d</string>
-    <string name="preset_full">Preset %1$d is full (max 10)</string>
+    <plurals name="added_to_preset">
+        <item quantity="one">Added %1$d sound to Preset %2$d</item>
+        <item quantity="other">Added %1$d sounds to Preset %2$d</item>
+    </plurals>
     <string name="no_playing_sounds">No sounds currently playing</string>
     
     <!-- Preset Module -->
-    <string name="preset_1">Preset 1</string>
-    <string name="preset_2">Preset 2</string>
-    <string name="preset_3">Preset 3</string>
     <string name="preset_max_reached">Current preset has reached maximum 10 sounds</string>
     
     <!-- Local Sound Names -->
@@ -285,7 +211,6 @@ If you have any questions, please contact us through the in-app contact method.<
     
     <!-- Preset Empty State Hint -->
     <string name="preset_rename_hint">Tap preset name to rename</string>
-    
     <string name="preset_empty_hint">Long press sound cards to add</string>
     <string name="close">Close</string>
     
@@ -298,14 +223,10 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="no_search_results">No matching audio found</string>
     <string name="no_local_audio">No local audio yet</string>
     <string name="no_audio_files_found">No audio files found on device</string>
-    <string name="grant_storage_permission_hint">Please grant storage permission in settings to access local audio</string>
-    <string name="grant_permission">Grant Permission</string>
     <string name="rename">Rename</string>
-    <string name="permission_permanently_denied_hint">Permission has been denied, please manually grant storage permission in settings</string>
-    <string name="renaming">Renaming...</string>
+    <string name="renaming">Renaming…</string>
     <string name="rename_success">Renamed successfully</string>
     <string name="rename_failed">Rename failed or cancelled</string>
-    <string name="new_name">New Name</string>
     <string name="delete">Delete</string>
     <string name="delete_success">Deleted successfully</string>
     <string name="delete_cancelled">Delete cancelled</string>
@@ -315,7 +236,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="remove_from_favorite">Remove from Favorites</string>
     <string name="added_to_favorite">Added to favorites</string>
     <string name="removed_from_favorite">Removed from favorites</string>
-    <string name="scanning_local_audio">Scanning local audio files...</string>
+    <string name="scanning_local_audio">Scanning local audio files…</string>
     
     <!-- Daily Quote Feature -->
     <string name="daily_quote">Daily Quote</string>
@@ -328,9 +249,9 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="clear">Clear</string>
     <string name="share">Share</string>
     <string name="save_image">Save Image</string>
-    <string name="sharing">Sharing...</string>
-    <string name="saving">Saving...</string>
-    <string name="loading_quote">Loading quote...</string>
+    <string name="sharing">Sharing…</string>
+    <string name="saving">Saving…</string>
+    <string name="loading_quote">Loading quote…</string>
     <string name="refresh_quote">Refresh</string>
     
     <!-- Recent Play -->
@@ -451,7 +372,7 @@ If you have any questions, please contact us through the in-app contact method.<
         <item>Has the evening breeze arrived?</item>
         <item>A single spark can start a prairie fire</item>
         <item>Difficulties are temporary, growth is continuous</item>
-        <item>Let me tell you a secret... ssshhh...</item>
+        <item>Let me tell you a secret… ssshhh…</item>
         <item>Good night, be your true self</item>
         <item>Eat well, sleep well</item>
         <item>Let go of fatigue, embrace sweet dreams</item>
@@ -468,12 +389,9 @@ If you have any questions, please contact us through the in-app contact method.<
     <!-- Weather Smart Recommend -->
     <string name="weather_smart_recommend">Weather Smart Recommend</string>
     <string name="weather_smart_recommend_desc">Auto-recommend white noise based on weather</string>
-    <string name="weather_quote">Give yourself a quiet moment</string>
     <string name="weather_sound_mapping">Weather Sound Mapping</string>
     <string name="save">Save</string>
-    <string name="weather_edit_title">Weather Sound Mapping</string>
-    <string name="weather_refresh">Refresh Weather</string>
-    <string name="weather_current">Current weather: %1$s</string>
+    <string name="weather_current">Current weather:</string>
     <string name="weather_select_type">Select weather type</string>
     <string name="weather_select_sound">Select white noise to play</string>
     <string name="weather_loading">Fetching weather…</string>
@@ -486,7 +404,6 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="weather_sound_wind">Wind</string>
     <string name="weather_sound_birds">Birds</string>
     <string name="weather_sound_river">River</string>
-    <string name="weather_sound_forest">Forest</string>
     <string name="weather_sound_fireplace">Campfire</string>
     <string name="weather_sound_waves">Waves</string>
     <string name="weather_sound_jungle">Jungle</string>
@@ -542,23 +459,19 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="weather_snow_shower">Snow Shower</string>
     <string name="weather_thunderstorm">Thunderstorm</string>
     <string name="weather_thunderstorm_hail">Thunderstorm with Hail</string>
-    <string name="wind_speed">Wind</string>
     <string name="humidity">Humidity</string>
     <string name="feels_like">Feels like</string>
-    <string name="downloading">Downloading</string>
-    <string name="tap_to_download_and_play">Tap to download and play</string>
-    <string name="playing">Playing</string>
-    <string name="play_recommended">Play Recommended Audio</string>
-    <string name="download_and_play">Download and Play</string>
-    <string name="weather_location_required">Location permission required</string>
-    
+    <string name="playing">Playing</string>    
     <!-- Breathing Exercise -->
     <string name="breathing_exercise">Breathing</string>
     <string name="meditation">Meditation</string>
     <string name="select_audio">Select Audio</string>
     <string name="loop_play">Loop Play</string>
     <string name="meditation_repeat_times">Repeat count</string>
-    <string name="meditation_repeat_count">Repeat %1$d time(s)</string>
+    <plurals name="meditation_repeat_count">
+        <item quantity="one">Repeat %1$d time</item>
+        <item quantity="other">Repeat %1$d times</item>
+    </plurals>
     <string name="meditation_sleep_subtitle">Deep Relaxation · Soothe Body &amp; Mind · Sleep Guide</string>
     <string name="meditation_practice_subtitle">Breath Guide · Focus Training · Inner Exploration</string>
     <string name="meditation_relax_subtitle">Release Stress · Restore Calm · Emotion Regulation</string>
@@ -567,41 +480,44 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="tag_practice">Practice</string>
     <string name="tag_relax">Relax</string>
     <string name="tag_mindfulness">Mindfulness</string>
-    <string name="tap_to_start">Tap to Start</string>
-    <string name="inhale">Inhale...</string>
-    <string name="hold">Hold...</string>
-    <string name="exhale">Exhale...</string>
-    <string name="hold_after">Hold...</string>
+    <string name="inhale">Inhale…</string>
+    <string name="hold">Hold…</string>
+    <string name="exhale">Exhale…</string>
+    <string name="hold_after">Hold…</string>
     <string name="breath_count">Breath %1$d</string>
     
     <!-- Breathing Guide -->
-    <string name="breathing_guide_title">Breathing Exercise Guide</string>
-    <string name="breathing_guide_step1">1. Click the play button below to start</string>
-    <string name="breathing_guide_step2">2. Inhale (4s): Follow the expanding circle</string>
-    <string name="breathing_guide_step3">3. Hold (4s): Keep at maximum size</string>
-    <string name="breathing_guide_step4">4. Exhale (4s): Follow the shrinking circle</string>
-    <string name="breathing_guide_step5">5. Duration: 5 minutes, stops automatically</string>
     <string name="got_it">Got it</string>
     <string name="operation_steps">Steps</string>
     <string name="breathing_rhythm">Breathing Rhythm</string>
-    <string name="breathing_rhythm_detail">Inhale %1$d sec → Hold %2$d sec → Exhale %3$d sec → Hold %4$d sec</string>
+    <plurals name="breathing_rhythm_inhale">
+        <item quantity="one">Inhale %1$d sec</item>
+        <item quantity="other">Inhale %1$d secs</item>
+    </plurals>
+    <plurals name="breathing_rhythm_hold">
+        <item quantity="one">Hold %1$d sec</item>
+        <item quantity="other">Hold %1$d secs</item>
+    </plurals>
+    <plurals name="breathing_rhythm_exhale">
+        <item quantity="one">Exhale %1$d sec</item>
+        <item quantity="other">Exhale %1$d secs</item>
+    </plurals>
     <string name="preset_duration">Preset Duration</string>
     <string name="select_duration">Select Duration</string>
     <string name="custom_duration">Custom Duration</string>
     
     <!-- Breathing Method Names -->
-    <string name="breathing_method_478_name">4-7-8 Sleep Breathing</string>
+    <string name="breathing_method_478_name">4–7–8 Sleep Breathing</string>
     <string name="breathing_method_478_subtitle">Recommended • For Insomnia</string>
     <string name="breathing_method_478_desc">Developed by Dr. Andrew Weil at Harvard Medical School, known as "nature\'s sleeping pill." Extended exhale forcefully lowers heart rate and reduces brain cortex activity, quickly relieving pre-sleep racing thoughts, difficulty falling asleep, and nighttime awakenings. 2 weeks of practice can significantly shorten sleep onset time.</string>
     <string name="breathing_method_478_step1">Lie down relaxed, tongue tip lightly touching the roof of your mouth, exhale completely through your mouth</string>
     <string name="breathing_method_478_step2">Close mouth, gently inhale through nose for 4 seconds, abdomen naturally expands</string>
     <string name="breathing_method_478_step3">Hold breath for 7 seconds, keep body relaxed without tension</string>
     <string name="breathing_method_478_step4">Lips slightly open, slowly exhale for 8 seconds, you may make a soft \'shh\' sound</string>
-    <string name="breathing_method_478_step5">Repeat 4-8 cycles, gently bring attention back if mind wanders</string>
+    <string name="breathing_method_478_step5">Repeat 4–8 cycles, gently bring attention back if mind wanders</string>
     <string name="breathing_method_478_tag1">Sleep Aid</string>
     <string name="breathing_method_478_tag2">Deep Sleep</string>
     <string name="breathing_method_478_tag3">Night Relax</string>
-    
     <string name="breathing_method_box_name">Box Breathing</string>
     <string name="breathing_method_box_subtitle">Square Breathing • Balance Focus</string>
     <string name="breathing_method_box_desc">US Navy SEAL stress relief training method, named for its square-like equal breathing rhythm. Balances sympathetic and parasympathetic nervous systems, relieves panic, irritability, and workplace stress. Promotes relaxation without drowsiness, ideal for lunch breaks, work intervals, and pre-exam calm.</string>
@@ -613,19 +529,17 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="breathing_method_box_tag1">Daytime Relief</string>
     <string name="breathing_method_box_tag2">Focus</string>
     <string name="breathing_method_box_tag3">Emotion Balance</string>
-    
     <string name="breathing_method_belly_name">Basic Belly Breathing</string>
     <string name="breathing_method_belly_subtitle">Universal • Beginner Friendly</string>
     <string name="breathing_method_belly_desc">No fixed timing rhythm, the foundation of all breathing techniques, zero threshold. Uses diaphragmatic breathing instead of chest breathing. Improves shallow, rapid breathing habits, relieves chronic chest tightness, anxiety, and fatigue. Practice anytime, anywhere - perfect for beginners and those with mild anxiety.</string>
     <string name="breathing_method_belly_step1">One hand on chest, one hand on abdomen</string>
     <string name="breathing_method_belly_step2">Inhale slowly through nose, only abdomen rises, chest stays still</string>
     <string name="breathing_method_belly_step3">Exhale steadily through mouth, abdomen draws inward and downward</string>
-    <string name="breathing_method_belly_step4">Keep slow and smooth throughout, exhale should be 1.5-2x longer than inhale, cycle freely</string>
+    <string name="breathing_method_belly_step4">Keep slow and smooth throughout, exhale should be 1.5–2x longer than inhale, cycle freely</string>
     <string name="breathing_method_belly_tag1">Beginner</string>
     <string name="breathing_method_belly_tag2">Daily Calm</string>
     <string name="breathing_method_belly_tag3">Foundation</string>
-    
-    <string name="breathing_method_426_name">4-2-6 Quick Stress Relief</string>
+    <string name="breathing_method_426_name">4–2–6 Quick Stress Relief</string>
     <string name="breathing_method_426_subtitle">Quick Calm • Tense Moments</string>
     <string name="breathing_method_426_desc">Lightweight short rhythm, perfect for sudden panic, emotional breakdown, or pre-sleep irritability. Extremely low barrier to entry. Rapidly reduces stress hormone cortisol, calms racing heartbeat and nervous trembling within 1 minute. Ideal for commutes, before meetings, or quick buffer during emotional overload.</string>
     <string name="breathing_method_426_step1">Close eyes, relax shoulders, inhale through nose for 4 seconds</string>
@@ -634,7 +548,6 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="breathing_method_426_tag1">Quick Relief</string>
     <string name="breathing_method_426_tag2">Instant Calm</string>
     <string name="breathing_method_426_tag3">Short Relax</string>
-    
     <string name="breathing_method_primary">Recommended</string>
     
     <!-- Bottom Navigation Tabs -->
@@ -642,15 +555,11 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="tab_starsky">Stars</string>
     <string name="tab_breathing">Breath</string>
     <string name="tab_radio">Radio</string>
-    <string name="radio_select_station">Select Station</string>
     <string name="tab_settings">Setup</string>
-    <string name="search_room_hint">Search rooms...</string>
     <string name="tag_white_noise">White Noise</string>
     <string name="tag_study_room">Study Room</string>
-    <string name="tag_lofi">Lo-fi</string>
     <string name="refresh">Refresh</string>
     <string name="recommended">Recommended</string>
-    <string name="more_live">More Live</string>
     <string name="no_live">No live rooms</string>
     <string name="room_not_live">This room is not currently live</string>
     <string name="show_radio_tab">Radio Tab</string>
@@ -662,7 +571,10 @@ If you have any questions, please contact us through the in-app contact method.<
     
     <!-- Tomato Timer -->
     <string name="tomato_timer_title">Focus Timer</string>
-    <string name="tomato_today_completed">Today: %1$d pomodoros</string>
+    <plurals name="tomato_today_completed">
+        <item quantity="one">Today: %1$d pomodoro</item>
+        <item quantity="other">Today: %1$d pomodoros</item>
+    </plurals>
     <string name="tomato_focus">Focusing</string>
     <string name="tomato_break">On Break</string>
     <string name="tomato_start">Start</string>
@@ -673,13 +585,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="tomato_break_complete_title">Break Over</string>
     <string name="tomato_break_complete_desc">Ready to focus again?</string>
     <string name="tomato_start_break">Take a Break</string>
-    <string name="tomato_start_focus">Start Focus</string>
     <string name="tomato_skip_break">Skip Break</string>
-    <string name="tomato_start_later">Start Later</string>
-    <string name="tomato_custom_time_title">Custom Duration</string>
-    <string name="tomato_custom_time_range">1 ~ 180 minutes</string>
-    <string name="tomato_custom_time_label">Focus duration</string>
-    <string name="tomato_custom_time_suffix">min</string>
     <string name="tomato_settings_title">Tomato Settings</string>
     <string name="tomato_ringtone_label">End ringtone</string>
     <string name="tomato_ringtone_none">No ringtone</string>
@@ -708,17 +614,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="flip_clock_font_oswald_desc">Industrial vintage style</string>
     
     <!-- Widget -->
-    <string name="add_quote_widget">Add Widget</string>
-    <string name="add_quote_widget_description">Add daily quote widget to home screen</string>
-    <string name="widget_add_hint">Long press on empty area of home screen, select "Widgets", find XMSLEEP to add the quote widget</string>
-    <string name="widget_add_hint_manual">Long press on empty area of home screen, select "Widgets", find XMSLEEP to add the quote widget</string>
-    <string name="widget_add_failed">Cannot open home screen, please add widget manually</string>
     <string name="widget_description">Daily Quote - Inspirational quotes</string>
-    <string name="widget_default_quote">Life is not just about the present, but also about poetry and distant places.</string>
-    <string name="widget_default_author">Unknown</string>
-    <string name="widget_loading">Loading...</string>
-    <string name="widget_refresh_failed">Refresh failed</string>
-
     <!-- Recent play dialog settings -->
     <string name="show_recent_play_dialog">Recent Play</string>
     <string name="show_recent_play_dialog_description">Show recent play popup on launch</string>
@@ -728,7 +624,10 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="tip">Tip</string>
 
     <!-- MediaSession aggregate subtitle -->
-    <string name="aggregate_others_format">+%1$d more</string>
+    <plurals name="aggregate_others_format">
+        <item quantity="one">+%1$d more</item>
+        <item quantity="other">+%1$d more</item>
+    </plurals>
 
     <!-- Keep screen on -->
     <string name="keep_screen_on">Keep Screen On</string>
@@ -750,11 +649,7 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="unable_to_open_link">Unable to open link</string>
     <string name="unable_to_open_link_check_telegram">Unable to open link, please check if Telegram or browser is installed</string>
     
-    <!-- Audio import permission dialog -->
-    <string name="audio_file_access_permission_title">Audio File Access Permission Required</string>
-    <string name="audio_file_access_permission_description">To import and use your own audio files, the app needs to access audio files on your device.\n\nYour privacy is important, we only access audio files you actively select.</string>
-    <string name="cd_import_audio">Import Audio</string>
-    
+    <!-- Audio import permission dialog -->    
     <!-- Weather manual selection -->
     <string name="weather_option_sunny">☀️ Sunny</string>
     <string name="weather_option_partly_cloudy">⛅ Partly Cloudy</string>
@@ -777,16 +672,24 @@ If you have any questions, please contact us through the in-app contact method.<
     <string name="diary_empty">No entries yet</string>
     <string name="diary_empty_hint">After using the countdown timer to play sounds, entries will be recorded here automatically</string>
     <string name="diary_clear_history_confirm">Are you sure you want to clear all diary entries? This action cannot be undone.</string>
-    <string name="diary_summary_high_freq">This week you relaxed %1$d times, totaling %2$s</string>
-    <string name="diary_summary_medium_freq">This week you relaxed %1$d times, totaling %2$s</string>
-    <string name="diary_summary_low_freq">This week you relaxed %1$d times, totaling %2$s</string>
+    <plurals name="diary_summary_high_freq">
+        <item quantity="one">This week you relaxed %1$d time, totaling %2$s</item>
+        <item quantity="other">This week you relaxed %1$d times, totaling %2$s</item>
+    </plurals>
+    <plurals name="diary_summary_medium_freq">
+        <item quantity="one">This week you relaxed %1$d time, totaling %2$s</item>
+        <item quantity="other">This week you relaxed %1$d times, totaling %2$s</item>
+    </plurals>
+    <plurals name="diary_summary_low_freq">
+        <item quantity="one">This week you relaxed %1$d time, totaling %2$s</item>
+        <item quantity="other">This week you relaxed %1$d times, totaling %2$s</item>
+    </plurals>
     <string name="diary_summary_top_sound">, "%1$s" is your favorite</string>
     <string name="diary_duration_hours">%1$dh %2$dm</string>
     <string name="diary_duration_minutes">%1$dm</string>
     <string name="diary_stat_sessions">Sessions</string>
     <string name="diary_stat_duration">Duration</string>
     <string name="diary_stat_favorite">Favorite</string>
-
     <string name="tag_healing">Healing</string>
     <string name="tag_stress_relief">Stress Relief</string>
 

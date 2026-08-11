@@ -1,29 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">XMSLEEP</string>
     <string name="language">语言</string>
     <string name="language_description">选择应用显示语言</string>
-    <string name="language_simplified_chinese">简体中文</string>
-    <string name="language_traditional_chinese">繁體中文</string>
-    <string name="language_english">English</string>
-    <string name="language_korean">韩语</string>
-    <string name="language_japanese">日语</string>
-    <string name="language_russian">俄语</string>
     <string name="select_language">选择语言</string>
     <string name="white_noise">白噪音</string>
-    <string name="breathing">呼吸</string>
     <string name="star_sky">繁星</string>
     <string name="star_sky_more_sounds_hint">会有更多声音出现在这里</string>
     <string name="settings">设置</string>
     <string name="theme_and_colors">主题与色彩</string>
-
-    <string name="clear_cache">缓存清理</string>
     <string name="software_update">软件更新</string>
     <string name="about_xmsleep">关于 XMSLEEP</string>
     <string name="ok">确定</string>
     <string name="cancel">取消</string>
-    <string name="color_palette">调色板</string>
-    <string name="confirm_clear_cache">确定要清理所有缓存数据吗？</string>
     <string name="appearance">特色</string>
     <string name="system">设置</string>
     <string name="other">其他</string>
@@ -31,30 +20,8 @@
     <string name="feature_settings">特色功能</string>
     <string name="feature_settings_description">自定义特色功能设置</string>
     <string name="feature_dialog_title">特色功能</string>
-
-    <string name="clear_app_cache_data">清理应用缓存数据</string>
-    <string name="check_and_update_to_latest_version">检查并更新到最新版本</string>
-    <string name="view_app_info_version_copyright">查看应用信息、版本和版权</string>
-
-    <string name="clearing">正在清理…</string>
-    <string name="this_will_clear_all_cache_data">这将清理应用的所有缓存数据，包括图片、视频、临时文件等。</string>
     <string name="version">版本: %1$s (Build %2$d)</string>
-    <string name="app_description_title">应用说明</string>
     <string name="app_description">XMSLEEP 是一款专业的白噪音和自然声音播放应用，致力于为您提供高质量的音频体验。应用内置多种精选的自然声音，包括雨声、雷声、篝火声、鸟鸣声等，帮助您放松心情、提高专注力、改善睡眠质量。\n\n应用采用 Material Design 3 设计规范，界面简洁美观，操作流畅直观。支持多语言切换、主题自定义、音量独立调节、固定声音区域、收藏功能等丰富特性，让您享受个性化的声音体验。</string>
-    <string name="usage_instructions_title">使用说明</string>
-    <string name="usage_instructions">• 点击声音卡片开始播放，再次点击停止
-• 点击音量图标可以单独调节每个声音的音量
-• 点击标题可以设置固定声音区域或收藏声音
-• 点击图书钉图标可以批量选择声音添加到固定声音区域
-• 使用倒计时功能可以设置自动停止播放的时间
-• 在设置中可以调整主题、隐藏动画、切换布局等</string>
-    <string name="sound_usage_title">声音使用说明</string>
-    <string name="sound_usage">• 内置声音：无需联网，可直接播放使用
-• 网络声音：首次使用需要下载，下载完成后可离线播放
-• 固定声音区域：最多可添加10个声音，支持本地和网络声音混合使用
-• 收藏功能：可以将喜欢的声音添加到收藏列表，方便快速访问
-• 音量调节：每个声音可独立调节音量，支持0-100%精确控制
-• 倒计时功能：可设置播放时长，时间到后自动停止所有声音</string>
     <string name="sound_source_title">声音来源说明</string>
     <string name="sound_source">本应用提供的所有音频内容均来自公开可用的音频资源库，包括但不限于：
 
@@ -63,85 +30,57 @@
 • 网络声音：应用通过网络加载的声音资源来自 moodist 项目（https://github.com/remvze/moodist），这是一个开源的氛围声音项目，所有资源均遵循 MIT 开源许可协议。
 
 • 版权声明：本应用仅提供音频播放功能，不拥有任何音频内容的版权。所有音频内容仅供个人学习和娱乐使用，请勿用于商业用途。如您发现任何音频内容侵犯了您的版权，请联系我们，我们将及时处理。</string>
-    <string name="technical_info_title">技术信息</string>
     <string name="copyright">© XMSLEEP。保留所有权利。\n\n本应用提供的音频内容仅供个人学习和娱乐使用。\n请尊重相关音频资源的版权，不得用于商业用途。</string>
-    <string name="hide_animation">隐藏WebP动画</string>
-    <string name="hide_lottie_animation_in_sound_cards">隐藏声音卡片中的WebP动画</string>
     <string name="background_settings">背景设置</string>
-    <string name="background_animation">背景动画</string>
     <string name="select_background">选择背景</string>
     <string name="no_background">无背景</string>
     <string name="custom_background">自定义</string>
     <string name="background_1">背景 1</string>
-    <string name="background_2">背景 2</string>
-    <string name="background_3">背景 3</string>
-    <string name="background_4">背景 4</string>
-    <string name="background_5">背景 5</string>
     <string name="background_6">背景 6</string>
-    <string name="background_7">背景 7</string>
     <string name="theme_color">主题颜色</string>
-    <string name="theme_color_disabled_hint">选择"无背景"后可切换主题颜色</string>
     <string name="change_background">更换背景</string>
     <string name="built_in_background">内置背景</string>
     <string name="opacity">透明度</string>
     <string name="blur_amount">模糊度</string>
     <string name="off">关闭</string>
-    <string name="background_preview">预览背景</string>
     <string name="white_noise_cards">内置声音</string>
-    <string name="builtin_sounds_offline_hint">内置声音无需联网直接听</string>
-    <string name="selected_count">已选择（%1$d 个）</string>
-    <string name="max_select_hint">最多可选3个到固定声音区域</string>
-    <string name="batch_select_default">批量选择默认</string>
-    <string name="cancel_batch_select">取消批量选择</string>
-    <string name="default_playback_area">固定声音区域</string>
-    <string name="click_play_button_to_play_all">便捷播放声音</string>
     <string name="play_preset">播放预设</string>
     <string name="pause_preset">暂停预设</string>
     <string name="preset">预设</string>
     <string name="done">完成</string>
-    <string name="max_3_sounds_limit">固定声音区域最多只能添加3个声音</string>
-    <string name="default_area_updated">已更新固定声音区域</string>
-    <string name="selected">已选中</string>
+    <string name="selected" tools:override="true">已选中</string>
     <string name="unselected">未选中</string>
-    <string name="switch_to_light_mode">切换到浅色模式</string>
-    <string name="switch_to_dark_mode">切换到深色模式</string>
     <string name="switch_to_3_columns">切换为3列</string>
     <string name="switch_to_2_columns">切换为2列</string>
     <string name="switch_to_slide_layout">切换为滑动布局</string>
     <string name="pause">暂停</string>
     <string name="play">播放</string>
-    <string name="now_playing">正在播放</string>
     <string name="stop_all">一键关闭</string>
-    <string name="drag_to_stop_play">拖到此处停止播放</string>
     <string name="edit">编辑</string>
     <string name="remove">移除</string>
     <string name="adjust_volume">调节音量</string>
     <string name="set_countdown">设置倒计时</string>
     <string name="countdown_ended_stopped">倒计时结束，已停止播放</string>
-    <string name="countdown_set_minutes">已设置%1$d分钟倒计时</string>
+    <plurals name="countdown_set_minutes">
+        <item quantity="other">已设置%1$d分钟倒计时</item>
+    </plurals>
     <string name="countdown_cancelled">已取消倒计时</string>
-    <string name="adjust_volume_for">调节音量 - %1$s</string>
     <string name="cancel_countdown">取消倒计时</string>
-    <string name="minutes">%1$d分钟</string>
+    <plurals name="minutes">
+        <item quantity="other">%1$d分钟</item>
+    </plurals>
     <string name="set_as_default">添加预设</string>
     <string name="cancel_default">取消预设</string>
-    <string name="favorite">收藏</string>
-    <string name="cancel_favorite">取消收藏</string>
     <string name="pinned_success">已添加预设</string>
     <string name="unpinned_success">已取消预设</string>
     <string name="rename_preset">重命名预设</string>
     <string name="new_preset">新建预设</string>
     <string name="preset_name_template">预设%d</string>
-    <string name="favorited_success">已收藏</string>
-    <string name="unfavorited_success">已取消收藏</string>
     <string name="current_countdown">当前倒计时: %1$s</string>
     <string name="last_timer_hint">上次计时: %1$s</string>
     <string name="please_play_sound_before_timer">请先播放声音后再设置倒计时</string>
     <string name="quick_select">快速选择</string>
-    <string name="tab_builtin">内置</string>
-    <string name="tab_favorite">收藏</string>
     <string name="go_back">返回</string>
-    <string name="tab_online">网络</string>
     <string name="no_online_content">暂无线上内容</string>
     <string name="online_sounds_will_show_here">线上声音将显示在这里</string>
     <string name="sound_umbrella_rain">伞上雨声</string>
@@ -165,23 +104,22 @@
     <string name="use_wallpaper_color_as_theme">使用壁纸颜色作为主题色</string>
     <string name="high_contrast">高对比度</string>
     <string name="use_pure_black_background_in_dark_mode">在深色模式下使用纯黑背景</string>
-    <string name="lottie_animation">Lottie 动画</string>
-    <string name="cache_auto_cleared">缓存已超过200M，自动清理完成</string>
+    <string name="monochrome_mode">黑白模式</string>
+    <string name="monochrome_mode_description">使用黑白灰配色，减少色彩刺激，适合睡前使用</string>
     <string name="must_download_before_pin">请先下载音频才能添加到固定声音区域</string>
-    <string name="auto_clear_failed">自动清理失败: %1$s</string>
     <string name="downloaded">已下载</string>
     <string name="cloud_audio">云端音频</string>
     <string name="light_mode">浅色</string>
     <string name="dark_mode">深色</string>
     <string name="auto_mode">自动</string>
-    <string name="no_favorites">暂无收藏</string>
-    <string name="favorites_will_show_here">收藏的声音将显示在这里</string>
     <string name="hours">小时</string>
     <string name="minutes_label">分钟</string>
-    <string name="hours_minutes">%1$d小时%2$d分钟</string>
-    <string name="minutes_only">%1$d分钟</string>
-    <string name="five_minutes">5分钟</string>
-    <string name="three_hours">3小时</string>
+    <plurals name="hours_minutes">
+        <item quantity="other">%1$d小时%2$d分钟</item>
+    </plurals>
+    <plurals name="minutes_only">
+        <item quantity="other">%1$d分钟</item>
+    </plurals>
     <string name="checking_update">正在检查更新…</string>
     <string name="up_to_date">已是最新版本</string>
     <string name="current_version">当前版本：%1$s</string>
@@ -225,16 +163,6 @@
     <string name="join_qq_description">加入QQ群交流反馈</string>
     <string name="load_failed">加载失败: %1$s</string>
     <string name="all_categories">全部</string>
-    <string name="privacy_policy_title">隐私政策</string>
-    <string name="privacy_policy">本应用非常重视您的隐私保护。
-
-• 数据收集：本应用不会收集任何个人身份信息，也不会追踪用户活动。
-
-• 权限说明：本应用仅请求必要的音频播放权限，不会访问您的联系人、位置等敏感信息。
-
-• 数据安全：我们采用行业标准的安全措施保护您的数据，包括数据加密和访问控制。
-
-如有任何疑问，请通过应用内联系方式与我们联系。</string>
     <string name="wish_good_sleep">～愿你有个好梦～</string>
     
     <!-- 自动倒计时 -->
@@ -245,7 +173,6 @@
     <string name="countdown_30_minutes">30分钟</string>
     <string name="countdown_45_minutes">45分钟</string>
     <string name="countdown_60_minutes">60分钟</string>
-    <string name="countdown_1_hour">1小时</string>
     <string name="countdown_2_hours">2小时</string>
     <string name="flip_clock">大时钟</string>
     <string name="flip_clock_description">此功能需要保持电量充足</string>
@@ -265,9 +192,10 @@
     
     <!-- 浮动播放按钮 -->
     <string name="collapse">收起</string>
-    <string name="expand">展开</string>
     <string name="playing_title">正在播放 (%1$d)</string>
-    <string name="playing_audio_count">%1$d 个音频</string>
+    <plurals name="playing_audio_count">
+        <item quantity="other">%1$d 个音频</item>
+    </plurals>
     <string name="notification_quit">退出</string>
     <string name="paused">已暂停</string>
     <string name="breathing_notification_title">呼吸练习中</string>
@@ -276,27 +204,17 @@
     <string name="music_playback_channel_name">音乐播放</string>
     <string name="music_playback_channel_description">显示正在播放的音乐和控制按钮</string>
     <string name="timer_paused_suffix">(已暂停)</string>
-    <string name="audio_import_unsupported_format">不支持的音频格式。支持的格式：%1$s</string>
-    <string name="audio_import_corrupted">无法读取音频文件信息，文件可能已损坏</string>
-    <string name="audio_import_validation_failed">文件验证失败：%1$s</string>
-    <string name="audio_import_invalid_format">文件格式无效</string>
-    <string name="audio_import_storage_full">无法保存文件到内部存储</string>
-    <string name="audio_import_permission_denied">没有访问文件的权限</string>
-    <string name="audio_import_write_failed">存储空间不足或文件写入失败</string>
-    <string name="audio_import_failed">导入失败：%1$s</string>
     <string name="stop_all_confirm_title">停止所有播放</string>
     <string name="stop_all_confirm_message">确定要停止所有正在播放的音频吗？</string>
     <string name="stop">停止</string>
     <string name="volume">音量</string>
     <string name="add_to_preset">添加到预设</string>
-    <string name="added_to_preset">已添加 %1$d 个声音到预设 %2$d</string>
-    <string name="preset_full">预设 %1$d 已满（最多10个）</string>
+    <plurals name="added_to_preset">
+        <item quantity="other">已添加 %1$d 个声音到预设 %2$d</item>
+    </plurals>
     <string name="no_playing_sounds">当前没有正在播放的声音</string>
     
     <!-- 预设模块 -->
-    <string name="preset_1">预设 1</string>
-    <string name="preset_2">预设 2</string>
-    <string name="preset_3">预设 3</string>
     <string name="preset_max_reached">当前预设已达到最多10个声音</string>
     <string name="close">关闭</string>
     
@@ -314,13 +232,10 @@
     <string name="no_search_results">未找到匹配的音频</string>
     <string name="no_audio_files_found">设备上没有找到音频文件</string>
     <string name="storage_permission_required">需要存储权限</string>
-    <string name="grant_storage_permission_hint">请在设置中授予存储权限以访问本地音频</string>
-    <string name="grant_permission">去授权</string>
     <string name="rename">重命名</string>
-    <string name="renaming">正在重命名...</string>
+    <string name="renaming">正在重命名…</string>
     <string name="rename_success">重命名成功</string>
     <string name="rename_failed">重命名失败或已取消</string>
-    <string name="new_name">新名称</string>
     <string name="delete">删除</string>
     <string name="delete_success">删除成功</string>
     <string name="delete_cancelled">删除已取消</string>
@@ -333,24 +248,16 @@
     
     <!-- 权限相关 -->
     <string name="permission_denied_hint">需要存储权限才能访问本地音频文件</string>
-    <string name="permission_permanently_denied_hint">权限已被拒绝，请在设置中手动授予存储权限</string>
-    <string name="request_permission">授予权限</string>
-    <string name="open_settings">打开设置</string>
-    <string name="requesting_permission">正在请求权限…</string>
-    
+    <string name="request_permission">授予权限</string>    
     <!-- 通用 -->
     <string name="back">返回</string>
-    <string name="loading">正在加载...</string>
+    <string name="loading">正在加载…</string>
     <string name="error_copied">错误信息已复制到剪贴板</string>
     <string name="copy_error">复制错误</string>
     <string name="restart_app">重启应用</string>
-    <string name="not_now">暂不需要</string>
-    <string name="grant_permission_action">授予权限</string>
     <string name="install_permission_required">需要安装权限</string>
     <string name="install_permission_hint">请在设置中允许安装来自此来源的应用，然后返回应用继续安装。</string>
-    <string name="allowed_continue_install">我已允许，继续安装</string>
-    <string name="import_failed">导入失败</string>
-    
+    <string name="allowed_continue_install">我已允许，继续安装</string>    
     <!-- 最近播放 -->
     <string name="recent_play">最近播放</string>
     <string name="tap_to_play">点击播放</string>
@@ -368,9 +275,9 @@
     <string name="clear">清空</string>
     <string name="share">分享</string>
     <string name="save_image">保存图片</string>
-    <string name="sharing">分享中...</string>
-    <string name="saving">保存中...</string>
-    <string name="loading_quote">正在获取名句...</string>
+    <string name="sharing">分享中…</string>
+    <string name="saving">保存中…</string>
+    <string name="loading_quote">正在获取名句…</string>
     <string name="refresh_quote">换一句</string>
     
     <!-- 治愈句子 - 早上 -->
@@ -502,11 +409,8 @@
     <!-- 天气智能推荐 -->
     <string name="weather_smart_recommend">天气智能推荐</string>
     <string name="weather_smart_recommend_desc">根据天气自动推荐白噪音</string>
-    <string name="weather_quote">给自己一个安静的时刻</string>
     <string name="weather_sound_mapping">天气噪音映射</string>
     <string name="save">保存</string>
-    <string name="weather_edit_title">天气噪音映射</string>
-    <string name="weather_refresh">刷新天气</string>
     <string name="weather_current">当前天气：</string>
     <string name="weather_select_type">选择天气类型</string>
     <string name="weather_select_sound">选择播放的白噪音</string>
@@ -520,7 +424,6 @@
     <string name="weather_sound_wind">风声</string>
     <string name="weather_sound_birds">鸟叫</string>
     <string name="weather_sound_river">河流</string>
-    <string name="weather_sound_forest">森林</string>
     <string name="weather_sound_fireplace">篝火</string>
     <string name="weather_sound_waves">海浪</string>
     <string name="weather_sound_jungle">丛林</string>
@@ -576,24 +479,19 @@
     <string name="weather_snow_shower">阵雪</string>
     <string name="weather_thunderstorm">雷暴</string>
     <string name="weather_thunderstorm_hail">雷暴伴冰雹</string>
-    <string name="wind_speed">风速</string>
     <string name="weather_unknown">未知</string>
     <string name="humidity">湿度</string>
     <string name="feels_like">体感</string>
-    <string name="downloading">正在下载</string>
-    <string name="tap_to_download_and_play">点击下载并播放</string>
-    <string name="playing">正在播放</string>
-    <string name="play_recommended">播放推荐音频</string>
-    <string name="download_and_play">下载并播放</string>
-    <string name="weather_location_required">需要定位权限获取天气</string>
-    
+    <string name="playing">正在播放</string>    
     <!-- 呼吸练习 -->
     <string name="breathing_exercise">呼吸练习</string>
     <string name="meditation">冥想</string>
     <string name="select_audio">选择音频</string>
     <string name="loop_play">循环播放</string>
     <string name="meditation_repeat_times">循环次数</string>
-    <string name="meditation_repeat_count">循环 %1$d 次</string>
+    <plurals name="meditation_repeat_count">
+        <item quantity="other">循环 %1$d 次</item>
+    </plurals>
     <string name="meditation_sleep_subtitle">深度放松 · 舒缓身心 · 入睡引导</string>
     <string name="meditation_practice_subtitle">呼吸引导 · 专注训练 · 内在探索</string>
     <string name="meditation_relax_subtitle">释放压力 · 恢复平静 · 情绪调节</string>
@@ -602,32 +500,33 @@
     <string name="tag_practice">练习</string>
     <string name="tag_relax">放松</string>
     <string name="tag_mindfulness">正念</string>
-    <string name="tap_to_start">点击开始</string>
-    <string name="inhale">吸气...</string>
+    <string name="inhale">吸气…</string>
     <string name="hold">屏息</string>
-    <string name="exhale">呼气...</string>
+    <string name="exhale">呼气…</string>
     <string name="hold_after">屏息</string>
     <string name="breath_count">第 %1$d 次呼吸</string>
     
     <!-- 呼吸练习指南 -->
-    <string name="breathing_guide_title">呼吸练习指南</string>
-    <string name="breathing_guide_step1">1. 点击下方的播放按钮开始练习</string>
-    <string name="breathing_guide_step2">2. 吸气（4 秒）：跟随外圈放大，播放吸气声</string>
-    <string name="breathing_guide_step3">3. 屏息（4 秒）：保持最大状态</string>
-    <string name="breathing_guide_step4">4. 呼气（4 秒）：跟随外圈缩小，播放呼气声</string>
-    <string name="breathing_guide_step5">5. 练习时长为 5 分钟，结束后自动停止</string>
     <string name="got_it">我知道了</string>
     
     <!-- 呼吸法详情 -->
     <string name="operation_steps">操作步骤</string>
     <string name="breathing_rhythm">呼吸节奏</string>
-    <string name="breathing_rhythm_detail">吸气 %1$d 秒 → 屏息 %2$d 秒 → 呼气 %3$d 秒 → 屏息 %4$d 秒</string>
+    <plurals name="breathing_rhythm_inhale">
+        <item quantity="other">吸气 %1$d 秒</item>
+    </plurals>
+    <plurals name="breathing_rhythm_hold">
+        <item quantity="other">屏息 %1$d 秒</item>
+    </plurals>
+    <plurals name="breathing_rhythm_exhale">
+        <item quantity="other">呼气 %1$d 秒</item>
+    </plurals>
     <string name="preset_duration">预设时长</string>
     <string name="select_duration">选择时长</string>
     <string name="custom_duration">自定义时长</string>
     
     <!-- 呼吸方法名称 -->
-    <string name="breathing_method_478_name">4-7-8 助眠呼吸法</string>
+    <string name="breathing_method_478_name">4–7–8 助眠呼吸法</string>
     <string name="breathing_method_478_subtitle">主推・失眠首选</string>
     <string name="breathing_method_478_desc">哈佛医学院安德鲁・韦尔博士研发，被称为「天然生理安眠药」。超长呼气强制降低心率、减少大脑皮层活跃度，快速缓解睡前胡思乱想、入睡困难、夜间易醒。坚持2周可大幅缩短入睡时长。</string>
     <string name="breathing_method_478_step1">平躺放松，舌尖轻抵上颚，先用嘴巴彻底吐尽空气</string>
@@ -638,7 +537,6 @@
     <string name="breathing_method_478_tag1">睡前助眠</string>
     <string name="breathing_method_478_tag2">深度助眠</string>
     <string name="breathing_method_478_tag3">深夜放松</string>
-    
     <string name="breathing_method_box_name">箱式呼吸</string>
     <string name="breathing_method_box_subtitle">方形呼吸・平衡专注</string>
     <string name="breathing_method_box_desc">美国海豹突击队抗压训练法，四方均等呼吸节奏，像画正方形得名。平衡交感与副交感神经，缓解心慌、烦躁、职场高压。放松同时不会产生困倦，适合午休、工作间隙、考前平复情绪。</string>
@@ -650,7 +548,6 @@
     <string name="breathing_method_box_tag1">日间减压</string>
     <string name="breathing_method_box_tag2">静心专注</string>
     <string name="breathing_method_box_tag3">情绪稳定</string>
-    
     <string name="breathing_method_belly_name">基础腹式呼吸</string>
     <string name="breathing_method_belly_subtitle">入门通用・新手友好</string>
     <string name="breathing_method_belly_desc">无固定计时节奏，所有呼吸法的底层基础，零基础零门槛。用横膈膜呼吸，而非胸腔呼吸。改善浅短急促的浅呼吸习惯，缓解长期胸闷、焦虑、疲劳。随时随地可练习，适合呼吸新手、轻度焦虑人群。</string>
@@ -661,8 +558,7 @@
     <string name="breathing_method_belly_tag1">新手入门</string>
     <string name="breathing_method_belly_tag2">日常舒缓</string>
     <string name="breathing_method_belly_tag3">放松基底</string>
-    
-    <string name="breathing_method_426_name">4-2-6 快速减压呼吸</string>
+    <string name="breathing_method_426_name">4–2–6 快速减压呼吸</string>
     <string name="breathing_method_426_subtitle">短时舒缓・紧张时刻</string>
     <string name="breathing_method_426_desc">轻量化短节奏，适合突发心慌、情绪崩溃、睡前烦躁，门槛极低。快速下调压力激素皮质醇，1分钟内平复心跳加速、紧张手抖，适合通勤、开会前、情绪失控时快速缓冲。</string>
     <string name="breathing_method_426_step1">闭眼放松肩膀，鼻子吸气4秒</string>
@@ -671,7 +567,6 @@
     <string name="breathing_method_426_tag1">快速解压</string>
     <string name="breathing_method_426_tag2">即时舒缓</string>
     <string name="breathing_method_426_tag3">短时放松</string>
-    
     <string name="breathing_method_primary">主推</string>
     
     <!-- 屏幕常亮设置 -->
@@ -686,17 +581,13 @@
     <string name="tab_starsky">繁星</string>
     <string name="tab_breathing">呼吸</string>
     <string name="tab_radio">电台</string>
-    <string name="radio_select_station">选择电台</string>
     <string name="tab_settings">设置</string>
     <string name="simple_mode_button">简化版</string>
     <string name="simple_mode_full_version">完整版</string>
-    <string name="search_room_hint">搜索内容...</string>
     <string name="tag_white_noise">白噪音</string>
     <string name="tag_study_room">自习室</string>
-    <string name="tag_lofi">轻音乐</string>
     <string name="refresh">刷新</string>
     <string name="recommended">白噪音置顶</string>
-    <string name="more_live">更多直播</string>
     <string name="no_live">暂无直播</string>
     <string name="room_not_live">该房间目前没有开启直播</string>
     <string name="search_result">"%s" 的搜索结果</string>
@@ -708,7 +599,9 @@
     
     <!-- 番茄计时器 -->
     <string name="tomato_timer_title">番茄时钟</string>
-    <string name="tomato_today_completed">今日完成：%1$d 个番茄</string>
+    <plurals name="tomato_today_completed">
+        <item quantity="other">今日完成：%1$d 个番茄</item>
+    </plurals>
     <string name="tomato_focus">专注中</string>
     <string name="tomato_break">休息中</string>
     <string name="tomato_start">开始</string>
@@ -719,13 +612,7 @@
     <string name="tomato_break_complete_title">休息结束</string>
     <string name="tomato_break_complete_desc">准备好继续专注了吗？</string>
     <string name="tomato_start_break">开始休息</string>
-    <string name="tomato_start_focus">开始专注</string>
     <string name="tomato_skip_break">跳过休息</string>
-    <string name="tomato_start_later">稍后开始</string>
-    <string name="tomato_custom_time_title">自定义时长</string>
-    <string name="tomato_custom_time_range">1 ~ 180 分钟</string>
-    <string name="tomato_custom_time_label">专注时长</string>
-    <string name="tomato_custom_time_suffix">分钟</string>
     <string name="tomato_settings_title">番茄设置</string>
     <string name="tomato_ringtone_label">结束铃声</string>
     <string name="tomato_ringtone_none">无铃声</string>
@@ -738,16 +625,7 @@
     <string name="tomato_vibrate">震动</string>
     
     <!-- 小组件 -->
-    <string name="add_quote_widget">添加小组件</string>
-    <string name="add_quote_widget_description">在桌面添加一言一句功能模块</string>
-    <string name="widget_add_hint">请长按桌面空白处，选择"小组件"或"Widgets"，找到 XMSLEEP 添加一言一句组件</string>
-    <string name="widget_add_hint_manual">请长按桌面空白处，选择"小组件"或"Widgets"，找到 XMSLEEP 添加一言一句组件</string>
-    <string name="widget_add_failed">无法打开桌面，请手动添加小组件</string>
     <string name="widget_description">一言一句 - 每日名句</string>
-    <string name="widget_default_quote">生活不止眼前的苟且，还有诗和远方。</string>
-    <string name="widget_default_author">佚名</string>
-    <string name="widget_loading">加载中...</string>
-    <string name="widget_refresh_failed">刷新失败</string>
     <string name="widget_refresh">刷新</string>
     
     <!-- 最近播放弹窗设置 -->
@@ -772,10 +650,6 @@
     <string name="unable_to_open_link_check_telegram">无法打开链接，请检查是否安装了Telegram或浏览器</string>
     
     <!-- 音频导入权限弹窗 -->
-    <string name="audio_file_access_permission_title">需要音频文件访问权限</string>
-    <string name="audio_file_access_permission_description">为了让您能够导入和使用自己的音频文件，应用需要访问您设备上的音频文件。\n\n您的隐私很重要，我们只会访问您主动选择的音频文件。</string>
-    <string name="cd_import_audio">导入音频</string>
-
     <!-- 天气手动选择 -->
     <string name="weather_option_sunny">☀️ 晴天</string>
     <string name="weather_option_partly_cloudy">⛅ 晴间多云</string>
@@ -793,7 +667,9 @@
     <string name="weather_option_thunderstorm">⛈️ 雷暴</string>
 
     <!-- MediaSession 锁屏副标题：超过 3 个声音时显示「其他 N 个」 -->
-    <string name="aggregate_others_format">其他 %1$d 个</string>
+    <plurals name="aggregate_others_format">
+        <item quantity="other">其他 %1$d 个</item>
+    </plurals>
 
     <!-- 声音日记 -->
     <string name="diary">声音日记</string>
@@ -801,9 +677,15 @@
     <string name="diary_empty">还没有记录</string>
     <string name="diary_empty_hint">设置倒计时播放声音后，会自动记录在这里</string>
     <string name="diary_clear_history_confirm">确定要清空所有声音日记吗？此操作不可恢复。</string>
-    <string name="diary_summary_high_freq">这周你放松了 %1$d 次，共计 %2$s</string>
-    <string name="diary_summary_medium_freq">这周你放松了 %1$d 次，共计 %2$s</string>
-    <string name="diary_summary_low_freq">这周你放松了 %1$d 次，共计 %2$s</string>
+    <plurals name="diary_summary_high_freq">
+        <item quantity="other">这周你放松了 %1$d 次，共计 %2$s</item>
+    </plurals>
+    <plurals name="diary_summary_medium_freq">
+        <item quantity="other">这周你放松了 %1$d 次，共计 %2$s</item>
+    </plurals>
+    <plurals name="diary_summary_low_freq">
+        <item quantity="other">这周你放松了 %1$d 次，共计 %2$s</item>
+    </plurals>
     <string name="diary_summary_top_sound">，「%1$s」是你的最爱</string>
     <string name="diary_duration_hours">%1$d小时%2$d分钟</string>
     <string name="diary_duration_minutes">%1$d分钟</string>
@@ -819,13 +701,6 @@
     <string name="developer_letter_title">来自开发者的信</string>
     <string name="developer_letter_content">亲爱的朋友：\n\n当你发现这封信时，希望你能感受到我藏在代码里的一点心意。\n\nXMSLEEP 从一开始就不只是一个技术项目。它是我在无数个深夜，听着雨声、篝火声、键盘声时，想要为你建造的一个小小的避风港。\n\n生活有时候很吵，工作很忙，情绪也会低落。如果这些声音能让你在某个瞬间感到平静，哪怕只是几秒钟，那这一切就是值得的。\n\n谢谢你使用 XMSLEEP，谢谢你让这个小小的世界有了意义。\n\n愿你今夜好眠。\n\n—— Tosencen</string>
     <string name="radio_station_noise">电台噪音</string>
-    
-    
-    
-    
-    
-    
-
     <string name="storage_management">存储管理</string>
     <string name="clear_downloaded">清除已下载</string>
     <string name="storage_space">占用空间: %s</string>

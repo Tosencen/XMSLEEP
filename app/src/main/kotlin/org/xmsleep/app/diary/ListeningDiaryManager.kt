@@ -1,5 +1,6 @@
 package org.xmsleep.app.diary
 
+import android.annotation.SuppressLint
 import android.content.Context
 import com.google.gson.Gson
 import org.xmsleep.app.audio.AudioManager
@@ -22,6 +23,7 @@ data class DiaryHistory(
     val items: List<DiaryEntry>
 )
 
+@SuppressLint("StaticFieldLeak")
 object ListeningDiaryManager {
 
     private const val TAG = "ListeningDiaryManager"
@@ -46,6 +48,7 @@ object ListeningDiaryManager {
         Logger.d(TAG, "ListeningDiaryManager initialized")
     }
 
+    @SuppressLint("DiscouragedApi")
     fun getDisplaySoundName(
         context: Context,
         sound: String,
@@ -145,17 +148,17 @@ object ListeningDiaryManager {
         }
 
         val message = when {
-            totalSessions >= 10 -> ctx.getString(
-                org.xmsleep.app.R.string.diary_summary_high_freq,
-                totalSessions, formatDuration(ctx, totalMinutes)
+            totalSessions >= 10 -> ctx.resources.getQuantityString(
+                org.xmsleep.app.R.plurals.diary_summary_high_freq,
+                totalSessions, totalSessions, formatDuration(ctx, totalMinutes)
             )
-            totalSessions >= 5 -> ctx.getString(
-                org.xmsleep.app.R.string.diary_summary_medium_freq,
-                totalSessions, formatDuration(ctx, totalMinutes)
+            totalSessions >= 5 -> ctx.resources.getQuantityString(
+                org.xmsleep.app.R.plurals.diary_summary_medium_freq,
+                totalSessions, totalSessions, formatDuration(ctx, totalMinutes)
             )
-            else -> ctx.getString(
-                org.xmsleep.app.R.string.diary_summary_low_freq,
-                totalSessions, formatDuration(ctx, totalMinutes)
+            else -> ctx.resources.getQuantityString(
+                org.xmsleep.app.R.plurals.diary_summary_low_freq,
+                totalSessions, totalSessions, formatDuration(ctx, totalMinutes)
             )
         } + if (localizedTopSound != null) {
             ctx.getString(org.xmsleep.app.R.string.diary_summary_top_sound, localizedTopSound)

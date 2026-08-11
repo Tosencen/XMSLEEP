@@ -360,7 +360,7 @@ fun MeditationPlayerScreen(
                             Icon(
                                 imageVector = Icons.Default.RepeatOne,
                                 contentDescription = if (repeatCount > 0) {
-                                    context.getString(R.string.meditation_repeat_count, repeatCount)
+                                    context.resources.getQuantityString(R.plurals.meditation_repeat_count, repeatCount, repeatCount)
                                 } else {
                                     context.getString(R.string.meditation_repeat_times)
                                 },

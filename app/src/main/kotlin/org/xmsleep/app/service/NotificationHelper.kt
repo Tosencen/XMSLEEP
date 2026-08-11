@@ -30,18 +30,16 @@ object NotificationHelper {
         LanguageManager.createLocalizedContext(context, LanguageManager.getCurrentLanguage(context))
 
     fun createNotificationChannel(context: Context) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val lc = localizedContext(context)
-            val importance = NotificationManager.IMPORTANCE_LOW
-            val channel = NotificationChannel(CHANNEL_ID, lc.getString(R.string.music_playback_channel_name), importance).apply {
-                description = lc.getString(R.string.music_playback_channel_description)
-                setShowBadge(false)
-                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-            }
-
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
+        val lc = localizedContext(context)
+        val importance = NotificationManager.IMPORTANCE_LOW
+        val channel = NotificationChannel(CHANNEL_ID, lc.getString(R.string.music_playback_channel_name), importance).apply {
+            description = lc.getString(R.string.music_playback_channel_description)
+            setShowBadge(false)
+            lockscreenVisibility = Notification.VISIBILITY_PUBLIC
         }
+
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
     }
 
     fun buildNotification(
@@ -84,7 +82,7 @@ object NotificationHelper {
         val content = buildString {
             append(statusText)
             if (playingSoundsCount > 0) {
-                append(" · ").append(lc.getString(R.string.playing_audio_count, playingSoundsCount))
+                append(" · ").append(lc.resources.getQuantityString(R.plurals.playing_audio_count, playingSoundsCount, playingSoundsCount))
             }
         }
 

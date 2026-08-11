@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -49,6 +50,7 @@ import androidx.core.app.NotificationCompat
 import kotlinx.coroutines.*
 import org.xmsleep.app.MainActivity
 import org.xmsleep.app.R
+import org.xmsleep.app.analytics.AnalyticsLogger
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.ui.tomato.TomatoRingtonePlayer
 import org.xmsleep.app.utils.Logger
@@ -92,13 +94,13 @@ object TomatoTimerState {
         awaitingBreakStart.value = false
         isRunning.value = true
         createNotificationChannel(appContext!!)
-        val remaining = timeLeftMillis.value.coerceAtLeast(0)
+        val remaining = timeLeftMillis.longValue.coerceAtLeast(0)
         deadline = SystemClock.elapsedRealtime() + remaining
         showTimerNotification(appContext!!, remaining, isBreak.value)
         countdownJob = scope.launch {
             while (isActive) {
                 val rem = (deadline - SystemClock.elapsedRealtime()).coerceAtLeast(0)
-                timeLeftMillis.value = rem
+                timeLeftMillis.longValue = rem
                 if (rem <= 0) {
                     handleCompletion()
                     break
@@ -128,7 +130,7 @@ object TomatoTimerState {
         isRunning.value = false
         isBreak.value = false
         awaitingBreakStart.value = false
-        timeLeftMillis.value = selectedFocusMinutes.value * 60 * 1000L
+        timeLeftMillis.longValue = selectedFocusMinutes.intValue * 60 * 1000L
         appContext?.let { cancelNotification(it) }
     }
 
@@ -140,7 +142,7 @@ object TomatoTimerState {
         deadline = 0L
         isBreak.value = false
         awaitingBreakStart.value = false
-        timeLeftMillis.value = selectedFocusMinutes.value * 60 * 1000L
+        timeLeftMillis.longValue = selectedFocusMinutes.intValue * 60 * 1000L
         isRunning.value = false
         appContext?.let { cancelNotification(it) }
     }
@@ -150,10 +152,14 @@ object TomatoTimerState {
      */
     private fun handleCompletion() {
         val ctx = appContext ?: return
+        AnalyticsLogger.logTomatoComplete(
+            phase = if (isBreak.value) "break" else "focus",
+            focusMinutes = selectedFocusMinutes.intValue
+        )
         countdownJob?.cancel()
         deadline = 0L
         isRunning.value = false
-        if (!isBreak.value) todayCompletedPomodoros.value++
+        if (!isBreak.value) todayCompletedPomodoros.intValue++
         // 播放结束铃声（内部会停止白噪音等），并显示完成通知
         TomatoRingtonePlayer.play(ctx, PreferencesManager.getTomatoRingtone(ctx))
         showCompletionNotification(ctx, isBreak.value)
@@ -164,15 +170,15 @@ object TomatoTimerState {
         if (isBreak.value) {
             // 休息结束：回到专注准备态，等待用户手动开始下一轮
             isBreak.value = false
-            timeLeftMillis.value = selectedFocusMinutes.value * 60 * 1000L
+            timeLeftMillis.longValue = selectedFocusMinutes.intValue * 60 * 1000L
             awaitingBreakStart.value = false
         } else {
             // 专注结束：进入休息准备态，不自动开始休息
             isBreak.value = true
-            timeLeftMillis.value = TomatoTimerState.breakDurationMinutes.value * 60 * 1000L
+            timeLeftMillis.longValue = TomatoTimerState.breakDurationMinutes.intValue * 60 * 1000L
             awaitingBreakStart.value = true
         }
-        completionTick.value++
+        completionTick.intValue++
     }
 }
 
@@ -196,7 +202,7 @@ fun TomatoTimerView(
     var completionTick by TomatoTimerState.completionTick
 
     // 完成事件消费标记：仅在完成的那一次触发动画/回调（含离开页面后台完成的场景）
-    var lastCompletionTick by rememberSaveable { mutableIntStateOf(TomatoTimerState.completionTick.value) }
+    var lastCompletionTick by rememberSaveable { mutableIntStateOf(TomatoTimerState.completionTick.intValue) }
     LaunchedEffect(completionTick) {
         if (completionTick != lastCompletionTick) {
             lastCompletionTick = completionTick
@@ -237,7 +243,7 @@ fun TomatoTimerView(
             // 今日完成数（仅专注时显示）
             if (!isBreak) {
                 Text(
-                    text = stringResource(R.string.tomato_today_completed, todayCompletedPomodoros),
+                    text = pluralStringResource(R.plurals.tomato_today_completed, todayCompletedPomodoros, todayCompletedPomodoros),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -435,9 +441,9 @@ fun TomatoTimerView(
 private fun MinuteRulerPicker(
     value: Int,
     onValueChange: (Int) -> Unit,
+    modifier: Modifier = Modifier,
     range: IntRange = 3..180,
-    enabled: Boolean = true,
-    modifier: Modifier = Modifier
+    enabled: Boolean = true
 ) {
     val density = LocalDensity.current
     val scaleIntervalDp = 16.dp
@@ -579,22 +585,20 @@ private fun formatTimeMillis(millis: Long): String {
 }
 
 private fun createNotificationChannel(context: Context) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val vibrate = PreferencesManager.getTomatoVibrate(context)
-        val channel = NotificationChannel(
-            NOTIFICATION_CHANNEL_ID,
-            context.getString(R.string.tomato_timer_title),
-            NotificationManager.IMPORTANCE_HIGH
-        ).apply {
-            description = context.getString(R.string.tomato_focus_complete_title)
-            enableVibration(vibrate)
-            if (vibrate) {
-                vibrationPattern = longArrayOf(0, 300, 200, 300)
-            }
+    val vibrate = PreferencesManager.getTomatoVibrate(context)
+    val channel = NotificationChannel(
+        NOTIFICATION_CHANNEL_ID,
+        context.getString(R.string.tomato_timer_title),
+        NotificationManager.IMPORTANCE_HIGH
+    ).apply {
+        description = context.getString(R.string.tomato_focus_complete_title)
+        enableVibration(vibrate)
+        if (vibrate) {
+            vibrationPattern = longArrayOf(0, 300, 200, 300)
         }
-        context.getSystemService(NotificationManager::class.java)
-            .createNotificationChannel(channel)
     }
+    context.getSystemService(NotificationManager::class.java)
+        .createNotificationChannel(channel)
 }
 
 /**

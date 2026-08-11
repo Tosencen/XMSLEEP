@@ -24,9 +24,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import com.materialkolor.ktx.toHct
 import org.xmsleep.app.R
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.meditation.MeditationPlayerManager
+import org.xmsleep.app.theme.grayscale
 import org.xmsleep.app.ui.components.PlayingAnimation
 import org.xmsleep.app.ui.meditation.MeditationCategory
 import org.xmsleep.app.ui.meditation.MeditationManifest
@@ -236,13 +238,18 @@ private fun BreathingMethodCard(
     onHelpClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val rhythmColor = when (method.id) {
+    // 黑白模式下 colorScheme.primary 已被去饱和，纯灰经 HCT 往返转换约有 2~3 的浮点误差，
+    // 而真实彩色主题的 primary chroma 通常在 30 以上，阈值取 10 可安全区分
+    val isMonochrome = MaterialTheme.colorScheme.primary.toHct().chroma < 10.0
+    val rawRhythmColor = when (method.id) {
         "sleep_478" -> Color(0xFF5C6BC0)
         "box_4444" -> Color(0xFF26A69A)
         "belly_46" -> Color(0xFF66BB6A)
         "stress_426" -> Color(0xFFFF8A65)
         else -> MaterialTheme.colorScheme.primary
     }
+    // 黑白模式下对硬编码彩色去饱和，保留各方法间的明暗差异
+    val rhythmColor = if (isMonochrome) rawRhythmColor.grayscale() else rawRhythmColor
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -366,7 +373,13 @@ private fun BreathingMethodTutorialDialog(method: BreathingMethod, onDismiss: ()
                 }
                 Divider()
                 Text(context.getString(R.string.breathing_rhythm), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                Text(context.getString(R.string.breathing_rhythm_detail, method.inhale, method.hold, method.exhale, method.holdAfter),
+                val rhythmDetail = listOf(
+                    context.resources.getQuantityString(R.plurals.breathing_rhythm_inhale, method.inhale, method.inhale),
+                    context.resources.getQuantityString(R.plurals.breathing_rhythm_hold, method.hold, method.hold),
+                    context.resources.getQuantityString(R.plurals.breathing_rhythm_exhale, method.exhale, method.exhale),
+                    context.resources.getQuantityString(R.plurals.breathing_rhythm_hold, method.holdAfter, method.holdAfter)
+                ).joinToString(" → ")
+                Text(rhythmDetail,
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },

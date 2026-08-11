@@ -81,6 +81,7 @@ fun MainScreen(
     selectedColor: Color,
     useDynamicColor: Boolean,
     useBlackBackground: Boolean,
+    useMonochrome: Boolean,
     hideAnimation: Boolean,
     backgroundSelection: org.xmsleep.app.ui.BackgroundSelection,
     soundCardsColumnsCount: Int,
@@ -93,6 +94,7 @@ fun MainScreen(
     onColorChange: (Color) -> Unit,
     onDynamicColorChange: (Boolean) -> Unit,
     onBlackBackgroundChange: (Boolean) -> Unit,
+    onMonochromeChange: (Boolean) -> Unit,
     onHideAnimationChange: (Boolean) -> Unit,
     onBackgroundSelectionChange: (org.xmsleep.app.ui.BackgroundSelection) -> Unit,
     onSoundCardsColumnsCountChange: (Int) -> Unit,
@@ -219,7 +221,7 @@ fun MainScreen(
     var isSettingsContentHidden by remember { mutableStateOf(false) }
     
     // 自动更新检查（全局共享）
-    val updateViewModel = remember { org.xmsleep.app.update.UpdateViewModel(context) }
+    val updateViewModel = remember { org.xmsleep.app.update.UpdateViewModel(context.applicationContext as android.app.Application) }
     val updateState by updateViewModel.updateState.collectAsState()
     
     // 获取当前版本号
@@ -676,10 +678,12 @@ fun MainScreen(
                     selectedColor = selectedColor,
                     useDynamicColor = useDynamicColor,
                     useBlackBackground = useBlackBackground,
+                    useMonochrome = useMonochrome,
                     onDarkModeChange = onDarkModeChange,
                     onColorChange = onColorChange,
                     onDynamicColorChange = onDynamicColorChange,
                     onBlackBackgroundChange = onBlackBackgroundChange,
+                    onMonochromeChange = onMonochromeChange,
                     onBack = { navigator.popBackStack() },
                     onScrollDetected = {
                         // 滚动时收缩悬浮按钮
@@ -884,7 +888,7 @@ fun MainScreen(
                 val addedCount = localSounds.size + remoteSoundIds.size
                 Toast.makeText(
                     context,
-                    context.getString(R.string.added_to_preset, addedCount, activePreset),
+                    context.resources.getQuantityString(R.plurals.added_to_preset, addedCount, addedCount, activePreset),
                     Toast.LENGTH_SHORT
                 ).show()
             }
@@ -1038,7 +1042,7 @@ private fun rememberTabVisibility(
         }
     }
 
-    return derivedStateOf { showTab }
+    return remember { derivedStateOf { showTab } }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -1046,10 +1050,10 @@ private fun rememberTabVisibility(
 private fun NavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
-    onLongClick: (() -> Unit)? = null,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     label: String?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null
 ) {
     val iconColor = if (selected) {
         MaterialTheme.colorScheme.onPrimaryContainer

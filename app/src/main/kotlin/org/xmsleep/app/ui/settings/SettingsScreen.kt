@@ -1,5 +1,6 @@
 package org.xmsleep.app.ui.settings
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -346,7 +347,7 @@ fun SettingsScreen(
                                 45 -> context.getString(R.string.countdown_45_minutes)
                                 60 -> context.getString(R.string.countdown_60_minutes)
                                 120 -> context.getString(R.string.countdown_2_hours)
-                                else -> "${autoCountdownMinutes}${context.getString(R.string.minutes_only, autoCountdownMinutes)}"
+                                else -> context.resources.getQuantityString(R.plurals.minutes_only, autoCountdownMinutes, autoCountdownMinutes)
                             },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary
@@ -1084,6 +1085,7 @@ fun SettingsScreen(
     }
 }
 
+@SuppressLint("Recycle")
 internal fun copyToPrivateStorage(context: Context, uri: Uri): Pair<Uri?, Uri?> {
     return try {
         val mimeType = context.contentResolver.getType(uri) ?: "image/png"
@@ -1099,9 +1101,22 @@ internal fun copyToPrivateStorage(context: Context, uri: Uri): Pair<Uri?, Uri?> 
         val fileName = "custom_bg_${System.currentTimeMillis()}.$ext"
         val destFile = java.io.File(bgDir, fileName)
 
-        context.contentResolver.openInputStream(uri)?.use { input ->
-            java.io.FileOutputStream(destFile).use { output ->
-                input.copyTo(output)
+        if (mimeType.contains("mp4")) {
+            // 视频背景：重新封装去掉音轨（保证静音），失败则回退为直接复制
+            val remuxed = remuxVideoWithoutAudio(context, uri, destFile)
+            if (!remuxed) {
+                Logger.d("SettingsScreen", "视频去声音失败，回退为直接复制")
+                context.contentResolver.openInputStream(uri)?.use { input ->
+                    java.io.FileOutputStream(destFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+            }
+        } else {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                java.io.FileOutputStream(destFile).use { output ->
+                    input.copyTo(output)
+                }
             }
         }
 
@@ -1128,6 +1143,70 @@ internal fun copyToPrivateStorage(context: Context, uri: Uri): Pair<Uri?, Uri?> 
     } catch (e: Exception) {
         Logger.e("SettingsScreen", "复制自定义背景文件失败", e)
         Pair(null, null)
+    }
+}
+
+/**
+ * 重新封装视频，仅保留视频轨（去掉音轨），保证背景视频静音
+ * @return 是否成功（失败时调用方回退为直接复制原文件）
+ */
+private fun remuxVideoWithoutAudio(context: Context, uri: Uri, destFile: java.io.File): Boolean {
+    val extractor = android.media.MediaExtractor()
+    return try {
+        extractor.setDataSource(context, uri, null)
+        // 找到第一个视频轨
+        val videoTrackIndex = (0 until extractor.trackCount).firstOrNull { i ->
+            extractor.getTrackFormat(i).getString(android.media.MediaFormat.KEY_MIME)
+                ?.startsWith("video/") == true
+        }
+        if (videoTrackIndex == null) {
+            false
+        } else {
+            val format = extractor.getTrackFormat(videoTrackIndex)
+            val muxer = android.media.MediaMuxer(
+                destFile.absolutePath,
+                android.media.MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4
+            )
+            try {
+                extractor.selectTrack(videoTrackIndex)
+                val muxerTrackIndex = muxer.addTrack(format)
+                muxer.start()
+                val buffer = java.nio.ByteBuffer.allocate(1024 * 1024)
+                val bufferInfo = android.media.MediaCodec.BufferInfo()
+                var sawInputEOS = false
+                while (!sawInputEOS) {
+                    val size = extractor.readSampleData(buffer, 0)
+                    if (size < 0) {
+                        sawInputEOS = true
+                    } else {
+                    bufferInfo.offset = 0
+                    bufferInfo.size = size
+                    bufferInfo.presentationTimeUs = extractor.sampleTime
+                    // MediaExtractor 的 SAMPLE_FLAG_SYNC 与 MediaCodec 的 BUFFER_FLAG_KEY_FRAME 数值相同（均为 1），
+                    // 这里显式转换以避免 WrongConstant lint 错误
+                    bufferInfo.flags = if (extractor.sampleFlags and android.media.MediaExtractor.SAMPLE_FLAG_SYNC != 0) {
+                        android.media.MediaCodec.BUFFER_FLAG_KEY_FRAME
+                    } else {
+                        0
+                    }
+                    muxer.writeSampleData(muxerTrackIndex, buffer, bufferInfo)
+                        extractor.advance()
+                    }
+                }
+                muxer.stop()
+                true
+            } catch (e: Exception) {
+                Logger.e("SettingsScreen", "视频去声音失败（保留原文件）", e)
+                false
+            } finally {
+                try { muxer.release() } catch (_: Exception) {}
+            }
+        }
+    } catch (e: Exception) {
+        Logger.e("SettingsScreen", "视频去声音失败（保留原文件）", e)
+        false
+    } finally {
+        try { extractor.release() } catch (_: Exception) {}
     }
 }
 
