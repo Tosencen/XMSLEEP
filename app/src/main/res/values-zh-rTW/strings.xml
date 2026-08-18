@@ -249,6 +249,26 @@
     <string name="added_to_favorite">已添加到收藏</string>
     <string name="removed_from_favorite">已取消收藏</string>
     <string name="scanning_local_audio">正在掃描本地音頻文件…</string>
+    <string name="filter_all">全部</string>
+    <string name="filter_duration_all">全部時長</string>
+    <string name="filter_duration_under_1min">1分鐘以內</string>
+    <string name="filter_duration_1_3min">1-3分鐘</string>
+    <string name="filter_duration_3_10min">3-10分鐘</string>
+    <string name="filter_duration_over_10min">10分鐘以上</string>
+    <string name="sort_by">排序</string>
+    <string name="sort_date_desc">新增時間（新→舊）</string>
+    <string name="sort_name_asc">名稱（A→Z）</string>
+    <string name="sort_duration_asc">時長（短→長）</string>
+    <string name="sort_duration_desc">時長（長→短）</string>
+    <string name="sort_size_desc">大小（大→小）</string>
+    <string name="no_matching_audio">沒有符合篩選條件的音頻</string>
+    <string name="unknown_folder">未知資料夾</string>
+    <string name="filter">篩選</string>
+    <string name="filter_folder_section">資料夾</string>
+    <string name="filter_duration_section">時長</string>
+    <string name="manage_folders">管理資料夾</string>
+    <string name="manage_folders_hint">勾選要收錄的資料夾，未勾選任何資料夾時顯示全部</string>
+    <string name="clear_filter">清除篩選</string>
     
     <!-- 一言一句功能 -->
     <string name="daily_quote">一言一句</string>

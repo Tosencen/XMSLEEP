@@ -33,6 +33,7 @@ import org.xmsleep.app.ui.components.PlayingAnimation
 import org.xmsleep.app.ui.meditation.MeditationCategory
 import org.xmsleep.app.ui.meditation.MeditationManifest
 import java.io.InputStreamReader
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun BreathingListScreen(
@@ -54,8 +55,8 @@ fun BreathingListScreen(
     }
 
     val playerManager = remember { MeditationPlayerManager.getInstance() }
-    val isMeditationPlaying by playerManager.isPlaying.collectAsState()
-    val playingCategoryId by playerManager.currentCategoryId.collectAsState()
+    val isMeditationPlaying by playerManager.isPlaying.collectAsStateWithLifecycle()
+    val playingCategoryId by playerManager.currentCategoryId.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         playerManager.initialize(context)

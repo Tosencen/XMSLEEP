@@ -45,6 +45,7 @@ import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.update.UpdateDialog
 import org.xmsleep.app.ui.starsky.WeatherEditDialog
 import org.xmsleep.app.utils.Logger
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /** 网页版在线播放器地址（GitHub Pages） */
 private const val WEB_VERSION_URL = "https://tosencen.github.io/XMSLEEP/player.html"
@@ -132,7 +133,7 @@ fun SettingsScreen(
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    val updateState by updateViewModel.updateState.collectAsState()
+    val updateState by updateViewModel.updateState.collectAsStateWithLifecycle()
     // 获取当前版本号
     val currentVersion = remember {
         try {
@@ -152,8 +153,8 @@ fun SettingsScreen(
     }
 
     // 倒计时状态
-    val isTimerActive by timerManager.isTimerActive.collectAsState()
-    val timeLeftMillis by timerManager.timeLeftMillis.collectAsState()
+    val isTimerActive by timerManager.isTimerActive.collectAsStateWithLifecycle()
+    val timeLeftMillis by timerManager.timeLeftMillis.collectAsStateWithLifecycle()
     
     // 监听音频播放状态，自动取消倒计时
     LaunchedEffect(Unit) {

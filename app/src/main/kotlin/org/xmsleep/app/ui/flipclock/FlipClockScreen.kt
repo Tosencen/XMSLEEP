@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.xmsleep.app.R
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.ui.components.WheelPicker
@@ -45,7 +46,7 @@ fun FlipClockScreen(
     activity: Activity? = null,
     viewModel: FlipClockViewModel = viewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val configuration = LocalConfiguration.current
     val isLandscape = configuration.screenWidthDp > configuration.screenHeightDp
     val context = LocalContext.current

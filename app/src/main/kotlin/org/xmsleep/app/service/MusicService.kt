@@ -61,7 +61,8 @@ class MusicService : Service() {
         }
         
         override fun onTimerFinished(durationMinutes: Int) {
-            audioManager.stopAllSounds()
+            // 定时到点：淡出 5 秒后停止，避免突然中断
+            audioManager.fadeOutAndStopAll()
             timeLeftText = null
             updateNotification()
             stopForeground(true)

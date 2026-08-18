@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.xmsleep.app.R
@@ -88,10 +89,10 @@ fun BreathingDetailScreen(
     onBack: () -> Unit,
     viewModel: BreathingViewModel = viewModel()
 ) {
-    val currentMethod by viewModel.currentMethod.collectAsState()
-    val durationMinutes by viewModel.durationMinutes.collectAsState()
-    val isBreathing by viewModel.isActive.collectAsState()
-    val remainingSeconds by viewModel.remainingSeconds.collectAsState()
+    val currentMethod by viewModel.currentMethod.collectAsStateWithLifecycle()
+    val durationMinutes by viewModel.durationMinutes.collectAsStateWithLifecycle()
+    val isBreathing by viewModel.isActive.collectAsStateWithLifecycle()
+    val remainingSeconds by viewModel.remainingSeconds.collectAsStateWithLifecycle()
     
     var breathPhase by remember { mutableStateOf(BreathPhase.INHALE) }
     var breathCount by remember { mutableIntStateOf(0) }

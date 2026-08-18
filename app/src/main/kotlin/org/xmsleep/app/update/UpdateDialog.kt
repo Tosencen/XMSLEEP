@@ -20,6 +20,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import org.xmsleep.app.R
 import org.xmsleep.app.i18n.LanguageManager
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * 软件更新对话框
@@ -32,9 +33,9 @@ fun UpdateDialog(
     currentLanguage: LanguageManager.Language
 ) {
     val context = LocalContext.current
-    val updateState by updateViewModel.updateState.collectAsState()
-    val downloadProgress by updateViewModel.downloadProgress.collectAsState()
-    val downloadState by updateViewModel.downloadState.collectAsState()
+    val updateState by updateViewModel.updateState.collectAsStateWithLifecycle()
+    val downloadProgress by updateViewModel.downloadProgress.collectAsStateWithLifecycle()
+    val downloadState by updateViewModel.downloadState.collectAsStateWithLifecycle()
     
     // 获取当前版本
     val currentVersion = remember {

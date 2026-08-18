@@ -77,7 +77,7 @@ internal fun DefaultArea(
     getSoundDisplayName: (org.xmsleep.app.audio.model.SoundMetadata) -> String = { it.name },
     scope: CoroutineScope = rememberCoroutineScope(),
     resourceManager: org.xmsleep.app.audio.AudioResourceManager = remember { org.xmsleep.app.audio.AudioResourceManager.getInstance(context) },
-    presetList: List<PreferencesManager.PresetEntry> = emptyList(),
+    presetList: List<org.xmsleep.app.preferences.PresetPrefs.PresetEntry> = emptyList(),
     verticalLayout: Boolean = false,
     onAddPreset: () -> Unit = {},
     onRenamePreset: (Int) -> Unit = {},

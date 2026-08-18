@@ -235,6 +235,26 @@
     <string name="added_to_favorite">お気に入りに追加しました</string>
     <string name="removed_from_favorite">お気に入りから削除しました</string>
     <string name="scanning_local_audio">ローカルオーディオファイルをスキャン中…</string>
+    <string name="filter_all">すべて</string>
+    <string name="filter_duration_all">すべての長さ</string>
+    <string name="filter_duration_under_1min">1分未満</string>
+    <string name="filter_duration_1_3min">1〜3分</string>
+    <string name="filter_duration_3_10min">3〜10分</string>
+    <string name="filter_duration_over_10min">10分以上</string>
+    <string name="sort_by">並べ替え</string>
+    <string name="sort_date_desc">追加日時（新しい順）</string>
+    <string name="sort_name_asc">名前（A〜Z）</string>
+    <string name="sort_duration_asc">長さ（短い順）</string>
+    <string name="sort_duration_desc">長さ（長い順）</string>
+    <string name="sort_size_desc">サイズ（大きい順）</string>
+    <string name="no_matching_audio">条件に一致する音声がありません</string>
+    <string name="unknown_folder">不明なフォルダ</string>
+    <string name="filter">フィルター</string>
+    <string name="filter_folder_section">フォルダ</string>
+    <string name="filter_duration_section">長さ</string>
+    <string name="manage_folders">フォルダ管理</string>
+    <string name="manage_folders_hint">表示するフォルダを選択してください。未選択の場合はすべて表示されます。</string>
+    <string name="clear_filter">フィルターをクリア</string>
     
     <!-- Daily Quote Feature -->
     <string name="daily_quote">日替わり名言</string>

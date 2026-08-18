@@ -40,6 +40,7 @@ import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.meditation.BilibiliAudioHelper
 import org.xmsleep.app.meditation.MeditationPlayerManager
 import java.io.InputStreamReader
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,11 +67,11 @@ fun MeditationPlayerScreen(
     }
 
     // 从管理器同步状态（仅同步属于当前分类的会话，避免跨分类误跳转）
-    val managerIsPlaying by playerManager.isPlaying.collectAsState()
-    val managerSessionId by playerManager.currentSessionId.collectAsState()
-    val managerCategoryId by playerManager.currentCategoryId.collectAsState()
-    val isLoop by playerManager.isLoop.collectAsState()
-    val repeatCount by playerManager.repeatCount.collectAsState()
+    val managerIsPlaying by playerManager.isPlaying.collectAsStateWithLifecycle()
+    val managerSessionId by playerManager.currentSessionId.collectAsStateWithLifecycle()
+    val managerCategoryId by playerManager.currentCategoryId.collectAsStateWithLifecycle()
+    val isLoop by playerManager.isLoop.collectAsStateWithLifecycle()
+    val repeatCount by playerManager.repeatCount.collectAsStateWithLifecycle()
 
     var currentSessionIndex by remember {
         mutableIntStateOf(

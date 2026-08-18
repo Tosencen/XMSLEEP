@@ -7,6 +7,11 @@ import android.media.MediaPlayer
 import android.media.AudioManager as SystemAudioManager
 import android.net.Uri
 import org.xmsleep.app.utils.Logger
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -152,13 +157,19 @@ class LocalAudioPlayer private constructor() {
     
     /**
      * 设置播放列表（由UI调用，传入当前可见的音频列表）
+     * 切换筛选后播放列表会缩小：正在播的音频不打断，只把“下一首”的索引重定位到新列表；
+     * 若当前音频不在新列表中，则索引置 -1，播完当前后从新列表第一首开始。
      */
     fun setPlaylist(audios: List<Pair<Long, Uri>>) {
+        // 记住当前播放的音频 ID
+        val previousCurrentId = _playlist.value.getOrNull(currentPlayIndex)
         _playlist.value = audios.map { it.first }
         // 同时缓存URI
         audios.forEach { (id, uri) ->
             audioUriCache[id] = uri.toString()
         }
+        // 在新列表中重新定位当前音频（不存在则为 -1）
+        currentPlayIndex = previousCurrentId?.let { id -> audios.indexOfFirst { it.first == id } } ?: -1
         // 重新洗牌
         rebuildShuffleOrder()
         Logger.d(TAG, "设置播放列表: ${audios.size} 首")
@@ -487,6 +498,49 @@ class LocalAudioPlayer private constructor() {
         }
     }
     
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    /**
+     * 淡出并停止所有本地音频文件（用于定时器到点平滑停止）
+     * 只渐变播放器音量，不写入偏好设置。
+     * @param durationMs 淡出时长（默认 5 秒）
+     */
+    fun fadeOutAndStopAll(durationMs: Long = 5_000L) {
+        // MediaPlayer 实例最好在主线程访问，淡出协程切到 Main dispatcher
+        scope.launch(Dispatchers.Main) {
+            try {
+                val playing = mediaPlayers.entries.filter { playingStates[it.key] == true }
+                if (playing.isEmpty()) {
+                    stopAllAudios()
+                    return@launch
+                }
+                val originals = playing.associate { (audioId, _) ->
+                    audioId to (volumeSettings[audioId] ?: _currentVolume.value)
+                }
+                val steps = 60L
+                val stepMs = (durationMs / steps).coerceAtLeast(50L)
+                for (i in 1..steps) {
+                    val factor = 1f - i.toFloat() / steps.toFloat()
+                    playing.forEach { (audioId, mp) ->
+                        val orig = originals[audioId] ?: _currentVolume.value
+                        try {
+                            val v = (orig * factor).coerceIn(0f, 1f)
+                            mp.setVolume(v, v)
+                        } catch (e: Exception) {
+                            Logger.e(TAG, "淡出音频音量失败: audioId=$audioId", e)
+                        }
+                    }
+                    delay(stepMs)
+                }
+                stopAllAudios()
+                Logger.d(TAG, "淡出完成，已停止所有音频")
+            } catch (e: Exception) {
+                Logger.e(TAG, "淡出所有音频时发生错误: ${e.message}", e)
+                stopAllAudios()
+            }
+        }
+    }
+
     /**
      * 停止所有音频
      */

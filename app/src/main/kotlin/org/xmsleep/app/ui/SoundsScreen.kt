@@ -158,6 +158,7 @@ import org.xmsleep.app.weather.WeatherSoundMapper
 import org.xmsleep.app.utils.Logger
 import org.xmsleep.app.ui.viewmodel.SoundsViewModel
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * 自定义颜色回调，根据原颜色的亮度和饱和度动态映射到主题色系或灰色系
@@ -376,8 +377,8 @@ fun SoundsScreen(
     onBackgroundSelectionChange: (BackgroundSelection) -> Unit = {},
     columnsCount: Int = 2,
     onColumnsCountChange: (Int) -> Unit = {},
-    presetList: List<PreferencesManager.PresetEntry> = emptyList(),
-    onPresetListChange: (List<PreferencesManager.PresetEntry>) -> Unit = {},
+    presetList: List<org.xmsleep.app.preferences.PresetPrefs.PresetEntry> = emptyList(),
+    onPresetListChange: (List<org.xmsleep.app.preferences.PresetPrefs.PresetEntry>) -> Unit = {},
     presetSoundsMap: Map<Int, MutableSet<AudioManager.Sound>> = emptyMap(),
     pinnedSounds: MutableState<MutableSet<AudioManager.Sound>>,
     activePreset: Int = 1,
@@ -404,7 +405,7 @@ fun SoundsScreen(
     val colorScheme = MaterialTheme.colorScheme
     
     // 更新相关状态
-    val updateState by (updateViewModel?.updateState ?: MutableStateFlow(UpdateState.Idle)).collectAsState()
+    val updateState by (updateViewModel?.updateState ?: MutableStateFlow(UpdateState.Idle)).collectAsStateWithLifecycle()
     var showUpdateDialog by remember { mutableStateOf(false) }
     
     // 判断是否显示更新图标（有新版本或已下载但未安装）
@@ -518,8 +519,8 @@ fun SoundsScreen(
     }
     
     // 倒计时相关状态
-    val isTimerActive by timerManager.isTimerActive.collectAsState()
-    val timeLeftMillis by timerManager.timeLeftMillis.collectAsState()
+    val isTimerActive by timerManager.isTimerActive.collectAsStateWithLifecycle()
+    val timeLeftMillis by timerManager.timeLeftMillis.collectAsStateWithLifecycle()
     var showTimerDialog by remember { mutableStateOf(false) }
     
     // 检查是否有声音在播放
@@ -691,33 +692,26 @@ fun SoundsScreen(
             override fun onTimerFinished(durationMinutes: Int) {
                 android.os.Handler(android.os.Looper.getMainLooper()).post {
                     try {
-                        audioManager.stopAllSounds()
-                        
-                        // 立即更新所有本地声音播放状态
-                        soundItems.forEach { item ->
-                            playingStates[item.sound] = false
-                        }
-                        
-                        // 立即更新所有远程声音播放状态
-                        playingRemoteSounds = emptySet()
-                        
-                        // 延迟一小段时间后再次验证，确保所有声音都已停止
+                        // 定时到点：淡出 30 秒后停止，避免突然中断
+                        audioManager.fadeOutAndStopAll()
+
+                        // 淡出期间先提示用户
+                        android.widget.Toast.makeText(context, context.getString(R.string.countdown_ended_stopped), android.widget.Toast.LENGTH_SHORT).show()
+
+                        // 淡出完成后更新所有播放状态
                         android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
                             // 再次检查并强制停止任何仍在播放的声音
                             val stillPlaying = audioManager.hasAnyPlayingSounds()
                             if (stillPlaying) {
                                 Logger.w("SoundsScreen", "倒计时结束后仍有声音在播放，进行二次停止")
                                 audioManager.stopAllSounds()
-                                // 再次更新UI状态
-                                soundItems.forEach { item ->
-                                    playingStates[item.sound] = false
-                                }
-                                playingRemoteSounds = emptySet()
                             }
-                        }, 200) // 200ms后验证
-                        
-                        // 显示Toast提示
-                        android.widget.Toast.makeText(context, context.getString(R.string.countdown_ended_stopped), android.widget.Toast.LENGTH_SHORT).show()
+                            // 更新UI状态
+                            soundItems.forEach { item ->
+                                playingStates[item.sound] = false
+                            }
+                            playingRemoteSounds = emptySet()
+                        }, 32_000) // 等淡出完成后同步UI状态
                     } catch (e: Exception) {
                         Logger.e("SoundsScreen", "倒计时结束处理失败: ${e.message}", e)
                         // 即使出错也要尝试停止

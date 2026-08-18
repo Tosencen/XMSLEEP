@@ -14,6 +14,11 @@ import org.xmsleep.app.audio.model.SoundMetadata
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.utils.Logger
 import java.util.concurrent.ConcurrentHashMap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -286,6 +291,8 @@ class RemoteSoundPlayer private constructor() {
         }
     }
 
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
     /**
      * 暂停所有远程声音
      */
@@ -296,6 +303,46 @@ class RemoteSoundPlayer private constructor() {
         }
         playingQueue.clear()
         Logger.d(TAG, "所有远程声音已暂停")
+    }
+
+    /**
+     * 淡出并暂停所有远程声音（用于定时器到点平滑停止）
+     * 只渐变播放器音量，不写入偏好设置。
+     * @param durationMs 淡出时长（默认 5 秒）
+     */
+    fun fadeOutAndPauseAll(durationMs: Long = 5_000L) {
+        // ExoPlayer 必须在主线程访问，淡出协程切到 Main dispatcher
+        scope.launch(Dispatchers.Main) {
+            try {
+                val playing = remotePlayers.entries.filter { remotePlayingStatesInternal[it.key] == true }
+                if (playing.isEmpty()) {
+                    pauseAllRemoteSounds()
+                    return@launch
+                }
+                val originals = playing.associate { (soundId, _) ->
+                    soundId to (remoteVolumeSettings[soundId] ?: DEFAULT_VOLUME)
+                }
+                val steps = 60L
+                val stepMs = (durationMs / steps).coerceAtLeast(50L)
+                for (i in 1..steps) {
+                    val factor = 1f - i.toFloat() / steps.toFloat()
+                    playing.forEach { (soundId, player) ->
+                        val orig = originals[soundId] ?: DEFAULT_VOLUME
+                        try {
+                            player?.volume = (orig * factor).coerceIn(0f, 1f)
+                        } catch (e: Exception) {
+                            Logger.e(TAG, "淡出 $soundId 音量失败: ${e.message}")
+                        }
+                    }
+                    delay(stepMs)
+                }
+                pauseAllRemoteSounds()
+                Logger.d(TAG, "淡出完成，已暂停所有远程声音")
+            } catch (e: Exception) {
+                Logger.e(TAG, "淡出所有远程声音时发生错误: ${e.message}", e)
+                pauseAllRemoteSounds()
+            }
+        }
     }
 
     /**

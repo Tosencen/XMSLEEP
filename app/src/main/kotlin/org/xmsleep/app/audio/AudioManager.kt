@@ -19,6 +19,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * 全局音频管理器
@@ -390,6 +392,30 @@ class AudioManager private constructor() {
             Logger.d(TAG, "所有声音已暂停")
         } catch (e: Exception) {
             Logger.e(TAG, "暂停所有声音时发生错误: ${e.message}")
+        }
+    }
+
+    /**
+     * 淡出并停止所有声音（用于定时器到点平滑停止）
+     * 本地声音/远程声音/本地音频文件在 durationMs 内渐弱到静音后停止；
+     * 电台与冥想随最终 stopAllSounds 一并停止。
+     * @param durationMs 淡出时长（默认 5 秒）
+     */
+    fun fadeOutAndStopAll(durationMs: Long = 5_000L) {
+        // 播放器必须在主线程访问，整个淡出流程走 Main dispatcher
+        CoroutineScope(SupervisorJob() + Dispatchers.Main).launch {
+            try {
+                localSoundPlayer.fadeOutAndStopAll(durationMs)
+                remoteSoundPlayer.fadeOutAndPauseAll(durationMs)
+                org.xmsleep.app.audio.LocalAudioPlayer.getInstance().fadeOutAndStopAll(durationMs)
+                // 等待所有淡出协程完成（每个内部都延时 durationMs）
+                delay(durationMs + 2_000L)
+                stopAllSounds()
+                Logger.d(TAG, "淡出流程完成，所有声音已停止")
+            } catch (e: Exception) {
+                Logger.e(TAG, "淡出所有声音时发生错误: ${e.message}", e)
+                stopAllSounds()
+            }
         }
     }
 

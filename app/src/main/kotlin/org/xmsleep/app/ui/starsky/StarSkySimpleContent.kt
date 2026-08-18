@@ -35,6 +35,7 @@ import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.rememberLottieComposition
 import org.xmsleep.app.utils.Logger
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * 简化版繁星内容：不分类、直接全量瀑布流展示白噪音，
@@ -95,8 +96,8 @@ fun StarSkySimpleContent(
     }
 
     val timerManager = remember { TimerManager.getInstance() }
-    val isTimerActive by timerManager.isTimerActive.collectAsState()
-    val timeLeftMillis by timerManager.timeLeftMillis.collectAsState()
+    val isTimerActive by timerManager.isTimerActive.collectAsStateWithLifecycle()
+    val timeLeftMillis by timerManager.timeLeftMillis.collectAsStateWithLifecycle()
     var showTimerDialog by remember { mutableStateOf(false) }
 
     // 右上角天气模块（优先显示缓存，避免依赖网络）

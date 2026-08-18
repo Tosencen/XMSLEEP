@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.compose.NavHost
@@ -222,7 +223,7 @@ fun MainScreen(
     
     // 自动更新检查（全局共享）
     val updateViewModel = remember { org.xmsleep.app.update.UpdateViewModel(context.applicationContext as android.app.Application) }
-    val updateState by updateViewModel.updateState.collectAsState()
+    val updateState by updateViewModel.updateState.collectAsStateWithLifecycle()
     
     // 获取当前版本号
     val currentVersion = remember {
@@ -293,7 +294,7 @@ fun MainScreen(
     // 初始化预设声音
     LaunchedEffect(presetList) {
         val map = mutableMapOf<Int, MutableSet<AudioManager.Sound>>()
-        presetList.forEach { entry: PreferencesManager.PresetEntry ->
+        presetList.forEach { entry: org.xmsleep.app.preferences.PresetPrefs.PresetEntry ->
             val saved = PreferencesManager.getPresetLocalPinned(context, entry.id)
             map[entry.id] = saved.mapNotNull { name ->
                 try { AudioManager.Sound.valueOf(name) } catch (e: Exception) { null }

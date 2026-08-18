@@ -2,6 +2,7 @@ package org.xmsleep.app.ui
 
 import android.Manifest
 import android.content.ContentUris
+import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
@@ -11,7 +12,12 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
@@ -20,15 +26,20 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
+import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.RepeatOne
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shuffle
+import androidx.compose.material.icons.filled.Sort
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
@@ -54,6 +65,7 @@ import org.xmsleep.app.audio.LocalAudioPlayer
 import org.xmsleep.app.audio.PlayMode
 import org.xmsleep.app.timer.TimerManager
 import org.xmsleep.app.utils.Logger
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 data class LocalAudioFile(
     val id: Long,
@@ -61,10 +73,59 @@ data class LocalAudioFile(
     val artist: String?,
     val duration: Long,
     val uri: Uri,
-    val dateAdded: Long
+    val dateAdded: Long,
+    /** 所在文件夹（API 29+ 为相对路径如 "Music/白噪音"，以下为绝对目录），未知时为 UNKNOWN_FOLDER_KEY */
+    val folderPath: String,
+    val size: Long
 )
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+/** 未知文件夹的占位 key（避免与真实路径冲突） */
+private const val UNKNOWN_FOLDER_KEY = "~unknown~"
+
+/** 文件夹过滤：单选，空值表示全部 */
+private data class FolderEntry(val path: String, val displayName: String, val count: Int)
+
+/** 时长过滤选项（DURATION 未知即 <=0 时，只有 ALL 会包含） */
+enum class LocalAudioDurationFilter {
+    ALL, UNDER_1_MIN, MIN_1_3, MIN_3_10, OVER_10_MIN;
+
+    fun matches(durationMs: Long): Boolean = when (this) {
+        ALL -> true
+        UNDER_1_MIN -> durationMs in 1 until 60_000L
+        MIN_1_3 -> durationMs in 60_000L until 180_000L
+        MIN_3_10 -> durationMs in 180_000L until 600_000L
+        OVER_10_MIN -> durationMs >= 600_000L
+    }
+}
+
+/** 排序选项 */
+enum class LocalAudioSortOption {
+    DATE_DESC, NAME_ASC, DURATION_ASC, DURATION_DESC, SIZE_DESC;
+
+    fun comparator(): Comparator<LocalAudioFile> = when (this) {
+        DATE_DESC -> compareByDescending { it.dateAdded }
+        NAME_ASC -> compareBy { it.title.lowercase() }
+        DURATION_ASC -> compareBy { it.duration }
+        DURATION_DESC -> compareByDescending { it.duration }
+        SIZE_DESC -> compareByDescending { it.size }
+    }
+}
+
+/** 在文件夹列表里隐藏的系统默认文件夹（小写比较），其文件仍会出现在“全部”里 */
+private val SYSTEM_FOLDERS = setOf(
+    "recordings", "ringtones", "notifications", "alarms", "podcasts",
+    "call recordings", "voice recorder", "whatsapp audio"
+)
+
+/**
+ * 文件夹是否应被隐藏（系统默认文件夹或隐藏目录），供文件夹列表与测试复用。
+ */
+internal fun isHiddenSystemFolder(displayName: String): Boolean {
+    val name = displayName.lowercase()
+    return displayName.startsWith(".") || name in SYSTEM_FOLDERS
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 fun LocalAudioScreen(
     modifier: Modifier = Modifier,
@@ -100,12 +161,117 @@ fun LocalAudioScreen(
     var isSearching by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
 
-    val filteredAudioList = remember(localAudioList, searchQuery) {
-        if (searchQuery.isBlank()) localAudioList
-        else localAudioList.filter {
-            it.title.contains(searchQuery, ignoreCase = true) ||
-            it.artist?.contains(searchQuery, ignoreCase = true) == true
+    // 过滤与排序状态（持久化，退出再进保持上次选择）
+    var selectedFolder by remember {
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getLocalAudioFilterFolder(context).ifEmpty { null })
+    }
+    var durationFilter by remember {
+        mutableStateOf(
+            runCatching {
+                LocalAudioDurationFilter.valueOf(org.xmsleep.app.preferences.PreferencesManager.getLocalAudioFilterDuration(context))
+            }.getOrDefault(LocalAudioDurationFilter.ALL)
+        )
+    }
+    var sortOption by remember {
+        mutableStateOf(
+            runCatching {
+                LocalAudioSortOption.valueOf(org.xmsleep.app.preferences.PreferencesManager.getLocalAudioSort(context))
+            }.getOrDefault(LocalAudioSortOption.DATE_DESC)
+        )
+    }
+    var showFilterSheet by remember { mutableStateOf(false) }
+    var showSortMenu by remember { mutableStateOf(false) }
+    var showFolderManager by remember { mutableStateOf(false) }
+    // 已收录文件夹白名单（空集合 = 显示全部）
+    var enabledFolders by remember {
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getLocalAudioEnabledFolders(context))
+    }
+
+    fun selectFolder(folder: String?) {
+        selectedFolder = folder
+        org.xmsleep.app.preferences.PreferencesManager.saveLocalAudioFilterFolder(context, folder ?: "")
+    }
+
+    fun selectDuration(filter: LocalAudioDurationFilter) {
+        durationFilter = filter
+        org.xmsleep.app.preferences.PreferencesManager.saveLocalAudioFilterDuration(context, filter.name)
+    }
+
+    fun selectSort(option: LocalAudioSortOption) {
+        sortOption = option
+        org.xmsleep.app.preferences.PreferencesManager.saveLocalAudioSort(context, option.name)
+    }
+
+    fun clearFilters() {
+        selectFolder(null)
+        selectDuration(LocalAudioDurationFilter.ALL)
+        selectSort(LocalAudioSortOption.DATE_DESC)
+    }
+
+    // 是否有生效中的筛选（用于图标角标和摘要行）
+    val hasActiveFilter = selectedFolder != null ||
+        durationFilter != LocalAudioDurationFilter.ALL ||
+        sortOption != LocalAudioSortOption.DATE_DESC
+
+    val filterSummary = buildList {
+        selectedFolder?.let { path ->
+            add(if (path == UNKNOWN_FOLDER_KEY) context.getString(R.string.unknown_folder) else path.substringAfterLast('/'))
         }
+        if (durationFilter != LocalAudioDurationFilter.ALL) add(durationFilterLabel(context, durationFilter))
+        if (sortOption != LocalAudioSortOption.DATE_DESC) add(sortOptionLabel(context, sortOption))
+    }.joinToString(" · ")
+
+    // 文件夹列表（隐藏系统默认文件夹；若设了白名单则只显示白名单内），按名称排序
+    val folderEntries = remember(localAudioList, context, enabledFolders) {
+        val unknownLabel = context.getString(R.string.unknown_folder)
+        localAudioList
+            .groupBy { it.folderPath }
+            .mapNotNull { (path, files) ->
+                val displayName = if (path == UNKNOWN_FOLDER_KEY) unknownLabel else path.substringAfterLast('/')
+                val hiddenBySystem = isHiddenSystemFolder(displayName)
+                if (enabledFolders.isNotEmpty()) {
+                    if (path !in enabledFolders) null else FolderEntry(path, displayName, files.size)
+                } else {
+                    if (hiddenBySystem) null else FolderEntry(path, displayName, files.size)
+                }
+            }
+            .sortedBy { it.displayName.lowercase() }
+    }
+
+    // 全部文件夹列表（管理弹窗用，包含系统默认文件夹），按名称排序
+    val allFolderEntries = remember(localAudioList, context) {
+        val unknownLabel = context.getString(R.string.unknown_folder)
+        localAudioList
+            .groupBy { it.folderPath }
+            .map { (path, files) ->
+                val displayName = if (path == UNKNOWN_FOLDER_KEY) unknownLabel else path.substringAfterLast('/')
+                FolderEntry(path, displayName, files.size)
+            }
+            .sortedBy { it.displayName.lowercase() }
+    }
+
+    fun toggleEnabledFolder(path: String) {
+        val newSet = if (path in enabledFolders) enabledFolders - path else enabledFolders + path
+        enabledFolders = newSet
+        org.xmsleep.app.preferences.PreferencesManager.saveLocalAudioEnabledFolders(context, newSet)
+        // 若当前选中的文件夹被移出白名单，重置为“全部”
+        if (selectedFolder != null && selectedFolder !in newSet) {
+            selectFolder(null)
+        }
+    }
+
+    // 组合过滤：白名单 ∩ 文件夹 ∩ 时长 ∩ 搜索关键词，再排序
+    val filteredAudioList = remember(localAudioList, searchQuery, selectedFolder, durationFilter, sortOption, enabledFolders) {
+        localAudioList
+            .filter { enabledFolders.isEmpty() || it.folderPath in enabledFolders }
+            .filter {
+                searchQuery.isBlank() ||
+                    it.title.contains(searchQuery, ignoreCase = true) ||
+                    it.artist?.contains(searchQuery, ignoreCase = true) == true
+            }
+            .filter { selectedFolder == null || it.folderPath == selectedFolder }
+            .filter { durationFilter.matches(it.duration) }
+            .sortedWith(sortOption.comparator())
     }
 
     var favoriteLocalAudios by remember {
@@ -126,12 +292,19 @@ fun LocalAudioScreen(
                     } else {
                         MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
                     }
+                    val pathColumn = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        MediaStore.Audio.Media.RELATIVE_PATH
+                    } else {
+                        MediaStore.Audio.Media.DATA
+                    }
                     val projection = arrayOf(
                         MediaStore.Audio.Media._ID,
                         MediaStore.Audio.Media.DISPLAY_NAME,
                         MediaStore.Audio.Media.ARTIST,
                         MediaStore.Audio.Media.DURATION,
-                        MediaStore.Audio.Media.DATE_ADDED
+                        MediaStore.Audio.Media.DATE_ADDED,
+                        MediaStore.Audio.Media.SIZE,
+                        pathColumn
                     )
                     val sortOrder = "${MediaStore.Audio.Media.DATE_ADDED} DESC"
                     context.contentResolver.query(collection, projection, null, null, sortOrder)?.use { cursor ->
@@ -140,16 +313,28 @@ fun LocalAudioScreen(
                         val artistCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)
                         val durCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)
                         val dateCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATE_ADDED)
+                        val sizeCol = cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.SIZE)
+                        val folderCol = cursor.getColumnIndexOrThrow(pathColumn)
                         while (cursor.moveToNext()) {
                             val id = cursor.getLong(idCol)
                             val name = cursor.getString(nameCol)
+                            val folderPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                val relativePath = cursor.getString(folderCol)
+                                if (relativePath.isNullOrBlank()) UNKNOWN_FOLDER_KEY else relativePath.trimEnd('/')
+                            } else {
+                                val data = cursor.getString(folderCol)
+                                if (data.isNullOrBlank()) UNKNOWN_FOLDER_KEY
+                                else data.substringBeforeLast('/', "").ifEmpty { UNKNOWN_FOLDER_KEY }
+                            }
                             audioFiles.add(LocalAudioFile(
                                 id = id,
                                 title = name.substringBeforeLast("."),
                                 artist = cursor.getString(artistCol),
                                 duration = cursor.getLong(durCol),
                                 uri = ContentUris.withAppendedId(collection, id),
-                                dateAdded = cursor.getLong(dateCol)
+                                dateAdded = cursor.getLong(dateCol),
+                                folderPath = folderPath,
+                                size = cursor.getLong(sizeCol)
                             ))
                         }
                     }
@@ -213,15 +398,18 @@ fun LocalAudioScreen(
         }
     }
 
-    val playingAudioIds by localAudioPlayer.playingAudioIds.collectAsState()
-    val currentPlayMode by localAudioPlayer.playMode.collectAsState()
+    val playingAudioIds by localAudioPlayer.playingAudioIds.collectAsStateWithLifecycle()
+    val currentPlayMode by localAudioPlayer.playMode.collectAsStateWithLifecycle()
 
     val timerListener = remember {
         object : TimerManager.TimerListener {
             override fun onTimerTick(timeLeftMillis: Long) {}
             override fun onTimerFinished(durationMinutes: Int) {
-                localAudioPlayer.stopAllAudios()
-                if (!audioManager.hasAnyPlayingSounds()) audioManager.stopMusicService(context)
+                // 定时到点：本地音频淡出 30 秒后停止，避免突然中断
+                localAudioPlayer.fadeOutAndStopAll()
+                android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+                    if (!audioManager.hasAnyPlayingSounds()) audioManager.stopMusicService(context)
+                }, 32_000L)
             }
             override fun onTimerCancelled() {}
         }
@@ -235,8 +423,9 @@ fun LocalAudioScreen(
     LaunchedEffect(Unit) {
         if (hasPermission) scanAudioFiles(false) else isLoading = false
     }
-    LaunchedEffect(localAudioList) {
-        if (localAudioList.isNotEmpty()) localAudioPlayer.setPlaylist(localAudioList.map { it.id to it.uri })
+    // 播放列表跟随当前过滤/搜索后的可见列表（切过滤时正在播的歌不打断，下一首从新列表取）
+    LaunchedEffect(filteredAudioList) {
+        if (filteredAudioList.isNotEmpty()) localAudioPlayer.setPlaylist(filteredAudioList.map { it.id to it.uri })
     }
 
     val focusRequester = remember { FocusRequester() }
@@ -297,6 +486,44 @@ fun LocalAudioScreen(
                                     tint = if (currentPlayMode == PlayMode.SEQUENTIAL) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
                                 )
                             }
+                            Box {
+                                IconButton(onClick = { showSortMenu = true }) {
+                                    Icon(
+                                        Icons.Filled.Sort,
+                                        contentDescription = context.getString(R.string.sort_by),
+                                        tint = if (sortOption == LocalAudioSortOption.DATE_DESC) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                                DropdownMenu(
+                                    expanded = showSortMenu,
+                                    onDismissRequest = { showSortMenu = false }
+                                ) {
+                                    LocalAudioSortOption.entries.forEach { opt ->
+                                        DropdownMenuItem(
+                                            text = { Text(sortOptionLabel(context, opt)) },
+                                            onClick = { selectSort(opt); showSortMenu = false },
+                                            trailingIcon = if (sortOption == opt) {
+                                                { Icon(Icons.Filled.Check, contentDescription = null) }
+                                            } else null
+                                        )
+                                    }
+                                }
+                            }
+                            IconButton(onClick = { showFilterSheet = true }) {
+                                BadgedBox(
+                                    badge = {
+                                        if (hasActiveFilter) {
+                                            Badge(modifier = Modifier.offset(x = (-2).dp, y = 2.dp))
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        Icons.Filled.Tune,
+                                        contentDescription = context.getString(R.string.filter),
+                                        tint = if (hasActiveFilter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                             IconButton(onClick = { isSearching = true }) {
                                 Icon(Icons.Filled.Search, contentDescription = context.getString(R.string.search_audio), tint = MaterialTheme.colorScheme.primary)
                             }
@@ -347,47 +574,77 @@ fun LocalAudioScreen(
                         }
                     }
                     else -> {
-                        Box(modifier = Modifier.fillMaxSize()) {
-                            if (filteredAudioList.isEmpty() && searchQuery.isNotBlank()) {
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(32.dp)) {
-                                        Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
-                                        Text(context.getString(R.string.no_search_results), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                        Text("\"$searchQuery\"", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            // 生效中的筛选摘要（点击顶栏筛选图标可修改）
+                            if (hasActiveFilter) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 4.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = filterSummary,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    TextButton(
+                                        onClick = { clearFilters() },
+                                        contentPadding = PaddingValues(horizontal = 12.dp)
+                                    ) {
+                                        Text(context.getString(R.string.clear_filter), style = MaterialTheme.typography.bodySmall)
                                     }
                                 }
-                            } else {
-                                PullToRefreshBox(
-                                    isRefreshing = isRefreshing,
-                                    onRefresh = { scanAudioFiles(true) },
-                                    modifier = Modifier.fillMaxSize()
-                                ) {
-                                    LazyColumn(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentPadding = PaddingValues(16.dp),
-                                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                            }
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                if (filteredAudioList.isEmpty()) {
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding(32.dp)) {
+                                            if (searchQuery.isNotBlank()) {
+                                                Icon(Icons.Filled.Search, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                                                Text(context.getString(R.string.no_search_results), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                Text("\"$searchQuery\"", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
+                                            } else {
+                                                Icon(Icons.Filled.FilterAlt, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                                                Text(context.getString(R.string.no_matching_audio), style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    PullToRefreshBox(
+                                        isRefreshing = isRefreshing,
+                                        onRefresh = { scanAudioFiles(true) },
+                                        modifier = Modifier.fillMaxSize()
                                     ) {
-                                        items(items = filteredAudioList, key = { it.id }) { audio ->
-                                            LocalAudioItem(
-                                                audio = audio,
-                                                isPlaying = playingAudioIds.contains(audio.id),
-                                                modifier = Modifier.animateItem(),
-                                                onCardClick = {
-                                                    localAudioPlayer.toggleAudio(
-                                                        context = context,
-                                                        audioId = audio.id,
-                                                        audioUri = audio.uri,
-                                                        onError = { msg -> android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show() }
-                                                    )
-                                                    if (localAudioPlayer.hasActiveAudio() || audioManager.hasAnyPlayingSounds()) {
-                                                        audioManager.startMusicService(context)
-                                                    } else {
-                                                        audioManager.stopMusicService(context)
-                                                    }
-                                                },
-                                                onVolumeClick = { selectedAudioForVolume = audio; showVolumeDialog = true },
-                                                onLongPress = { selectedAudioForMenu = audio; showContextMenu = true }
-                                            )
+                                        LazyColumn(
+                                            modifier = Modifier.fillMaxSize(),
+                                            contentPadding = PaddingValues(16.dp),
+                                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                                        ) {
+                                            items(items = filteredAudioList, key = { it.id }) { audio ->
+                                                LocalAudioItem(
+                                                    audio = audio,
+                                                    isPlaying = playingAudioIds.contains(audio.id),
+                                                    modifier = Modifier.animateItem(),
+                                                    onCardClick = {
+                                                        localAudioPlayer.toggleAudio(
+                                                            context = context,
+                                                            audioId = audio.id,
+                                                            audioUri = audio.uri,
+                                                            onError = { msg -> android.widget.Toast.makeText(context, msg, android.widget.Toast.LENGTH_SHORT).show() }
+                                                        )
+                                                        if (localAudioPlayer.hasActiveAudio() || audioManager.hasAnyPlayingSounds()) {
+                                                            audioManager.startMusicService(context)
+                                                        } else {
+                                                            audioManager.stopMusicService(context)
+                                                        }
+                                                    },
+                                                    onVolumeClick = { selectedAudioForVolume = audio; showVolumeDialog = true },
+                                                    onLongPress = { selectedAudioForMenu = audio; showContextMenu = true }
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -495,6 +752,195 @@ fun LocalAudioScreen(
             dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text(context.getString(R.string.cancel)) } }
         )
     }
+
+    // 筛选弹层：文件夹 / 时长 / 排序（紧凑 chips 布局，分区标签 + 可换行筛选 chip）
+    if (showFilterSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showFilterSheet = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp
+        ) {
+            // 内容区可滚动
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp)
+            ) {
+                // 标题栏
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = context.getString(R.string.filter),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = { showFilterSheet = false }) {
+                        Icon(
+                            Icons.Filled.Close,
+                            contentDescription = context.getString(R.string.close),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // 文件夹
+                FilterSectionLabel(text = context.getString(R.string.filter_folder_section))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    FilterChip(
+                        selected = selectedFolder == null,
+                        onClick = { selectFolder(null) },
+                        label = { Text(context.getString(R.string.filter_all)) }
+                    )
+                    folderEntries.forEach { entry ->
+                        FilterChip(
+                            selected = selectedFolder == entry.path,
+                            onClick = { selectFolder(if (selectedFolder == entry.path) null else entry.path) },
+                            label = { Text("${entry.displayName} ${entry.count}") }
+                        )
+                    }
+                }
+                // 管理已收录文件夹入口
+                TextButton(
+                    onClick = { showFolderManager = true },
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
+                    Icon(
+                        Icons.Filled.Folder,
+                        contentDescription = null,
+                        modifier = Modifier.size(18.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(context.getString(R.string.manage_folders))
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
+                // 时长
+                FilterSectionLabel(text = context.getString(R.string.filter_duration_section))
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    LocalAudioDurationFilter.entries.forEach { opt ->
+                        FilterChip(
+                            selected = durationFilter == opt,
+                            onClick = { selectDuration(opt) },
+                            label = { Text(durationFilterLabel(context, opt)) }
+                        )
+                    }
+                }
+
+            }
+
+            // 底部固定操作栏：清除筛选始终吸底可见，不随内容滚动
+            if (hasActiveFilter) {
+                HorizontalDivider()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(vertical = 4.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    TextButton(onClick = { clearFilters() }) {
+                        Icon(
+                            Icons.Filled.FilterAlt,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(context.getString(R.string.clear_filter), color = MaterialTheme.colorScheme.error)
+                    }
+                }
+            }
+        }
+    }
+
+    // 文件夹管理弹层：勾选要收录的文件夹（白名单）
+    if (showFolderManager) {
+        ModalBottomSheet(
+            onDismissRequest = { showFolderManager = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+            tonalElevation = 0.dp
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 16.dp)
+            ) {
+                // 标题栏
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = context.getString(R.string.manage_folders),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(onClick = { showFolderManager = false }) {
+                        Icon(
+                            Icons.Filled.Close,
+                            contentDescription = context.getString(R.string.close),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+                Text(
+                    text = context.getString(R.string.manage_folders_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
+                )
+
+                allFolderEntries.forEach { entry ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { toggleEnabledFolder(entry.path) }
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = entry.path in enabledFolders,
+                            onCheckedChange = { toggleEnabledFolder(entry.path) }
+                        )
+                        Text(
+                            text = entry.displayName,
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = "${entry.count}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FilterSectionLabel(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -550,8 +996,21 @@ fun LocalAudioItem(
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(audio.title, style = MaterialTheme.typography.titleMedium, fontWeight = if (isPlaying) FontWeight.Bold else FontWeight.Normal, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                        audio.artist?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false)) }
-                        Text(formatDuration(audio.duration), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        val folderName = if (audio.folderPath == UNKNOWN_FOLDER_KEY) "" else audio.folderPath.substringAfterLast('/')
+                        val metaText = when {
+                            audio.artist != null && folderName.isNotEmpty() -> "${audio.artist} · $folderName"
+                            audio.artist != null -> audio.artist
+                            folderName.isNotEmpty() -> folderName
+                            else -> ""
+                        }
+                        if (metaText.isNotEmpty()) {
+                            Text(metaText, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+                        }
+                        Text(
+                            listOf(formatDuration(audio.duration), formatSize(audio.size)).filter { it.isNotEmpty() }.joinToString(" · "),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }
@@ -591,4 +1050,30 @@ private fun formatDuration(millis: Long): String {
     val minutes = seconds / 60
     val remainingSeconds = seconds % 60
     return "%d:%02d".format(minutes, remainingSeconds)
+}
+
+private fun formatSize(bytes: Long): String {
+    if (bytes <= 0) return ""
+    val mb = bytes / 1024f / 1024f
+    return if (mb >= 100) {
+        "${mb.toInt()} MB"
+    } else {
+        String.format(java.util.Locale.US, "%.1f MB", mb)
+    }
+}
+
+private fun durationFilterLabel(context: Context, filter: LocalAudioDurationFilter): String = when (filter) {
+    LocalAudioDurationFilter.ALL -> context.getString(R.string.filter_duration_all)
+    LocalAudioDurationFilter.UNDER_1_MIN -> context.getString(R.string.filter_duration_under_1min)
+    LocalAudioDurationFilter.MIN_1_3 -> context.getString(R.string.filter_duration_1_3min)
+    LocalAudioDurationFilter.MIN_3_10 -> context.getString(R.string.filter_duration_3_10min)
+    LocalAudioDurationFilter.OVER_10_MIN -> context.getString(R.string.filter_duration_over_10min)
+}
+
+private fun sortOptionLabel(context: Context, option: LocalAudioSortOption): String = when (option) {
+    LocalAudioSortOption.DATE_DESC -> context.getString(R.string.sort_date_desc)
+    LocalAudioSortOption.NAME_ASC -> context.getString(R.string.sort_name_asc)
+    LocalAudioSortOption.DURATION_ASC -> context.getString(R.string.sort_duration_asc)
+    LocalAudioSortOption.DURATION_DESC -> context.getString(R.string.sort_duration_desc)
+    LocalAudioSortOption.SIZE_DESC -> context.getString(R.string.sort_size_desc)
 }

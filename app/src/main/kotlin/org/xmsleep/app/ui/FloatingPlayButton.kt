@@ -47,6 +47,7 @@ import org.xmsleep.app.audio.AudioResourceManager
 import org.xmsleep.app.audio.model.SoundMetadata
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
  * 全局浮动播放按钮组件 - 重构版
@@ -200,7 +201,7 @@ fun FloatingPlayButtonNew(
     
     // 定时检查播放状态（最多支持10个同时播放）
     val localAudioPlayer = remember { org.xmsleep.app.audio.LocalAudioPlayer.getInstance() }
-    val playingAudioIds by localAudioPlayer.playingAudioIds.collectAsState()
+    val playingAudioIds by localAudioPlayer.playingAudioIds.collectAsStateWithLifecycle()
     
     
     LaunchedEffect(Unit) {
@@ -586,6 +587,11 @@ fun FloatingPlayButtonNew(
                 TextButton(
                     onClick = {
                         audioManager.stopAllSounds()
+                        // 本地音频文件由 LocalAudioPlayer 单独管理，需要一并停止
+                        localAudioPlayer.stopAllAudios()
+                        if (!localAudioPlayer.hasActiveAudio() && !audioManager.hasAnyPlayingSounds()) {
+                            audioManager.stopMusicService(context)
+                        }
                         showStopAllDialog = false
                         isExpanded = false
                     }

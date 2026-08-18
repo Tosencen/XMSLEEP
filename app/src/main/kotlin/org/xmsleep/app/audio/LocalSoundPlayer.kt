@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * 本地声音播放器
@@ -442,6 +444,46 @@ class LocalSoundPlayer private constructor() {
      */
     fun isPlayingSound(sound: AudioManager.Sound): Boolean {
         return playingStatesInternal[sound] == true
+    }
+
+    /**
+     * 淡出并停止所有本地声音（用于定时器到点平滑停止）
+     * 只渐变播放器音量，不写入偏好设置，避免覆盖用户保存的音量。
+     * @param durationMs 淡出时长（默认 5 秒）
+     */
+    fun fadeOutAndStopAll(durationMs: Long = 5_000L) {
+        // ExoPlayer 必须在主线程访问，淡出协程切到 Main dispatcher
+        scope.launch(Dispatchers.Main) {
+            try {
+                val playing = players.entries.filter { playingStatesInternal[it.key] == true }
+                if (playing.isEmpty()) {
+                    stopAllSounds()
+                    return@launch
+                }
+                val originals = playing.associate { (sound, _) ->
+                    sound to (volumeSettings[sound] ?: DEFAULT_VOLUME)
+                }
+                val steps = 60L
+                val stepMs = (durationMs / steps).coerceAtLeast(50L)
+                for (i in 1..steps) {
+                    val factor = 1f - i.toFloat() / steps.toFloat()
+                    playing.forEach { (sound, player) ->
+                        val orig = originals[sound] ?: DEFAULT_VOLUME
+                        try {
+                            player?.volume = (orig * factor).coerceIn(0f, 1f)
+                        } catch (e: Exception) {
+                            Logger.e(TAG, "淡出 ${sound.name} 音量失败: ${e.message}")
+                        }
+                    }
+                    delay(stepMs)
+                }
+                stopAllSounds()
+                Logger.d(TAG, "淡出完成，已停止所有本地声音")
+            } catch (e: Exception) {
+                Logger.e(TAG, "淡出所有本地声音时发生错误: ${e.message}", e)
+                stopAllSounds()
+            }
+        }
     }
 
     /**

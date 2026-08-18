@@ -65,6 +65,7 @@ import org.xmsleep.app.ui.TimerDialog
 import org.xmsleep.app.ui.TimerFAB
 import org.xmsleep.app.ui.viewmodel.RadioViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.util.concurrent.TimeUnit
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -80,12 +81,12 @@ fun RadioScreen(
 
     var showTimerDialog by remember { mutableStateOf(false) }
 
-    val currentStation by viewModel.currentStation.collectAsState()
-    val volume by viewModel.volume.collectAsState()
-    val isPlaying by viewModel.isPlaying.collectAsState()
-    val isBuffering by viewModel.isBuffering.collectAsState()
-    val timerTimeLeft by countdownTimer.timeLeftMillis.collectAsState()
-    val isTimerActive by countdownTimer.isActive.collectAsState()
+    val currentStation by viewModel.currentStation.collectAsStateWithLifecycle()
+    val volume by viewModel.volume.collectAsStateWithLifecycle()
+    val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
+    val isBuffering by viewModel.isBuffering.collectAsStateWithLifecycle()
+    val timerTimeLeft by countdownTimer.timeLeftMillis.collectAsStateWithLifecycle()
+    val isTimerActive by countdownTimer.isActive.collectAsStateWithLifecycle()
 
     // 导航栏适配（应用底部 Tab 栏）
     val bottomTabBarHeight = 112.dp // MainScreen 底部 Tab 栏高度: padding(bottom=32dp) + Row(height=80dp)
@@ -102,14 +103,14 @@ fun RadioScreen(
     var showBilibiliSheet by remember { mutableStateOf(false) }
     var isEditMode by remember { mutableStateOf(false) }
 
-    val bilibiliRooms by viewModel.bilibiliRooms.collectAsState()
-    val isSearching by viewModel.isSearching.collectAsState()
-    val searchKeyword by viewModel.searchKeyword.collectAsState()
-    val playingRoomId by viewModel.playingRoomId.collectAsState()
-    val lottieAnimationFile by viewModel.lottieAnimationFile.collectAsState()
-    val pinnedRoomIds by viewModel.pinnedRoomIds.collectAsState()
-    val pinnedRoomInfos by viewModel.pinnedRoomInfos.collectAsState()
-    val playingRoomInfo by viewModel.playingRoomInfo.collectAsState()
+    val bilibiliRooms by viewModel.bilibiliRooms.collectAsStateWithLifecycle()
+    val isSearching by viewModel.isSearching.collectAsStateWithLifecycle()
+    val searchKeyword by viewModel.searchKeyword.collectAsStateWithLifecycle()
+    val playingRoomId by viewModel.playingRoomId.collectAsStateWithLifecycle()
+    val lottieAnimationFile by viewModel.lottieAnimationFile.collectAsStateWithLifecycle()
+    val pinnedRoomIds by viewModel.pinnedRoomIds.collectAsStateWithLifecycle()
+    val pinnedRoomInfos by viewModel.pinnedRoomInfos.collectAsStateWithLifecycle()
+    val playingRoomInfo by viewModel.playingRoomInfo.collectAsStateWithLifecycle()
 
     // Lottie 装饰动画（主题色适配）
     val colorScheme = MaterialTheme.colorScheme
