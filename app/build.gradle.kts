@@ -209,7 +209,7 @@ dependencies {
     
     // Testing
     testImplementation("junit:junit:4.13.2")
-    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("io.mockk:mockk:1.14.11")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("com.google.dagger:hilt-android-testing:2.53.1")
     kaptTest("com.google.dagger:hilt-android-compiler:2.53.1")
