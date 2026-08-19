@@ -215,7 +215,7 @@ dependencies {
     kaptTest("com.google.dagger:hilt-android-compiler:2.53.1")
     
     // Android Testing
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test.ext:junit:1.3.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("androidx.test:runner:1.5.2")
