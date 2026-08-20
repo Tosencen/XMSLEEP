@@ -258,13 +258,16 @@
     <string name="filter_folder_section">文件夹</string>
     <string name="filter_duration_section">时长</string>
     <string name="manage_folders">管理文件夹</string>
-    <string name="manage_folders_hint">勾选要收录的文件夹，不勾选任何文件夹时显示全部</string>
+    <string name="manage_folders_hint">系统文件夹（录音、铃声等）默认隐藏，勾选后显示；其他文件夹默认显示，取消勾选可隐藏</string>
+    <string name="manage_folders_system_section">系统文件夹（默认隐藏）</string>
+    <string name="manage_folders_other_section">其他文件夹（默认显示）</string>
     <string name="clear_filter">清除筛选</string>
     <string name="no_local_audio">暂无本地音频</string>
     <string name="search_audio">搜索音频</string>
     <string name="no_search_results">未找到匹配的音频</string>
     <string name="no_audio_files_found">设备上没有找到音频文件</string>
     <string name="storage_permission_required">需要存储权限</string>
+    <string name="go_home_to_grant_permission">请返回主页面重新授权</string>
     <string name="rename">重命名</string>
     <string name="renaming">正在重命名…</string>
     <string name="rename_success">重命名成功</string>
@@ -278,6 +281,7 @@
     <string name="remove_from_favorite">取消收藏</string>
     <string name="added_to_favorite">已添加到收藏</string>
     <string name="removed_from_favorite">已取消收藏</string>
+    <string name="favorites">收藏</string>
     
     <!-- 权限相关 -->
     <string name="permission_denied_hint">需要存储权限才能访问本地音频文件</string>

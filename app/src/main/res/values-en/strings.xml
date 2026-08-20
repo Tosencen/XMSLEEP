@@ -226,6 +226,7 @@
     
     <!-- Local Audio Permissions -->
     <string name="storage_permission_required">Storage Permission Required</string>
+    <string name="go_home_to_grant_permission">Please return to the home page to grant permission</string>
     <string name="permission_denied_hint">Storage permission is required to access local audio files</string>
     <string name="request_permission">Grant Permission</string>
     <string name="local_audio">Local Audio</string>
@@ -246,6 +247,7 @@
     <string name="remove_from_favorite">Remove from Favorites</string>
     <string name="added_to_favorite">Added to favorites</string>
     <string name="removed_from_favorite">Removed from favorites</string>
+    <string name="favorites">Favorites</string>
     <string name="scanning_local_audio">Scanning local audio files…</string>
     <string name="filter_all">All</string>
     <string name="filter_duration_all">Any duration</string>
@@ -265,7 +267,9 @@
     <string name="filter_folder_section">Folder</string>
     <string name="filter_duration_section">Duration</string>
     <string name="manage_folders">Manage folders</string>
-    <string name="manage_folders_hint">Select the folders to include. If none are selected, all audio is shown.</string>
+    <string name="manage_folders_hint">System folders (Recordings, Ringtones, etc.) are hidden by default; check to show. Other folders are shown by default; uncheck to hide.</string>
+    <string name="manage_folders_system_section">System folders (hidden by default)</string>
+    <string name="manage_folders_other_section">Other folders (shown by default)</string>
     <string name="clear_filter">Clear filters</string>
     
     <!-- Daily Quote Feature -->

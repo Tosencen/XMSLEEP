@@ -238,6 +238,7 @@
     
     <!-- Local Audio Permissions -->
     <string name="storage_permission_required">Требуется разрешение на хранилище</string>
+    <string name="go_home_to_grant_permission">Вернитесь на главный экран, чтобы предоставить разрешение</string>
     <string name="permission_denied_hint">Для доступа к локальным аудиофайлам требуется разрешение на хранилище</string>
     <string name="request_permission">Предоставить разрешение</string>
     <string name="local_audio">Локальное аудио</string>
@@ -258,6 +259,7 @@
     <string name="remove_from_favorite">Удалить из избранного</string>
     <string name="added_to_favorite">Добавлено в избранное</string>
     <string name="removed_from_favorite">Удалено из избранного</string>
+    <string name="favorites">Избранное</string>
     <string name="scanning_local_audio">Сканирование локальных аудиофайлов…</string>
     <string name="filter_all">Все</string>
     <string name="filter_duration_all">Любая длительность</string>
@@ -277,7 +279,9 @@
     <string name="filter_folder_section">Папка</string>
     <string name="filter_duration_section">Длительность</string>
     <string name="manage_folders">Управление папками</string>
-    <string name="manage_folders_hint">Выберите папки для отображения. Если ничего не выбрано, показываются все.</string>
+    <string name="manage_folders_hint">Системные папки (Записи, Рингтоны и т. д.) скрыты по умолчанию — отметьте, чтобы показывать. Остальные папки видны по умолчанию — снимите отметку, чтобы скрыть.</string>
+    <string name="manage_folders_system_section">Системные папки (скрыты по умолчанию)</string>
+    <string name="manage_folders_other_section">Остальные папки (видны по умолчанию)</string>
     <string name="clear_filter">Сбросить фильтры</string>
     
     <!-- Daily Quote Feature -->

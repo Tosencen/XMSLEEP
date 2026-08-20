@@ -234,6 +234,7 @@
     
     <!-- 本地音頻權限 -->
     <string name="storage_permission_required">需要存儲權限</string>
+    <string name="go_home_to_grant_permission">請返回主頁面重新授權</string>
     <string name="permission_denied_hint">需要存儲權限才能訪問本地音頻文件</string>
     <string name="request_permission">授予權限</string>
     <string name="local_audio">本地音頻</string>
@@ -254,6 +255,7 @@
     <string name="remove_from_favorite">取消收藏</string>
     <string name="added_to_favorite">已添加到收藏</string>
     <string name="removed_from_favorite">已取消收藏</string>
+    <string name="favorites">收藏</string>
     <string name="scanning_local_audio">正在掃描本地音頻文件…</string>
     <string name="filter_all">全部</string>
     <string name="filter_duration_all">全部時長</string>
@@ -273,7 +275,9 @@
     <string name="filter_folder_section">資料夾</string>
     <string name="filter_duration_section">時長</string>
     <string name="manage_folders">管理資料夾</string>
-    <string name="manage_folders_hint">勾選要收錄的資料夾，未勾選任何資料夾時顯示全部</string>
+    <string name="manage_folders_hint">系統資料夾（錄音、鈴聲等）預設隱藏，勾選後顯示；其他資料夾預設顯示，取消勾選可隱藏</string>
+    <string name="manage_folders_system_section">系統資料夾（預設隱藏）</string>
+    <string name="manage_folders_other_section">其他資料夾（預設顯示）</string>
     <string name="clear_filter">清除篩選</string>
     
     <!-- 一言一句功能 -->

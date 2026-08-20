@@ -217,6 +217,7 @@
 
     <!-- Local Audio Permissions -->
     <string name="storage_permission_required">저장소 권한 필요</string>
+    <string name="go_home_to_grant_permission">홈 페이지로 돌아가 권한을 허용해 주세요</string>
     <string name="permission_denied_hint">로컬 오디오 파일에 접근하려면 저장소 권한이 필요합니다</string>
     <string name="request_permission">권한 부여</string>
     <string name="local_audio">로컬 오디오</string>
@@ -237,6 +238,7 @@
     <string name="remove_from_favorite">즐겨찾기에서 제거</string>
     <string name="added_to_favorite">즐겨찾기에 추가됨</string>
     <string name="removed_from_favorite">즐겨찾기에서 제거됨</string>
+    <string name="favorites">즐겨찾기</string>
     <string name="scanning_local_audio">로컬 오디오 파일을 검색하는 중…</string>
     <string name="filter_all">전체</string>
     <string name="filter_duration_all">전체 길이</string>
@@ -256,7 +258,9 @@
     <string name="filter_folder_section">폴더</string>
     <string name="filter_duration_section">길이</string>
     <string name="manage_folders">폴더 관리</string>
-    <string name="manage_folders_hint">표시할 폴더를 선택하세요. 선택하지 않으면 모두 표시됩니다.</string>
+    <string name="manage_folders_hint">시스템 폴더(녹음, 벨소리 등)는 기본적으로 숨겨집니다. 체크하면 표시되고, 다른 폴더는 기본적으로 표시되며 체크를 해제하면 숨겨집니다.</string>
+    <string name="manage_folders_system_section">시스템 폴더(기본적으로 숨김)</string>
+    <string name="manage_folders_other_section">기타 폴더(기본적으로 표시)</string>
     <string name="clear_filter">필터 지우기</string>
 
     <!-- Daily Quote Feature -->

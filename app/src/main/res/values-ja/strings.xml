@@ -220,6 +220,7 @@
     
     <!-- Local Audio Permissions -->
     <string name="storage_permission_required">ストレージ権限が必要です</string>
+    <string name="go_home_to_grant_permission">ホームページに戻って権限を許可してください</string>
     <string name="permission_denied_hint">ローカルオーディオファイルにアクセスするにはストレージ権限が必要です</string>
     <string name="request_permission">権限を許可</string>
     <string name="local_audio">ローカルオーディオ</string>
@@ -240,6 +241,7 @@
     <string name="remove_from_favorite">お気に入りから削除</string>
     <string name="added_to_favorite">お気に入りに追加しました</string>
     <string name="removed_from_favorite">お気に入りから削除しました</string>
+    <string name="favorites">お気に入り</string>
     <string name="scanning_local_audio">ローカルオーディオファイルをスキャン中…</string>
     <string name="filter_all">すべて</string>
     <string name="filter_duration_all">すべての長さ</string>
@@ -259,7 +261,9 @@
     <string name="filter_folder_section">フォルダ</string>
     <string name="filter_duration_section">長さ</string>
     <string name="manage_folders">フォルダ管理</string>
-    <string name="manage_folders_hint">表示するフォルダを選択してください。未選択の場合はすべて表示されます。</string>
+    <string name="manage_folders_hint">システムフォルダ（録音、着信音など）は既定で非表示です。チェックすると表示され、その他のフォルダは既定で表示され、チェックを外すと非表示になります。</string>
+    <string name="manage_folders_system_section">システムフォルダ（既定で非表示）</string>
+    <string name="manage_folders_other_section">その他のフォルダ（既定で表示）</string>
     <string name="clear_filter">フィルターをクリア</string>
     
     <!-- Daily Quote Feature -->

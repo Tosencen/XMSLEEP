@@ -96,6 +96,16 @@ object AudioPrefs {
         return prefs.getStringSet(Constants.PrefsKeys.LOCAL_AUDIO_ENABLED_FOLDERS, emptySet()) ?: emptySet()
     }
 
+    fun saveLocalAudioHiddenFolders(context: Context, folders: Set<String>) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putStringSet(Constants.PrefsKeys.LOCAL_AUDIO_HIDDEN_FOLDERS, folders).apply()
+    }
+
+    fun getLocalAudioHiddenFolders(context: Context): Set<String> {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getStringSet(Constants.PrefsKeys.LOCAL_AUDIO_HIDDEN_FOLDERS, emptySet()) ?: emptySet()
+    }
+
     fun saveLocalAudioPosition(context: Context, audioId: Long, positionMs: Int) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().putInt("${Constants.PrefsKeys.LOCAL_AUDIO_POSITION}_$audioId", positionMs).apply()

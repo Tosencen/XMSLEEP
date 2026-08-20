@@ -163,6 +163,11 @@ object PreferencesManager {
 
     fun getLocalAudioEnabledFolders(context: Context): Set<String> = AudioPrefs.getLocalAudioEnabledFolders(context)
 
+    fun saveLocalAudioHiddenFolders(context: Context, folders: Set<String>) =
+        AudioPrefs.saveLocalAudioHiddenFolders(context, folders)
+
+    fun getLocalAudioHiddenFolders(context: Context): Set<String> = AudioPrefs.getLocalAudioHiddenFolders(context)
+
     fun saveLocalAudioPosition(context: Context, audioId: Long, positionMs: Int) =
         AudioPrefs.saveLocalAudioPosition(context, audioId, positionMs)
 

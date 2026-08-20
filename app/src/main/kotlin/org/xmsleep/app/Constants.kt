@@ -110,6 +110,7 @@ object Constants {
         const val LOCAL_AUDIO_FILTER_DURATION = "local_audio_filter_duration"
         const val LOCAL_AUDIO_SORT = "local_audio_sort"
         const val LOCAL_AUDIO_ENABLED_FOLDERS = "local_audio_enabled_folders"
+        const val LOCAL_AUDIO_HIDDEN_FOLDERS = "local_audio_hidden_folders"
         const val RECENT_LOCAL_SOUNDS = "recent_local_sounds"
         const val RECENT_REMOTE_SOUNDS = "recent_remote_sounds"
         const val RECENT_LOCAL_AUDIO_FILES = "recent_local_audio_files"
