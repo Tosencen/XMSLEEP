@@ -157,6 +157,7 @@
     <string name="donate_amount_value_2">¥6.9</string>
     <string name="donate_amount_value_3">¥16.8</string>
     <string name="donate_tip">收款码已自动保存到相册，点「去微信支付」，在微信扫一扫中选「相册」的图片即可</string>
+    <string name="donate_hint">收款码已自动保存到相册，点击「去微信扫码」打开微信后，在「扫一扫」中选择相册里的图片即可完成打赏</string>
     <string name="go_wechat_pay">去微信支付</string>
     <string name="go_wechat_scan">去微信扫码</string>
     <string name="wechat_not_installed">未检测到微信，请先安装微信</string>
@@ -261,6 +262,7 @@
     <string name="manage_folders_hint">系统文件夹（录音、铃声等）默认隐藏，勾选后显示；其他文件夹默认显示，取消勾选可隐藏</string>
     <string name="manage_folders_system_section">系统文件夹（默认隐藏）</string>
     <string name="manage_folders_other_section">其他文件夹（默认显示）</string>
+    <string name="manage_folders_no_system_audio">系统文件夹暂无音频</string>
     <string name="clear_filter">清除筛选</string>
     <string name="no_local_audio">暂无本地音频</string>
     <string name="search_audio">搜索音频</string>

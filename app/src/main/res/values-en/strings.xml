@@ -138,6 +138,7 @@
     <string name="donate_amount_2">Buy Xiao Man a subway ride</string>
     <string name="donate_amount_3">Buy Xiao Man lunch</string>
     <string name="donate_tip">The QR code is saved to your gallery. Tap \"Pay with WeChat\", then pick the image from \"Albums\" in WeChat\'s scanner</string>
+    <string name="donate_hint">The QR code is auto-saved to your gallery. Tap \"Scan\" to open WeChat, then pick the image from your gallery to complete the donation.</string>
     <string name="go_wechat_pay">Pay with WeChat</string>
     <string name="go_wechat_scan">Scan with WeChat</string>
     <string name="wechat_not_installed">WeChat is not installed</string>
@@ -270,6 +271,7 @@
     <string name="manage_folders_hint">System folders (Recordings, Ringtones, etc.) are hidden by default; check to show. Other folders are shown by default; uncheck to hide.</string>
     <string name="manage_folders_system_section">System folders (hidden by default)</string>
     <string name="manage_folders_other_section">Other folders (shown by default)</string>
+    <string name="manage_folders_no_system_audio">No audio in system folders yet</string>
     <string name="clear_filter">Clear filters</string>
     
     <!-- Daily Quote Feature -->

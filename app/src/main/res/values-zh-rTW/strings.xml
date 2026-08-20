@@ -149,6 +149,7 @@
     <string name="donate_amount_2">請曉滿坐地鐵</string>
     <string name="donate_amount_3">請曉滿吃午餐</string>
     <string name="donate_tip">收款碼已自動儲存到相簿，點「去微信支付」，在微信掃一掃中選「相簿」的圖片即可</string>
+    <string name="donate_hint">收款碼已自動儲存到相冊，點擊「去微信掃碼」打開微信後，在「掃一掃」中選擇相冊裡的圖片即可完成打賞</string>
     <string name="go_wechat_pay">去微信支付</string>
     <string name="go_wechat_scan">去微信掃碼</string>
     <string name="wechat_not_installed">未偵測到微信，請先安裝微信</string>
@@ -278,6 +279,7 @@
     <string name="manage_folders_hint">系統資料夾（錄音、鈴聲等）預設隱藏，勾選後顯示；其他資料夾預設顯示，取消勾選可隱藏</string>
     <string name="manage_folders_system_section">系統資料夾（預設隱藏）</string>
     <string name="manage_folders_other_section">其他資料夾（預設顯示）</string>
+    <string name="manage_folders_no_system_audio">系統資料夾暫無音訊</string>
     <string name="clear_filter">清除篩選</string>
     
     <!-- 一言一句功能 -->

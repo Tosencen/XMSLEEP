@@ -15,8 +15,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -183,7 +183,6 @@ fun LocalAudioScreen(
             }.getOrDefault(LocalAudioSortOption.DATE_DESC)
         )
     }
-    var showFilterSheet by remember { mutableStateOf(false) }
     var showSortMenu by remember { mutableStateOf(false) }
     var showFolderManager by remember { mutableStateOf(false) }
     // 系统文件夹中“勾选收录”的集合（默认隐藏，勾选后显示）
@@ -209,29 +208,6 @@ fun LocalAudioScreen(
         sortOption = option
         org.xmsleep.app.preferences.PreferencesManager.saveLocalAudioSort(context, option.name)
     }
-
-    fun clearFilters() {
-        selectFolder(null)
-        selectDuration(LocalAudioDurationFilter.ALL)
-        selectSort(LocalAudioSortOption.DATE_DESC)
-    }
-
-    // 是否有生效中的筛选（用于图标角标和摘要行）
-    val hasActiveFilter = selectedFolder != null ||
-        durationFilter != LocalAudioDurationFilter.ALL ||
-        sortOption != LocalAudioSortOption.DATE_DESC
-
-    val filterSummary = buildList {
-        selectedFolder?.let { path ->
-            add(when (path) {
-                UNKNOWN_FOLDER_KEY -> context.getString(R.string.unknown_folder)
-                FAVORITES_FOLDER_KEY -> context.getString(R.string.favorites)
-                else -> path.substringAfterLast('/')
-            })
-        }
-        if (durationFilter != LocalAudioDurationFilter.ALL) add(durationFilterLabel(context, durationFilter))
-        if (sortOption != LocalAudioSortOption.DATE_DESC) add(sortOptionLabel(context, sortOption))
-    }.joinToString(" · ")
 
     // 文件夹是否显示：系统目录→勾选收录才显示；普通目录→未主动隐藏即显示
     fun isFolderShown(path: String, displayName: String): Boolean {
@@ -497,21 +473,6 @@ fun LocalAudioScreen(
                     },
                     actions = {
                         if (!isSearching) {
-                            IconButton(onClick = { localAudioPlayer.cyclePlayMode(context) }) {
-                                Icon(
-                                    imageVector = when (currentPlayMode) {
-                                        PlayMode.SHUFFLE -> Icons.Filled.Shuffle
-                                        PlayMode.REPEAT_ONE -> Icons.Filled.RepeatOne
-                                        PlayMode.SEQUENTIAL -> Icons.Filled.Repeat
-                                    },
-                                    contentDescription = when (currentPlayMode) {
-                                        PlayMode.SHUFFLE -> "随机播放"
-                                        PlayMode.REPEAT_ONE -> "单曲循环"
-                                        PlayMode.SEQUENTIAL -> "顺序播放"
-                                    },
-                                    tint = if (currentPlayMode == PlayMode.SEQUENTIAL) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
-                                )
-                            }
                             Box {
                                 IconButton(onClick = { showSortMenu = true }) {
                                     Icon(
@@ -533,21 +494,6 @@ fun LocalAudioScreen(
                                             } else null
                                         )
                                     }
-                                }
-                            }
-                            IconButton(onClick = { showFilterSheet = true }) {
-                                BadgedBox(
-                                    badge = {
-                                        if (hasActiveFilter) {
-                                            Badge(modifier = Modifier.offset(x = (-2).dp, y = 2.dp))
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Tune,
-                                        contentDescription = context.getString(R.string.filter),
-                                        tint = if (hasActiveFilter) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
                                 }
                             }
                             IconButton(onClick = { isSearching = true }) {
@@ -601,26 +547,85 @@ fun LocalAudioScreen(
                     }
                     else -> {
                         Column(modifier = Modifier.fillMaxSize()) {
-                            // 生效中的筛选摘要（点击顶栏筛选图标可修改）
-                            if (hasActiveFilter) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 8.dp, top = 4.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Text(
-                                        text = filterSummary,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.weight(1f)
-                                    )
-                                    TextButton(
-                                        onClick = { clearFilters() },
-                                        contentPadding = PaddingValues(horizontal = 12.dp)
+                            // 文件夹 + 时长筛选（直接展示在列表顶部）
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .verticalScroll(rememberScrollState())
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
+                            ) {
+                                Column {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Text(context.getString(R.string.clear_filter), style = MaterialTheme.typography.bodySmall)
+                                        FilterSectionLabel(
+                                            text = context.getString(R.string.filter_folder_section),
+                                            modifier = Modifier.weight(1f)
+                                        )
+                                        TextButton(
+                                            onClick = { showFolderManager = true },
+                                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp)
+                                        ) {
+                                            Icon(
+                                                Icons.Filled.Folder,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(16.dp),
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                            Spacer(modifier = Modifier.width(4.dp))
+                                            Text(context.getString(R.string.manage_folders))
+                                        }
+                                    }
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .horizontalScroll(rememberScrollState()),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        FilterChip(
+                                            selected = selectedFolder == FAVORITES_FOLDER_KEY,
+                                            onClick = { selectFolder(if (selectedFolder == FAVORITES_FOLDER_KEY) null else FAVORITES_FOLDER_KEY) },
+                                            leadingIcon = {
+                                                Icon(
+                                                    Icons.Filled.Favorite,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(FilterChipDefaults.IconSize),
+                                                    tint = if (selectedFolder == FAVORITES_FOLDER_KEY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                                                )
+                                            },
+                                            label = { Text("${context.getString(R.string.favorites)} ${favoriteLocalAudios.size}") }
+                                        )
+                                        FilterChip(
+                                            selected = selectedFolder == null,
+                                            onClick = { selectFolder(null) },
+                                            label = { Text(context.getString(R.string.filter_all)) }
+                                        )
+                                        folderEntries.forEach { entry ->
+                                            FilterChip(
+                                                selected = selectedFolder == entry.path,
+                                                onClick = { selectFolder(if (selectedFolder == entry.path) null else entry.path) },
+                                                label = { Text("${entry.displayName} ${entry.count}") }
+                                            )
+                                        }
+                                    }
+                                }
+                                Column {
+                                    FilterSectionLabel(text = context.getString(R.string.filter_duration_section))
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .horizontalScroll(rememberScrollState()),
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        LocalAudioDurationFilter.entries.forEach { opt ->
+                                            FilterChip(
+                                                selected = durationFilter == opt,
+                                                onClick = { selectDuration(opt) },
+                                                label = { Text(durationFilterLabel(context, opt)) }
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -653,6 +658,8 @@ fun LocalAudioScreen(
                                                 LocalAudioItem(
                                                     audio = audio,
                                                     isPlaying = playingAudioIds.contains(audio.id),
+                                                    playMode = currentPlayMode,
+                                                    onCyclePlayMode = { localAudioPlayer.cyclePlayMode(context) },
                                                     modifier = Modifier.animateItem(),
                                                     onCardClick = {
                                                         localAudioPlayer.toggleAudio(
@@ -779,123 +786,6 @@ fun LocalAudioScreen(
         )
     }
 
-    // 筛选弹层：文件夹 / 时长 / 排序（紧凑 chips 布局，分区标签 + 可换行筛选 chip）
-    if (showFilterSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showFilterSheet = false },
-            containerColor = MaterialTheme.colorScheme.surface,
-            tonalElevation = 0.dp
-        ) {
-            // 内容区可滚动（分区等间距，无分割线）
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 8.dp, bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
-            ) {
-                // 标题栏
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = context.getString(R.string.filter),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    if (hasActiveFilter) {
-                        TextButton(onClick = { clearFilters() }) {
-                            Icon(
-                                Icons.Filled.FilterAlt,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp),
-                                tint = MaterialTheme.colorScheme.error
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(context.getString(R.string.clear_filter), color = MaterialTheme.colorScheme.error)
-                        }
-                    }
-                }
-
-                // 文件夹
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        FilterSectionLabel(
-                            text = context.getString(R.string.filter_folder_section),
-                            modifier = Modifier.weight(1f)
-                        )
-                        TextButton(
-                            onClick = { showFolderManager = true },
-                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 2.dp)
-                        ) {
-                            Icon(
-                                Icons.Filled.Folder,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(context.getString(R.string.manage_folders))
-                        }
-                    }
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        FilterChip(
-                            selected = selectedFolder == FAVORITES_FOLDER_KEY,
-                            onClick = { selectFolder(if (selectedFolder == FAVORITES_FOLDER_KEY) null else FAVORITES_FOLDER_KEY) },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Filled.Favorite,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(FilterChipDefaults.IconSize),
-                                    tint = if (selectedFolder == FAVORITES_FOLDER_KEY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            },
-                            label = { Text("${context.getString(R.string.favorites)} ${favoriteLocalAudios.size}") }
-                        )
-                        FilterChip(
-                            selected = selectedFolder == null,
-                            onClick = { selectFolder(null) },
-                            label = { Text(context.getString(R.string.filter_all)) }
-                        )
-                        folderEntries.forEach { entry ->
-                            FilterChip(
-                                selected = selectedFolder == entry.path,
-                                onClick = { selectFolder(if (selectedFolder == entry.path) null else entry.path) },
-                                label = { Text("${entry.displayName} ${entry.count}") }
-                            )
-                        }
-                    }
-                }
-
-                // 时长
-                Column {
-                    FilterSectionLabel(text = context.getString(R.string.filter_duration_section))
-                    FlowRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        LocalAudioDurationFilter.entries.forEach { opt ->
-                            FilterChip(
-                                selected = durationFilter == opt,
-                                onClick = { selectDuration(opt) },
-                                label = { Text(durationFilterLabel(context, opt)) }
-                            )
-                        }
-                    }
-                }
-
-            }
-        }
-    }
-
     // 文件夹管理弹层：勾选要收录的文件夹（白名单）
     if (showFolderManager) {
         ModalBottomSheet(
@@ -911,23 +801,11 @@ fun LocalAudioScreen(
                     .padding(bottom = 24.dp)
             ) {
                 // 标题栏
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = context.getString(R.string.manage_folders),
-                        style = MaterialTheme.typography.titleMedium,
-                        modifier = Modifier.weight(1f)
-                    )
-                    IconButton(onClick = { showFolderManager = false }) {
-                        Icon(
-                            Icons.Filled.Close,
-                            contentDescription = context.getString(R.string.close),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
+                Text(
+                    text = context.getString(R.string.manage_folders),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 Text(
                     text = context.getString(R.string.manage_folders_hint),
                     style = MaterialTheme.typography.bodySmall,
@@ -936,10 +814,16 @@ fun LocalAudioScreen(
                 )
 
                 FilterSectionLabel(text = context.getString(R.string.manage_folders_system_section))
-                Column {
-                    allFolderEntries
-                        .filter { isHiddenSystemFolder(it.displayName) }
-                        .forEach { entry ->
+                val systemFolderEntries = allFolderEntries.filter { isHiddenSystemFolder(it.displayName) }
+                if (systemFolderEntries.isEmpty()) {
+                    Text(
+                        text = context.getString(R.string.manage_folders_no_system_audio),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Column {
+                        systemFolderEntries.forEach { entry ->
                             FolderManagerRow(
                                 displayName = entry.displayName,
                                 count = entry.count,
@@ -947,6 +831,7 @@ fun LocalAudioScreen(
                                 onClick = { toggleFolderVisibility(entry.path) }
                             )
                         }
+                    }
                 }
                 FilterSectionLabel(
                     text = context.getString(R.string.manage_folders_other_section),
@@ -1021,6 +906,8 @@ private fun FilterSectionLabel(text: String, modifier: Modifier = Modifier) {
 fun LocalAudioItem(
     audio: LocalAudioFile,
     isPlaying: Boolean,
+    playMode: PlayMode,
+    onCyclePlayMode: () -> Unit,
     onCardClick: () -> Unit,
     onVolumeClick: () -> Unit,
     onLongPress: () -> Unit,
@@ -1107,7 +994,23 @@ fun LocalAudioItem(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Text(formatDuration(currentProgress.toLong()), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        AudioVisualizer(isPlaying = isPlaying, modifier = Modifier.size(24.dp, 16.dp), color = MaterialTheme.colorScheme.primary)
+                        AudioVisualizer(isPlaying = isPlaying, modifier = Modifier.size(18.dp, 12.dp), color = MaterialTheme.colorScheme.primary)
+                        IconButton(onClick = onCyclePlayMode, modifier = Modifier.size(40.dp)) {
+                            Icon(
+                                imageVector = when (playMode) {
+                                    PlayMode.SHUFFLE -> Icons.Filled.Shuffle
+                                    PlayMode.REPEAT_ONE -> Icons.Filled.RepeatOne
+                                    PlayMode.SEQUENTIAL -> Icons.Filled.Repeat
+                                },
+                                contentDescription = when (playMode) {
+                                    PlayMode.SHUFFLE -> "随机播放"
+                                    PlayMode.REPEAT_ONE -> "单曲循环"
+                                    PlayMode.SEQUENTIAL -> "顺序播放"
+                                },
+                                tint = if (playMode == PlayMode.SEQUENTIAL) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                         IconButton(onClick = onVolumeClick, modifier = Modifier.size(40.dp)) {
                             Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "调节音量", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
                         }

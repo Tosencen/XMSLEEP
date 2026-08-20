@@ -163,6 +163,16 @@ fun DonateDialog(
                     fontWeight = FontWeight.Bold
                 )
 
+                // 选中金额后（「去微信扫码」按钮出现时）显示提示语
+                if (selectedAmount != 0) {
+                    Spacer(Modifier.height(8.dp))
+                    Text(
+                        text = context.getString(R.string.donate_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
                 Spacer(Modifier.height(20.dp))
 
                 // 记录按钮列高度，让二维码高度与三档按钮总高度一致

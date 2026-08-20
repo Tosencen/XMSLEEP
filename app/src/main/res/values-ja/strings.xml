@@ -134,6 +134,7 @@
     <string name="donate_amount_2">晓满の電車代</string>
     <string name="donate_amount_3">晓满のお昼ごはん</string>
     <string name="donate_tip">QRコードは自動で保存されました。「微信で支払う」をタップし、微信のスキャナーで「アルバム」の画像を選択してください</string>
+    <string name="donate_hint">支払いQRコードはアルバムに自動保存されます。「スキャン」をタップして微信を開き、アルバムの画像を選択すると寄付が完了します。</string>
     <string name="go_wechat_pay">微信で支払う</string>
     <string name="go_wechat_scan">微信でスキャン</string>
     <string name="wechat_not_installed">微信がインストールされていません</string>
@@ -264,6 +265,7 @@
     <string name="manage_folders_hint">システムフォルダ（録音、着信音など）は既定で非表示です。チェックすると表示され、その他のフォルダは既定で表示され、チェックを外すと非表示になります。</string>
     <string name="manage_folders_system_section">システムフォルダ（既定で非表示）</string>
     <string name="manage_folders_other_section">その他のフォルダ（既定で表示）</string>
+    <string name="manage_folders_no_system_audio">システムフォルダに音声はまだありません</string>
     <string name="clear_filter">フィルターをクリア</string>
     
     <!-- Daily Quote Feature -->

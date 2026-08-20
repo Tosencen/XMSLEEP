@@ -146,6 +146,7 @@
     <string name="donate_amount_2">Оплатить метро для Сяо Мань</string>
     <string name="donate_amount_3">Оплатить обед Сяо Мань</string>
     <string name="donate_tip">QR-код сохранён в галерею. Нажмите «Оплатить через WeChat» и выберите изображение в «Альбоме» сканера WeChat</string>
+    <string name="donate_hint">QR-код автоматически сохраняется в галерею. Нажмите «Сканировать», чтобы открыть WeChat, затем выберите изображение из галереи, чтобы завершить донатинг.</string>
     <string name="go_wechat_pay">Оплатить через WeChat</string>
     <string name="go_wechat_scan">Сканировать через WeChat</string>
     <string name="wechat_not_installed">WeChat не установлен</string>
@@ -282,6 +283,7 @@
     <string name="manage_folders_hint">Системные папки (Записи, Рингтоны и т. д.) скрыты по умолчанию — отметьте, чтобы показывать. Остальные папки видны по умолчанию — снимите отметку, чтобы скрыть.</string>
     <string name="manage_folders_system_section">Системные папки (скрыты по умолчанию)</string>
     <string name="manage_folders_other_section">Остальные папки (видны по умолчанию)</string>
+    <string name="manage_folders_no_system_audio">В системных папках пока нет аудио</string>
     <string name="clear_filter">Сбросить фильтры</string>
     
     <!-- Daily Quote Feature -->

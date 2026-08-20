@@ -97,6 +97,7 @@
     <string name="manage_folders_hint">系统文件夹（录音、铃声等）默认隐藏，勾选后显示；其他文件夹默认显示，取消勾选可隐藏</string>
     <string name="manage_folders_system_section">系统文件夹（默认隐藏）</string>
     <string name="manage_folders_other_section">其他文件夹（默认显示）</string>
+    <string name="manage_folders_no_system_audio">系统文件夹暂无音频</string>
     <string name="clear_filter">清除筛选</string>
     
     <!-- 一言一句功能 -->

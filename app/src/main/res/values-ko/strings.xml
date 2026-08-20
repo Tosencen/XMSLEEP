@@ -131,6 +131,7 @@
     <string name="donate_amount_2">晓满의 지하철비</string>
     <string name="donate_amount_3">晓满의 점심값</string>
     <string name="donate_tip">QR코드가 자동으로 저장되었습니다. 「위챗으로 결제」를 누르고 위챗 스캐너에서 「앨범」의 이미지를 선택하세요</string>
+    <string name="donate_hint">QR 코드가 갤러리에 자동 저장됩니다. "스캔"을 탭하여 위챗을 연 후 갤러리에서 이미지를 선택하면 후원이 완료됩니다.</string>
     <string name="go_wechat_pay">위챗으로 결제</string>
     <string name="go_wechat_scan">위챗으로 스캔</string>
     <string name="wechat_not_installed">위챗이 설치되지 않았습니다</string>
@@ -261,6 +262,7 @@
     <string name="manage_folders_hint">시스템 폴더(녹음, 벨소리 등)는 기본적으로 숨겨집니다. 체크하면 표시되고, 다른 폴더는 기본적으로 표시되며 체크를 해제하면 숨겨집니다.</string>
     <string name="manage_folders_system_section">시스템 폴더(기본적으로 숨김)</string>
     <string name="manage_folders_other_section">기타 폴더(기본적으로 표시)</string>
+    <string name="manage_folders_no_system_audio">시스템 폴더에 오디오가 아직 없습니다</string>
     <string name="clear_filter">필터 지우기</string>
 
     <!-- Daily Quote Feature -->
