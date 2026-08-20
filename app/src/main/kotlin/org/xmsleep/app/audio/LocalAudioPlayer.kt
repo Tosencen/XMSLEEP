@@ -96,6 +96,9 @@ class LocalAudioPlayer private constructor() {
     // 因焦点丢失（CAN_DUCK）而被调低音量的音频ID集合
     private val duckedAudioIds = mutableSetOf<Long>()
 
+    // 因通知栏暂停而保存的音频ID集合（用于恢复播放）
+    private val lastPausedAudioIds = mutableSetOf<Long>()
+
     private val audioFocusChangeListener = SystemAudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
             SystemAudioManager.AUDIOFOCUS_LOSS -> {
@@ -269,8 +272,9 @@ class LocalAudioPlayer private constructor() {
      */
     fun playAudio(context: Context, audioId: Long, audioUri: Uri, onError: (String) -> Unit) {
         try {
-            // 如果已经在播放，先停止
-            if (isAudioPlaying(audioId)) {
+            // 如果已经在播放（含准备中），先停止，避免重复创建 MediaPlayer 导致
+            // 一个播放器被覆盖释放、另一个继续播放的状态不同步问题
+            if (isAudioPlaying(audioId) || playingStates[audioId] == true) {
                 stopAudio(audioId)
                 return
             }
@@ -317,6 +321,9 @@ class LocalAudioPlayer private constructor() {
             // 立即更新状态
             playingStates[audioId] = true
             updatePlayingAudioIds()
+            
+            // 用户手动开始播放时，清空通知栏暂停的恢复列表
+            lastPausedAudioIds.clear()
             
             // 停止之前播放的音频
             val previousAudioId = mediaPlayers.keys.firstOrNull { it != audioId }
@@ -436,6 +443,7 @@ class LocalAudioPlayer private constructor() {
                 if (next >= list.size) {
                     Logger.d(TAG, "顺序播放：已到末尾，停止")
                     stopAllAudios()
+                    maybeStopServiceAfterPlaylistEnd()
                     return
                 }
                 next
@@ -452,6 +460,31 @@ class LocalAudioPlayer private constructor() {
         
         Logger.d(TAG, "播放下一首: index=$nextIndex, audioId=$nextAudioId")
         playAudio(appContext ?: return, nextAudioId, nextUri, {})
+    }
+
+    /**
+     * 顺序播放到末尾自然结束后，若没有其他声音/电台/冥想在播放且无暂停状态，
+     * 延迟复查后停止音乐服务，移除通知栏遗留的「已暂停」通知。
+     */
+    private fun maybeStopServiceAfterPlaylistEnd() {
+        val context = appContext ?: return
+        val audioManager = org.xmsleep.app.audio.AudioManager.getInstance()
+        val meditation = org.xmsleep.app.meditation.MeditationPlayerManager.getInstance()
+
+        // 有可恢复的暂停内容时保留通知（本地音频暂停/冥想暂停/电台暂停）
+        if (audioManager.hasAnyPlayingSounds()) return
+        if (hasPausedAudios()) return
+        if (meditation.isPaused.value) return
+        if (audioManager.isRadioWasPlaying()) return
+
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            if (audioManager.hasAnyPlayingSounds()) return@postDelayed
+            if (hasPausedAudios()) return@postDelayed
+            if (meditation.isPaused.value) return@postDelayed
+            if (audioManager.isRadioWasPlaying()) return@postDelayed
+            audioManager.stopMusicService(context)
+            Logger.d(TAG, "播放列表已结束且无其他播放，停止音乐服务")
+        }, 1000L)
     }
     
     /**
@@ -688,5 +721,77 @@ class LocalAudioPlayer private constructor() {
     private fun updatePlayingAudioIds() {
         val playingIds = playingStates.filter { it.value }.keys.toSet()
         _playingAudioIds.value = playingIds
+        // 本地音频状态变化时同步到通知栏/媒体卡片
+        try {
+            org.xmsleep.app.audio.AudioManager.getInstance().notifyServicePlayingStateChanged()
+        } catch (e: Exception) {
+            Logger.e(TAG, "同步通知状态失败", e)
+        }
+    }
+
+    /**
+     * 暂停所有本地音频文件（保存播放位置），用于通知栏暂停
+     */
+    fun pauseAll() {
+        lastPausedAudioIds.clear()
+        lastPausedAudioIds.addAll(playingStates.filter { it.value }.keys)
+        stopAllAudios()
+    }
+
+    /**
+     * 恢复通知栏暂停的本地音频文件
+     * @return 是否恢复了至少一个音频
+     */
+    fun resumeAll(context: Context): Boolean {
+        val ids = lastPausedAudioIds.toList()
+        lastPausedAudioIds.clear()
+        var restored = false
+        ids.forEach { audioId ->
+            audioUriCache[audioId]?.let { uri ->
+                playAudio(context, audioId, Uri.parse(uri)) {}
+                restored = true
+            }
+        }
+        return restored
+    }
+
+    /**
+     * 是否有通知栏暂停的音频可恢复
+     */
+    fun hasPausedAudios(): Boolean = lastPausedAudioIds.isNotEmpty()
+
+    /**
+     * 获取当前正在播放的本地音频文件标题（用于通知栏/媒体卡片副标题）
+     */
+    fun getPlayingAudioTitles(): List<String> {
+        val ids = playingAudioIds.value.toList()
+        if (ids.isEmpty()) return emptyList()
+        val context = appContext ?: return emptyList()
+        return try {
+            val collection = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                android.provider.MediaStore.Audio.Media.getContentUri(android.provider.MediaStore.VOLUME_EXTERNAL)
+            } else {
+                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            }
+            val placeholders = ids.joinToString(",") { "?" }
+            val titles = mutableMapOf<Long, String>()
+            context.contentResolver.query(
+                collection,
+                arrayOf(android.provider.MediaStore.Audio.Media._ID, android.provider.MediaStore.Audio.Media.DISPLAY_NAME),
+                "${android.provider.MediaStore.Audio.Media._ID} IN ($placeholders)",
+                ids.map { it.toString() }.toTypedArray(),
+                null
+            )?.use { cursor ->
+                val idCol = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Audio.Media._ID)
+                val nameCol = cursor.getColumnIndexOrThrow(android.provider.MediaStore.Audio.Media.DISPLAY_NAME)
+                while (cursor.moveToNext()) {
+                    titles[cursor.getLong(idCol)] = cursor.getString(nameCol)?.substringBeforeLast(".") ?: ""
+                }
+            }
+            ids.mapNotNull { titles[it]?.takeIf { t -> t.isNotEmpty() } }
+        } catch (e: Exception) {
+            Logger.e(TAG, "查询本地音频标题失败", e)
+            emptyList()
+        }
     }
 }

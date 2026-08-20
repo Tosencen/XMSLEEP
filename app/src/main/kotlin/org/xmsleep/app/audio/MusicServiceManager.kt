@@ -47,6 +47,8 @@ class MusicServiceManager private constructor() {
     // MusicService 相关
     private var musicService: MusicService? = null
     private var isServiceBound = false
+    // 是否已请求绑定（防止重复 bindService）
+    private var bindRequested = false
 
     // 蓝牙耳机管理器
     private val bluetoothHeadsetManager = BluetoothHeadsetManager.getInstance()
@@ -69,17 +71,25 @@ class MusicServiceManager private constructor() {
             isServiceBound = true
             // 重新同步当前播放状态（修复：服务启动时播放状态可能已丢失）
             val audioManager = AudioManager.getInstance()
-            val isPlaying = audioManager.hasAnyPlayingSounds()
+            val localAudioPlayer = org.xmsleep.app.audio.LocalAudioPlayer.getInstance()
+            val localAudioIds = localAudioPlayer.playingAudioIds.value
+            val isPlaying = audioManager.hasAnyPlayingSounds() || localAudioIds.isNotEmpty()
             val descriptions = audioManager.getActiveSoundDescriptions()
             val localCount = audioManager.getPlayingSounds().size
             val remoteCount = audioManager.getPlayingRemoteSoundIds().size
-            musicService?.updatePlayingState(isPlaying, localCount + remoteCount, descriptions)
+            val localAudioCount = localAudioIds.size
+            musicService?.updatePlayingState(
+                isPlaying,
+                localCount + remoteCount + localAudioCount,
+                descriptions + localAudioPlayer.getPlayingAudioTitles()
+            )
             Logger.d(TAG, "MusicService 已连接")
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             musicService = null
             isServiceBound = false
+            bindRequested = false
             Logger.d(TAG, "MusicService 已断开")
         }
     }
@@ -173,11 +183,15 @@ class MusicServiceManager private constructor() {
             val serviceIntent = Intent(context, MusicService::class.java)
             context.startForegroundService(serviceIntent)
 
-            context.bindService(
-                serviceIntent,
-                serviceConnection,
-                Context.BIND_AUTO_CREATE
-            )
+            // 只绑定一次，避免重复 bindService 导致后续 unbind 无法完全解除绑定
+            if (!bindRequested) {
+                context.bindService(
+                    serviceIntent,
+                    serviceConnection,
+                    Context.BIND_AUTO_CREATE
+                )
+                bindRequested = true
+            }
 
             Logger.d(TAG, "MusicService 启动请求已发送")
         } catch (e: Exception) {
@@ -194,6 +208,7 @@ class MusicServiceManager private constructor() {
                 context.unbindService(serviceConnection)
                 isServiceBound = false
             }
+            bindRequested = false
 
             val serviceIntent = Intent(context, MusicService::class.java)
             context.stopService(serviceIntent)
@@ -201,7 +216,7 @@ class MusicServiceManager private constructor() {
             musicService = null
             Logger.d(TAG, "MusicService 已停止")
         } catch (e: Exception) {
-            Logger.e(TAG, "停止 MusicService 失败: ${e.message}")
+            Logger.e(TAG, "停止 MusicService 失败: ${e.message}", e)
         }
     }
 

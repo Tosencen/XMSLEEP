@@ -125,8 +125,10 @@ class MusicService : Service() {
         timerManager.addListener(timerListener)
         
         // 查询当前实际播放状态，确保初始通知正确
-        isPlaying = audioManager.hasAnyPlayingSounds()
-        playingSoundsCount = audioManager.getPlayingSounds().size + audioManager.getPlayingRemoteSoundIds().size
+        val localAudioPlayer = org.xmsleep.app.audio.LocalAudioPlayer.getInstance()
+        val localAudioCount = localAudioPlayer.playingAudioIds.value.size
+        isPlaying = audioManager.hasAnyPlayingSounds() || localAudioCount > 0
+        playingSoundsCount = audioManager.getPlayingSounds().size + audioManager.getPlayingRemoteSoundIds().size + localAudioCount
         
         // 启动前台服务
         startForegroundService()
@@ -250,6 +252,7 @@ class MusicService : Service() {
         val meditation = MeditationPlayerManager.getInstance()
         val meditationPlaying = meditation.isPlaying.value
         val meditationPaused = meditation.isPaused.value
+        val localAudioPlayer = org.xmsleep.app.audio.LocalAudioPlayer.getInstance()
 
         if (isPlaying || meditationPlaying) {
             // 当前正在暂停
@@ -262,6 +265,9 @@ class MusicService : Service() {
 
             isPausing = true
             try {
+                // 暂停本地音频文件（保存播放位置）
+                localAudioPlayer.pauseAll()
+
                 audioManager.pauseAllSounds()
 
                 // 暂停冥想（冥想播放器状态变化会自动同步回通知）
@@ -280,7 +286,7 @@ class MusicService : Service() {
             isPlaying = false
         } else {
             // 当前已暂停，恢复上次播放的音频
-            if (lastPlayingLocalSounds.isEmpty() && lastPlayingRemoteSoundIds.isEmpty() && !audioManager.isRadioWasPlaying() && !meditationPaused) {
+            if (lastPlayingLocalSounds.isEmpty() && lastPlayingRemoteSoundIds.isEmpty() && !audioManager.isRadioWasPlaying() && !meditationPaused && !localAudioPlayer.hasPausedAudios()) {
                 // 没有可恢复的音频，关闭服务
                 stopForeground(STOP_FOREGROUND_REMOVE)
                 stopSelf()
@@ -329,6 +335,11 @@ class MusicService : Service() {
                     }
                 }
 
+                // 恢复本地音频文件
+                if (localAudioPlayer.resumeAll(applicationContext)) {
+                    restoredAnything = true
+                }
+
                 // 恢复冥想（仅当冥想处于暂停状态时）
                 if (meditationPaused) {
                     if (meditation.resume(applicationContext)) {
@@ -358,6 +369,9 @@ class MusicService : Service() {
     private fun handleStop() {
         // 停止所有音频
         audioManager.stopAllSounds()
+        
+        // 停止本地音频文件（LocalAudioPlayer 单独管理，通知栏停止必须一并停止）
+        org.xmsleep.app.audio.LocalAudioPlayer.getInstance().stopAllAudios()
         
         // 取消倒计时
         timerManager.cancelTimer()

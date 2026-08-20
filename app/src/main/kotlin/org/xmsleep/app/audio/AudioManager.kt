@@ -138,14 +138,15 @@ class AudioManager private constructor() {
         notifyServicePlayingStateChanged()
     }
 
-    // 响应式状态：是否有任何声音正在播放（本地+远程+电台）
+    // 响应式状态：是否有任何声音正在播放（本地+远程+电台+本地音频文件）
     val hasAnyPlayingSounds: StateFlow<Boolean> = combine(
         localSoundPlayer.hasAnyPlaying,
         remoteSoundPlayer.hasAnyPlaying,
         _radioPlaying,
-        org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().isPlaying
-    ) { localPlaying, remotePlaying, radioPlaying, meditationPlaying ->
-        localPlaying || remotePlaying || radioPlaying || meditationPlaying
+        org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().isPlaying,
+        org.xmsleep.app.audio.LocalAudioPlayer.getInstance().playingAudioIds
+    ) { localPlaying, remotePlaying, radioPlaying, meditationPlaying, localAudioPlaying ->
+        localPlaying || remotePlaying || radioPlaying || meditationPlaying || localAudioPlaying.isNotEmpty()
     }.stateIn(
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
         started = kotlinx.coroutines.flow.SharingStarted.Eagerly,
@@ -533,7 +534,7 @@ class AudioManager private constructor() {
      * 检查是否有任何声音正在播放
      */
     fun hasAnyPlayingSounds(): Boolean {
-        return localSoundPlayer.hasAnyPlayingSounds() || remoteSoundPlayer.hasAnyPlayingSounds() || _radioPlaying.value || org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().isPlaying.value
+        return localSoundPlayer.hasAnyPlayingSounds() || remoteSoundPlayer.hasAnyPlayingSounds() || _radioPlaying.value || org.xmsleep.app.meditation.MeditationPlayerManager.getInstance().isPlaying.value || org.xmsleep.app.audio.LocalAudioPlayer.getInstance().playingAudioIds.value.isNotEmpty()
     }
 
     /**
@@ -564,12 +565,15 @@ class AudioManager private constructor() {
     fun notifyServicePlayingStateChanged() {
         val meditation = org.xmsleep.app.meditation.MeditationPlayerManager.getInstance()
         val meditationPlaying = meditation.isPlaying.value
-        val isPlaying = hasAnyPlayingSounds()
+        val localAudioPlayer = org.xmsleep.app.audio.LocalAudioPlayer.getInstance()
+        val localAudioIds = localAudioPlayer.playingAudioIds.value
+        val isPlaying = hasAnyPlayingSounds() || localAudioIds.isNotEmpty()
         val localCount = localSoundPlayer.getPlayingSounds().size
         val remoteCount = remoteSoundPlayer.getPlayingRemoteSoundIds().size
         val radioCount = if (_radioPlaying.value) 1 else 0
         val meditationCount = if (meditationPlaying) 1 else 0
-        val totalCount = localCount + remoteCount + radioCount + meditationCount
+        val localAudioCount = localAudioIds.size
+        val totalCount = localCount + remoteCount + radioCount + meditationCount + localAudioCount
         val descriptions = getActiveSoundDescriptions()
         val allDescriptions = buildList {
             addAll(descriptions)
@@ -579,6 +583,7 @@ class AudioManager private constructor() {
             if (meditationPlaying) {
                 add(meditation.currentTitle.value ?: localizedString(R.string.meditation))
             }
+            addAll(localAudioPlayer.getPlayingAudioTitles())
         }
 
         musicServiceManager.notifyServicePlayingStateChanged(isPlaying, totalCount, allDescriptions)
