@@ -49,7 +49,7 @@ object LanguageManager {
             "ko" -> Language.KOREAN
             "ja" -> Language.JAPANESE
             "ru" -> Language.RUSSIAN
-            else -> Language.SIMPLIFIED_CHINESE
+            else -> Language.ENGLISH
         }
     }
     

@@ -386,7 +386,11 @@ fun SettingsScreen(
                     },
                     trailingContent = {
                         Text(
-                            currentLanguage.displayName,
+                            if (selectedLanguageCode == LanguageManager.SYSTEM_CODE) {
+                                "跟随系统"
+                            } else {
+                                currentLanguage.displayName
+                            },
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.primary
                         )

@@ -2,6 +2,9 @@ package org.xmsleep.app
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.BroadcastReceiver
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -124,6 +127,29 @@ fun XMSLEEPApp() {
     // 语言状态管理
     var currentLanguage by remember { mutableStateOf(LanguageManager.getCurrentLanguage(context)) }
     var selectedLanguageCode by remember { mutableStateOf(LanguageManager.getStoredLanguageCode(context)) }
+    // 系统语言变化计数器：跟随系统模式下用于触发实时重算
+    var systemLocaleNonce by remember { mutableStateOf(0) }
+
+    // 监听系统语言切换（ACTION_LOCALE_CHANGED），跟随系统模式实时更新
+    DisposableEffect(Unit) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(c: Context?, intent: Intent?) {
+                if (intent?.action == Intent.ACTION_LOCALE_CHANGED) {
+                    systemLocaleNonce++
+                }
+            }
+        }
+        context.registerReceiver(receiver, IntentFilter(Intent.ACTION_LOCALE_CHANGED))
+        onDispose { context.unregisterReceiver(receiver) }
+    }
+
+    // 跟随系统模式：系统语言变化时重算当前语言（无需重建 Activity）
+    LaunchedEffect(systemLocaleNonce, selectedLanguageCode) {
+        if (selectedLanguageCode == LanguageManager.SYSTEM_CODE) {
+            currentLanguage = LanguageManager.getSystemLanguage(context)
+        }
+    }
+
     val localizedContext = remember(currentLanguage) {
         LanguageManager.createLocalizedContext(context, currentLanguage)
     }
