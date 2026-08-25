@@ -117,8 +117,8 @@ XMSLEEP はホワイトノイズと自然音の再生に特化した Android ア
 
 ## 📦 現在のバージョン
 
-- **バージョン**: 2.3.2
-- **Version Code**: 46
+- **バージョン**: 2.3.3
+- **Version Code**: 48
 - **最小 SDK**: Android 8.0 (API 26)
 - **ターゲット SDK**: Android 15 (API 35)
 

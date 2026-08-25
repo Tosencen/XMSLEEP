@@ -117,8 +117,8 @@ XMSLEEP은 백색 소음 및 자연 소리 재생에 특화된 Android 앱으로
 
 ## 📦 현재 버전
 
-- **버전**: 2.3.2
-- **Version Code**: 46
+- **버전**: 2.3.3
+- **Version Code**: 48
 - **최소 지원**: Android 8.0 (API 26)
 - **대상 버전**: Android 15 (API 35)
 
