@@ -21,7 +21,8 @@ data class WeatherData(
     val feelsLike: Double = 0.0,
     val precipitation: Double = 0.0,
     val isDay: Boolean = true,
-    val cloudCover: Int = 0
+    val cloudCover: Int = 0,
+    val source: String = ""
 )
 
 object WeatherCodeMapper {
@@ -156,11 +157,143 @@ class WeatherService {
         .readTimeout(10, TimeUnit.SECONDS)
         .build()
 
-    suspend fun getWeather(latitude: Double, longitude: Double): Result<WeatherData> {
+    /**
+     * 获取天气：
+     * 1. 若用户已配置和风天气（Host+Key），优先使用和风（国内精准、中文城市名）；
+     * 2. 和风失败（Key 无效/网络错误）则回退 Open-Meteo（免费、无需 Key）。
+     */
+    suspend fun getWeather(latitude: Double, longitude: Double, context: android.content.Context? = null): Result<WeatherData> {
+        val lang = resolveLang(context)
+        if (context != null && WeatherSourceConfig.isConfigured(context)) {
+            val qw = getWeatherQWeather(
+                latitude, longitude,
+                WeatherSourceConfig.normalizedHost(context),
+                WeatherSourceConfig.getKey(context),
+                lang
+            )
+            if (qw.isSuccess) return qw
+            // 和风失败，继续回退
+        }
+        return getWeatherOpenMeteo(latitude, longitude, lang)
+    }
+
+    /** 把当前语言映射成和风/各 API 支持的语言码（多语言城市名） */
+    private fun resolveLang(context: android.content.Context?): String {
+        val locale = if (context != null) {
+            org.xmsleep.app.i18n.LanguageManager.getCurrentLocale(context)
+        } else {
+            java.util.Locale.getDefault()
+        }
+        return when (locale.language) {
+            "zh" -> if (locale.country.equals("TW", true) || locale.country.equals("HK", true)) "zh-hk" else "zh"
+            "ja" -> "ja"
+            "ko" -> "ko"
+            "ru" -> "ru"
+            "en" -> "en"
+            else -> "en"
+        }
+    }
+
+    /** 校验用户填写的和风 Host+Key 是否可用 */
+    suspend fun validateQWeather(host: String, key: String): Result<Unit> = withContext(Dispatchers.IO) {
+        try {
+            val normalized = host.trim().removePrefix("https://").removePrefix("http://").trim()
+            if (normalized.isEmpty() || key.isBlank()) {
+                return@withContext Result.failure(Exception("请填写完整的 Host 和 Key"))
+            }
+            val url = "https://$normalized/v7/weather/now?location=116.41,39.92&key=${key.trim()}"
+            val response = client.newCall(Request.Builder().url(url).get().build()).execute()
+            response.use {
+                if (!it.isSuccessful) return@withContext Result.failure(Exception("HTTP ${it.code}"))
+                val body = it.body?.string() ?: return@withContext Result.failure(Exception("空响应"))
+                val json = JSONObject(body)
+                val code = json.optString("code", "")
+                if (code == "200") Result.success(Unit)
+                else Result.failure(Exception("和风返回 code=$code（Key 无效或权限不足）"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    private suspend fun getWeatherQWeather(latitude: Double, longitude: Double, host: String, key: String, lang: String): Result<WeatherData> =
+        withContext(Dispatchers.IO) {
+            try {
+                // 和风国内要求 GCJ-02 坐标
+                val (gcjLat, gcjLon) = CoordinateUtils.wgs84ToGcj02(latitude, longitude)
+                val loc = "$gcjLon,$gcjLat"
+
+                val nowUrl = "https://$host/v7/weather/now?location=$loc&key=$key"
+                val nowResp = client.newCall(Request.Builder().url(nowUrl).get().build()).execute()
+                val weatherData = nowResp.use { resp ->
+                    if (!resp.isSuccessful) return@withContext Result.failure(Exception("QWeather HTTP ${resp.code}"))
+                    val body = resp.body?.string() ?: return@withContext Result.failure(Exception("空响应"))
+                    val json = JSONObject(body)
+                    if (json.optString("code", "") != "200") {
+                        return@withContext Result.failure(Exception("QWeather code ${json.optString("code")}"))
+                    }
+                    val now = json.getJSONObject("now")
+                    val temperature = now.getDouble("temp")
+                    val icon = now.optString("icon", "100")
+                    val weatherCode = QWeatherMapper.iconToWmo(icon)
+                    val isDay = QWeatherMapper.isDayFromIcon(icon)
+                    val humidity = now.optInt("humidity", 0)
+                    val feelsLike = now.optDouble("feelsLike", temperature)
+                    val windSpeed = now.optDouble("windSpeed", 0.0)
+                    val precip = now.optDouble("precip", 0.0)
+                    val cloud = now.optInt("cloud", 0)
+
+                    val cityNameDeferred = async { getQWeatherCityName(host, key, loc, lang) }
+                    val cityName = cityNameDeferred.await().getOrElse { "" }
+
+                    WeatherData(
+                        temperature = temperature,
+                        weatherCode = weatherCode,
+                        windSpeed = windSpeed,
+                        description = "",
+                        icon = WeatherCodeMapper.toIcon(weatherCode, isDay),
+                        cityName = cityName,
+                        humidity = humidity,
+                        feelsLike = feelsLike,
+                        precipitation = precip,
+                        isDay = isDay,
+                        cloudCover = cloud,
+                        source = "和风天气"
+                    )
+                }
+                Result.success(weatherData)
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
+    private suspend fun getQWeatherCityName(host: String, key: String, loc: String, lang: String): Result<String> =
+        withContext(Dispatchers.IO) {
+            try {
+                val url = "https://$host/geo/v2/city/lookup?location=$loc&key=$key&lang=$lang"
+                val response = client.newCall(Request.Builder().url(url).get().build()).execute()
+                response.use {
+                    if (!it.isSuccessful) return@withContext Result.failure(Exception("HTTP ${it.code}"))
+                    val body = it.body?.string() ?: return@withContext Result.failure(Exception("空响应"))
+                    val json = JSONObject(body)
+                    if (json.optString("code", "") != "200") return@withContext Result.success("")
+                    val arr = json.optJSONArray("location") ?: return@withContext Result.success("")
+                    val name = if (arr.length() > 0) {
+                        val loc0 = arr.getJSONObject(0)
+                        // 只显示城市级（adm2），避免细化到区/镇
+                        loc0.optString("adm2", "").ifBlank { loc0.optString("name", "") }
+                    } else ""
+                    Result.success(name)
+                }
+            } catch (e: Exception) {
+                Result.failure(e)
+            }
+        }
+
+    suspend fun getWeatherOpenMeteo(latitude: Double, longitude: Double, lang: String = "en"): Result<WeatherData> {
         return withContext(Dispatchers.IO) {
             try {
-                // 并行请求城市名和天气数据
-                val cityNameDeferred = async { getCityName(latitude, longitude) }
+                val cityNameDeferred = async { getCityName(latitude, longitude, lang) }
 
                 val weatherUrl = "https://api.open-meteo.com/v1/forecast" +
                         "?latitude=$latitude" +
@@ -193,7 +326,6 @@ class WeatherService {
                     val isDay = current.optInt("is_day", 1) == 1
                     val cloudCover = current.optInt("cloud_cover", 0)
 
-                    // 等待城市名请求完成（与天气请求并行，不额外增加延迟）
                     val cityName = cityNameDeferred.await().getOrElse { "" }
 
                     val weatherData = WeatherData(
@@ -207,7 +339,8 @@ class WeatherService {
                         feelsLike = feelsLike,
                         precipitation = precipitation,
                         isDay = isDay,
-                        cloudCover = cloudCover
+                        cloudCover = cloudCover,
+                        source = "Open-Meteo"
                     )
 
                     Result.success(weatherData)
@@ -217,18 +350,19 @@ class WeatherService {
             }
         }
     }
-    
-    private suspend fun getCityName(latitude: Double, longitude: Double): Result<String> {
+
+    private suspend fun getCityName(latitude: Double, longitude: Double, lang: String = "en"): Result<String> {
         return withContext(Dispatchers.IO) {
             try {
                 val url = "https://nominatim.openstreetmap.org/reverse" +
                         "?lat=$latitude" +
                         "&lon=$longitude" +
-                        "&format=json"
+                        "&format=json&addressdetails=1"
 
                 val request = Request.Builder()
                     .url(url)
                     .header("User-Agent", "XMSleep/1.0")
+                    .header("Accept-Language", lang.substringBefore("-").ifBlank { "en" })
                     .get()
                     .build()
 
@@ -240,14 +374,15 @@ class WeatherService {
 
                     val body = it.body?.string() ?: return@withContext Result.failure(Exception("Empty response"))
                     val json = JSONObject(body)
-                    
-                    val city = json.optString("city", "")
-                    val town = json.optString("town", "")
-                    val village = json.optString("village", "")
-                    val county = json.optString("county", "")
-                    
-                    val cityName = city.ifEmpty { town.ifEmpty { village.ifEmpty { county } } }
-                    
+                    val address = json.optJSONObject("address") ?: JSONObject()
+
+                    // 只取城市级：city > county(区/县) > town > village，避免细化到村镇
+                    val city = address.optString("city", "")
+                    val county = address.optString("county", "")
+                    val town = address.optString("town", "")
+                    val village = address.optString("village", "")
+                    val cityName = city.ifEmpty { county.ifEmpty { town.ifEmpty { village } } }
+
                     Result.success(cityName)
                 }
             } catch (e: Exception) {

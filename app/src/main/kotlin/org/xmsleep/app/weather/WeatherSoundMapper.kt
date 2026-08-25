@@ -20,6 +20,10 @@ object WeatherSoundMapper {
     private const val KEY_LAST_HUMIDITY = "last_humidity"
     private const val KEY_LAST_FEELS_LIKE = "last_feels_like"
     private const val KEY_LAST_WEATHER_TIMESTAMP = "last_weather_timestamp"
+    private const val KEY_LAST_SOURCE = "last_source"
+    private const val KEY_LAST_WEATHER_SCHEMA = "last_weather_schema"
+    /** 缓存结构版本：城市名粒度/多语言等逻辑变更时 +1，使旧缓存失效强制刷新 */
+    private const val WEATHER_CACHE_SCHEMA = 2
 
     /** 缓存有效期：3小时（先显示缓存、后台静默刷新，避免国内直连 open-meteo 慢时卡加载） */
     private const val WEATHER_CACHE_DURATION_MS = 3 * 60 * 60 * 1000L
@@ -144,7 +148,7 @@ object WeatherSoundMapper {
         return prefs.getBoolean(KEY_WEATHER_ENABLED, false)
     }
 
-    fun saveLastWeather(context: Context, weatherCode: Int, latitude: Double, longitude: Double, temperature: Double = 0.0, cityName: String = "", humidity: Int = 0, feelsLike: Double = 0.0, isDay: Boolean = true) {
+    fun saveLastWeather(context: Context, weatherCode: Int, latitude: Double, longitude: Double, temperature: Double = 0.0, cityName: String = "", humidity: Int = 0, feelsLike: Double = 0.0, isDay: Boolean = true, source: String = "") {
         val prefs = context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE)
         prefs.edit()
             .putInt(KEY_LAST_WEATHER_CODE, weatherCode)
@@ -155,12 +159,31 @@ object WeatherSoundMapper {
             .putInt(KEY_LAST_HUMIDITY, humidity)
             .putFloat(KEY_LAST_FEELS_LIKE, feelsLike.toFloat())
             .putBoolean(KEY_LAST_IS_DAY, isDay)
+            .putString(KEY_LAST_SOURCE, source)
             .putLong(KEY_LAST_WEATHER_TIMESTAMP, System.currentTimeMillis())
+            .putInt(KEY_LAST_WEATHER_SCHEMA, WEATHER_CACHE_SCHEMA)
+            .apply()
+    }
+
+    /**
+     * 清除已缓存的天气（切换数据源后调用，强制下次刷新使用新源）
+     */
+    fun clearLastWeather(context: Context) {
+        val prefs = context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE)
+        prefs.edit()
+            .remove(KEY_LAST_WEATHER_CODE)
+            .remove(KEY_LAST_WEATHER_TIMESTAMP)
+            .remove(KEY_LAST_TEMPERATURE)
+            .remove(KEY_LAST_CITY_NAME)
+            .remove(KEY_LAST_HUMIDITY)
+            .remove(KEY_LAST_FEELS_LIKE)
+            .remove(KEY_LAST_IS_DAY)
             .apply()
     }
 
     fun getLastWeather(context: Context): WeatherData? {
         val prefs = context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE)
+        if (prefs.getInt(KEY_LAST_WEATHER_SCHEMA, 0) != WEATHER_CACHE_SCHEMA) return null
         val weatherCode = prefs.getInt(KEY_LAST_WEATHER_CODE, -1)
         if (weatherCode == -1) return null
 
@@ -176,7 +199,8 @@ object WeatherSoundMapper {
             cityName = prefs.getString(KEY_LAST_CITY_NAME, "") ?: "",
             humidity = humidity,
             feelsLike = feelsLike,
-            isDay = prefs.getBoolean(KEY_LAST_IS_DAY, true)
+            isDay = prefs.getBoolean(KEY_LAST_IS_DAY, true),
+            source = prefs.getString(KEY_LAST_SOURCE, "") ?: ""
         )
     }
 
@@ -186,6 +210,7 @@ object WeatherSoundMapper {
      */
     fun isWeatherCacheValid(context: Context): Boolean {
         val prefs = context.getSharedPreferences("weather_prefs", Context.MODE_PRIVATE)
+        if (prefs.getInt(KEY_LAST_WEATHER_SCHEMA, 0) != WEATHER_CACHE_SCHEMA) return false
         val timestamp = prefs.getLong(KEY_LAST_WEATHER_TIMESTAMP, 0)
         if (timestamp == 0L) return false
         return (System.currentTimeMillis() - timestamp) < WEATHER_CACHE_DURATION_MS

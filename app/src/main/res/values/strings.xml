@@ -448,6 +448,24 @@
     <!-- 天气智能推荐 -->
     <string name="weather_smart_recommend">天气智能推荐</string>
     <string name="weather_smart_recommend_desc">根据天气自动推荐白噪音</string>
+    <string name="weather_source_title">和风天气源</string>
+    <string name="weather_source_desc">配置个人和风天气 Key 可获得精准的中文天气与城市名；未配置时自动使用默认服务（Open-Meteo，免费免申请）。</string>
+    <string name="weather_source_host">专属域名 (Host)</string>
+    <string name="weather_source_host_hint">如 xxxx.re.qweatherapi.com</string>
+    <string name="weather_source_key">Key</string>
+    <string name="weather_source_key_hint">粘贴你的和风认证 Key</string>
+    <string name="weather_source_test">测试连接</string>
+    <string name="weather_source_test_ok">✓ 连接成功</string>
+    <string name="weather_source_test_fail">✗ 连接失败：%1$s</string>
+    <string name="weather_source_save">保存</string>
+    <string name="weather_source_clear">清除</string>
+    <string name="weather_source_cleared">已清除天气数据源</string>
+    <string name="weather_source_cancel">取消</string>
+    <string name="weather_source_tutorial">如何免费申请和风 Key？</string>
+    <string name="weather_source_tutorial_steps">1. 注册并认证为个人开发者\n2. 新建项目（Web API，免费订阅）\n3. 在项目「凭据」中创建「密钥」获取 Key\n4. 在项目设置复制专属域名 (Host)\n5. 将 Host 和 Key 粘贴到此处</string>
+    <string name="weather_source_apply_link">前往和风控制台</string>
+    <string name="weather_source_default">默认（Open-Meteo）</string>
+    <string name="weather_source_configured">已配置 · 和风 (%1$s)</string>
     <string name="weather_sound_mapping">天气噪音映射</string>
     <string name="save">保存</string>
     <string name="weather_current">当前天气：</string>

@@ -19,6 +19,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Cloud
+import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -42,6 +43,7 @@ import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.update.UpdateDialog
 import org.xmsleep.app.ui.starsky.WeatherEditDialog
 import org.xmsleep.app.utils.Logger
+import org.xmsleep.app.weather.WeatherSourceConfig
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /** 网页版在线播放器地址（GitHub Pages） */
@@ -105,6 +107,8 @@ fun SettingsScreen(
     
     // 天气智能推荐状态
     var weatherEnabled by remember { mutableStateOf(org.xmsleep.app.weather.WeatherSoundMapper.isEnabled(context)) }
+    var showWeatherSourceDialog by remember { mutableStateOf(false) }
+    var weatherSourceSummary by remember { mutableStateOf(weatherSourceSummaryLabel(context)) }
     var hasLocationPermission by remember { 
         mutableStateOf(
             androidx.core.content.ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
@@ -330,6 +334,18 @@ fun SettingsScreen(
                         )
                     },
                     onClick = { onWeatherToggle(!weatherEnabled) }
+                ),
+                SettingsCategoryItem(
+                    icon = Icons.Outlined.LightMode,
+                    title = { Text(context.getString(R.string.weather_source_title)) },
+                    description = {
+                        Text(
+                            weatherSourceSummary,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    },
+                    onClick = { showWeatherSourceDialog = true }
                 ),
                 SettingsCategoryItem(
                     icon = Icons.Default.Timer,
@@ -870,6 +886,17 @@ fun SettingsScreen(
                 onDismiss = { showLanguageDialog = false }
             )
         }
+
+        // 天气数据源（和风 BYOK）弹窗
+        if (showWeatherSourceDialog) {
+            WeatherSourceDialog(
+                context = context,
+                onDismiss = {
+                    showWeatherSourceDialog = false
+                    weatherSourceSummary = weatherSourceSummaryLabel(context)
+                }
+            )
+        }
         
         // 背景选择底部弹窗
         BackgroundSettingsSheet(
@@ -1136,5 +1163,16 @@ private fun formatTimeLeft(millis: Long): String {
     return when {
         hours > 0 -> String.format("%d:%02d:%02d", hours, minutes, seconds)
         else -> String.format("%02d:%02d", minutes, seconds)
+    }
+}
+
+/**
+ * 天气数据源设置的摘要文案（设置页列表项展示用）
+ */
+private fun weatherSourceSummaryLabel(context: Context): String {
+    return if (WeatherSourceConfig.isConfigured(context)) {
+        context.getString(R.string.weather_source_configured, WeatherSourceConfig.maskedHost(context))
+    } else {
+        context.getString(R.string.weather_source_default)
     }
 }

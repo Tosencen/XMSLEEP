@@ -437,6 +437,24 @@
     <!-- Weather Smart Recommend -->
     <string name="weather_smart_recommend">По погоде</string>
     <string name="weather_smart_recommend_desc">Рекомендовать звуки по погоде</string>
+    <string name="weather_source_title">Источник QWeather</string>
+    <string name="weather_source_desc">Настройте свой ключ QWeather, чтобы получать точную погоду и названия городов (на вашем языке). Если не настроено, приложение использует сервис по умолчанию (Open-Meteo, бесплатно, без регистрации).</string>
+    <string name="weather_source_host">API-хост</string>
+    <string name="weather_source_host_hint">напр. xxxx.re.qweatherapi.com</string>
+    <string name="weather_source_key">Ключ</string>
+    <string name="weather_source_key_hint">Вставьте ваш ключ авторизации QWeather</string>
+    <string name="weather_source_test">Проверить соединение</string>
+    <string name="weather_source_test_ok">✓ Соединение установлено</string>
+    <string name="weather_source_test_fail">✗ Ошибка соединения: %1$s</string>
+    <string name="weather_source_save">Сохранить</string>
+    <string name="weather_source_clear">Очистить</string>
+    <string name="weather_source_cleared">Источник погоды очищен</string>
+    <string name="weather_source_cancel">Отмена</string>
+    <string name="weather_source_tutorial">Как бесплатно получить ключ QWeather?</string>
+    <string name="weather_source_tutorial_steps">1. Зарегистрируйтесь и подтвердитесь как частный разработчик\n2. Создайте проект (Web API, бесплатная подписка)\n3. Создайте учётные данные «Ключ» в проекте, чтобы получить Key\n4. Скопируйте выделенный домен (Host) в настройках проекта\n5. Вставьте Host и Key сюда</string>
+    <string name="weather_source_apply_link">Перейти в консоль QWeather</string>
+    <string name="weather_source_default">По умолчанию (Open-Meteo)</string>
+    <string name="weather_source_configured">Настроено · QWeather (%1$s)</string>
     <string name="weather_sound_mapping">Сопоставление звуков с погодой</string>
     <string name="save">Сохранить</string>
     <string name="weather_current">Текущая погода:</string>

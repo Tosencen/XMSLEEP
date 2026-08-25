@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.random.Random
 
@@ -52,6 +53,9 @@ class LocalAudioPlayer private constructor() {
     
     // 存储每个音频的播放状态（audioId -> isPlaying）
     private val playingStates = ConcurrentHashMap<Long, Boolean>()
+    
+    // 正在 prepareAsync 中的音频 ID（尚未开始播放，但已创建 MediaPlayer）
+    private val preparingIds = Collections.synchronizedSet(mutableSetOf<Long>())
     
     // 存储每个音频的音量设置（audioId -> volume）
     private val volumeSettings = ConcurrentHashMap<Long, Float>()
@@ -91,66 +95,69 @@ class LocalAudioPlayer private constructor() {
     private var hasAudioFocus = false
     // 是否因焦点丢失而暂停（用于焦点恢复后自动续播）
     private var pausedByFocusLoss = false
-    // 因焦点丢失而被暂停的音频ID集合
-    private val pausedAudioIds = mutableSetOf<Long>()
-    // 因焦点丢失（CAN_DUCK）而被调低音量的音频ID集合
-    private val duckedAudioIds = mutableSetOf<Long>()
+    // 因焦点丢失而被暂停的音频ID集合（线程安全）
+    private val pausedAudioIds: MutableSet<Long> = Collections.synchronizedSet(mutableSetOf())
+    // 因焦点丢失（CAN_DUCK）而被调低音量的音频ID集合（线程安全）
+    private val duckedAudioIds: MutableSet<Long> = Collections.synchronizedSet(mutableSetOf())
 
-    // 因通知栏暂停而保存的音频ID集合（用于恢复播放）
-    private val lastPausedAudioIds = mutableSetOf<Long>()
+    // 因通知栏暂停而保存的音频ID集合（用于恢复播放，线程安全）
+    private val lastPausedAudioIds: MutableSet<Long> = Collections.synchronizedSet(mutableSetOf())
 
     private val audioFocusChangeListener = SystemAudioManager.OnAudioFocusChangeListener { focusChange ->
-        when (focusChange) {
-            SystemAudioManager.AUDIOFOCUS_LOSS -> {
-                hasAudioFocus = false
-                pausedByFocusLoss = true
-                pausedAudioIds.clear()
-                pausedAudioIds.addAll(playingStates.filter { it.value }.keys)
-                pausedAudioIds.addAll(duckedAudioIds)
-                duckedAudioIds.clear()
-                stopAllAudios()
-            }
-            SystemAudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                pausedByFocusLoss = true
-                pausedAudioIds.clear()
-                pausedAudioIds.addAll(playingStates.filter { it.value }.keys)
-                pausedAudioIds.addAll(duckedAudioIds)
-                duckedAudioIds.clear()
-                stopAllAudios()
-            }
-            SystemAudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
-                mediaPlayers.forEach { (audioId, mp) ->
-                    duckedAudioIds.add(audioId)
-                    try {
-                        mp.setVolume(0.1f, 0.1f)
-                    } catch (e: Exception) {
-                        Logger.e(TAG, "降音失败: audioId=$audioId", e)
-                    }
+        // 该回调来自 Binder 线程，统一切回主线程操作播放器
+        mainHandler.post {
+            when (focusChange) {
+                SystemAudioManager.AUDIOFOCUS_LOSS -> {
+                    hasAudioFocus = false
+                    pausedByFocusLoss = true
+                    pausedAudioIds.clear()
+                    pausedAudioIds.addAll(playingStates.filter { it.value }.keys)
+                    pausedAudioIds.addAll(duckedAudioIds)
+                    duckedAudioIds.clear()
+                    stopAllAudios()
                 }
-            }
-            SystemAudioManager.AUDIOFOCUS_GAIN -> {
-                hasAudioFocus = true
-                // 恢复被压低的音量
-                mediaPlayers.forEach { (audioId, mp) ->
-                    if (duckedAudioIds.contains(audioId)) {
-                        val volume = volumeSettings[audioId] ?: _currentVolume.value
+                SystemAudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                    pausedByFocusLoss = true
+                    pausedAudioIds.clear()
+                    pausedAudioIds.addAll(playingStates.filter { it.value }.keys)
+                    pausedAudioIds.addAll(duckedAudioIds)
+                    duckedAudioIds.clear()
+                    stopAllAudios()
+                }
+                SystemAudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                    mediaPlayers.forEach { (audioId, mp) ->
+                        duckedAudioIds.add(audioId)
                         try {
-                            mp.setVolume(volume, volume)
+                            mp.setVolume(0.1f, 0.1f)
                         } catch (e: Exception) {
-                            Logger.e(TAG, "恢复音量失败: audioId=$audioId", e)
+                            Logger.e(TAG, "降音失败: audioId=$audioId", e)
                         }
                     }
                 }
-                duckedAudioIds.clear()
+                SystemAudioManager.AUDIOFOCUS_GAIN -> {
+                    hasAudioFocus = true
+                    // 恢复被压低的音量
+                    mediaPlayers.forEach { (audioId, mp) ->
+                        if (duckedAudioIds.contains(audioId)) {
+                            val volume = volumeSettings[audioId] ?: _currentVolume.value
+                            try {
+                                mp.setVolume(volume, volume)
+                            } catch (e: Exception) {
+                                Logger.e(TAG, "恢复音量失败: audioId=$audioId", e)
+                            }
+                        }
+                    }
+                    duckedAudioIds.clear()
 
-                // 恢复因瞬时焦点丢失而被暂停的音频
-                if (pausedByFocusLoss) {
-                    pausedByFocusLoss = false
-                    val idsToRestore = pausedAudioIds.toList()
-                    pausedAudioIds.clear()
-                    idsToRestore.forEach { audioId ->
-                        audioUriCache[audioId]?.let { uri ->
-                            playAudio(appContext ?: return@let, audioId, Uri.parse(uri)) {}
+                    // 恢复因瞬时焦点丢失而被暂停的音频
+                    if (pausedByFocusLoss) {
+                        pausedByFocusLoss = false
+                        val idsToRestore = pausedAudioIds.toList()
+                        pausedAudioIds.clear()
+                        idsToRestore.forEach { audioId ->
+                            audioUriCache[audioId]?.let { uri ->
+                                playAudio(appContext ?: return@let, audioId, Uri.parse(uri)) {}
+                            }
                         }
                     }
                 }
@@ -260,7 +267,9 @@ class LocalAudioPlayer private constructor() {
      * 播放或停止音频（切换）
      */
     fun toggleAudio(context: Context, audioId: Long, audioUri: Uri, onError: (String) -> Unit) {
-        if (isAudioPlaying(audioId)) {
+        if (isAudioPlaying(audioId) || preparingIds.contains(audioId)) {
+            // 正在播放或正在准备中，停止它
+            preparingIds.remove(audioId)
             stopAudio(audioId)
         } else {
             playAudio(context, audioId, audioUri, onError)
@@ -268,13 +277,37 @@ class LocalAudioPlayer private constructor() {
     }
     
     /**
+     * 安全地清理 MediaPlayer 的所有回调监听器，防止释放后仍触发回调。
+     */
+    private fun MediaPlayer.clearAllListeners() {
+        try { setOnPreparedListener(null) } catch (_: Exception) {}
+        try { setOnCompletionListener(null) } catch (_: Exception) {}
+        try { setOnErrorListener(null) } catch (_: Exception) {}
+        try { setOnInfoListener(null) } catch (_: Exception) {}
+        try { setOnBufferingUpdateListener(null) } catch (_: Exception) {}
+    }
+    
+    /**
+     * 安全地释放 MediaPlayer：先停止、清回调、再释放。
+     */
+    private fun MediaPlayer.safeStopAndRelease() {
+        try {
+            if (isPlaying) stop()
+        } catch (_: Exception) {}
+        clearAllListeners()
+        try {
+            release()
+        } catch (_: Exception) {}
+    }
+    
+    /**
      * 播放音频
      */
     fun playAudio(context: Context, audioId: Long, audioUri: Uri, onError: (String) -> Unit) {
         try {
-            // 如果已经在播放（含准备中），先停止，避免重复创建 MediaPlayer 导致
-            // 一个播放器被覆盖释放、另一个继续播放的状态不同步问题
-            if (isAudioPlaying(audioId) || playingStates[audioId] == true) {
+            // 如果已经在播放、正在准备中、或状态标记为播放中，先停止，避免重复创建
+            if (isAudioPlaying(audioId) || preparingIds.contains(audioId) || playingStates[audioId] == true) {
+                preparingIds.remove(audioId)
                 stopAudio(audioId)
                 return
             }
@@ -325,11 +358,12 @@ class LocalAudioPlayer private constructor() {
             // 用户手动开始播放时，清空通知栏暂停的恢复列表
             lastPausedAudioIds.clear()
             
-            // 停止之前播放的音频
-            val previousAudioId = mediaPlayers.keys.firstOrNull { it != audioId }
-            if (previousAudioId != null) {
-                stopAudio(previousAudioId)
-            }
+            // 停止之前播放的所有音频（不止一首，避免切换时旧播放器残留导致继续播放、状态不同步）
+            val otherIds = mediaPlayers.keys.filter { it != audioId }.toList()
+            otherIds.forEach { stopAudio(it) }
+            
+            // 标记为准备中（阻止 toggleAudio 在 prepareAsync 期间误判为未播放）
+            preparingIds.add(audioId)
             
             // 创建新的 MediaPlayer
             val shouldLoop = _playMode.value == PlayMode.REPEAT_ONE
@@ -341,6 +375,7 @@ class LocalAudioPlayer private constructor() {
                     setVolume(volume, volume)
                     
                     setOnPreparedListener {
+                        preparingIds.remove(audioId)
                         try {
                             // 恢复播放位置
                             val savedPosition = org.xmsleep.app.preferences.PreferencesManager.getLocalAudioPosition(context, audioId)
@@ -352,6 +387,8 @@ class LocalAudioPlayer private constructor() {
                             Logger.d(TAG, "音频准备完成并开始播放: $audioId, 模式: ${_playMode.value}")
                         } catch (e: Exception) {
                             Logger.e(TAG, "启动播放失败: audioId=$audioId", e)
+                            // start() 抛异常时播放器可能已处于播放态，必须释放，避免泄漏播放
+                            mediaPlayers.remove(audioId)?.safeStopAndRelease()
                             playingStates.remove(audioId)
                             updatePlayingAudioIds()
                             onError("启动播放失败")
@@ -360,10 +397,13 @@ class LocalAudioPlayer private constructor() {
                     
                     setOnErrorListener { _, what, extra ->
                         Logger.e(TAG, "播放错误: audioId=$audioId, what=$what, extra=$extra")
-                        onError("播放失败")
+                        preparingIds.remove(audioId)
+                        // 必须从 map 取出并真正释放：非致命错误时 MediaPlayer 可能仍在播放，
+                        // 仅从 map 移除会导致“UI 已停止但实际仍在播放、且后续无法停止”的失控状态
+                        mediaPlayers.remove(audioId)?.safeStopAndRelease()
                         playingStates.remove(audioId)
-                        mediaPlayers.remove(audioId)
                         updatePlayingAudioIds()
+                        onError("播放失败")
                         true
                     }
                     
@@ -377,7 +417,9 @@ class LocalAudioPlayer private constructor() {
                     
                 } catch (e: Exception) {
                     Logger.e(TAG, "设置音频源失败: audioId=$audioId", e)
+                    preparingIds.remove(audioId)
                     playingStates.remove(audioId)
+                    mediaPlayers.remove(audioId)?.safeStopAndRelease()
                     updatePlayingAudioIds()
                     onError("设置音频源失败: ${e.message}")
                     throw e
@@ -388,9 +430,10 @@ class LocalAudioPlayer private constructor() {
             
         } catch (e: Exception) {
             Logger.e(TAG, "播放失败: audioId=$audioId", e)
+            preparingIds.remove(audioId)
             onError("播放失败: ${e.message}")
             playingStates.remove(audioId)
-            mediaPlayers.remove(audioId)
+            mediaPlayers.remove(audioId)?.safeStopAndRelease()
             updatePlayingAudioIds()
         }
     }
@@ -399,19 +442,26 @@ class LocalAudioPlayer private constructor() {
      * 音频播放完成回调 — 根据播放模式决定下一首
      */
     private fun onAudioCompleted(audioId: Long) {
-        when (_playMode.value) {
-            PlayMode.REPEAT_ONE -> {
-                // isLooping = true 时不会触发此回调，但作为安全措施
-                Logger.d(TAG, "单曲循环: 重新播放 $audioId")
-                val uri = audioUriCache[audioId]?.let { Uri.parse(it) } ?: return
-                stopAudio(audioId)
-                playAudio(appContext ?: return, audioId, uri, {})
-            }
-            PlayMode.SEQUENTIAL -> {
-                playNext()
-            }
-            PlayMode.SHUFFLE -> {
-                playNext()
+        // 来自 MediaPlayer 完成回调（Binder 线程），统一切回主线程再操作播放器
+        mainHandler.post {
+            when (_playMode.value) {
+                PlayMode.REPEAT_ONE -> {
+                    // isLooping = true 时不会触发此回调，但作为安全措施
+                    Logger.d(TAG, "单曲循环: 重新播放 $audioId")
+                    val uri = audioUriCache[audioId]?.let { Uri.parse(it) } ?: return@post
+                    // 先清理旧的 listener 和 player，避免回调残留
+                    val oldPlayer = mediaPlayers.remove(audioId)
+                    playingStates.remove(audioId)
+                    oldPlayer?.safeStopAndRelease()
+                    updatePlayingAudioIds()
+                    playAudio(appContext ?: return@post, audioId, uri, {})
+                }
+                PlayMode.SEQUENTIAL -> {
+                    playNext()
+                }
+                PlayMode.SHUFFLE -> {
+                    playNext()
+                }
             }
         }
     }
@@ -489,49 +539,52 @@ class LocalAudioPlayer private constructor() {
     
     /**
      * 停止指定音频
+     * 无论 MediaPlayer 是否异常，始终确保状态被正确清理，
+     * 防止 UI 与实际播放状态不同步。
      */
     fun stopAudio(audioId: Long) {
-        try {
-            val mediaPlayer = mediaPlayers[audioId]
-            // 保存播放位置
-            mediaPlayer?.let {
-                try {
-                    if (it.isPlaying) {
-                        val position = it.currentPosition
-                        org.xmsleep.app.preferences.PreferencesManager.saveLocalAudioPosition(appContext ?: return, audioId, position)
-                        Logger.d(TAG, "保存播放位置: audioId=$audioId, position=$position")
-                    }
-                } catch (_: Exception) {}
-            }
-            mediaPlayer?.apply {
-                if (isPlaying) {
-                    stop()
-                }
-                release()
-            }
-            mediaPlayers.remove(audioId)
-            playingStates.remove(audioId)
-            volumeSettings.remove(audioId)
-            duckedAudioIds.remove(audioId)
-            updatePlayingAudioIds()
-            Logger.d(TAG, "停止播放音频: $audioId")
-
-            // 没有其他音频播放时释放音频焦点
-            if (mediaPlayers.isEmpty()) {
-                abandonAudioFocus()
-            }
-
+        // 1. 先从 map 取出 MediaPlayer 并立即移除，防止并发访问
+        val mediaPlayer = mediaPlayers.remove(audioId)
+        
+        // 2. 保存播放位置（在释放前）
+        mediaPlayer?.let {
             try {
-                org.xmsleep.app.audio.AudioManager.getInstance().saveRecentPlayingSounds()
-            } catch (e: Exception) {
-                Logger.e(TAG, "保存最近播放记录失败: ${e.message}")
-            }
+                if (it.isPlaying) {
+                    val position = it.currentPosition
+                    org.xmsleep.app.preferences.PreferencesManager.saveLocalAudioPosition(appContext ?: return, audioId, position)
+                    Logger.d(TAG, "保存播放位置: audioId=$audioId, position=$position")
+                }
+            } catch (_: Exception) {}
+        }
+        
+        // 3. 安全停止并释放 MediaPlayer（清回调 → 停止 → 释放）
+        mediaPlayer?.safeStopAndRelease()
+        
+        // 4. 无论上面是否异常，始终清理状态（这些操作不会抛异常）
+        preparingIds.remove(audioId)
+        playingStates.remove(audioId)
+        volumeSettings.remove(audioId)
+        duckedAudioIds.remove(audioId)
+        updatePlayingAudioIds()
+        Logger.d(TAG, "停止播放音频: $audioId")
+
+        // 没有其他音频播放时释放音频焦点
+        if (mediaPlayers.isEmpty()) {
+            abandonAudioFocus()
+        }
+
+        try {
+            org.xmsleep.app.audio.AudioManager.getInstance().saveRecentPlayingSounds()
         } catch (e: Exception) {
-            Logger.e(TAG, "停止失败: audioId=$audioId", e)
+            Logger.e(TAG, "保存最近播放记录失败: ${e.message}")
         }
     }
     
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+    // 播放控制必须在主线程执行：MediaPlayer 的完成/错误回调及音频焦点回调都来自 Binder 线程，
+    // 在非主线程调用 stop()/release() 在部分机型上会导致旧播放器未能真正停止（表现为“切换后仍在播放”）
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
 
     /**
      * 淡出并停止所有本地音频文件（用于定时器到点平滑停止）
@@ -578,15 +631,23 @@ class LocalAudioPlayer private constructor() {
      * 停止所有音频
      */
     fun stopAllAudios() {
-        try {
-            val audioIds = mediaPlayers.keys.toList()
-            audioIds.forEach { audioId ->
+        // 先快照所有 key，避免 ConcurrentHashMap 迭代中修改
+        val audioIds = mediaPlayers.keys.toSet()
+        audioIds.forEach { audioId ->
+            try {
                 stopAudio(audioId)
+            } catch (e: Exception) {
+                Logger.e(TAG, "停止音频失败: audioId=$audioId", e)
+                // 即使 stopAudio 异常，也确保状态被清理并释放播放器，避免泄漏播放
+                mediaPlayers.remove(audioId)?.safeStopAndRelease()
+                preparingIds.remove(audioId)
+                playingStates.remove(audioId)
+                volumeSettings.remove(audioId)
+                duckedAudioIds.remove(audioId)
             }
-            Logger.d(TAG, "停止所有音频")
-        } catch (e: Exception) {
-            Logger.e(TAG, "停止所有音频失败", e)
         }
+        updatePlayingAudioIds()
+        Logger.d(TAG, "停止所有音频")
     }
 
     /**

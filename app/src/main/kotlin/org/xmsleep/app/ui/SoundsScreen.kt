@@ -354,13 +354,14 @@ internal suspend fun fetchAndRefreshWeather(context: android.content.Context): W
             val location = obtainLocation(context) ?: return@withContext null
 
             val weatherService = WeatherService()
-            val result = weatherService.getWeather(location.latitude, location.longitude)
+            val result = weatherService.getWeather(location.latitude, location.longitude, context)
             result.onSuccess { data ->
                 WeatherSoundMapper.saveLastWeather(
                     context, data.weatherCode,
                     location.latitude, location.longitude,
                     data.temperature, data.cityName,
-                    data.humidity, data.feelsLike, data.isDay
+                    data.humidity, data.feelsLike, data.isDay,
+                    data.source
                 )
             }.getOrNull()
         }

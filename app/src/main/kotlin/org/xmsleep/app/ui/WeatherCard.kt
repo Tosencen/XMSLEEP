@@ -195,7 +195,7 @@ fun WeatherCard(
             }
             
             Spacer(modifier = Modifier.height(16.dp))
-            
+
             // 温度和天气描述
             val weatherDescription = WeatherCodeMapper.toDescription(currentWeather.weatherCode, context)
             Text(
@@ -227,9 +227,9 @@ fun WeatherCard(
                 }
             }
             
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // 日期显示
+            // 城市名 + 日期/星期（同一行，置于治愈句子上方）
             val currentDate = remember {
                 val locale = org.xmsleep.app.i18n.LanguageManager.getCurrentLocale(context)
                 val pattern = when (locale.language) {
@@ -242,11 +242,23 @@ fun WeatherCard(
                 val sdf = java.text.SimpleDateFormat(pattern, locale)
                 sdf.format(java.util.Date())
             }
-            Text(
-                text = currentDate,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                if (currentWeather.cityName.isNotBlank()) {
+                    Text(
+                        text = currentWeather.cityName,
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.85f)
+                    )
+                }
+                Text(
+                    text = currentDate,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f)
+                )
+            }
 
             Spacer(modifier = Modifier.height(8.dp))
 

@@ -416,6 +416,24 @@
     <!-- Weather Smart Recommend -->
     <string name="weather_smart_recommend">날씨 스마트 추천</string>
     <string name="weather_smart_recommend_desc">날씨에 따라 백색 소음을 자동 추천</string>
+    <string name="weather_source_title">QWeather 소스</string>
+    <string name="weather_source_desc">자신의 QWeather 키를 설정하면 정확한 날씨와 도시 이름(다국어 지원)을 받을 수 있습니다. 설정하지 않으면 기본 서비스(Open-Meteo, 무료·가입 불필요)를 사용합니다.</string>
+    <string name="weather_source_host">API 호스트</string>
+    <string name="weather_source_host_hint">예: xxxx.re.qweatherapi.com</string>
+    <string name="weather_source_key">키</string>
+    <string name="weather_source_key_hint">QWeather 인증 키를 붙여넣기</string>
+    <string name="weather_source_test">연결 테스트</string>
+    <string name="weather_source_test_ok">✓ 연결 성공</string>
+    <string name="weather_source_test_fail">✗ 연결 실패: %1$s</string>
+    <string name="weather_source_save">저장</string>
+    <string name="weather_source_clear">삭제</string>
+    <string name="weather_source_cleared">날씨 데이터 소스를 삭제했습니다</string>
+    <string name="weather_source_cancel">취소</string>
+    <string name="weather_source_tutorial">무료 QWeather 키 발급 방법</string>
+    <string name="weather_source_tutorial_steps">1. 개인 개발자로 가입 및 인증\n2. 프로젝트 생성(Web API, 무료 구독)\n3. 프로젝트의 「자격 증명」에서 「키」를 생성하여 키 발급\n4. 프로젝트 설정에서 전용 도메인(호스트) 복사\n5. 호스트와 키를 여기에 붙여넣기</string>
+    <string name="weather_source_apply_link">QWeather 콘솔로 이동</string>
+    <string name="weather_source_default">기본(Open-Meteo)</string>
+    <string name="weather_source_configured">설정됨 · QWeather (%1$s)</string>
     <string name="weather_sound_mapping">날씨 사운드 매핑</string>
     <string name="save">저장</string>
     <string name="weather_current">현재 날씨:</string>

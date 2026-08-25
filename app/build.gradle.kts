@@ -199,6 +199,9 @@ dependencies {
     
     // Gson - 用于JSON解析
     implementation("com.google.code.gson:gson:2.11.0")
+
+    // EncryptedSharedPreferences - 加密存储用户的和风 Key
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
     
     // Haze - 用于实现真正的毛玻璃效果（backdrop blur）
     implementation("dev.chrisbanes.haze:haze:1.1.0")

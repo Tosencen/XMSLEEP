@@ -425,6 +425,24 @@
     <!-- Weather Smart Recommend -->
     <string name="weather_smart_recommend">Weather Smart Recommend</string>
     <string name="weather_smart_recommend_desc">Auto-recommend white noise based on weather</string>
+    <string name="weather_source_title">QWeather Source</string>
+    <string name="weather_source_desc">Configure your own QWeather Key for accurate Chinese weather and city names. If not configured, the app falls back to the default service (Open-Meteo, free, no sign-up).</string>
+    <string name="weather_source_host">API Host</string>
+    <string name="weather_source_host_hint">e.g. xxxx.re.qweatherapi.com</string>
+    <string name="weather_source_key">Key</string>
+    <string name="weather_source_key_hint">Paste your QWeather auth Key</string>
+    <string name="weather_source_test">Test Connection</string>
+    <string name="weather_source_test_ok">✓ Connection successful</string>
+    <string name="weather_source_test_fail">✗ Connection failed: %1$s</string>
+    <string name="weather_source_save">Save</string>
+    <string name="weather_source_clear">Clear</string>
+    <string name="weather_source_cleared">Weather data source cleared</string>
+    <string name="weather_source_cancel">Cancel</string>
+    <string name="weather_source_tutorial">How to get a free QWeather Key?</string>
+    <string name="weather_source_tutorial_steps">1. Register and verify as an individual developer\n2. Create a project (Web API, free subscription)\n3. Create a \"Key\" credential in the project to get the Key\n4. Copy the API Host from project settings\n5. Paste the Host and Key here</string>
+    <string name="weather_source_apply_link">Go to QWeather Console</string>
+    <string name="weather_source_default">Default (Open-Meteo)</string>
+    <string name="weather_source_configured">Configured · QWeather (%1$s)</string>
     <string name="weather_sound_mapping">Weather Sound Mapping</string>
     <string name="save">Save</string>
     <string name="weather_current">Current weather:</string>

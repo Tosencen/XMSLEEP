@@ -10,6 +10,11 @@ import android.provider.MediaStore
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -660,7 +665,7 @@ fun LocalAudioScreen(
                                                     isPlaying = playingAudioIds.contains(audio.id),
                                                     playMode = currentPlayMode,
                                                     onCyclePlayMode = { localAudioPlayer.cyclePlayMode(context) },
-                                                    modifier = Modifier.animateItem(),
+                                                    modifier = Modifier,
                                                     onCardClick = {
                                                         localAudioPlayer.toggleAudio(
                                                             context = context,
@@ -974,7 +979,12 @@ fun LocalAudioItem(
                     }
                 }
             }
-            if (isPlaying) {
+            AnimatedVisibility(
+                visible = isPlaying,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                Column(modifier = Modifier.fillMaxWidth()) {
                 Spacer(modifier = Modifier.height(12.dp))
                 val progressFraction = if (totalDuration > 0) currentProgress.toFloat() / totalDuration.toFloat() else 0f
                 me.saket.squiggles.SquigglySlider(
@@ -1015,6 +1025,7 @@ fun LocalAudioItem(
                             Icon(Icons.AutoMirrored.Filled.VolumeUp, contentDescription = "调节音量", tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
                         }
                     }
+                }
                 }
             }
         }

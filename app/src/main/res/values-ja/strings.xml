@@ -419,6 +419,24 @@
     <!-- Weather Smart Recommend -->
     <string name="weather_smart_recommend">天気スマートレコメンド</string>
     <string name="weather_smart_recommend_desc">天気に基づいてホワイトノイズを自動提案</string>
+    <string name="weather_source_title">QWeatherソース</string>
+    <string name="weather_source_desc">自分のQWeatherキーを設定すると、正確な天気と都市名（多言語対応）を取得できます。未設定の場合はデフォルトのサービス（Open-Meteo、無料・登録不要）を自動的に使用します。</string>
+    <string name="weather_source_host">APIホスト</string>
+    <string name="weather_source_host_hint">例: xxxx.re.qweatherapi.com</string>
+    <string name="weather_source_key">キー</string>
+    <string name="weather_source_key_hint">QWeather認証キーを貼り付け</string>
+    <string name="weather_source_test">接続テスト</string>
+    <string name="weather_source_test_ok">✓ 接続成功</string>
+    <string name="weather_source_test_fail">✗ 接続失敗: %1$s</string>
+    <string name="weather_source_save">保存</string>
+    <string name="weather_source_clear">削除</string>
+    <string name="weather_source_cleared">天気データソースを削除しました</string>
+    <string name="weather_source_cancel">キャンセル</string>
+    <string name="weather_source_tutorial">無料のQWeatherキーを取得する方法</string>
+    <string name="weather_source_tutorial_steps">1. 個人開発者として登録・認証\n2. プロジェクトを作成（Web API、無料プラン）\n3. プロジェクトの「認証情報」で「キー」を作成してキーを取得\n4. プロジェクト設定から専用ドメイン（ホスト）をコピー\n5. ホストとキーをここに貼り付け</string>
+    <string name="weather_source_apply_link">QWeatherコンソールを開く</string>
+    <string name="weather_source_default">デフォルト（Open-Meteo）</string>
+    <string name="weather_source_configured">設定済み · QWeather (%1$s)</string>
     <string name="weather_sound_mapping">天気サウンドマッピング</string>
     <string name="save">保存</string>
     <string name="weather_current">現在の天気:</string>

@@ -18,6 +18,7 @@ import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.meditation.MeditationPlayerManager
 import org.xmsleep.app.timer.TimerManager
 import org.xmsleep.app.utils.Logger
+import java.util.Collections
 import java.util.concurrent.TimeUnit
 
 /**
@@ -33,9 +34,9 @@ class MusicService : Service() {
     private var playingSoundsCount = 0
     private var timeLeftText: String? = null
     
-    // 保存最后一次播放的音频状态，用于暂停/恢复
-    private val lastPlayingLocalSounds = mutableSetOf<AudioManager.Sound>()
-    private val lastPlayingRemoteSoundIds = mutableSetOf<String>()
+    // 保存最后一次播放的音频状态，用于暂停/恢复（线程安全）
+    private val lastPlayingLocalSounds: MutableSet<AudioManager.Sound> = Collections.synchronizedSet(mutableSetOf())
+    private val lastPlayingRemoteSoundIds: MutableSet<String> = Collections.synchronizedSet(mutableSetOf())
     
     // 恢复播放标志：恢复期间不要更新保存的播放列表
     private var isRestoring = false
@@ -295,18 +296,23 @@ class MusicService : Service() {
 
             var restoredAnything = false
 
-            // 恢复电台
-            if (audioManager.isRadioWasPlaying()) {
-                audioManager.setRadioWasPlaying(false)
-                audioManager.resumeRadio()
-                restoredAnything = true
-            }
-
             // 关键修复：设置恢复标志，防止恢复过程中重新保存播放列表
             isRestoring = true
 
             try {
-                // 恢复本地音频（使用副本避免 ConcurrentModificationException）
+                // ① 优先恢复本地音频文件（互斥优先级最高，避免被白噪音/远程音频抢占）
+                if (localAudioPlayer.resumeAll(applicationContext)) {
+                    restoredAnything = true
+                }
+
+                // ② 恢复电台
+                if (audioManager.isRadioWasPlaying()) {
+                    audioManager.setRadioWasPlaying(false)
+                    audioManager.resumeRadio()
+                    restoredAnything = true
+                }
+
+                // ③ 恢复本地白噪音（副本避免 ConcurrentModificationException）
                 val soundsToRestore = lastPlayingLocalSounds.toList()
                 soundsToRestore.forEach { sound ->
                     try {
@@ -317,11 +323,10 @@ class MusicService : Service() {
                     }
                 }
 
-                // 恢复远程音频（使用缓存的元数据和URI）
+                // ④ 恢复远程音频（使用缓存的元数据和URI）
                 val remoteSoundsToRestore = lastPlayingRemoteSoundIds.toList()
                 remoteSoundsToRestore.forEach { soundId ->
                     try {
-                        // 从 AudioManager 获取缓存的元数据和URI
                         val metadataAndUri = audioManager.getRemoteMetadata(soundId)
                         if (metadataAndUri != null) {
                             val (metadata, uri) = metadataAndUri
@@ -335,19 +340,14 @@ class MusicService : Service() {
                     }
                 }
 
-                // 恢复本地音频文件
-                if (localAudioPlayer.resumeAll(applicationContext)) {
-                    restoredAnything = true
-                }
-
-                // 恢复冥想（仅当冥想处于暂停状态时）
+                // ⑤ 恢复冥想（仅当冥想处于暂停状态时）
                 if (meditationPaused) {
                     if (meditation.resume(applicationContext)) {
                         restoredAnything = true
                     }
                 }
 
-                // 恢复倒计时
+                // ⑥ 恢复倒计时
                 if (timerManager.isTimerActive.value && timerManager.isTimerPaused.value) {
                     timerManager.resumeTimer()
                 }
@@ -375,6 +375,11 @@ class MusicService : Service() {
         
         // 取消倒计时
         timerManager.cancelTimer()
+        
+        // 清理保存的播放列表，防止服务意外重启时恢复过期音频
+        lastPlayingLocalSounds.clear()
+        lastPlayingRemoteSoundIds.clear()
+        audioManager.setRadioWasPlaying(false)
         
         // 停止前台服务
         stopForeground(STOP_FOREGROUND_REMOVE)
