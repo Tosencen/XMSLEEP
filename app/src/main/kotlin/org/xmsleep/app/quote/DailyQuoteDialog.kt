@@ -5,6 +5,8 @@ import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
@@ -19,6 +21,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import coil.request.CachePolicy
 import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,7 +46,9 @@ fun DailyQuoteDialog(
     quote: Quote?,
     onDismiss: () -> Unit,
     onRefresh: () -> Unit = {},
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
+    imageUrl: String? = null,
+    imageCopyright: String? = null
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -52,12 +63,57 @@ fun DailyQuoteDialog(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            shape = RoundedCornerShape(16.dp)
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
         ) {
-            Box {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(2f / 3f)
+                    .clip(RoundedCornerShape(16.dp))
+            ) {
+                // 每日一图背景（随机每张不写磁盘缓存）
+                if (imageUrl != null) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(imageUrl)
+                            .diskCachePolicy(CachePolicy.DISABLED)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(0xFF1C1B1F))
+                    )
+                }
+
+                // 深色渐变 scrim，保证白色文字可读
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.verticalGradient(
+                                colorStops = arrayOf(
+                                    0f to Color.Transparent,
+                                    0.55f to Color.Black.copy(alpha = 0.25f),
+                                    1f to Color.Black.copy(alpha = 0.72f)
+                                )
+                            )
+                        )
+                )
+
                 Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Bottom
                 ) {
                     if (isLoading || quote == null) {
                         // 加载状态
@@ -75,7 +131,7 @@ fun DailyQuoteDialog(
                             Text(
                                 text = context.getString(R.string.loading_quote),
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = Color.White.copy(alpha = 0.7f)
                             )
                         }
                     } else {
@@ -86,7 +142,7 @@ fun DailyQuoteDialog(
                                 DateTimeFormatter.ofPattern("yyyy年MM月dd日 EEEE", Locale.CHINA)
                             ),
                             style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = Color.White,
                             modifier = Modifier.fillMaxWidth(),
                             textAlign = TextAlign.Start
                         )
@@ -97,6 +153,7 @@ fun DailyQuoteDialog(
                         Text(
                             text = quote.text,
                             style = MaterialTheme.typography.bodyLarge.copy(fontSize = 24.sp),
+                            color = Color.White,
                             textAlign = TextAlign.Start,
                             lineHeight = 36.sp,
                             modifier = Modifier.fillMaxWidth()
@@ -115,7 +172,7 @@ fun DailyQuoteDialog(
                                 Text(
                                     text = "《${quote.from}》",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    color = Color.White.copy(alpha = 0.7f),
                                     maxLines = 2,
                                     modifier = Modifier.weight(1f, fill = false)
                                 )
@@ -126,7 +183,7 @@ fun DailyQuoteDialog(
                             Text(
                                 text = "— ${quote.author}",
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = Color.White.copy(alpha = 0.7f),
                                 maxLines = 2
                             )
                         }
@@ -148,7 +205,7 @@ fun DailyQuoteDialog(
                                         try {
                                             Logger.d("DailyQuoteDialog", "开始分享流程")
                                             val bitmap = withContext(Dispatchers.Main) {
-                                                ImageGenerator.generateQuoteImage(context, quote, isDarkTheme)
+                                                ImageGenerator.generateQuoteImage(context, quote, isDarkTheme, imageUrl = imageUrl)
                                             }
                                             Logger.d("DailyQuoteDialog", "图片生成成功，开始分享")
                                             ShareUtils.shareImage(context, bitmap, quote)
@@ -207,7 +264,7 @@ fun DailyQuoteDialog(
                                         try {
                                             Logger.d("DailyQuoteDialog", "开始保存流程")
                                             val bitmap = withContext(Dispatchers.Main) {
-                                                ImageGenerator.generateQuoteImage(context, quote, isDarkTheme)
+                                                ImageGenerator.generateQuoteImage(context, quote, isDarkTheme, imageUrl = imageUrl)
                                             }
                                             Logger.d("DailyQuoteDialog", "图片生成成功，开始保存")
                                             val result = ShareUtils.saveImageToGallery(context, bitmap)
@@ -251,6 +308,17 @@ fun DailyQuoteDialog(
                         }
                         
                         // 移除底部的加载指示器，因为已经集成到按钮中
+                        if (imageCopyright != null) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = imageCopyright,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color.White.copy(alpha = 0.6f),
+                                textAlign = TextAlign.Start,
+                                maxLines = 2,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
@@ -259,15 +327,15 @@ fun DailyQuoteDialog(
                 if (!isLoading && quote != null) {
                     Box(
                         modifier = Modifier
-                            .align(Alignment.BottomEnd)
+                            .align(Alignment.TopEnd)
                             .size(40.dp)
                             .background(
                                 color = MaterialTheme.colorScheme.primaryContainer,
                                 shape = RoundedCornerShape(
-                                    topStart = 12.dp,
-                                    topEnd = 0.dp,
-                                    bottomEnd = 12.dp,
-                                    bottomStart = 12.dp
+                                    topStart = 0.dp,
+                                    topEnd = 16.dp,
+                                    bottomEnd = 0.dp,
+                                    bottomStart = 16.dp
                                 )
                             )
                             .clickable(onClick = onRefresh),

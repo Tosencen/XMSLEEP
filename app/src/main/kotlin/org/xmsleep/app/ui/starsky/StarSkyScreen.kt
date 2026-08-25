@@ -38,7 +38,9 @@ import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
 import org.xmsleep.app.R
+import org.xmsleep.app.quote.DailyImageProvider
 import org.xmsleep.app.utils.Logger
 
 /**
@@ -195,6 +197,8 @@ fun StarSkyScreen(
     var showDailyQuoteDialog by remember { mutableStateOf(false) }
     var dailyQuote by remember { mutableStateOf<org.xmsleep.app.quote.Quote?>(null) }
     var isLoadingQuote by remember { mutableStateOf(false) }
+    var dailyImageUrl by remember { mutableStateOf<String?>(null) }
+    var dailyImageCopyright by remember { mutableStateOf<String?>(null) }
     
     // 存储管理弹窗
     var showStorageDialog by remember { mutableStateOf(false) }
@@ -436,12 +440,19 @@ fun StarSkyScreen(
                         showDailyQuoteDialog = true
                         isLoadingQuote = true
                         dailyQuote = null
-                        
-                        // 异步加载名句
+                        dailyImageUrl = null
+                        dailyImageCopyright = null
+
+                        // 异步加载名句 + 每日一图（并行）
                         scope.launch {
                             try {
                                 val quoteManager = org.xmsleep.app.quote.QuoteManager.getInstance(context)
-                                dailyQuote = quoteManager.getTodayQuote()
+                                val quoteDeferred = async { quoteManager.getTodayQuote() }
+                                val imageDeferred = async { DailyImageProvider.getTodayImage(random = true) }
+                                dailyQuote = quoteDeferred.await()
+                                val img = imageDeferred.await()
+                                dailyImageUrl = img?.url
+                                dailyImageCopyright = img?.copyright
                             } catch (e: Exception) {
                                 Toast.makeText(context, context.getString(R.string.load_quote_failed), Toast.LENGTH_SHORT).show()
                                 showDailyQuoteDialog = false
@@ -1160,21 +1171,30 @@ fun StarSkyScreen(
                 quote = dailyQuote,
                 onDismiss = { showDailyQuoteDialog = false },
                 onRefresh = {
-                    // 刷新名句
+                    // 刷新名句 + 每日一图
                     isLoadingQuote = true
                     dailyQuote = null
+                    dailyImageUrl = null
+                    dailyImageCopyright = null
                     scope.launch {
                         try {
                             val quoteManager = org.xmsleep.app.quote.QuoteManager.getInstance(context)
-                            dailyQuote = quoteManager.getTodayQuote()
+                            val quoteDeferred = async { quoteManager.getTodayQuote() }
+                            val imageDeferred = async { DailyImageProvider.getTodayImage(random = true) }
+                            dailyQuote = quoteDeferred.await()
+                            val img = imageDeferred.await()
+                            dailyImageUrl = img?.url
+                            dailyImageCopyright = img?.copyright
                         } catch (e: Exception) {
-                            Toast.makeText(context, "加载名句失败", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, context.getString(R.string.load_quote_failed), Toast.LENGTH_SHORT).show()
                         } finally {
                             isLoadingQuote = false
                         }
                     }
                 },
-                isLoading = isLoadingQuote
+                isLoading = isLoadingQuote,
+                imageUrl = dailyImageUrl,
+                imageCopyright = dailyImageCopyright
             )
         }
         

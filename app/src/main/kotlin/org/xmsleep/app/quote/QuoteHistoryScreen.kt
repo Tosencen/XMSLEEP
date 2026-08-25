@@ -162,7 +162,9 @@ fun QuoteHistoryScreen(
     if (selectedQuote != null) {
         DailyQuoteDialog(
             quote = selectedQuote!!,
-            onDismiss = { selectedQuote = null }
+            onDismiss = { selectedQuote = null },
+            imageUrl = null,
+            imageCopyright = null
         )
     }
 }

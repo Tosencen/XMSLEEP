@@ -21,6 +21,15 @@ class QuoteManager private constructor(private val context: Context) {
         private const val TAG = "QuoteManager"
         // 丰富类型：动画(a)、漫画(b)、游戏(c)、文学(d)、影视(e)、诗词(i)、网易云(j)、哲学(k)、抖机灵(l)
         private const val HITOKOTO_API = "https://v1.hitokoto.cn/?c=a&c=b&c=c&c=d&c=e&c=i&c=j&c=k"
+
+        // API 重试次数（用于避开敏感词）
+        private const val MAX_API_RETRY = 5
+
+        // 敏感/重度消极词过滤（自我伤害、重度消极类）
+        private val SENSITIVE_WORDS = setOf(
+            "自杀", "自残", "轻生", "想死", "去死", "寻死",
+            "活不下去", "一死了之", "抑郁症", "抑郁", "厌世"
+        )
         
         @Volatile
         private var instance: QuoteManager? = null
@@ -45,30 +54,38 @@ class QuoteManager private constructor(private val context: Context) {
     
     /**
      * 获取今日名句
-     * 优先从API获取，失败则使用本地备用
+     * 优先从API获取（命中敏感词则重试），失败则使用本地清洁备用
      */
     suspend fun getTodayQuote(): Quote {
         return withContext(Dispatchers.IO) {
-            try {
-                // 1. 尝试从API获取
+            // 1. 尝试从API获取，命中敏感词则重试
+            repeat(MAX_API_RETRY) {
                 val apiQuote = fetchQuoteFromAPI()
-                if (apiQuote != null) {
+                if (apiQuote != null && !apiQuote.containsSensitive()) {
                     Logger.d(TAG, "从API获取名句成功: ${apiQuote.text}")
-                    // 保存到历史记录
                     saveToHistory(apiQuote)
                     return@withContext apiQuote
                 }
-            } catch (e: Exception) {
-                Logger.e(TAG, "从API获取名句失败: ${e.message}")
             }
-            
-            // 2. API失败，使用本地备用
+
+            // 2. API失败或均为敏感词，使用本地清洁备用
             Logger.d(TAG, "使用本地备用名句")
             val localQuote = getLocalQuoteByDate()
-            // 保存到历史记录
             saveToHistory(localQuote)
             localQuote
         }
+    }
+
+    /**
+     * 是否包含敏感/重度消极词
+     */
+    private fun Quote.containsSensitive(): Boolean {
+        val hay = buildString {
+            append(hitokoto)
+            append(from ?: "")
+            append(from_who ?: "")
+        }
+        return SENSITIVE_WORDS.any { it in hay }
     }
     
     /**
@@ -117,23 +134,27 @@ class QuoteManager private constructor(private val context: Context) {
     }
     
     /**
-     * 根据日期获取本地名句（每天不同）
+     * 根据日期获取本地名句（每天不同），跳过敏感词
      */
     private fun getLocalQuoteByDate(): Quote {
+        val default = Quote(
+            hitokoto = "生活不是等待暴风雨过去，而是学会在雨中跳舞。",
+            from_who = "Vivian Greene"
+        )
         if (localQuotes.isEmpty()) {
             // 如果本地名句加载失败，返回默认名句
-            return Quote(
-                hitokoto = "生活不是等待暴风雨过去，而是学会在雨中跳舞。",
-                from_who = "Vivian Greene"
-            )
+            return default
         }
-        
-        // 根据日期计算索引，确保每天显示不同的名句
-        val today = LocalDate.now()
-        val daysSinceEpoch = today.toEpochDay()
-        val index = (daysSinceEpoch % localQuotes.size).toInt()
-        
-        return localQuotes[index]
+
+        // 从今日索引开始向后查找第一条清洁名句，确保每天不同
+        val today = LocalDate.now().toEpochDay()
+        val size = localQuotes.size
+        for (i in 0 until size) {
+            val quote = localQuotes[((today + i) % size).toInt()]
+            if (!quote.containsSensitive()) return quote
+        }
+
+        return default
     }
     
     /**

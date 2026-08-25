@@ -5,8 +5,12 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Typeface
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.Request
 import org.xmsleep.app.R
 import org.xmsleep.app.utils.Logger
+import org.xmsleep.app.utils.NetworkClient
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -21,10 +25,11 @@ object ImageGenerator {
      * 生成名句分享图片
      * 纵向布局，背景图填满整个图片，文字和二维码覆盖在上面
      */
-    fun generateQuoteImage(
+    suspend fun generateQuoteImage(
         context: Context,
         quote: Quote,
-        isDarkTheme: Boolean = false
+        isDarkTheme: Boolean = false,
+        imageUrl: String? = null
     ): Bitmap {
         Logger.d("ImageGenerator", "开始生成图片（覆盖式布局）")
         
@@ -37,14 +42,15 @@ object ImageGenerator {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
         
-        // 绘制背景图（CenterCrop 方式）
+        // 绘制背景图（优先每日一图，失败回退 R.drawable.bg，均 CenterCrop）
         try {
-            val backgroundBitmap = android.graphics.BitmapFactory.decodeResource(
-                context.resources,
-                R.drawable.bg
-            )
+            val backgroundBitmap = if (imageUrl != null) {
+                downloadBitmap(imageUrl)
+            } else {
+                android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.bg)
+            }
             if (backgroundBitmap != null) {
-                val scaledBitmap = Bitmap.createScaledBitmap(backgroundBitmap, width, height, true)
+                val scaledBitmap = centerCropBitmap(backgroundBitmap, width, height)
                 canvas.drawBitmap(scaledBitmap, 0f, 0f, null)
                 scaledBitmap.recycle()
                 backgroundBitmap.recycle()
@@ -199,7 +205,42 @@ object ImageGenerator {
         if (currentLine.isNotEmpty()) {
             lines.add(currentLine)
         }
-        
+
         return lines
+    }
+
+    /**
+     * 下载网络图片为 Bitmap（IO 线程）
+     */
+    private suspend fun downloadBitmap(url: String): Bitmap? = withContext(Dispatchers.IO) {
+        try {
+            val request = Request.Builder().url(url).get().build()
+            val response = NetworkClient.default.newCall(request).execute()
+            response.use { resp ->
+                if (!resp.isSuccessful) return@withContext null
+                val input = resp.body?.source()?.inputStream() ?: return@withContext null
+                android.graphics.BitmapFactory.decodeStream(input)
+            }
+        } catch (e: Exception) {
+            Logger.e("ImageGenerator", "下载背景图失败", e)
+            null
+        }
+    }
+
+    /**
+     * 将 src 以 CenterCrop 方式缩放并裁剪到目标尺寸 (w, h)
+     */
+    private fun centerCropBitmap(src: Bitmap, w: Int, h: Int): Bitmap {
+        val scale = maxOf(w.toFloat() / src.width, h.toFloat() / src.height)
+        val dw = (src.width * scale).toInt().coerceAtLeast(1)
+        val dh = (src.height * scale).toInt().coerceAtLeast(1)
+        val scaled = Bitmap.createScaledBitmap(src, dw, dh, true)
+        val x = ((dw - w) / 2).coerceAtLeast(0)
+        val y = ((dh - h) / 2).coerceAtLeast(0)
+        val cropW = w.coerceAtMost(scaled.width - x)
+        val cropH = h.coerceAtMost(scaled.height - y)
+        val result = Bitmap.createBitmap(scaled, x, y, cropW, cropH)
+        if (result != scaled) scaled.recycle()
+        return result
     }
 }
