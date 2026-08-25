@@ -127,6 +127,24 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 🆕 Latest Updates
 
+### v2.3.3
+
+#### 🎨 New Features
+- **Random Bing background for Daily Quote**: The daily-quote dialog now uses a random Bing daily wallpaper (memory-only cache, no disk usage); text is bottom-aligned with a darker gradient for readability; the share/save poster also uses the daily image
+- **Sensitive-word filter**: Daily quotes auto-block self-harm/severely negative words (e.g. suicide, depression); on an API hit it retries, and local quotes are skipped
+
+#### ✨ Improvements
+- **Daily Quote dialog**: Fixed to 2/3 of screen height with scrollable content; the refresh badge moved to the top-right with rounded corners
+
+### v2.3.2
+
+#### 🎨 New Features
+- **QWeather source (BYOK)**: Weather now supports a user-provided QWeather key (enter Host + Key in Settings), falling back to Open-Meteo when unset; city-level location + multi-language
+
+#### ✨ Improvements
+- **Weather card**: City and date merged on one line (e.g. "Shanghai 8月25日 Tuesday") and placed above the healing quote; removed the source badge
+- **Coordinate offset**: WGS84 → GCJ02 conversion for better domestic location accuracy
+
 ### v2.3.1
 #### 🎨 New Features
 - **Web Version Player**: New GitHub Pages online player — 113 ambient sounds, free mixing, seamless looping, 6-language UI, synced with the app's sound library, no installation required
