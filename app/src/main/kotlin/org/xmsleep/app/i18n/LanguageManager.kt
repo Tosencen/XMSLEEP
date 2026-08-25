@@ -30,27 +30,65 @@ object LanguageManager {
         }
     }
     
+    // 跟随系统
+    const val SYSTEM_CODE = "system"
+    
     /**
-     * 获取当前语言
+     * 把系统 Locale 映射到受支持的语言
      */
-    fun getCurrentLanguage(context: Context): Language {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val code = prefs.getString(KEY_LANGUAGE, null)
-        return if (code != null) {
-            Language.fromCode(code)
-        } else {
-            Language.SIMPLIFIED_CHINESE
+    fun getSystemLanguage(context: Context): Language {
+        val locale = Locale.getDefault()
+        return when (locale.language) {
+            "zh" -> if (locale.country.equals("TW", ignoreCase = true) ||
+                locale.country.equals("HK", ignoreCase = true)) {
+                Language.TRADITIONAL_CHINESE
+            } else {
+                Language.SIMPLIFIED_CHINESE
+            }
+            "en" -> Language.ENGLISH
+            "ko" -> Language.KOREAN
+            "ja" -> Language.JAPANESE
+            "ru" -> Language.RUSSIAN
+            else -> Language.SIMPLIFIED_CHINESE
         }
     }
     
     /**
-     * 保存语言设置
+     * 获取当前语言（"system" 或首次未设置时跟随系统）
+     */
+    fun getCurrentLanguage(context: Context): Language {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val code = prefs.getString(KEY_LANGUAGE, null)
+        return if (code == null || code == SYSTEM_CODE) {
+            getSystemLanguage(context)
+        } else {
+            Language.fromCode(code)
+        }
+    }
+    
+    /**
+     * 获取当前存储的原始语言 code（"system" 或具体语言码），用于设置项高亮
+     */
+    fun getStoredLanguageCode(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getString(KEY_LANGUAGE, null) ?: SYSTEM_CODE
+    }
+    
+    /**
+     * 保存语言设置（接受 "system" 或具体语言码）
      * 注意：不调用 LocaleManager.setApplicationLocales（会导致 Activity 重建黑屏），
      * 而是在 Compose 层通过 CompositionLocalProvider 实时切换，无需重建 Activity。
      */
-    fun setLanguage(context: Context, language: Language) {
+    fun setLanguageCode(context: Context, code: String) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit().putString(KEY_LANGUAGE, language.code).apply()
+        prefs.edit().putString(KEY_LANGUAGE, code).apply()
+    }
+    
+    /**
+     * 保存语言设置
+     */
+    fun setLanguage(context: Context, language: Language) {
+        setLanguageCode(context, language.code)
     }
     
     /**

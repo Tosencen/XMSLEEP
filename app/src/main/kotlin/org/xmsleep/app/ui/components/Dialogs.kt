@@ -157,12 +157,17 @@ fun AboutDialog(
  */
 @Composable
 fun LanguageSelectionDialog(
-    currentLanguage: LanguageManager.Language,
-    onLanguageSelected: (LanguageManager.Language) -> Unit,
+    selectedCode: String,
+    onCodeSelected: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    
+
+    val items = remember {
+        listOf(LanguageManager.SYSTEM_CODE to "跟随系统") +
+            LanguageManager.Language.entries.map { it.code to it.displayName }
+    }
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
@@ -173,15 +178,15 @@ fun LanguageSelectionDialog(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                LanguageManager.Language.entries.forEach { language ->
+                items.forEach { (code, name) ->
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .selectable(
-                                selected = language == currentLanguage,
-                                onClick = { 
-                                    if (language != currentLanguage) {
-                                        onLanguageSelected(language)
+                                selected = code == selectedCode,
+                                onClick = {
+                                    if (code != selectedCode) {
+                                        onCodeSelected(code)
                                     } else {
                                         onDismiss()
                                     }
@@ -192,12 +197,12 @@ fun LanguageSelectionDialog(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         RadioButton(
-                            selected = language == currentLanguage,
+                            selected = code == selectedCode,
                             onClick = null
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = language.displayName,
+                            text = name,
                             style = MaterialTheme.typography.bodyLarge,
                             modifier = Modifier.weight(1f)
                         )

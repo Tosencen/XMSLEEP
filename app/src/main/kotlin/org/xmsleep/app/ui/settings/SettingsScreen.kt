@@ -69,7 +69,8 @@ fun SettingsScreen(
     onBackgroundBlurRadiusChange: (Float) -> Unit = {},
     updateViewModel: org.xmsleep.app.update.UpdateViewModel,
     currentLanguage: LanguageManager.Language,
-    onLanguageChange: (LanguageManager.Language) -> Unit,
+    selectedLanguageCode: String,
+    onLanguageCodeChange: (String) -> Unit,
     onNavigateToTheme: () -> Unit,
     onNavigateToQuoteHistory: () -> Unit = {},
     onNavigateToFlipClock: () -> Unit = {},
@@ -877,10 +878,10 @@ fun SettingsScreen(
         // 语言选择弹窗
         if (showLanguageDialog) {
             LanguageSelectionDialog(
-                currentLanguage = currentLanguage,
-                onLanguageSelected = { language: LanguageManager.Language ->
-                    LanguageManager.setLanguage(context, language)
-                    onLanguageChange(language) // 更新语言状态，触发实时切换
+                selectedCode = selectedLanguageCode,
+                onCodeSelected = { code: String ->
+                    LanguageManager.setLanguageCode(context, code)
+                    onLanguageCodeChange(code) // 更新语言状态，触发实时切换
                     showLanguageDialog = false
                 },
                 onDismiss = { showLanguageDialog = false }

@@ -90,7 +90,8 @@ fun MainScreen(
     audioPermissionLauncher: androidx.activity.compose.ManagedActivityResultLauncher<String, Boolean>,
     locationPermissionLauncher: androidx.activity.compose.ManagedActivityResultLauncher<String, Boolean>,
     onAudioPermissionGranted: () -> Unit,
-    onLanguageChange: (LanguageManager.Language) -> Unit,
+    selectedLanguageCode: String,
+    onLanguageCodeChange: (String) -> Unit,
     onDarkModeChange: (DarkModeOption) -> Unit,
     onColorChange: (Color) -> Unit,
     onDynamicColorChange: (Boolean) -> Unit,
@@ -631,7 +632,8 @@ fun MainScreen(
                                 onBackgroundBlurRadiusChange = onBackgroundBlurRadiusChange,
                                 updateViewModel = updateViewModel,
                                 currentLanguage = currentLanguage,
-                                onLanguageChange = onLanguageChange,
+                                selectedLanguageCode = selectedLanguageCode,
+                                onLanguageCodeChange = onLanguageCodeChange,
                                 customBackgroundUri = customBackgroundUri,
                                 onScrollDetected = {
                                     // 滚动时，触发浮动按钮收缩

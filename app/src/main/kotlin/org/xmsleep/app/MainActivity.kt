@@ -123,6 +123,7 @@ fun XMSLEEPApp() {
     
     // 语言状态管理
     var currentLanguage by remember { mutableStateOf(LanguageManager.getCurrentLanguage(context)) }
+    var selectedLanguageCode by remember { mutableStateOf(LanguageManager.getStoredLanguageCode(context)) }
     val localizedContext = remember(currentLanguage) {
         LanguageManager.createLocalizedContext(context, currentLanguage)
     }
@@ -391,7 +392,12 @@ fun XMSLEEPApp() {
                     audioPermissionLauncher = audioPermissionLauncher,
                     locationPermissionLauncher = locationPermissionLauncher,
                     onAudioPermissionGranted = { shouldNavigateToLocalAudio = true },
-                    onLanguageChange = { currentLanguage = it },
+                    selectedLanguageCode = selectedLanguageCode,
+                    onLanguageCodeChange = { code ->
+                        LanguageManager.setLanguageCode(context, code)
+                        currentLanguage = LanguageManager.getCurrentLanguage(context)
+                        selectedLanguageCode = code
+                    },
                     onDarkModeChange = { newMode ->
                         darkMode = newMode
                         PreferencesManager.saveDarkMode(context, newMode)
