@@ -36,12 +36,25 @@ fun QuoteHistoryScreen(
     var history by remember { mutableStateOf(quoteManager.getHistory()) }
     var showClearDialog by remember { mutableStateOf(false) }
     var selectedQuote by remember { mutableStateOf<Quote?>(null) }
+    var dailyImageUrl by remember { mutableStateOf<String?>(null) }
+    var dailyImageCopyright by remember { mutableStateOf<String?>(null) }
     val scrollState = rememberLazyListState()
     
     // 监听滚动事件
     LaunchedEffect(scrollState.isScrollInProgress) {
         if (scrollState.isScrollInProgress) {
             onScrollDetected()
+        }
+    }
+
+    // 打开历史名句时，拉取随机每日一图作为弹窗背景
+    LaunchedEffect(selectedQuote) {
+        if (selectedQuote != null) {
+            dailyImageUrl = null
+            dailyImageCopyright = null
+            val img = DailyImageProvider.getTodayImage(random = true)
+            dailyImageUrl = img?.url
+            dailyImageCopyright = img?.copyright
         }
     }
     
@@ -163,8 +176,8 @@ fun QuoteHistoryScreen(
         DailyQuoteDialog(
             quote = selectedQuote!!,
             onDismiss = { selectedQuote = null },
-            imageUrl = null,
-            imageCopyright = null
+            imageUrl = dailyImageUrl,
+            imageCopyright = dailyImageCopyright
         )
     }
 }
