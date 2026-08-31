@@ -66,7 +66,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.ui.viewmodel.MainViewModel
 import org.xmsleep.app.ui.viewmodel.SoundsViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import android.content.Context
 import android.content.SharedPreferences
 import android.Manifest
@@ -105,8 +105,8 @@ fun MainScreen(
     onBackgroundOpacityChange: (Float) -> Unit = {},
     onBackgroundBlurRadiusChange: (Float) -> Unit = {},
     paletteColors: List<androidx.compose.ui.graphics.Color>,
-    mainViewModel: MainViewModel = hiltViewModel(),
-    soundsViewModel: SoundsViewModel = hiltViewModel(),
+    mainViewModel: MainViewModel = viewModel(),
+    soundsViewModel: SoundsViewModel = viewModel(),
     customBackgroundUri: String? = null,
     customBackgroundColor: Color? = null,
     customBackgroundThumbnail: String? = null,

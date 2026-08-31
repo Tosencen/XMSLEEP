@@ -1,10 +1,9 @@
 package org.xmsleep.app.ui.viewmodel
 
+import android.app.Application
 import android.content.Context
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -15,16 +14,14 @@ import kotlinx.coroutines.launch
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.weather.WeatherSoundMapper
 import org.xmsleep.app.weather.WeatherData
-import javax.inject.Inject
 
 /**
  * SoundsScreen 的 ViewModel
  * 负责管理声音页面的状态，消除轮询循环
  */
-@HiltViewModel
-class SoundsViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
-) : ViewModel() {
+class SoundsViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val context: Context = getApplication<Application>()
 
     private val audioManager = AudioManager.getInstance()
 

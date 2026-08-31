@@ -142,12 +142,12 @@
     <string name="open_failed">開啟失敗，請檢查瀏覽器</string>
     <string name="join_group">社區</string>
     <string name="join_group_description">關注我獲取最新資訊</string>
-    <string name="buy_me_a_coffee">給曉滿加油</string>
+    <string name="buy_me_a_coffee">給晓满加油</string>
     <string name="buy_me_a_coffee_description">你的支持是我持續更新的動力</string>
-    <string name="donate_message">如果 XMSLEEP 對你有幫助，可以贊助曉滿，你的支持是我持續更新的動力！</string>
-    <string name="donate_amount_1">請曉滿吃早餐</string>
-    <string name="donate_amount_2">請曉滿坐地鐵</string>
-    <string name="donate_amount_3">請曉滿吃午餐</string>
+    <string name="donate_message">如果 XMSLEEP 對你有幫助，可以贊助晓满，你的支持是我持續更新的動力！</string>
+    <string name="donate_amount_1">請晓满喫早餐</string>
+    <string name="donate_amount_2">請晓满坐地鐵</string>
+    <string name="donate_amount_3">請晓满喫午餐</string>
     <string name="donate_tip">收款碼已自動儲存到相簿，點「去微信支付」，在微信掃一掃中選「相簿」的圖片即可</string>
     <string name="donate_hint">收款碼已自動儲存到相冊，點擊「去微信掃碼」打開微信後，在「掃一掃」中選擇相冊裡的圖片即可完成打賞</string>
     <string name="go_wechat_pay">去微信支付</string>
@@ -308,11 +308,11 @@
     <string-array name="healing_quotes_morning">
         <item>早安，願你今天充滿能量</item>
         <item>新的一天，新的開始</item>
-        <item>起床了！記得洗臉刷牙，特別是要吃早餐</item>
+        <item>起床了！記得洗臉刷牙，特別是要喫早餐</item>
         <item>又是一個新的24小時</item>
         <item>清晨的露珠，晶瑩剔透</item>
         <item>今天也要元氣滿滿哦</item>
-        <item>早起的鳥兒有蟲吃，加油</item>
+        <item>早起的鳥兒有蟲喫，加油</item>
         <item>淡定的一天從現在開始</item>
         <item>願你的每個早晨都充滿希望</item>
         <item>遇到卡點不必焦慮，辦法永遠比困難多</item>
@@ -357,7 +357,7 @@
         <item>多喝熱水，動起來</item>
         <item>這一刻你在想什麼</item>
         <item>慢生活，才是真生活</item>
-        <item>今天有好好吃飯嗎</item>
+        <item>今天有好好喫飯嗎</item>
         <item>給忙碌的自己一個擁抱</item>
         <item>下午好，記得休息一下</item>
         <item>拒絕996</item>
@@ -372,7 +372,7 @@
         <item>最近一次買花是什麼時候了</item>
         <item>給自己一點時間放空</item>
         <item>下午好，願你輕鬆愉快</item>
-        <item>告訴你個秘密，其實我的鞋子沒有增高墊</item>
+        <item>告訴你個祕密，其實我的鞋子沒有增高墊</item>
         <item>你是不是在雪山上救過一隻狐狸</item>
         <item>脖子酸了嗎，左三圈右三圈來一遍</item>
         <item>在門口種一株向日葵吧</item>
@@ -416,9 +416,9 @@
         <item>晚風來了嗎</item>
         <item>星星之火，可以燎原</item>
         <item>難題是階段性的，成長是持續性的</item>
-        <item>偷偷告訴你個秘密～密～密～～～</item>
+        <item>偷偷告訴你個祕密～密～密～～～</item>
         <item>晚安，做最真實的自己</item>
-        <item>好好吃飯，好好睡覺</item>
+        <item>好好喫飯，好好睡覺</item>
         <item>放下疲憊，擁抱美夢</item>
         <item>今天不想社交，那就把自己還給自己</item>
         <item>偶爾偷個懶，是對身體的誠實</item>
@@ -458,12 +458,12 @@
     <string name="weather_sound_kitchen">廚房烹飪</string>
     <string name="weather_sound_wind_chimes">風鈴</string>
     <string name="weather_sound_light_piano">輕鋼琴</string>
-    <string name="weather_sound_rain_on_car_roof">雨打车頂</string>
+    <string name="weather_sound_rain_on_car_roof">雨打車頂</string>
     <string name="weather_sound_rain_on_umbrella">雨打傘</string>
     <string name="weather_sound_rain_on_tent">雨打帳篷</string>
     <string name="weather_sound_rain_on_leaves">雨打樹葉</string>
     <string name="weather_sound_rain_on_raincoat">雨打雨衣</string>
-    <string name="weather_sound_rain_on_windowsill">雨打窗台</string>
+    <string name="weather_sound_rain_on_windowsill">雨打窗臺</string>
     <string name="weather_sound_rain_on_wooden_house">雨打木屋</string>
     <string name="weather_sound_rain_while_driving">開車遇雨</string>
     <string name="weather_sound_rain_on_empty_street">雨打空街</string>
@@ -555,7 +555,7 @@
     <string name="breathing_method_478_step1">平躺放鬆，舌尖輕抵上顎，先用嘴巴徹底吐盡空氣</string>
     <string name="breathing_method_478_step2">閉緊嘴巴，鼻子輕柔吸氣4秒，腹部自然鼓起</string>
     <string name="breathing_method_478_step3">屏住氣息7秒，全身保持鬆弛不緊繃</string>
-    <string name="breathing_method_478_step4">嘴唇微張，緩慢呼氣8秒，呼氣可發出輕柔\'嘶\'風聲</string>
+    <string name="breathing_method_478_step4">嘴脣微張，緩慢呼氣8秒，呼氣可發出輕柔\'嘶\'風聲</string>
     <string name="breathing_method_478_step5">循環4–8輪，思緒飄走只需輕輕拉回呼吸即可</string>
     <string name="breathing_method_478_tag1">睡前助眠</string>
     <string name="breathing_method_478_tag2">深度助眠</string>
@@ -698,15 +698,15 @@
     <!-- 開發者來信 -->
     <string name="developer_letter_title">來自開發者的信</string>
     <string name="developer_letter_content">親愛的朋友：\n\n當你發現這封信時，希望你能感受到我藏在程式碼裡的一點心意。\n\nXMSLEEP 從一開始就不只是一個技術專案。它是我在無數個深夜，聽著雨聲、營火聲、鍵盤聲時，想要為你建造的一個小小的避風港。\n\n生活有時候很吵，工作很忙，情緒也會低落。如果這些聲音能讓你在某個瞬間感到平靜，哪怕只是幾秒鐘，那這一切都是值得的。\n\n謝謝你使用 XMSLEEP，謝謝你讓這個小小的世界有了意義。\n\n願你今夜好眠。\n\n—— Tosencen</string>
-    <string name="radio_station_noise">電台噪音</string>
+    <string name="radio_station_noise">電臺噪音</string>
     <string name="tag_white_noise">白噪音</string>
     <string name="tag_study_room">自習室</string>
     <string name="refresh">重新整理</string>
     <string name="recommended">白噪音置頂</string>
     <string name="no_live">暫無直播</string>
     <string name="room_not_live">該房間目前沒有開啟直播</string>
-    <string name="show_radio_tab">電台 Tab</string>
-    <string name="show_radio_tab_description">在底部導航欄顯示電台標籤</string>
+    <string name="show_radio_tab">電臺 Tab</string>
+    <string name="show_radio_tab_description">在底部導航欄顯示電臺標籤</string>
     <string name="show_breathing_tab">呼吸 Tab</string>
     <string name="show_breathing_tab_description">在底部導航欄顯示呼吸標籤</string>
     <string name="bilibili_room_list_hint">以下列表為嗶哩嗶哩的即時播放房間內容</string>
@@ -716,4 +716,50 @@
     <string name="storage_space">佔用空間: %s</string>
     <string name="simple_mode_button">簡化版</string>
     <string name="simple_mode_full_version">完整版</string>
+    <string name="back">返回</string>
+    <string name="allowed_continue_install">我已允許，繼續安裝</string>
+    <string name="donate_amount_value_1">¥5.4</string>
+    <string name="weather_source_host_hint">如 xxxx.re.qweatherapi.com</string>
+    <string name="install_permission_hint">請在設定中允許安裝來自此來源的應用，然後返回應用繼續安裝。</string>
+    <string name="tab_starsky">繁星</string>
+    <string name="weather_source_cleared">已清除天氣資料來源</string>
+    <string name="weather_source_title">和風天氣源</string>
+    <string name="tab_breathing">呼吸</string>
+    <string name="weather_source_apply_link">前往和風控制檯</string>
+    <string name="weather_sound_mapping">天氣噪音映射</string>
+    <string name="weather_source_key">Key</string>
+    <string name="donate_amount_value_2">¥6.9</string>
+    <string name="loading">正在載入…</string>
+    <string name="tab_radio">電臺</string>
+    <string name="weather_source_save">儲存</string>
+    <string name="check_update_failed_hint">可能是網絡問題或 API 限制，請稍後重試</string>
+    <string name="copy_error">複製錯誤</string>
+    <string name="weather_source_desc">配置個人和風天氣 Key 可獲得精準的中文天氣與城市名；未配置時自動使用預設服務（Open-Meteo，免費免申請）。</string>
+    <string name="donate_amount_value_3">¥16.8</string>
+    <string name="weather_source_test_fail">✗ 連線失敗：%1$s</string>
+    <string name="download_failed_hint">可能是網絡問題，請檢查網絡後重試</string>
+    <string name="weather_source_test_ok">✓ 連線成功</string>
+    <string name="weather_source_configured">已配置 · 和風 (%1$s)</string>
+    <string name="weather_source_test">測試連線</string>
+    <string name="install_permission_required">需要安裝權限</string>
+    <string name="restart_app">重啟應用</string>
+    <string name="save">儲存</string>
+    <string name="weather_source_clear">清除</string>
+    <string name="weather_source_tutorial_steps">1. 註冊並認證為個人開發者\n2. 新建項目（Web API，免費訂閱）\n3. 在項目「憑證」中創建「密鑰」獲取 Key\n4. 在項目設定複製專屬域名 (Host)\n5. 將 Host 和 Key 粘貼到此處</string>
+    <string name="weather_source_default">預設（Open-Meteo）</string>
+    <string name="weather_source_cancel">取消</string>
+    <string name="tab_settings">設定</string>
+    <string name="weather_source_key_hint">粘貼你的和風認證 Key</string>
+    <string name="tab_white_noise">晓满</string>
+    <string name="widget_refresh">重新整理</string>
+    <string name="error_copied">錯誤信息已複製到剪貼板</string>
+    <string name="weather_source_host">專屬域名 (Host)</string>
+    <string name="weather_source_tutorial">如何免費申請和風 Key？</string>
+    <string name="crash_title">應用程式發生了問題</string>
+    <string name="crash_subtitle">我們已記錄此錯誤，您可以嘗試重新啟動應用程式。</string>
+    <string name="crash_error_details">錯誤詳細資料</string>
+    <string name="crash_stack_trace">堆疊追蹤</string>
+    <string name="crash_share_text">錯誤信息:\n%1$s\n\n堆疊追蹤:\n%2$s</string>
+    <string name="starsky_play_failed_no_file">播放失敗：無法取得音訊檔案</string>
+    <string name="starsky_load_failed">載入失敗：%1$s</string>
 </resources>

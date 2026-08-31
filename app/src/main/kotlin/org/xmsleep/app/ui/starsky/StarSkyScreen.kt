@@ -39,6 +39,8 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import org.xmsleep.app.R
 import org.xmsleep.app.quote.DailyImageProvider
 import org.xmsleep.app.utils.Logger
@@ -252,22 +254,15 @@ fun StarSkyScreen(
     
     
     // 监听播放状态变化
-    // 关键优化：页面显示时立即更新一次，避免切换页面时播放状态UI滞后
-    LaunchedEffect(Unit) {
-        // 立即检查一次播放状态（避免切换页面时的延迟）
-        val initialPlaying = remoteSounds.filter { sound ->
-            audioManager.isPlayingRemoteSound(sound.id)
-        }.map { it.id }.toSet()
-        playingSounds = initialPlaying
-        
-        // 然后开始轮询
-        while (true) {
-            delay(500) // 每500ms检查一次播放状态
-            val currentlyPlaying = remoteSounds.filter { sound ->
-                audioManager.isPlayingRemoteSound(sound.id)
-            }.map { it.id }.toSet()
-            playingSounds = currentlyPlaying
-        }
+    // 原实现为 while(true) + delay(500) 轮询：每 500ms 遍历整个 remoteSounds 重新构造 Set，
+    // 即使整夜状态毫无变化也持续唤醒协程做无效计算（助眠场景屏幕常亮，耗电可观）。
+    // 改为直接订阅 remotePlayingStates 流：状态变化才计算，无变化零开销，且响应无 500ms 延迟。
+    // 点击卡片时的乐观更新仍然有效——流是真实状态的权威来源，与原轮询"每 500ms 覆盖一次"语义等价。
+    LaunchedEffect(remoteSounds) {
+        audioManager.remotePlayingStates
+            .map { states -> remoteSounds.filter { states[it.id] == true }.map { it.id }.toSet() }
+            .distinctUntilChanged()
+            .collect { playingSounds = it }
     }
     
     // 加载音频清单 - 优化：先显示缓存，后台刷新，避免重复加载
@@ -596,7 +591,7 @@ fun StarSkyScreen(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = "加载失败: $errorMessage",
+                        text = context.getString(R.string.starsky_load_failed, errorMessage),
                         color = MaterialTheme.colorScheme.error
                     )
                     Button(
@@ -891,7 +886,7 @@ fun StarSkyScreen(
                                             playingSounds = playingSounds + sound.id
                                         } else {
                                             Logger.e("StarSkyScreen", "无法获取URI: ${sound.id}")
-                                            Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
+                                            Toast.makeText(context, context.getString(R.string.starsky_play_failed_no_file), Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 } catch (e: Exception) {
@@ -1044,7 +1039,7 @@ fun StarSkyScreen(
                                                 playingSounds = playingSounds + sound.id
                                             } else {
                                                 Logger.e("StarSkyScreen", "无法获取URI: ${sound.id}")
-                                                Toast.makeText(context, "播放失败: 无法获取音频文件", Toast.LENGTH_SHORT).show()
+                                                Toast.makeText(context, context.getString(R.string.starsky_play_failed_no_file), Toast.LENGTH_SHORT).show()
                                             }
                                         }
                                     } catch (e: Exception) {

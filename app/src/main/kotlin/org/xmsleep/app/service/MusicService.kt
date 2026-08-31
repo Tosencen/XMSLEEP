@@ -152,7 +152,11 @@ class MusicService : Service() {
                 startForegroundService()
             }
         }
-        return START_STICKY
+        // 用 START_NOT_STICKY 而非 START_STICKY：
+        // START_STICKY 在服务被杀后会以 null intent 重启，走到上面的 else 分支重建前台通知，
+        // 表现为用户点了停止、通知却"阴魂不散"；且 null intent 无法恢复播放内容，恢复也是空的。
+        // 播放状态由 MusicServiceManager / 定时器自行管理，无需系统代为重启。
+        return START_NOT_STICKY
     }
     
     override fun onDestroy() {

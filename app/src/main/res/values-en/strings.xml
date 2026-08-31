@@ -756,4 +756,26 @@
     <string name="storage_space">Used Space: %s</string>
     <string name="simple_mode_button">Simple Mode</string>
     <string name="simple_mode_full_version">Full Version</string>
+    <string name="back">Back</string>
+    <string name="allowed_continue_install">I\'ve allowed it, continue installing</string>
+    <string name="donate_amount_value_1">¥5.4</string>
+    <string name="install_permission_hint">Please allow installation from this source in Settings, then return to the app to continue.</string>
+    <string name="donate_amount_value_2">¥6.9</string>
+    <string name="loading">Loading…</string>
+    <string name="check_update_failed_hint">Possible network issue or API limit. Please try again later.</string>
+    <string name="copy_error">Copy error</string>
+    <string name="donate_amount_value_3">¥16.8</string>
+    <string name="download_failed_hint">Possible network issue. Please check your connection and try again.</string>
+    <string name="weather_unknown">Unknown</string>
+    <string name="install_permission_required">Install permission required</string>
+    <string name="restart_app">Restart app</string>
+    <string name="widget_refresh">Refresh</string>
+    <string name="error_copied">Error info copied to clipboard</string>
+    <string name="crash_title">The app encountered a problem</string>
+    <string name="crash_subtitle">We\'ve logged this error. You can try restarting the app.</string>
+    <string name="crash_error_details">Error details</string>
+    <string name="crash_stack_trace">Stack trace</string>
+    <string name="crash_share_text">Error message:\n%1$s\n\nStack trace:\n%2$s</string>
+    <string name="starsky_play_failed_no_file">Playback failed: unable to get audio file</string>
+    <string name="starsky_load_failed">Load failed: %1$s</string>
 </resources>

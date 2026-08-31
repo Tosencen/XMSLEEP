@@ -79,8 +79,8 @@ object WeatherCodeMapper {
             80, 81, 82 -> if (isDay) R.raw.wx_partly_cloudy_day_rain else R.raw.wx_partly_cloudy_night_rain
             71, 73, 75, 77 -> R.raw.wx_snow
             85, 86 -> if (isDay) R.raw.wx_partly_cloudy_day_snow else R.raw.wx_partly_cloudy_night_snow
-            95 -> R.raw.wx_thunderstorms_night
-            96, 99 -> R.raw.wx_thunderstorms_extreme_night
+            95 -> if (isDay) R.raw.wx_thunderstorms_day else R.raw.wx_thunderstorms_night
+            96, 99 -> if (isDay) R.raw.wx_thunderstorms_extreme_day else R.raw.wx_thunderstorms_extreme_night
             else -> if (isDay) R.raw.wx_clear_day else R.raw.wx_clear_night
         }
     }

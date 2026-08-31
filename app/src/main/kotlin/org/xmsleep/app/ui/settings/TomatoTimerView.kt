@@ -87,9 +87,15 @@ object TomatoTimerState {
      * 基于截止时间计算剩余，离开页面后仍继续倒计时并按时完成。
      */
     fun start(context: Context) {
-        // 保存本地化的 application context（LocalContext 已按应用语言包装），
-        // 保证后台通知等取字符串时与应用语言一致，而非系统语言
-        appContext = context
+        // 保存本地化的 context，保证后台通知等取字符串时与应用语言一致，而非系统语言。
+        // 不能直接用 context（它是 Activity，而本 object 生命周期长于页面，会泄漏 Activity）；
+        // 也不能直接用 context.applicationContext（会丢掉应用内语言设置）。
+        // 故复用 LanguageManager：基于 applicationContext 重新套用当前应用语言的 Configuration，
+        // 既拿到应用语言、又不持有 Activity。
+        appContext = org.xmsleep.app.i18n.LanguageManager.createLocalizedContext(
+            context,
+            org.xmsleep.app.i18n.LanguageManager.getCurrentLanguage(context)
+        )
         countdownJob?.cancel()
         awaitingBreakStart.value = false
         isRunning.value = true

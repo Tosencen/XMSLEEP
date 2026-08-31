@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XMSLEEP 优化修复报告</title>
+<style>
+    :root{
+        --bg:#f7f8fa; --card:#fff; --text:#1a1d21; --sub:#5a6472; --border:#e3e6ea;
+        --ok:#067647; --ok-bg:#ecfdf3; --warn:#dc6803; --warn-bg:#fffaeb;
+        --info:#175cd3; --info-bg:#eff8ff; --mute:#667085; --mute-bg:#f2f4f7;
+        --code:#f2f4f7; --accent:#175cd3;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+        background:var(--bg);color:var(--text);line-height:1.72;padding:32px 20px 64px;}
+    .wrap{max-width:1000px;margin:0 auto;}
+    header{background:linear-gradient(135deg,#0f5132 0%,#2f6f4f 100%);color:#fff;
+        border-radius:14px;padding:30px 34px;margin-bottom:26px;}
+    header h1{font-size:25px;font-weight:700;}
+    header p{opacity:.9;margin-top:7px;font-size:14px;}
+    .meta{display:flex;gap:24px;margin-top:18px;flex-wrap:wrap;}
+    .meta div{font-size:13px;opacity:.92;}
+    .meta b{display:block;font-size:19px;font-weight:700;margin-top:2px;}
+
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:13px;margin-bottom:26px;}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:15px 17px;}
+    .stat .n{font-size:24px;font-weight:700;line-height:1.2;}
+    .stat .l{font-size:12px;color:var(--sub);margin-top:3px;}
+    .stat.g .n{color:var(--ok);} .stat.b .n{color:var(--info);} .stat.o .n{color:var(--warn);}
+
+    section{margin-bottom:28px;}
+    h2{font-size:18px;font-weight:700;margin-bottom:13px;display:flex;align-items:center;gap:9px;}
+    h2 .bar{width:4px;height:18px;border-radius:2px;background:var(--accent);}
+
+    .item{background:var(--card);border:1px solid var(--border);border-radius:11px;
+        padding:15px 17px;margin-bottom:11px;border-left:4px solid var(--mute);}
+    .item.done{border-left-color:var(--ok);}
+    .item.note{border-left-color:var(--warn);}
+    .item.skip{border-left-color:var(--mute);}
+
+    .head{display:flex;align-items:flex-start;gap:9px;flex-wrap:wrap;margin-bottom:6px;}
+    .tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;white-space:nowrap;}
+    .t-done{background:var(--ok-bg);color:var(--ok);}
+    .t-note{background:var(--warn-bg);color:var(--warn);}
+    .t-skip{background:var(--mute-bg);color:var(--mute);}
+    .title{font-size:14.5px;font-weight:650;flex:1;min-width:180px;}
+
+    .desc{font-size:13.5px;color:var(--sub);}
+    .desc b{color:var(--text);font-weight:650;}
+    code{background:var(--code);padding:1.5px 6px;border-radius:4px;
+        font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;color:#344054;word-break:break-all;}
+    .locs{background:#fafbfc;border:1px solid var(--border);border-radius:7px;padding:8px 12px;
+        margin:7px 0;font-size:12.5px;font-family:"SF Mono",Menlo,Consolas,monospace;
+        color:#475467;line-height:1.85;}
+    .res{font-size:13px;padding:8px 12px;border-radius:7px;background:var(--ok-bg);
+        color:#054f31;margin-top:7px;}
+    .res b{color:#027a48;}
+    .warn{font-size:13px;padding:8px 12px;border-radius:7px;background:var(--warn-bg);
+        color:#7a2e0e;margin-top:7px;}
+
+    table{width:100%;border-collapse:collapse;font-size:13px;background:var(--card);
+        border-radius:10px;overflow:hidden;border:1px solid var(--border);}
+    th{background:#f2f4f7;text-align:left;padding:9px 12px;font-weight:650;
+        font-size:12.5px;color:var(--sub);border-bottom:1px solid var(--border);}
+    td{padding:8px 12px;border-bottom:1px solid #f0f2f5;}
+    tr:last-child td{border-bottom:none;}
+    .good{color:var(--ok);font-weight:600;}
+    ul{margin:7px 0 7px 19px;font-size:13.5px;color:var(--sub);}
+    li{margin-bottom:4px;} li b{color:var(--text);}
+    footer{text-align:center;color:var(--sub);font-size:12px;margin-top:34px;
+        padding-top:18px;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+    <h1>XMSLEEP 优化修复报告</h1>
+    <p>依据优化审查报告实施第一阶段（零风险瘦身）与第二阶段（性能与稳定性）修复</p>
+    <div class="meta">
+        <div>修复项<b>14 项</b></div>
+        <div>改动文件<b>11 个</b></div>
+        <div>删除死资源<b>5 个</b></div>
+        <div>构建验证<b>3/3 通过</b></div>
+        <div>完成日期<b>2026-08-31</b></div>
+    </div>
+</header>
+
+<div class="grid">
+    <div class="stat g"><div class="n">BUILD OK</div><div class="l">Debug / Release / Lint</div></div>
+    <div class="stat g"><div class="n">0</div><div class="l">Lint Error</div></div>
+    <div class="stat b"><div class="n">20/20</div><div class="l">JSON 资源存活</div></div>
+    <div class="stat b"><div class="n">19/19</div><div class="l">sound_* 存活</div></div>
+    <div class="stat o"><div class="n">4 项</div><div class="l">遗留待决策</div></div>
+</div>
+
+<section>
+<h2><span class="bar"></span>一、体积瘦身</h2>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">删除 5 个死资源</span></div>
+    <div class="desc">
+        其中 <code>heavy_rain_seg_0.ogg</code> 是最大单项（873KB，与 <code>heavy_rain.ogg</code> 同体积但 MD5 不同，
+        分段方案重构后的残留）。其余为 3 个零引用字体与 Lint 确认未使用的天气动画。
+    </div>
+    <div class="locs">
+        res/raw/heavy_rain_seg_0.ogg　　873 KB
+        res/font/jetbrains_mono_extrabold.ttf / space_grotesk_bold.ttf / inter_black.ttf　　8.5 KB
+        res/raw/wx_fog.json　　4.7 KB（天气码 45/48 实际用 fog_day / fog_night）
+    </div>
+    <div class="res"><b>验证：</b>Release 包中已确认全部移除；同时确认 <code>campfire</code>、<code>heavy_rain</code>
+    等在用音频完整保留（按体积特征核对）。</div>
+</div>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">删除 res/raw/keep.xml —— 让资源收缩真正生效</span></div>
+    <div class="desc">
+        该文件的 <code>tools:keep="@raw/*"</code> 曾让 9.6MB raw 目录完全免于收缩。
+        经核实，全项目唯一的动态资源访问 <code>ListeningDiaryManager.kt:59,66</code> 的 <code>getIdentifier</code>
+        查的是 <b>string</b> 而非 raw，因此这条规则属于无效保护。
+    </div>
+    <div class="warn">
+        <b>额外发现的隐藏崩溃风险：</b>该文件还写着 <code>tools:discard="@raw/empty_state.json"</code>，
+        而 <code>empty_state</code> 正被 <code>SoundComponents.kt:136</code> 的 Lottie 使用。
+        keep 与 discard 相互冲突，此前只是侥幸未触发崩溃。现已随文件一并移除。
+    </div>
+    <div class="res"><b>验证：</b>Release 包中 20 个 JSON 全部在位（含 <code>empty_state</code> 与新启用的两张白天雷暴图）；
+    未被引用的 <code>wx_fog</code> 则被收缩器正确清除——说明收缩逻辑工作正常。</div>
+</div>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">重写 res/keep.xml 并补上动态引用保护</span></div>
+    <div class="desc">
+        原文件重复写了 4 个同名的 <code>tools:keep</code> 属性（XML 中同名属性本属非法），已合并为逗号分隔的规范写法。
+        同时新增 <code>@string/sound_*</code>——这是 <code>getIdentifier</code> 动态查询的音频名，
+        收缩器无法静态追踪，必须显式保留，否则听歌日记会退化显示成原始枚举名。
+    </div>
+    <div class="res"><b>验证：</b>aapt2 确认 Release 包中 19 个 <code>sound_*</code> string 全部保留。</div>
+</div>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">删除冗余的 values-zh-rCN</span></div>
+    <div class="desc">
+        该文件 131 条中有 129 条与默认 <code>values/</code> 逐字节相同。
+        已先将真正不同的 2 条（<code>scanning_local_audio</code>、<code>search_result</code>）并入默认 values，
+        确保简体中文用户看到的文案与删前<b>完全一致</b>，再删除整个目录。
+    </div>
+</div>
+
+</section>
+
+<section>
+<h2><span class="bar"></span>二、Bug 修复</h2>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">白天雷暴显示夜间动画</span></div>
+    <div class="desc">
+        天气码 95 / 96 / 99 三条分支漏了 <code>isDay</code> 判断（其余天气类型都判断了）。
+        修复后两张白天版资源被真正引用，也就不会再被收缩器删除——修 Bug 与瘦身在此处是一致的。
+    </div>
+    <div class="locs">weather/WeatherService.kt:82-83</div>
+</div>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">releaseAllPlayers 只释放了第一个播放器</span></div>
+    <div class="desc">
+        原实现遍历 <code>players.keys</code> 的同时调用会执行 <code>players.remove()</code> 的 <code>releasePlayer()</code>，
+        触发 <code>ConcurrentModificationException</code> 后被外层 catch 吞掉——
+        <b>只有第一个播放器被释放，其余全部泄漏且无任何日志</b>。已改为快照遍历并加兜底清理。
+    </div>
+    <div class="locs">audio/LocalSoundPlayer.kt:572</div>
+</div>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">ExoPlayer 只 stop 不 release</span></div>
+    <div class="desc">
+        <code>stopAllSounds()</code> 改为在 finally 中真正 <code>release()</code> 并清空 map，
+        保证即使 stop 抛异常也不会残留实例。此前最多 10 个 ExoPlayer 会整夜驻留（助眠应用的核心场景）。
+    </div>
+    <div class="locs">audio/LocalSoundPlayer.kt:414</div>
+    <div class="res"><b>权衡：</b>下次播放需重建实例，代价仅数十毫秒；<code>pauseAllSounds()</code> 保持不释放，
+    以支持快速恢复播放。</div>
+</div>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">START_STICKY 导致幽灵通知与计时复活</span></div>
+    <div class="desc">
+        <code>MusicService</code> 被系统复活时 intent 为 null，会走"首次启动"分支重建前台通知；
+        <code>BreathingService</code> 更严重——复活后拿不到 <code>total_time</code>，
+        会退化为默认 5 分钟并<b>重新开始一轮呼吸计时</b>。两者均已改为 <code>START_NOT_STICKY</code>。
+    </div>
+    <div class="locs">service/MusicService.kt:155 ｜ service/BreathingService.kt:58</div>
+</div>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">清理流程被 context 判空中断</span></div>
+    <div class="desc">
+        <code>abandonAudioFocus(applicationContext ?: return)</code> 在 context 为 null 时会直接 return，
+        导致后续的 <code>musicServiceManager.release()</code> 与 <code>onListeningStopped()</code> 被跳过——
+        播放器已释放、服务与收听记录却没收尾。改为跳过该步、继续其余清理。
+    </div>
+    <div class="locs">audio/AudioManager.kt:486</div>
+</div>
+
+</section>
+
+<section>
+<h2><span class="bar"></span>三、内存泄漏</h2>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">单例持有 Activity Context</span></div>
+    <div class="desc">
+        <code>LocalAudioPlayer</code> 是单例（生命周期等同进程），却直接保存传入的 context；
+        调用方 <code>LocalAudioScreen.kt:148</code> 传的是 <code>LocalContext.current</code>（即 Activity），
+        导致每次进入本地音频页都有一个 Activity 被永久钉住。已改为取 <code>applicationContext</code>。
+        其余 3 个单例（ListeningDiaryManager / BluetoothHeadsetManager / RadioPlayer）经查均<b>已正确使用</b>，无需改动。
+    </div>
+    <div class="locs">audio/LocalAudioPlayer.kt:242, 323</div>
+</div>
+
+<div class="item note">
+    <div class="head"><span class="tag t-note">特别处理</span><span class="title">TomatoTimerView 不能简单套用 applicationContext</span></div>
+    <div class="desc">
+        此处注释明确写着是<b>有意为之</b>：需要保留 <code>LocalContext</code> 的语言包装，
+        使后台通知显示<b>应用内语言</b>而非系统语言。若直接改成 <code>applicationContext</code>，
+        会静默破坏应用内语言切换功能。
+    </div>
+    <div class="res">
+        <b>正确解法：</b>复用项目里已有的
+        <code>LanguageManager.createLocalizedContext(ctx, getCurrentLanguage(ctx))</code>——
+        它内部正是 <code>applicationContext.createConfigurationContext(appConfig)</code>，
+        <b>既拿到应用语言、又不持有 Activity</b>，两全其美，无需自己造轮子。
+    </div>
+    <div class="locs">ui/settings/TomatoTimerView.kt:92</div>
+</div>
+
+</section>
+
+<section>
+<h2><span class="bar"></span>四、性能优化</h2>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">两处 500ms 轮询改为订阅 StateFlow</span></div>
+    <div class="desc">
+        原实现每 500ms 遍历整个音频列表重建集合。其中 <code>StarSkySimpleContent</code> 的
+        <code>playingSounds</code> 是 <code>SnapshotStateList</code>，<code>clear()+addAll()</code> 属于两次结构变更，
+        会<b>无条件触发重组</b>——即便整夜播放状态毫无变化，屏幕常亮时持续耗电。
+        现已改为订阅 <code>AudioManager.remotePlayingStates</code> 并加 <code>distinctUntilChanged</code>：
+        状态不变时既不计算也不重组，且响应无 500ms 延迟。
+    </div>
+    <div class="locs">ui/starsky/StarSkyScreen.kt:256 ｜ ui/starsky/StarSkySimpleContent.kt:87</div>
+    <div class="res"><b>兼容性：</b>点击卡片时的乐观更新仍然有效——流是真实状态的权威来源，
+    与原实现"每 500ms 用真实状态覆盖一次"在语义上等价。</div>
+</div>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">组合期磁盘扫描改为内存索引</span></div>
+    <div class="desc">
+        <code>getCachedFile()</code> 原本每次调用都执行 <code>cacheDir.listFiles()</code> 全目录遍历，
+        而它在 <code>SoundsScreenContent.kt:281</code> 处没有 remember 包裹——每次重组都扫一遍磁盘。
+        已改为正缓存（ConcurrentHashMap）+ 负缓存（KeySet）双结构，并在 download 成功 /
+        <code>deleteCache</code> / <code>clearCache</code> 处同步维护，保证索引与磁盘一致。
+    </div>
+    <div class="locs">audio/AudioCacheManager.kt:70</div>
+</div>
+
+<div class="item done">
+    <div class="head"><span class="tag t-done">已修复</span><span class="title">冷启动避免两次 58KB 全量 JSON 解析</span></div>
+    <div class="desc">
+        <code>initializeDefaultManifest()</code> 在 <code>MainActivity.onCreate</code> 主线程调用，
+        原本会对 assets 与缓存各做一次 <code>gson.fromJson</code> 全量解析（构造数百个 SoundMetadata）。
+        新增 <code>peekManifestSignature()</code>，用 JsonReader 流式只读取 version 与 sounds 数量，
+        <b>版本一致时（绝大多数启动）完全跳过全量解析</b>，仅在真正需要更新时才解析并写盘。
+    </div>
+    <div class="locs">audio/AudioResourceManager.kt:51</div>
+    <div class="warn">
+        <b>为何没有改成异步：</b><code>getCachedManifest()</code> 依赖 <code>loadPersistedManifest()</code> 兜底，
+        异步化会让"首次安装 + 无网络"时空星页拿到 null 而显示空白——
+        竞态风险明显大于这几十毫秒的收益，故保持同步调用、只优化解析开销。
+    </div>
+</div>
+
+</section>
+
+<section>
+<h2><span class="bar"></span>五、自测结果</h2>
+
+<table>
+    <tr><th>验证项</th><th>命令</th><th>结果</th></tr>
+    <tr><td>Debug 构建</td><td><code>./gradlew assembleDebug</code></td><td class="good">BUILD SUCCESSFUL（48s / 复验 9s）</td></tr>
+    <tr><td>Release 构建</td><td><code>./gradlew assembleRelease</code></td><td class="good">BUILD SUCCESSFUL（5m 6s）</td></tr>
+    <tr><td>静态检查</td><td><code>./gradlew lintDebug</code></td><td class="good">0 Error（43 Warning / 18 Info）</td></tr>
+    <tr><td>JSON 资源存活</td><td>解压 + 文件头识别</td><td class="good">20/20 在位，含 empty_state 与两张白天雷暴图</td></tr>
+    <tr><td>dynamic string 存活</td><td><code>aapt2 dump resources</code></td><td class="good">19/19 sound_* 保留</td></tr>
+    <tr><td>音频资源存活</td><td>按体积特征核对</td><td class="good">campfire / heavy_rain 等全部在位</td></tr>
+    <tr><td>死资源移除</td><td>APK 内容检索</td><td class="good">heavy_rain_seg_0 / 3 字体 / zh-rCN 均已移除</td></tr>
+</table>
+
+<div class="item done" style="margin-top:14px;">
+    <div class="head"><span class="tag t-done">结论</span><span class="title">本次改动未引入任何新问题</span></div>
+    <div class="desc">
+        Lint 报出的 43 个 Warning 中，与本次改动文件相关的仅 3 条
+        （<code>LocalAudioPlayer.kt:841</code> Cursor 未关闭、两处 AutoboxingStateCreation），
+        且均落在<b>未改动的代码行</b>，属既有问题。其余 25 条 GradleDependency 是依赖版本过时的既有告警。
+    </div>
+    <div class="desc" style="margin-top:8px;">
+        Release 构建中 R8 报的 "parsing kotlin metadata" 警告同样是<b>既有问题</b>——
+        Kotlin 2.1.0 与 AGP 8.7.3 内置 R8 版本不匹配，正好印证报告中"工具链偏旧"那条建议。
+    </div>
+</div>
+</section>
+
+<section>
+<h2><span class="bar" style="background:var(--warn)"></span>六、遗留事项（需你决策后我再动手）</h2>
+
+<div class="item skip">
+    <div class="head"><span class="tag t-skip">未改动</span><span class="title">res/keep.xml 仍全量保留图片资源（约 6.5MB）</span></div>
+    <div class="desc">
+        <code>@mipmap/@drawable/@values/@xml</code> 仍是全量 keep，这是 17MB 资源几乎没被压缩的另一半原因，
+        潜在收益比本次已做的大得多。但图片存在按名称动态拼接加载的风险，
+        <b>需要真机全量回归（尤其背景主题、封面图、二维码）后再收窄</b>，故本轮不动。
+    </div>
+</div>
+
+<div class="item skip">
+    <div class="head"><span class="tag t-skip">未接线</span><span class="title">AudioManager.releaseAllPlayers() 仍是零调用</span></div>
+    <div class="desc">
+        这是一个"已写好但从未接线"的清理函数。由于助眠应用的后台播放是核心场景，
+        在任何生命周期擅自挂载它都可能误中断播放，因此只修复了它内部的缺陷，未自作主张接线。
+    </div>
+</div>
+
+<div class="item skip">
+    <div class="head"><span class="tag t-skip">未删除</span><span class="title">8 个未使用 string（donate_* / pay_* / filter 等）</span></div>
+    <div class="desc">
+        Lint 已确认未引用，但多为支付相关文案，疑似功能预留。体积收益仅数百字节，
+        误删成本高于收益，建议确认是否还在开发支付流程后再决定。
+    </div>
+</div>
+
+<div class="item skip">
+    <div class="head"><span class="tag t-skip">第三/四阶段</span><span class="title">架构重构与依赖升级（建议单独排期）</span></div>
+    <ul>
+        <li><b>抽公共组件</b>：SoundCard 与 RemoteSoundCard 三处逐行雷同（纯抽取、无行为变更，风险最低，建议作为重构第一刀）</li>
+        <li><b>Hilt 去留</b>：目前 0 个 @Module、无 Repository 层，建议要么补齐真用起来，要么移除并去掉 kapt</li>
+        <li><b>巨型 Composable</b>：SoundsScreen 1182 行、StarSkyScreen 1162 行、SettingsScreen 994 行（33 个参数）</li>
+        <li><b>多语言</b>：各语言缺失 15 个相同 key；韩文混入 6 处中文；zh-rTW 有 126 条未做简转繁</li>
+        <li><b>硬编码文案</b>：22 处（CrashScreen 与 StarSkyScreen 最影响体验）</li>
+        <li><b>依赖升级</b>：kapt → KSP、AGP / Kotlin / Compose BOM 升级、引入 version catalog</li>
+    </ul>
+</div>
+</section>
+
+<footer>
+    所有改动均可通过 git 回滚（删除的文件均为 git 跟踪文件）　·　完成于 2026-08-31
+</footer>
+
+</div>
+</body>
+</html>

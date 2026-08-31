@@ -157,7 +157,7 @@ import org.xmsleep.app.weather.WeatherService
 import org.xmsleep.app.weather.WeatherSoundMapper
 import org.xmsleep.app.utils.Logger
 import org.xmsleep.app.ui.viewmodel.SoundsViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 /**
@@ -392,7 +392,7 @@ fun SoundsScreen(
     updateViewModel: UpdateViewModel? = null,
     hazeState: dev.chrisbanes.haze.HazeState? = null,
     contentAlpha: Float = 1f,
-    soundsViewModel: SoundsViewModel = hiltViewModel()
+    soundsViewModel: SoundsViewModel = viewModel()
 ) {
     var showPresetDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current

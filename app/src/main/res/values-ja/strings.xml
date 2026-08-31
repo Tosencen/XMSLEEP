@@ -749,4 +749,26 @@
     <string name="storage_space">使用容量: %s</string>
     <string name="simple_mode_button">シンプルモード</string>
     <string name="simple_mode_full_version">フルバージョン</string>
+    <string name="back">戻る</string>
+    <string name="allowed_continue_install">許可しました。インストールを続行</string>
+    <string name="donate_amount_value_1">¥5.4</string>
+    <string name="install_permission_hint">設定でこの提供元からのインストールを許可し、アプリに戻って続行してください。</string>
+    <string name="donate_amount_value_2">¥6.9</string>
+    <string name="loading">読み込み中…</string>
+    <string name="check_update_failed_hint">ネットワークの問題またはAPI制限の可能性があります。後でもう一度お試しください。</string>
+    <string name="copy_error">コピーエラー</string>
+    <string name="donate_amount_value_3">¥16.8</string>
+    <string name="download_failed_hint">ネットワークの問題の可能性があります。接続を確認して再度お試しください。</string>
+    <string name="weather_unknown">不明</string>
+    <string name="install_permission_required">インストール権限が必要です</string>
+    <string name="restart_app">アプリを再起動</string>
+    <string name="widget_refresh">更新</string>
+    <string name="error_copied">エラー情報をクリップボードにコピーしました</string>
+    <string name="crash_title">アプリで問題が発生しました</string>
+    <string name="crash_subtitle">このエラーは記録されました。アプリを再起動してみてください。</string>
+    <string name="crash_error_details">エラー詳細</string>
+    <string name="crash_stack_trace">スタックトレース</string>
+    <string name="crash_share_text">エラーメッセージ:\n%1$s\n\nスタックトレース:\n%2$s</string>
+    <string name="starsky_play_failed_no_file">再生失敗：オーディオファイルを取得できません</string>
+    <string name="starsky_load_failed">読み込み失敗: %1$s</string>
 </resources>

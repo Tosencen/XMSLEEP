@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XMSLEEP 项目优化审查报告</title>
+<style>
+    :root{
+        --bg:#f7f8fa;
+        --card:#ffffff;
+        --text:#1a1d21;
+        --text-sub:#5a6472;
+        --border:#e3e6ea;
+        --p0:#d92d20;
+        --p0-bg:#fef3f2;
+        --p1:#dc6803;
+        --p1-bg:#fffaeb;
+        --p2:#175cd3;
+        --p2-bg:#eff8ff;
+        --p3:#667085;
+        --p3-bg:#f2f4f7;
+        --ok:#067647;
+        --ok-bg:#ecfdf3;
+        --code-bg:#f2f4f7;
+        --accent:#175cd3;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+        font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",Arial,sans-serif;
+        background:var(--bg);color:var(--text);line-height:1.7;
+        padding:32px 20px 64px;
+    }
+    .wrap{max-width:1080px;margin:0 auto;}
+
+    header{
+        background:linear-gradient(135deg,#1e3a8a 0%,#3b5bdb 100%);
+        color:#fff;border-radius:14px;padding:32px 36px;margin-bottom:28px;
+    }
+    header h1{font-size:26px;font-weight:700;letter-spacing:-.3px;}
+    header p{opacity:.9;margin-top:8px;font-size:14px;}
+    .meta{display:flex;gap:26px;margin-top:20px;flex-wrap:wrap;}
+    .meta div{font-size:13px;opacity:.92;}
+    .meta b{display:block;font-size:20px;font-weight:700;margin-top:2px;}
+
+    .summary{
+        display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+        gap:14px;margin-bottom:28px;
+    }
+    .stat{
+        background:var(--card);border:1px solid var(--border);
+        border-radius:11px;padding:16px 18px;
+    }
+    .stat .n{font-size:26px;font-weight:700;line-height:1.2;}
+    .stat .l{font-size:12px;color:var(--text-sub);margin-top:4px;}
+    .stat.red .n{color:var(--p0);}
+    .stat.orange .n{color:var(--p1);}
+    .stat.blue .n{color:var(--p2);}
+    .stat.green .n{color:var(--ok);}
+
+    section{margin-bottom:30px;}
+    h2{
+        font-size:19px;font-weight:700;margin-bottom:14px;
+        display:flex;align-items:center;gap:9px;
+    }
+    h2 .bar{width:4px;height:19px;border-radius:2px;background:var(--accent);}
+    h3{font-size:15px;font-weight:650;margin:18px 0 9px;}
+
+    .item{
+        background:var(--card);border:1px solid var(--border);
+        border-radius:11px;padding:16px 18px;margin-bottom:12px;
+    }
+    .item.p0{border-left:4px solid var(--p0);}
+    .item.p1{border-left:4px solid var(--p1);}
+    .item.p2{border-left:4px solid var(--p2);}
+    .item.p3{border-left:4px solid var(--p3);}
+    .item.ok{border-left:4px solid var(--ok);}
+
+    .head{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;margin-bottom:7px;}
+    .tag{
+        font-size:11px;font-weight:700;padding:2px 8px;border-radius:5px;
+        letter-spacing:.3px;white-space:nowrap;
+    }
+    .t-p0{background:var(--p0-bg);color:var(--p0);}
+    .t-p1{background:var(--p1-bg);color:var(--p1);}
+    .t-p2{background:var(--p2-bg);color:var(--p2);}
+    .t-p3{background:var(--p3-bg);color:var(--p3);}
+    .t-ok{background:var(--ok-bg);color:var(--ok);}
+    .title{font-size:15px;font-weight:650;flex:1;min-width:200px;}
+    .gain{font-size:12px;color:var(--ok);font-weight:650;white-space:nowrap;}
+
+    .desc{font-size:13.5px;color:var(--text-sub);margin-bottom:9px;}
+    .desc b{color:var(--text);font-weight:650;}
+    code{
+        background:var(--code-bg);padding:1.5px 6px;border-radius:4px;
+        font-family:"SF Mono",Menlo,Consolas,monospace;font-size:12.5px;
+        color:#344054;word-break:break-all;
+    }
+    .locs{
+        background:#fafbfc;border:1px solid var(--border);border-radius:7px;
+        padding:9px 12px;margin:8px 0;font-size:12.5px;
+        font-family:"SF Mono",Menlo,Consolas,monospace;color:#475467;
+        line-height:1.9;
+    }
+    .fix{
+        font-size:13px;padding:9px 13px;border-radius:7px;
+        background:var(--ok-bg);color:#054f31;margin-top:8px;
+    }
+    .fix b{color:#027a48;}
+    .warn{
+        font-size:13px;padding:9px 13px;border-radius:7px;
+        background:var(--p1-bg);color:#7a2e0e;margin-top:8px;
+    }
+
+    table{
+        width:100%;border-collapse:collapse;font-size:13px;
+        background:var(--card);border-radius:10px;overflow:hidden;
+        border:1px solid var(--border);
+    }
+    th{
+        background:#f2f4f7;text-align:left;padding:10px 13px;
+        font-weight:650;font-size:12.5px;color:var(--text-sub);
+        border-bottom:1px solid var(--border);
+    }
+    td{padding:9px 13px;border-bottom:1px solid #f0f2f5;}
+    tr:last-child td{border-bottom:none;}
+    td.n{font-variant-numeric:tabular-nums;}
+    .bad{color:var(--p0);font-weight:600;}
+    .mid{color:var(--p1);font-weight:600;}
+    .good{color:var(--ok);}
+
+    ul{margin:8px 0 8px 20px;font-size:13.5px;color:var(--text-sub);}
+    li{margin-bottom:5px;}
+    li b{color:var(--text);}
+
+    .roadmap{display:flex;gap:11px;flex-wrap:wrap;}
+    .phase{
+        flex:1;min-width:210px;background:var(--card);
+        border:1px solid var(--border);border-radius:11px;padding:15px 17px;
+    }
+    .phase .ph{font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.5px;}
+    .phase .pt{font-size:14px;font-weight:650;margin:5px 0 8px;}
+    .phase ul{margin-left:16px;font-size:12.5px;}
+
+    footer{
+        text-align:center;color:var(--text-sub);font-size:12px;
+        margin-top:38px;padding-top:20px;border-top:1px solid var(--border);
+    }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+    <h1>XMSLEEP 项目优化审查报告</h1>
+    <p>基于 132 个 Kotlin 源文件 / 36,858 行代码 / 17MB 资源的全量静态分析</p>
+    <div class="meta">
+        <div>代码规模<b>36,858 行</b></div>
+        <div>Kotlin 文件<b>132 个</b></div>
+        <div>资源体积<b>17 MB</b></div>
+        <div>发现问题<b>32 项</b></div>
+        <div>审查日期<b>2026-08-31</b></div>
+    </div>
+</header>
+
+<div class="summary">
+    <div class="stat red"><div class="n">9</div><div class="l">严重问题</div></div>
+    <div class="stat orange"><div class="n">11</div><div class="l">中等风险</div></div>
+    <div class="stat blue"><div class="n">12</div><div class="l">轻微/优化项</div></div>
+    <div class="stat green"><div class="n">~2.0 MB</div><div class="l">可缩减体积</div></div>
+    <div class="stat green"><div class="n">9 处</div><div class="l">常驻轮询</div></div>
+</div>
+
+<section>
+<h2><span class="bar"></span>P0 · 立即修复（低风险、高收益）</h2>
+
+<div class="item p0">
+    <div class="head">
+        <span class="tag t-p0">P0</span>
+        <span class="title">资源压缩被 keep.xml 完全架空，9.6MB raw 目录全量保留</span>
+        <span class="gain">体积 ↓ 873KB+</span>
+    </div>
+    <div class="desc">
+        <code>app/src/main/res/raw/keep.xml</code> 里的 <code>tools:keep="@raw/*"</code> 把整个 raw 目录强制保留，
+        让 <code>isShrinkResources = true</code> 对这个占资源总量 56% 的目录完全失效。
+        经核实，项目中唯一的动态资源访问 <code>ListeningDiaryManager.kt:59,66</code> 用的 <code>getIdentifier</code>
+        查的是 <b>string</b> 而非 raw，所以这条 keep 规则并没有保护到它本该保护的东西——属于无效且有害的配置。
+    </div>
+    <div class="locs">
+        app/src/main/res/raw/keep.xml:3　　tools:keep="@raw/*"
+        res/raw/ 　　　　　　　　　　　　9.6 MB（43 个文件）
+    </div>
+    <div class="fix"><b>建议：</b>先删除下面这条死资源，再把 keep 收窄为精确列表（如仅保留天气 json 系列），
+    构建后跑一遍声音播放 + 天气动画 + 番茄钟铃声回归。<b>不要</b>直接整行删除后不验证。</div>
+</div>
+
+<div class="item p0">
+    <div class="head">
+        <span class="tag t-p0">P0</span>
+        <span class="title">死资源 heavy_rain_seg_0.ogg（873KB）零引用</span>
+        <span class="gain">体积 ↓ 873KB</span>
+    </div>
+    <div class="desc">
+        全项目扫描 <code>R.raw.heavy_rain_seg_0</code> <b>零匹配</b>。它与 <code>heavy_rain.ogg</code> 同体积（873,054 B）
+        但 MD5 不同，是早期分段方案的残留文件，与 <code>SoundSegments</code> 重构后遗留。
+        因为上面那条 keep 规则，它一直没能被 shrinker 清掉。
+    </div>
+    <div class="locs">app/src/main/res/raw/heavy_rain_seg_0.ogg　　873,054 B</div>
+    <div class="fix"><b>建议：</b>直接删除，零风险。这是全项目性价比最高的一次改动。</div>
+</div>
+
+<div class="item p0">
+    <div class="head">
+        <span class="tag t-p0">P0</span>
+        <span class="title">ExoPlayer 永不释放，整夜播放最多 10 个实例常驻</span>
+        <span class="gain">内存 ↓ 显著</span>
+    </div>
+    <div class="desc">
+        <code>MAX_CONCURRENT_SOUNDS = 10</code>，player 创建后存入 <code>players</code> map，
+        但 <code>pauseSound()</code> 只 pause、<code>stopAllSounds()</code> 只 stop，<b>均不 release</b>。
+        <code>releaseAllPlayers()</code> 全项目唯一的调用点是测试文件——生产代码里从未调用。
+        助眠应用整夜运行，这是最典型的内存占用场景。
+    </div>
+    <div class="locs">
+        audio/LocalSoundPlayer.kt:370　pauseSound() → 仅 pause，不 release
+        audio/LocalSoundPlayer.kt:414　stopAllSounds() → 仅 stop，不 release
+        audio/LocalSoundPlayer.kt:572　releaseAllPlayers() → 仅被 LocalSoundPlayerTest.kt:92 调用
+        audio/AudioManager.kt:40　　　 MAX_CONCURRENT_SOUNDS = 10
+    </div>
+    <div class="fix"><b>建议：</b><code>stopAllSounds()</code> 后真正 <code>release()</code> 并把条目移出 map；
+    长期方案是改用单 ExoPlayer + 多 MediaSource 混音，这也是白噪音类应用的通行做法。</div>
+</div>
+
+<div class="item p0">
+    <div class="head">
+        <span class="tag t-p0">P0</span>
+        <span class="title">单例持有 Activity Context → 永久性内存泄漏</span>
+        <span class="gain">泄漏修复</span>
+    </div>
+    <div class="desc">
+        <code>LocalAudioPlayer</code> 是单例（生命周期 = 进程），但 <code>initPlayMode()</code> 直接把传入的
+        context 赋给 <code>appContext</code>，未取 <code>applicationContext</code>。
+        而调用方 <code>LocalAudioScreen.kt:143,148</code> 传入的是 <code>LocalContext.current</code>——也就是 <b>Activity</b>。
+        一次进入本地音频页，该 Activity 就被永久钉住，旋转屏幕或反复进出会持续堆积。
+    </div>
+    <div class="locs">
+        audio/LocalAudioPlayer.kt:242　appContext = context　　← 未取 applicationContext
+        ui/LocalAudioScreen.kt:143　　val context = LocalContext.current
+        ui/LocalAudioScreen.kt:148　　localAudioPlayer.initPlayMode(context)
+    </div>
+    <div class="fix"><b>建议：</b>改成 <code>appContext = context.applicationContext</code>。一行改动，建议顺手全局搜一遍同类模式。</div>
+</div>
+
+<div class="item p0">
+    <div class="head">
+        <span class="tag t-p0">P0</span>
+        <span class="title">9 处 while(true) 轮询，助眠场景下整夜空转</span>
+        <span class="gain">CPU / 续航 ↓</span>
+    </div>
+    <div class="desc">
+        项目已有 <code>playingStates</code> StateFlow 可用，但多处仍在用 <code>while(true) + delay</code> 主动轮询。
+        其中 <code>StarSkyScreen.kt:264</code> 与 <code>StarSkySimpleContent.kt:89</code> 每 500ms
+        <b>清空并重建整个 Set 后无条件写 state</b>——即使状态毫无变化也会触发整屏重组。
+        <code>FloatingPlayButton.kt:208</code> 每 300ms 轮询，循环体内还含 MediaStore 查询。
+        屏幕整夜亮着时，这是持续的 CPU 占用和耗电。
+    </div>
+    <div class="locs">
+        ui/starsky/StarSkyScreen.kt:264　　　　500ms　重建 Set 触发整屏重组
+        ui/starsky/StarSkySimpleContent.kt:89　500ms　同上
+        ui/FloatingPlayButton.kt:208, 654　　　300ms　含 MediaStore 查询
+        ui/settings/SettingsScreen.kt:164　　　1s　　音频状态轮询
+        ui/SoundsScreen.kt:496 / ui/LocalAudioScreen.kt:941 / ui/WeatherCard.kt:125
+        ui/flipclock/FlipClockViewModel.kt:48　（时钟走秒属正常用途，可保留）
+    </div>
+    <div class="fix"><b>建议：</b>直接 collect <code>AudioManager.kt:162-167</code> 已有的 StateFlow 替换轮询。
+    优先改 StarSky 两处（收益最大、改动最小）。</div>
+</div>
+
+<div class="item p0">
+    <div class="head">
+        <span class="tag t-p0">P0</span>
+        <span class="title">组合期 / 主线程做磁盘扫描与 JSON 解析</span>
+        <span class="gain">流畅度 ↑</span>
+    </div>
+    <div class="desc">
+        <b>组合期磁盘 IO：</b><code>AudioCacheManager.getCachedFile()</code> 每次执行 <code>cacheDir.listFiles()</code>
+        全目录遍历（上限 200 文件）。在 <code>SoundsScreenContent.kt:281</code> 处 <b>没有 remember 包裹</b>——每次重组都扫一遍磁盘。
+        <b>主线程 JSON：</b><code>MainActivity.kt:82</code> 在 <code>onCreate</code> 里同步读取 assets + Gson 解析 58KB
+        <code>sounds_remote.json</code> + <code>writeText()</code> 落盘，全程主线程，直接影响冷启动。
+    </div>
+    <div class="locs">
+        audio/AudioCacheManager.kt:70-77　getCachedFile() 全目录 listFiles()
+        ui/SoundsScreenContent.kt:281　　　isCached = ... getCachedFile(...) != null　← 未 remember
+        ui/starsky/RemoteSoundCard.kt:63　 remember 内 IO（组合期）
+        MainActivity.kt:82　　　　　　　　 onCreate 主线程解析 58KB JSON
+        ui/breathing/BreathingListScreen.kt:227　组合中 Gson 解析 29KB
+    </div>
+    <div class="fix"><b>建议：</b>缓存结果改用内存 <code>Map&lt;String,File&gt;</code> + IO 线程刷新；
+    assets 解析包一层 <code>withContext(Dispatchers.IO)</code>。</div>
+</div>
+
+<div class="item p0">
+    <div class="head">
+        <span class="tag t-p0">P0</span>
+        <span class="title">values-zh-rCN/strings.xml 98.5% 冗余</span>
+        <span class="gain">体积 ↓ / 维护成本 ↓</span>
+    </div>
+    <div class="desc">
+        该文件 131 条 string 中，<b>129 条与默认 <code>values/</code> 逐字节完全相同</b>，真正不同的只有
+        <code>scanning_local_audio</code>、<code>search_result</code> 两条。而默认 <code>values/</code> 本身就是简体中文，
+        整个文件只是徒增维护负担（改默认文案时容易漏改，造成中英文不一致）。
+    </div>
+    <div class="locs">
+        res/values-zh-rCN/strings.xml　131 条｜与默认相同 129 条｜真正不同 2 条
+        res/values/strings.xml　　　　　537 条（基准，简体中文）
+    </div>
+    <div class="fix"><b>建议：</b>把那 2 条不同的合并进默认 <code>values/</code>，然后整个删除 zh-rCN 目录。</div>
+</div>
+
+<div class="item p0">
+    <div class="head">
+        <span class="tag t-p0">P0</span>
+        <span class="title">白天雷暴显示夜间动画（逻辑 Bug）</span>
+        <span class="gain">Bug 修复</span>
+    </div>
+    <div class="desc">
+        天气代码 95 / 96 / 99 三条分支<b>没有接 <code>isDay</code> 判断</b>，直接返回 night 资源——白天雷暴会显示夜间动画。
+        其他天气类型（0/1/2/45/48/79/80/81/82/85/86）都正确使用了 <code>isDay</code>，只有这三条漏了。
+        副作用是 <code>wx_thunderstorms_day.json</code>(26.7K) 与 <code>wx_thunderstorms_extreme_day.json</code>(29.1K) 变成死资源。
+    </div>
+    <div class="locs">
+        weather/WeatherService.kt:82　95 -> R.raw.wx_thunderstorms_night　　　← 缺 isDay
+        weather/WeatherService.kt:83　96, 99 -> R.raw.wx_thunderstorms_extreme_night　← 缺 isDay
+    </div>
+    <div class="fix"><b>建议：</b>改成 <code>95 -&gt; if (isDay) R.raw.wx_thunderstorms_day else R.raw.wx_thunderstorms_night</code>，96/99 同理。</div>
+</div>
+
+<div class="item p0">
+    <div class="head">
+        <span class="tag t-p0">P0</span>
+        <span class="title">START_STICKY 导致服务被系统复活 → 幽灵通知</span>
+        <span class="gain">体验修复</span>
+    </div>
+    <div class="desc">
+        <code>MusicService</code> / <code>BreathingService</code> 均返回 <code>START_STICKY</code>。
+        即便内部已调用 <code>stopSelf()</code>，系统仍会用 null intent 重启服务并重新 <code>startForeground()</code>，
+        用户会看到"关不掉"的通知。<code>BreathingService</code> 被复活后还会以默认 5 分钟重新开始计时循环——行为更诡异。
+    </div>
+    <div class="locs">
+        service/MusicService.kt:155　　　START_STICKY
+        service/BreathingService.kt:58　 START_STICKY
+    </div>
+    <div class="fix"><b>建议：</b>改为 <code>START_NOT_STICKY</code>（或 <code>START_REDELIVER_INTENT</code> + 判空 intent）。
+    另注意 <code>MusicServiceManager.kt:48</code> 单例强持有 Service 引用，仅解绑时置空，可一并处理。</div>
+</div>
+
+</section>
+
+<section>
+<h2><span class="bar" style="background:var(--p1)"></span>P1 · 中等风险</h2>
+
+<div class="item p1">
+    <div class="head">
+        <span class="tag t-p1">P1</span>
+        <span class="title">Hilt 形同虚设：0 个 @Module，全靠 getInstance() 手动取单例</span>
+    </div>
+    <div class="desc">
+        全项目 <code>@Module</code> / <code>@Provides</code> / <code>@InstallIn</code> / <code>@Singleton</code> 均为 <b>0 个</b>，
+        仅 2 个 <code>@HiltViewModel</code> 和 1 个 <code>@AndroidEntryPoint</code>。
+        40+ 处依赖靠 <code>getInstance()</code> 手动获取，且<b>完全没有 Repository 层</b>，ViewModel 直接抓单例。
+        目前 Hilt 只带来编译开销（kapt），没有换来任何解耦收益——既无法单测替换，也无法做依赖图校验。
+    </div>
+    <div class="locs">
+        ui/viewmodel/MainViewModel.kt:16　　　@HiltViewModel（仅此 2 处用了）
+        ui/viewmodel/SoundsViewModel.kt:24　　@HiltViewModel
+        ui/starsky/StarSkyScreen.kt:63,66,69　　手动 getInstance()
+        ui/settings/SettingsScreen.kt:97-98　　 手动 getInstance()
+        ui/FloatingPlayButton.kt:178,203,841　　手动 getInstance()
+        class .*Repository　→　0 匹配
+    </div>
+    <div class="fix"><b>建议：</b>要么补齐 <code>di/</code> 模块真正用起来，要么移除 Hilt 改用轻量手写 DI 并同步去掉 kapt（构建能快不少）。
+    <b>不建议</b>维持现状——这是纯负债。</div>
+</div>
+
+<div class="item p1">
+    <div class="head">
+        <span class="tag t-p1">P1</span>
+        <span class="title">巨型 Composable：8 个超 500 行函数，最大 1182 行</span>
+    </div>
+    <table style="margin-top:10px;">
+        <tr><th>行数</th><th>函数</th><th>位置</th></tr>
+        <tr><td class="n bad">1182</td><td>SoundsScreen</td><td><code>ui/SoundsScreen.kt:374</code>（文件共 1555 行）</td></tr>
+        <tr><td class="n bad">1162</td><td>StarSkyScreen</td><td><code>ui/starsky/StarSkyScreen.kt:51</code></td></tr>
+        <tr><td class="n bad">994</td><td>SettingsScreen（<b>33 个参数</b>）</td><td><code>ui/settings/SettingsScreen.kt:59</code></td></tr>
+        <tr><td class="n mid">931</td><td>MainScreen</td><td><code>ui/MainScreen.kt:80</code></td></tr>
+        <tr><td class="n mid">722</td><td>LocalAudioScreen</td><td><code>ui/LocalAudioScreen.kt:139</code></td></tr>
+        <tr><td class="n mid">561</td><td>RadioScreen</td><td><code>ui/radio/RadioScreen.kt:73</code></td></tr>
+        <tr><td class="n mid">556</td><td>RemoteSoundCard</td><td><code>ui/starsky/RemoteSoundCard.kt:42</code></td></tr>
+        <tr><td class="n mid">513</td><td>FloatingPlayButtonNew</td><td><code>ui/FloatingPlayButton.kt:97</code></td></tr>
+    </table>
+    <div class="fix" style="margin-top:10px;"><b>建议：</b>按状态 + UI 区段拆私有子 Composable；SettingsScreen 的 33 个参数封装成 <code>SettingsUiState</code>。
+    改动面大，建议配合预览逐个来，不要一次性重构。</div>
+</div>
+
+<div class="item p1">
+    <div class="head">
+        <span class="tag t-p1">P1</span>
+        <span class="title">SoundCard 与 RemoteSoundCard 三处逐行雷同</span>
+    </div>
+    <div class="desc">
+        两个卡片组件在置顶菜单、音量按钮、播放动画三处几乎完全一致（连 <code>offset(10.dp,12.dp)</code>、
+        <code>size(40.dp)</code>、<code>VolumeUp 24.dp</code> 这些魔数都一模一样），是抽取公共组件的最佳候选。
+    </div>
+    <div class="locs">
+        置顶菜单　　SoundCard.kt:262-298　　vs　RemoteSoundCard.kt:159-209
+        音量按钮　　SoundCard.kt:137-152　　vs　RemoteSoundCard.kt:242-257
+        播放动画　　SoundCard.kt:127-136　　vs　RemoteSoundCard.kt:214-223
+        重复对话框　update/UpdateDialog.kt:68-85 vs :89-106（Idle/Checking 分支完全相同）
+    </div>
+    <div class="fix"><b>建议：</b>抽 <code>SoundCardMenuItems</code> / <code>CardVolumeButton</code> / <code>CardPlayingIndicator</code>。
+    纯抽取、无行为变更，风险最低，建议作为重构第一刀。</div>
+</div>
+
+<div class="item p1">
+    <div class="head">
+        <span class="tag t-p1">P1</span>
+        <span class="title">业务逻辑写在 Composable 里</span>
+    </div>
+    <div class="desc">
+        视频重封装（MediaMuxer/Extractor，60 行）、文件复制、定位获取、天气网络请求等业务逻辑
+        直接写在 UI 层，导致无法单测、无法复用、配置变更时易丢失。
+    </div>
+    <div class="locs">
+        ui/settings/SettingsScreen.kt:1055　copyToPrivateStorage()
+        ui/settings/SettingsScreen.kt:1119　remuxVideoWithoutAudio()（视频重封装 60 行）
+        ui/SoundsScreen.kt:299-334, 356　　obtainLocation() / 直接 new WeatherService()
+        ui/settings/WeatherSourceDialog.kt:78　Composable 内直接发起网络请求
+    </div>
+    <div class="fix"><b>建议：</b>抽到 <code>domain/</code> 的 use case，UI 只消费 State。</div>
+</div>
+
+<div class="item p1">
+    <div class="head">
+        <span class="tag t-p1">P1</span>
+        <span class="title">多语言缺失与错译</span>
+    </div>
+    <table style="margin-top:10px;">
+        <tr><th>语言</th><th>条目</th><th>缺失</th><th>主要问题</th></tr>
+        <tr><td>values（基准·简体）</td><td class="n">537</td><td class="n">—</td><td>—</td></tr>
+        <tr><td>values-en</td><td class="n">537</td><td class="n mid">15</td><td>缺失 15 个 key</td></tr>
+        <tr><td>values-ja</td><td class="n">537</td><td class="n mid">15</td><td>另有 30 条与简体相同（未翻译）</td></tr>
+        <tr><td>values-ko</td><td class="n">537</td><td class="n mid">15</td><td class="bad">6 处韩文混中文（如「晓满을 응원하기」）</td></tr>
+        <tr><td>values-ru</td><td class="n">537</td><td class="n mid">15</td><td>缺失 15 个 key</td></tr>
+        <tr><td>values-zh-rTW</td><td class="n">513</td><td class="n bad">39</td><td class="bad">126 条未做简→繁转换</td></tr>
+        <tr><td>values-zh-rCN</td><td class="n">131</td><td class="n bad">420</td><td class="bad">整个文件可删（见 P0）</td></tr>
+    </table>
+    <div class="desc" style="margin-top:10px;">
+        en/ja/ko/ru 缺失的 15 个 key <b>完全相同</b>：<code>back</code>、<code>loading</code>、<code>widget_refresh</code>、
+        <code>weather_unknown</code>、<code>copy_error</code>、<code>error_copied</code>、<code>restart_app</code>、
+        <code>donate_amount_value_1/2/3</code>、<code>install_permission_hint</code>、<code>install_permission_required</code>、
+        <code>check_update_failed_hint</code>、<code>download_failed_hint</code>、<code>allowed_continue_install</code>。
+        好消息是<b>各语言均无多余/废弃 key</b>。
+    </div>
+    <div class="fix"><b>建议：</b>补 15 个缺失 key（一次补齐四语）；修韩文混中文；zh-rTW 跑批量简转繁。</div>
+</div>
+
+<div class="item p1">
+    <div class="head">
+        <span class="tag t-p1">P1</span>
+        <span class="title">22 处硬编码中文文案（用户可见）</span>
+    </div>
+    <div class="desc">
+        这些文案不走 <code>stringResource</code>，多语言下会固定显示中文。其中 <code>CrashScreen</code> 尤其尴尬——
+        崩溃页面本身却没法本地化。
+    </div>
+    <div class="locs">
+        ui/CrashScreen.kt:62,72,94,116　　　　　　　「应用遇到了问题」「错误详情」「堆栈跟踪」等 4 处
+        ui/starsky/StarSkyScreen.kt:518-1047　　　　7 处（加载日志/调试日志/复制/播放失败…）
+        ui/starsky/StorageManagementDialog.kt:169,277　「下载完成: x/y」「下载」
+        ui/LocalAudioScreen.kt:1016-1018,1025　　　 「随机播放」「单曲循环」「顺序播放」「调节音量」
+        quote/ImageGenerator.kt:180　　　　　　　　 drawText("白噪音助眠应用")
+    </div>
+    <div class="fix"><b>建议：</b>优先处理 CrashScreen 和 StarSkyScreen——这两处用户最容易撞见。</div>
+</div>
+
+<div class="item p1">
+    <div class="head">
+        <span class="tag t-p1">P1</span>
+        <span class="title">Compose 重组性能：列表无 key、参数位读 state</span>
+    </div>
+    <div class="locs">
+        StarSkyScreen.kt:941 / StarSkySimpleContent.kt:199　items(list.size) { index -> }　用 index 做 key
+        SoundsScreenContent.kt:241,274,299,346,693　　　　　LazyColumn 无 key
+        StarSkyScreen.kt:946　　　　　　　　　　　　　　　　参数位读 playingSounds.contains(sound.id) → 全 Grid 重组
+        SoundMetadata.kt:57　　　　　　　　　　　　　　　　　含 List&lt;SoundSegment&gt;? → 被判 unstable，永不 skip
+        PlayingAnimation.kt:29 / RemoteSoundCard.kt:349　　isPlaying=false 时动画仍逐帧运行
+    </div>
+    <div class="fix"><b>建议：</b><code>items(list, key = { it.id })</code>；<code>SoundMetadata</code> 加 <code>@Immutable</code>；
+    <code>isPlaying</code> 改成 lambda <code>() -&gt; Boolean</code> 延迟读取。</div>
+</div>
+
+</section>
+
+<section>
+<h2><span class="bar" style="background:var(--p3)"></span>P2 · 构建配置与依赖（技术债）</h2>
+
+<div class="item p2">
+    <div class="head">
+        <span class="tag t-p2">P2</span>
+        <span class="title">工具链版本偏旧，kapt 拖慢构建</span>
+    </div>
+    <div class="desc">
+        AGP 8.7.3 / Kotlin 2.1.0 / Compose BOM 2024.12.01 均为 2024 年底的组合。
+        Hilt 仍走 <b>kapt</b>（Hilt 2.48+ 已支持 KSP），换 KSP 通常能明显加快增量编译——在上面 P1 决定 Hilt 去留时一并处理。
+    </div>
+    <div class="locs">
+        build.gradle.kts:2　　AGP 8.7.3
+        build.gradle.kts:4　　Kotlin 2.1.0
+        app/build.gradle.kts　Compose BOM 2024.12.01
+        app/build.gradle.kts　kapt("com.google.dagger:hilt-android-compiler:2.53.1")
+    </div>
+    <div class="fix"><b>建议：</b>分两步升级，先 AGP+Gradle，再 Kotlin+Compose BOM，每次升完跑全量构建。</div>
+</div>
+
+<div class="item p2">
+    <div class="head">
+        <span class="tag t-p2">P2</span>
+        <span class="title">两条打包配置与"减小 APK 体积"的目标自相矛盾</span>
+    </div>
+    <div class="desc">
+        代码注释明确写了"只保留 arm64-v8a 以减小 APK 体积"，但下面两条配置在往反方向使劲：
+        <code>useLegacyPackaging = true</code> 会让 so 以<b>未压缩</b>形式打包；<code>keepDebugSymbols</code> 保留调试符号。
+        （注释说明这是为规避 strip 警告，属权宜之计，但确实在付出体积代价。）
+    </div>
+    <div class="locs">
+        app/build.gradle.kts　packaging { jniLibs { keepDebugSymbols += "**/*.so"; useLegacyPackaging = true } }
+        app/build.gradle.kts　ndk { abiFilters += listOf("arm64-v8a") }　← 注释：减小 APK 体积
+    </div>
+    <div class="fix"><b>建议：</b>权衡后取舍——若更在意体积，改 <code>useLegacyPackaging = false</code> 并正确处理 strip。</div>
+</div>
+
+<div class="item p2">
+    <div class="head">
+        <span class="tag t-p2">P2</span>
+        <span class="title">依赖冗余与可清理项</span>
+    </div>
+    <ul>
+        <li><b>Gson 与 kotlinx-serialization 并存</b>：Gson 实际用于 6 个文件（ListeningDiaryManager、WeatherSoundMapper、QuoteManager、AudioResourceManager、RemoteAudioLoader、BreathingListScreen），
+        迁移成本不低，列中长期项；短期至少统一新增代码只用一套。</li>
+        <li><b>accompanist-swiperefresh 0.34.0 已废弃</b>：仍在 <code>StarSkyScreen.kt:36-38,209,633</code> 使用，建议迁到 Material3 的 <code>PullToRefreshBox</code>。</li>
+        <li><b>3 个未使用字体（8.5KB）</b>：<code>jetbrains_mono_extrabold.ttf</code>、<code>space_grotesk_bold.ttf</code>、<code>inter_black.ttf</code> 零引用，可直接删。</li>
+        <li><b>未设置 <code>resConfigs</code></b>：7 套语言全部打进 APK（values 47.6K / en 49.4K / ja 54.7K / ko 52.3K / ru 69.1K / zh-rTW 44.6K）。
+        若要极致瘦身可限定，但会牺牲用户群，需自行权衡。</li>
+        <li><b>8 个废弃 string key</b>：<code>donate_message</code>、<code>donate_tip</code>、<code>go_wechat_pay</code>、<code>pay_done</code>、
+        <code>donate_thanks</code>、<code>save_to_gallery</code>、<code>filter</code>、<code>clear_filter</code>。</li>
+        <li>缺少 <b>version catalog</b>（<code>libs.versions.toml</code>），依赖版本散落在 build.gradle.kts 里，升级时容易漏。</li>
+    </ul>
+</div>
+
+<div class="item p2">
+    <div class="head">
+        <span class="tag t-p2">P2</span>
+        <span class="title">代码坏味道：12 处空 catch、26 处 !! 、65 处全限定名</span>
+    </div>
+    <div class="locs">
+        空 catch 12 处　LocalAudioPlayer.kt:283-287,296,300,557（连续 5 行空 catch）
+        　　　　　　　　SettingsScreen.kt:1105,1168,1175｜MainActivity.kt:366｜ListeningDiaryManager.kt:63
+        !! 断言 26 处　　LocalAudioScreen.kt:708-786（selectedAudioForMenu 单点 10 处，任一为 null 即崩）
+        　　　　　　　　TimerManager.kt:96,137,194｜BilibiliApi.kt:31,33,48（刚判 != null 又用 !!，冗余）
+        　　　　　　　　SettingsScreen 内 TomatoTimerView.kt:96,99,108（appContext!!）
+        全限定名内联　　StarSkyScreen.kt 65 处｜MainScreen.kt 26 处｜SoundsScreen.kt 16 处｜LocalAudioScreen.kt 15 处
+        硬编码颜色　　　MainActivity.kt:204-215（12 个 Color(0xFF...)，注释自认"硬编码的柔和粉彩色"）
+        URL 散落　　　　RemoteAudioLoader / BilibiliApi / QuoteManager / DailyImageProvider / WeatherService 共 11 处，
+        　　　　　　　　已有 Constants.kt 却未收口
+    </div>
+    <div class="fix"><b>建议：</b>空 catch 至少补 <code>Logger.w</code>——目前出问题时完全静默，排查成本极高，性价比高于其他几条。</div>
+</div>
+
+</section>
+
+<section>
+<h2><span class="bar" style="background:var(--ok)"></span>做得不错的地方</h2>
+
+<div class="item ok">
+    <div class="head"><span class="tag t-ok">✓</span><span class="title">这些地方保持现状即可</span></div>
+    <ul>
+        <li><b>零 GlobalScope、零 runBlocking</b>：全项目 0 处，协程作用域管理整体是规范的。</li>
+        <li><b>WakeLock 使用正确</b>：<code>RadioPlayer.kt:109</code> 用 <code>setWakeMode(C.WAKE_MODE_NETWORK)</code>，没有手写 PowerManager 误用。</li>
+        <li><b>广播接收器全部有反注册路径</b>：<code>AudioManager.kt:196-206</code>、<code>BluetoothHeadsetManager.kt:117</code>、<code>MainActivity.kt:143</code>。</li>
+        <li><b>敏感配置隔离得当</b>：签名凭据走 <code>gradle.properties.local</code>（已 gitignore），和风 API key 由用户配置，代码中零硬编码密钥。</li>
+        <li><b>F-Droid 友好</b>：<code>dependenciesInfo</code> 双禁用、Firebase 插件按 <code>google-services.json</code> 存在性条件加载、阿里云镜像可选——构建设计考虑周到。</li>
+        <li><b>昼夜资源配对正常</b>：<code>drawable-night/</code> 只有 1 个文件且确为正常配对；<code>colors.xml</code> 昼夜键集合完全一致。</li>
+        <li><b>Composable 内未见 new Paint / Formatter</b>：避免了最常见的重组期内存分配。</li>
+    </ul>
+</div>
+</section>
+
+<section>
+<h2><span class="bar"></span>建议执行顺序</h2>
+<div class="roadmap">
+    <div class="phase">
+        <div class="ph">第一步 · 半天</div>
+        <div class="pt">零风险瘦身</div>
+        <ul>
+            <li>删 heavy_rain_seg_0.ogg</li>
+            <li>删 3 个未使用字体</li>
+            <li>删 values-zh-rCN 目录</li>
+            <li>修雷暴昼夜 Bug</li>
+            <li>LocalAudioPlayer 取 applicationContext</li>
+        </ul>
+    </div>
+    <div class="phase">
+        <div class="ph">第二步 · 1~2 天</div>
+        <div class="pt">性能与稳定性</div>
+        <ul>
+            <li>ExoPlayer 补 release</li>
+            <li>START_STICKY → NOT_STICKY</li>
+            <li>StarSky 两处轮询改 StateFlow</li>
+            <li>JSON 解析移出主线程</li>
+            <li>cacheFile 结果加内存缓存</li>
+        </ul>
+    </div>
+    <div class="phase">
+        <div class="ph">第三步 · 持续</div>
+        <div class="pt">结构重构</div>
+        <ul>
+            <li>抽 SoundCard 公共组件</li>
+            <li>决定 Hilt 去留 + 建 Repository</li>
+            <li>拆巨型 Composable</li>
+            <li>补 15 个缺失翻译</li>
+            <li>清理硬编码文案</li>
+        </ul>
+    </div>
+    <div class="phase">
+        <div class="ph">第四步 · 择机</div>
+        <div class="pt">工具链升级</div>
+        <ul>
+            <li>kapt → KSP</li>
+            <li>AGP / Kotlin / BOM 升级</li>
+            <li>引入 version catalog</li>
+            <li>统一 JSON 库</li>
+        </ul>
+    </div>
+</div>
+<div class="warn" style="margin-top:14px;">
+    <b>提醒：</b>清理 <code>raw/keep.xml</code> 前务必确认——项目里 <code>ListeningDiaryManager.kt:59,66</code> 用
+    <code>getIdentifier</code> 动态查的是 <b>string</b> 资源（<code>sound_*</code> 系列），这些 key 目前<b>没有</b>被 keep 规则覆盖。
+    若收窄 raw 的 keep 范围，建议同步给 <code>sound_*</code> string 加上精确 keep，避免 shrinker 误删导致音频名显示异常。
+</div>
+</section>
+
+<footer>
+    报告基于静态代码分析生成，所有结论均已通过实际读取源码或资源文件核实 · 生成于 2026-08-31
+</footer>
+
+</div>
+</body>
+</html>

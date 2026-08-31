@@ -45,6 +45,13 @@ class AudioCacheManager private constructor(context: Context) {
     private val okHttpClient = NetworkClient.newBuilder()
         .readTimeout(90, TimeUnit.SECONDS)    // 音频文件较大，使用更长的读取超时
         .build()
+
+    // 缓存文件索引，避免 getCachedFile() 每次都全目录 listFiles()。
+    // 该方法会在组合期被高频调用（如 SoundsScreenContent 中判断 isCached），
+    // 原本每次重组都会触发一次磁盘扫描，是列表卡顿的主要来源之一。
+    // ConcurrentHashMap 不接受 null value，故正负缓存分两个结构存放。
+    private val cachedFileIndex = java.util.concurrent.ConcurrentHashMap<String, File>()
+    private val knownMissing = java.util.concurrent.ConcurrentHashMap.newKeySet<String>()
     
     init {
         // 从旧缓存目录迁移（app 升级后首次运行）
@@ -68,12 +75,39 @@ class AudioCacheManager private constructor(context: Context) {
      * 支持任意扩展名：查找 cacheDir 下以 soundId. 开头的文件
      */
     fun getCachedFile(soundId: String): File? {
-        cacheDir.listFiles()?.forEach { file ->
-            if (file.name.startsWith("$soundId.") && file.exists() && file.length() > 0) {
-                return file
-            }
+        // 1) 正缓存命中：仍需校验文件是否还在（可能被用户或系统清理），失效则回落到扫描
+        cachedFileIndex[soundId]?.let { cached ->
+            if (cached.exists() && cached.length() > 0) return cached
+            cachedFileIndex.remove(soundId)
         }
-        return null
+
+        // 2) 负缓存命中：已确认过不存在，直接返回，避免磁盘 IO
+        if (knownMissing.contains(soundId)) return null
+
+        // 3) 未命中：唯一会产生磁盘 IO 的分支，结果写入索引
+        val found = cacheDir.listFiles()?.firstOrNull { file ->
+            file.name.startsWith("$soundId.") && file.exists() && file.length() > 0
+        }
+        if (found != null) {
+            cachedFileIndex[soundId] = found
+        } else {
+            knownMissing.add(soundId)
+        }
+        return found
+    }
+
+    /**
+     * 更新缓存索引。下载完成、删除缓存时调用，保证索引与磁盘一致。
+     * @param file 缓存文件；传 null 表示该文件当前没有缓存
+     */
+    private fun rememberCachedFile(soundId: String, file: File?) {
+        if (file != null && file.exists() && file.length() > 0) {
+            knownMissing.remove(soundId)
+            cachedFileIndex[soundId] = file
+        } else {
+            cachedFileIndex.remove(soundId)
+            knownMissing.add(soundId)
+        }
     }
     
     /**
@@ -100,12 +134,16 @@ class AudioCacheManager private constructor(context: Context) {
         // 先尝试jsDelivr URL
         val jsDelivrResult = downloadAudioWithUrl(urlPair.jsDelivrUrl, soundId, "jsDelivr")
         if (jsDelivrResult.isSuccess) {
+            // 下载成功：同步更新索引，否则下一次 getCachedFile 仍会命中旧的负缓存
+            rememberCachedFile(soundId, jsDelivrResult.getOrNull())
             return jsDelivrResult
         }
         
         // jsDelivr失败，回退到GitHub原始URL
         Logger.w(TAG, "jsDelivr下载失败，回退到GitHub原始URL: ${urlPair.githubUrl}")
-        return downloadAudioWithUrl(urlPair.githubUrl, soundId, "GitHub")
+        return downloadAudioWithUrl(urlPair.githubUrl, soundId, "GitHub").also {
+            rememberCachedFile(soundId, it.getOrNull())
+        }
     }
     
     /**
@@ -241,6 +279,7 @@ class AudioCacheManager private constructor(context: Context) {
             when (progress) {
                 is DownloadProgress.Success -> {
                     jsDelivrSuccess = true
+                    rememberCachedFile(soundId, progress.file)
                     emit(progress)
                 }
                 is DownloadProgress.Error -> {
@@ -259,6 +298,9 @@ class AudioCacheManager private constructor(context: Context) {
         if (shouldFallback && urlPair.jsDelivrUrl != urlPair.githubUrl) {
             Logger.w(TAG, "jsDelivr下载失败，回退到GitHub原始URL: ${urlPair.githubUrl}")
             downloadAudioWithProgressAndUrl(urlPair.githubUrl, soundId, "GitHub").collect { fallbackProgress ->
+                if (fallbackProgress is DownloadProgress.Success) {
+                    rememberCachedFile(soundId, fallbackProgress.file)
+                }
                 emit(fallbackProgress)
             }
         }
@@ -376,6 +418,9 @@ class AudioCacheManager private constructor(context: Context) {
     fun clearCache() {
         val files = cacheDir.listFiles() ?: return
         files.forEach { it.delete() }
+        // 索引与磁盘保持一致，否则清空后仍会返回已被删除的文件
+        cachedFileIndex.clear()
+        knownMissing.clear()
     }
     
     /**
@@ -388,6 +433,9 @@ class AudioCacheManager private constructor(context: Context) {
                 file.delete()
             }
         }
+        // 清除该音频的索引（含负缓存），否则删除后仍可能命中旧的已缓存记录
+        cachedFileIndex.remove(soundId)
+        knownMissing.add(soundId)
     }
 }
 

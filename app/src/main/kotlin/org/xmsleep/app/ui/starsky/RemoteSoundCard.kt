@@ -11,10 +11,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -34,7 +32,10 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.xmsleep.app.R
-import org.xmsleep.app.ui.AudioVisualizer
+import org.xmsleep.app.ui.components.CardPlayingIndicator
+import org.xmsleep.app.ui.components.CardVolumeButton
+import org.xmsleep.app.ui.components.PinMenuItemContent
+import org.xmsleep.app.ui.components.pinToggleToastMessage
 import org.xmsleep.app.utils.ToastUtils
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -157,36 +158,9 @@ fun RemoteSoundCard(
                                 shape = RoundedCornerShape(12.dp)
                             ) {
                                 DropdownMenuItem(
-                                    text = {
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(
-                                                imageVector = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(20.dp),
-                                                tint = if (isPinned) {
-                                                    MaterialTheme.colorScheme.primary
-                                                } else {
-                                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                                }
-                                            )
-                                            Text(
-                                                text = if (isPinned) {
-                                                    context.getString(R.string.cancel_default)
-                                                } else {
-                                                    context.getString(R.string.set_as_default)
-                                                },
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                color = if (isPinned) {
-                                                    MaterialTheme.colorScheme.primary
-                                                } else {
-                                                    MaterialTheme.colorScheme.onSurface
-                                                }
-                                            )
-                                        }
-                                    },
+                                    // UI 与本地卡片共用；点击行为保留本卡片特有的
+                                    //「未下载不能置顶」前置校验，故不复用 PinMenuItem
+                                    text = { PinMenuItemContent(isPinned = isPinned) },
                                     onClick = {
                                         val newPinnedState = !isPinned
                                         if (newPinnedState && !isCached) {
@@ -198,12 +172,10 @@ fun RemoteSoundCard(
                                         } else {
                                             onPinnedChange(newPinnedState)
                                             showTitleMenu = false
-                                            val toastMessage = if (newPinnedState) {
-                                                context.getString(R.string.pinned_success)
-                                            } else {
-                                                context.getString(R.string.unpinned_success)
-                                            }
-                                            ToastUtils.showToast(context, toastMessage)
+                                            ToastUtils.showToast(
+                                                context,
+                                                pinToggleToastMessage(context, newPinnedState)
+                                            )
                                         }
                                     }
                                 )
@@ -211,16 +183,11 @@ fun RemoteSoundCard(
                         }
                     }
 
-                    if (isPlaying) {
-                        AudioVisualizer(
-                            isPlaying = isPlaying,
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .size(24.dp, 16.dp)
-                                .alpha(alpha),
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    CardPlayingIndicator(
+                        isPlaying = isPlaying,
+                        alpha = alpha,
+                        modifier = Modifier.align(Alignment.BottomStart)
+                    )
 
                     if (isEditMode) {
                         IconButton(
@@ -239,21 +206,12 @@ fun RemoteSoundCard(
                         }
                     }
 
+                    // 条件比本地卡片更严格：还需排除编辑模式与固定高度卡片
                     if (isPlaying && cardHeight == null && !isEditMode) {
-                        IconButton(
-                            onClick = onVolumeClick,
-                            modifier = Modifier
-                                .align(Alignment.BottomEnd)
-                                .offset(x = 10.dp, y = 12.dp)
-                                .size(40.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                                contentDescription = context.getString(R.string.adjust_volume),
-                                modifier = Modifier.size(24.dp),
-                                tint = MaterialTheme.colorScheme.primary
-                            )
-                        }
+                        CardVolumeButton(
+                            onVolumeClick = onVolumeClick,
+                            modifier = Modifier.align(Alignment.BottomEnd)
+                        )
                     }
                 }
 
@@ -538,36 +496,9 @@ fun RemoteSoundCard(
                             shape = RoundedCornerShape(12.dp)
                         ) {
                             DropdownMenuItem(
-                                text = {
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            imageVector = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(20.dp),
-                                            tint = if (isPinned) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurfaceVariant
-                                            }
-                                        )
-                                        Text(
-                                            text = if (isPinned) {
-                                                context.getString(R.string.cancel_default)
-                                            } else {
-                                                context.getString(R.string.set_as_default)
-                                            },
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = if (isPinned) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else {
-                                                MaterialTheme.colorScheme.onSurface
-                                            }
-                                        )
-                                    }
-                                },
+                                // 与上面那处（非编辑模式分支）是同一套置顶菜单，
+                                // UI 复用 PinMenuItemContent，校验逻辑保持一致
+                                text = { PinMenuItemContent(isPinned = isPinned) },
                                 onClick = {
                                     val newPinnedState = !isPinned
                                     if (newPinnedState && !isCached) {
@@ -579,12 +510,10 @@ fun RemoteSoundCard(
                                     } else {
                                         onPinnedChange(newPinnedState)
                                         showTitleMenu = false
-                                        val toastMessage = if (newPinnedState) {
-                                            context.getString(R.string.pinned_success)
-                                        } else {
-                                            context.getString(R.string.unpinned_success)
-                                        }
-                                        ToastUtils.showToast(context, toastMessage)
+                                        ToastUtils.showToast(
+                                            context,
+                                            pinToggleToastMessage(context, newPinnedState)
+                                        )
                                     }
                                 }
                             )

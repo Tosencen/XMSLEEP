@@ -33,14 +33,13 @@ import org.xmsleep.app.utils.ThemeColorExtractor
 import org.xmsleep.app.crash.CrashHandler
 import org.xmsleep.app.crash.getCrashInfo
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.xmsleep.app.ui.settings.copyToPrivateStorage
 import org.xmsleep.app.ui.viewmodel.MainViewModel
 import org.xmsleep.app.ui.viewmodel.SoundsViewModel
-import androidx.hilt.navigation.compose.hiltViewModel
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.audio.AudioResourceManager
 import org.xmsleep.app.audio.LocalAudioMediaService
@@ -50,7 +49,6 @@ import org.xmsleep.app.preferences.PreferencesManager
  * XMSLEEP 主Activity
  * 负责应用启动、权限请求和主题配置
  */
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     
     override fun attachBaseContext(newBase: Context?) {
@@ -393,8 +391,8 @@ fun XMSLEEPApp() {
         useMonochrome = useMonochrome
     ) {
         // 在 CompositionLocalProvider 之前创建 ViewModel，保留 Activity context
-        val mainViewModel: MainViewModel = hiltViewModel()
-        val soundsViewModel: SoundsViewModel = hiltViewModel()
+        val mainViewModel: MainViewModel = viewModel()
+        val soundsViewModel: SoundsViewModel = viewModel()
         
         // 使用CompositionLocalProvider提供语言化的Context和Configuration
         CompositionLocalProvider(

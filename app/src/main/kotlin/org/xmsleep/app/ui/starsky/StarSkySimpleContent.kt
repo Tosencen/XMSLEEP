@@ -19,6 +19,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioCacheManager
 import org.xmsleep.app.audio.AudioManager
@@ -84,15 +86,18 @@ fun StarSkySimpleContent(
         }
     }
 
-    // 定时刷新播放状态
-    LaunchedEffect(Unit) {
-        while (true) {
-            playingSounds.clear()
-            playingSounds.addAll(
-                remoteSounds.filter { audioManager.isPlayingRemoteSound(it.id) }.map { it.id }
-            )
-            delay(500)
-        }
+    // 订阅播放状态，替代 500ms 轮询
+    // 原实现每 500ms 执行一次 clear() + addAll()：由于 playingSounds 是 SnapshotStateList，
+    // 这两次结构变更会无条件触发重组，即便播放状态整夜毫无变化（助眠场景屏幕常亮，白白耗电）。
+    // 改为订阅 remotePlayingStates 流并做 distinctUntilChanged：内容不变时既不计算也不重组。
+    LaunchedEffect(remoteSounds) {
+        audioManager.remotePlayingStates
+            .map { states -> remoteSounds.filter { states[it.id] == true }.map { it.id } }
+            .distinctUntilChanged()
+            .collect { newPlaying ->
+                playingSounds.clear()
+                playingSounds.addAll(newPlaying)
+            }
     }
 
     val timerManager = remember { TimerManager.getInstance() }

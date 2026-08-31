@@ -6,8 +6,6 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.plugin.compose")
     id("org.jetbrains.kotlin.plugin.serialization")
-    id("com.google.dagger.hilt.android")
-    id("org.jetbrains.kotlin.kapt")
 }
 
 // Firebase：无 google-services.json 时跳过，保证 F-Droid/CI 无此文件也能构建
@@ -157,10 +155,9 @@ dependencies {
     // Kotlin
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     
-    // Hilt - 依赖注入
-    implementation("com.google.dagger:hilt-android:2.53.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.53.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    // Lifecycle - ViewModel / 运行时（原经 hilt-navigation-compose 传递引入，去 Hilt 后显式声明）
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.9.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.9.0")
     
     // MaterialKolor - 动态主题色生成
     implementation("com.materialkolor:material-kolor:2.0.2")
@@ -214,8 +211,6 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.mockk:mockk:1.13.8")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
-    testImplementation("com.google.dagger:hilt-android-testing:2.53.1")
-    kaptTest("com.google.dagger:hilt-android-compiler:2.53.1")
     
     // Android Testing
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -223,7 +218,5 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     androidTestImplementation("androidx.test:runner:1.5.2")
     androidTestImplementation("androidx.test:rules:1.5.0")
-    androidTestImplementation("com.google.dagger:hilt-android-testing:2.53.1")
-    kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.53.1")
 }
 

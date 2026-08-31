@@ -55,7 +55,11 @@ class BreathingService : Service() {
                 startBreathing(totalTime)
             }
         }
-        return START_STICKY
+        // 用 START_NOT_STICKY 而非 START_STICKY：
+        // START_STICKY 在服务被杀后会以 null intent 重启，此时 total_time 拿不到，
+        // 会退化为默认值 5 分钟并重新开始一轮呼吸计时——用户已停止却莫名自动重开。
+        // 改为 NOT_STICKY：被杀后不自动复活，由用户重新发起。
+        return START_NOT_STICKY
     }
     
     private fun createNotificationChannel() {

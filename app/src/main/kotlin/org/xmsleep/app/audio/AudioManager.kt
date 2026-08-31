@@ -483,7 +483,16 @@ class AudioManager private constructor() {
             remoteSoundPlayer.releaseAllRemotePlayers()
 
             unregisterAudioBecomingNoisyReceiver()
-            audioFocusManager.abandonAudioFocus(applicationContext ?: return)
+            // 原写法 `abandonAudioFocus(applicationContext ?: return)`：context 为 null 时会直接 return，
+            // 导致后续的 musicServiceManager.release() 与 onListeningStopped() 被跳过，
+            // 清理流程半途中断（播放器已释放，但服务与收听记录未收尾）。
+            // 改为：缺少 context 时仅跳过这一步，其余清理照常执行。
+            val ctx = applicationContext
+            if (ctx != null) {
+                audioFocusManager.abandonAudioFocus(ctx)
+            } else {
+                Logger.w(TAG, "applicationContext 为空，跳过放弃音频焦点，继续其余清理")
+            }
             musicServiceManager.release()
             onListeningStopped()
 

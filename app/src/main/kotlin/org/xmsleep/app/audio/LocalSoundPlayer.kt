@@ -413,27 +413,37 @@ class LocalSoundPlayer private constructor() {
      */
     fun stopAllSounds() {
         try {
-            players.forEach { (sound, player) ->
+            // 先取快照：下面会在遍历过程中修改 players（移除已释放的条目），
+            // 直接遍历原 map 会触发 ConcurrentModificationException 导致后续播放器全部漏释放
+            val snapshot = players.entries.toList()
+            var releasedCount = 0
+
+            snapshot.forEach { (sound, player) ->
                 try {
                     player?.let {
                         it.playWhenReady = false
                         it.stop()
-                        if (it.isPlaying) {
-                            Logger.w(TAG, "${sound.name} 停止后仍在播放，强制暂停")
-                            it.pause()
-                            it.playWhenReady = false
-                        }
                     }
                     updatePlayingState(sound, false)
                     callback?.onSoundPlaybackStateChanged(sound, false)
-                    Logger.d(TAG, "${sound.name} 已停止")
                 } catch (e: Exception) {
                     Logger.e(TAG, "停止 ${sound.name} 失败: ${e.message}")
                     updatePlayingState(sound, false)
+                } finally {
+                    // 无论 stop 是否成功都必须 release：ExoPlayer 持有解码器与音频轨资源，
+                    // 只 stop 不 release 会让实例长期驻留（本项目最多 10 个并发），整夜播放时内存持续增长。
+                    // 下次播放会按需重建，代价仅数十毫秒。
+                    try {
+                        player?.release()
+                        releasedCount++
+                    } catch (e: Exception) {
+                        Logger.w(TAG, "释放 ${sound.name} 播放器失败: ${e.message}")
+                    }
+                    players.remove(sound)
                 }
             }
             playingQueue.clear()
-            Logger.d(TAG, "停止所有本地声音完成")
+            Logger.d(TAG, "停止所有本地声音完成，已释放 $releasedCount 个播放器")
         } catch (e: Exception) {
             Logger.e(TAG, "停止所有本地声音时发生错误: ${e.message}", e)
         }
@@ -571,12 +581,21 @@ class LocalSoundPlayer private constructor() {
      */
     fun releaseAllPlayers() {
         try {
-            players.keys.forEach { sound ->
+            // 必须取快照：releasePlayer() 内部会 players.remove(sound)，
+            // 直接遍历 players.keys 会抛 ConcurrentModificationException，
+            // 异常被 catch 吞掉后只有第一个播放器被释放，其余全部泄漏且无任何日志。
+            val snapshot = players.keys.toList()
+            snapshot.forEach { sound ->
                 releasePlayer(sound)
             }
-            Logger.d(TAG, "已释放所有本地播放器资源")
+            // 兜底：确保没有任何残留条目
+            if (players.isNotEmpty()) {
+                Logger.w(TAG, "释放后仍有 ${players.size} 个残留播放器，强制清理")
+                players.clear()
+            }
+            Logger.d(TAG, "已释放所有本地播放器资源（共 ${snapshot.size} 个）")
         } catch (e: Exception) {
-            Logger.e(TAG, "释放所有本地播放器资源失败: ${e.message}")
+            Logger.e(TAG, "释放所有本地播放器资源失败: ${e.message}", e)
         }
     }
 

@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools"
-    tools:keep="@mipmap/**"
-    tools:keep="@drawable/**"
-    tools:keep="@values/**"
-    tools:keep="@xml/**"
+    tools:keep="@mipmap/**,@drawable/**,@values/**,@xml/**,@string/sound_*"
     tools:shrinkMode="strict" />
 
+<!--
+  说明：
+  1. 原文件重复写了 4 个 tools:keep 属性（XML 中同名属性非法），现合并为逗号分隔的规范写法，语义等价。
+
+  2. 新增 @string/sound_* ：
+     ListeningDiaryManager.kt 通过 getIdentifier("sound_xxx", "string", ...) 动态查询音频名，
+     收缩器无法静态追踪这类引用，需显式保留，否则听歌日记中音频名会退化显示成原始枚举名。
+
+  3. 图片类（@mipmap/@drawable）暂维持全量保留：体积 6.5MB，潜在收益较大，
+     但存在按名称动态拼接加载的风险，需在真机全量回归后再收窄，故本轮不动。
+-->

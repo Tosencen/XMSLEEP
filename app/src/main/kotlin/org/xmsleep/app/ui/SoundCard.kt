@@ -8,9 +8,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.PushPin
 import androidx.compose.material.icons.outlined.RadioButtonUnchecked
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,6 +26,9 @@ import com.materialkolor.hct.Hct
 import com.materialkolor.ktx.toHct
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
+import org.xmsleep.app.ui.components.CardPlayingIndicator
+import org.xmsleep.app.ui.components.CardVolumeButton
+import org.xmsleep.app.ui.components.PinMenuItem
 import org.xmsleep.app.utils.ToastUtils
 import java.util.concurrent.TimeUnit
 
@@ -118,37 +119,23 @@ fun SoundCard(
                             modifier = Modifier.width(120.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            SoundCardMenuItems(
+                            PinMenuItem(
                                 isPinned = isPinned,
                                 onPinnedChange = onPinnedChange,
-                                onDismiss = { showTitleMenu = false }
+                                onDismiss = { showTitleMenu = false },
+                                onToast = { ToastUtils.showToast(context, it) }
                             )
                         }
+                        CardPlayingIndicator(
+                            isPlaying = isPlaying,
+                            alpha = alpha,
+                            modifier = Modifier.align(Alignment.BottomStart)
+                        )
                         if (isPlaying) {
-                            AudioVisualizer(
-                                isPlaying = isPlaying,
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .size(24.dp, 16.dp)
-                                    .alpha(alpha),
-                                color = MaterialTheme.colorScheme.primary
+                            CardVolumeButton(
+                                onVolumeClick = onVolumeClick,
+                                modifier = Modifier.align(Alignment.BottomEnd)
                             )
-                        }
-                        if (isPlaying) {
-                            IconButton(
-                                onClick = onVolumeClick,
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .offset(x = 10.dp, y = 12.dp)
-                                    .size(40.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                                    contentDescription = context.getString(R.string.adjust_volume),
-                                    modifier = Modifier.size(24.dp),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
                         }
                     } else {
                         Box(modifier = Modifier.align(Alignment.TopStart)) {
@@ -165,37 +152,23 @@ fun SoundCard(
                             modifier = Modifier.width(120.dp),
                             shape = RoundedCornerShape(12.dp)
                         ) {
-                            SoundCardMenuItems(
+                            PinMenuItem(
                                 isPinned = isPinned,
                                 onPinnedChange = onPinnedChange,
-                                onDismiss = { showTitleMenu = false }
+                                onDismiss = { showTitleMenu = false },
+                                onToast = { ToastUtils.showToast(context, it) }
                             )
                         }
+                        CardPlayingIndicator(
+                            isPlaying = isPlaying,
+                            alpha = alpha,
+                            modifier = Modifier.align(Alignment.BottomStart)
+                        )
                         if (isPlaying) {
-                            AudioVisualizer(
-                                isPlaying = isPlaying,
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .size(24.dp, 16.dp)
-                                    .alpha(alpha),
-                                color = MaterialTheme.colorScheme.primary
+                            CardVolumeButton(
+                                onVolumeClick = onVolumeClick,
+                                modifier = Modifier.align(Alignment.BottomEnd)
                             )
-                        }
-                        if (isPlaying) {
-                            IconButton(
-                                onClick = onVolumeClick,
-                                modifier = Modifier
-                                    .align(Alignment.BottomEnd)
-                                    .offset(x = 10.dp, y = 12.dp)
-                                    .size(40.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                                    contentDescription = context.getString(R.string.adjust_volume),
-                                    modifier = Modifier.size(24.dp),
-                                    tint = MaterialTheme.colorScheme.primary
-                                )
-                            }
                         }
                     }
                 }
@@ -219,10 +192,11 @@ fun SoundCard(
                         modifier = Modifier.width(120.dp),
                         shape = RoundedCornerShape(12.dp)
                     ) {
-                        SoundCardMenuItems(
+                        PinMenuItem(
                             isPinned = isPinned,
                             onPinnedChange = onPinnedChange,
-                            onDismiss = { showTitleMenu = false }
+                            onDismiss = { showTitleMenu = false },
+                            onToast = { ToastUtils.showToast(context, it) }
                         )
                     }
                     AnimatedWebPImage(
@@ -236,66 +210,20 @@ fun SoundCard(
                     )
                 }
                 if (isPlaying) {
-                    IconButton(
-                        onClick = onVolumeClick,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .offset(y = (-4).dp)
-                            .size(40.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                            contentDescription = context.getString(R.string.adjust_volume),
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
-                    }
+                    CardVolumeButton(
+                        onVolumeClick = onVolumeClick,
+                        modifier = Modifier.align(Alignment.BottomEnd),
+                        offsetX = 0.dp,
+                        offsetY = (-4).dp
+                    )
                 }
             }
         }
     }
 }
 
-/**
- * SoundCard 菜单项（仅置顶），抽取复用
- */
-@Composable
-private fun SoundCardMenuItems(
-    isPinned: Boolean,
-    onPinnedChange: (Boolean) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val context = LocalContext.current
-    DropdownMenuItem(
-        text = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = if (isPinned) Icons.Default.PushPin else Icons.Outlined.PushPin,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
-                    tint = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = if (isPinned) context.getString(R.string.cancel_default) else context.getString(R.string.set_as_default),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isPinned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
-                )
-            }
-        },
-        onClick = {
-            val newState = !isPinned
-            onPinnedChange(newState)
-            onDismiss()
-            ToastUtils.showToast(
-                context,
-                if (newState) context.getString(R.string.pinned_success) else context.getString(R.string.unpinned_success)
-            )
-        }
-    )
-}
+// 原 SoundCardMenuItems 已上提为 ui/components/SoundCardParts.kt 中的 PinMenuItem，
+// 与远程音频卡片（RemoteSoundCard）共用同一套置顶菜单实现。
 
 /**
  * 动画 WebP 图片组件（支持动画 WebP 播放、主题色适配）

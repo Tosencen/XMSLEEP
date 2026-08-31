@@ -794,4 +794,26 @@
     <string name="storage_space">Используемое место: %s</string>
     <string name="simple_mode_button">Упрощённый режим</string>
     <string name="simple_mode_full_version">Полная версия</string>
+    <string name="back">Назад</string>
+    <string name="allowed_continue_install">Я разрешил, продолжить установку</string>
+    <string name="donate_amount_value_1">¥5.4</string>
+    <string name="install_permission_hint">Разрешите установку из этого источника в настройках, затем вернитесь в приложение для продолжения.</string>
+    <string name="donate_amount_value_2">¥6.9</string>
+    <string name="loading">Загрузка…</string>
+    <string name="check_update_failed_hint">Возможно, проблема с сетью или ограничение API. Повторите попытку позже.</string>
+    <string name="copy_error">Ошибка копирования</string>
+    <string name="donate_amount_value_3">¥16.8</string>
+    <string name="download_failed_hint">Возможно, проблема с сетью. Проверьте подключение и повторите попытку.</string>
+    <string name="weather_unknown">Неизвестно</string>
+    <string name="install_permission_required">Требуется разрешение на установку</string>
+    <string name="restart_app">Перезапустить приложение</string>
+    <string name="widget_refresh">Обновить</string>
+    <string name="error_copied">Информация об ошибке скопирована в буфер обмена</string>
+    <string name="crash_title">В приложении возникла проблема</string>
+    <string name="crash_subtitle">Мы записали эту ошибку. Попробуйте перезапустить приложение.</string>
+    <string name="crash_error_details">Подробности ошибки</string>
+    <string name="crash_stack_trace">Трассировка стека</string>
+    <string name="crash_share_text">Сообщение об ошибке:\n%1$s\n\nТрассировка стека:\n%2$s</string>
+    <string name="starsky_play_failed_no_file">Не удалось воспроизвести: не удалось получить аудиофайл</string>
+    <string name="starsky_load_failed">Загрузка не удалась: %1$s</string>
 </resources>

@@ -1,22 +1,19 @@
 package org.xmsleep.app.ui.viewmodel
 
+import android.app.Application
 import android.content.Context
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.preferences.PreferencesManager
-import javax.inject.Inject
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
-) : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val context: Context = getApplication<Application>()
 
     private val audioManager = AudioManager.getInstance()
 

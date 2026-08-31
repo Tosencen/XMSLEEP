@@ -239,7 +239,8 @@ class LocalAudioPlayer private constructor() {
      * 初始化：从偏好设置恢复播放模式
      */
     fun initPlayMode(context: Context) {
-        appContext = context
+        // 取 applicationContext 避免单例长期持有 Activity 造成泄漏
+        appContext = context.applicationContext
         val savedMode = org.xmsleep.app.preferences.PreferencesManager.getLocalAudioPlayMode(context)
         _playMode.value = try {
             PlayMode.valueOf(savedMode)
@@ -319,8 +320,9 @@ class LocalAudioPlayer private constructor() {
                 Logger.e(TAG, "停止白噪音失败", e)
             }
             
-            // 缓存上下文
-            if (appContext == null) appContext = context
+            // 缓存上下文（必须取 applicationContext：本类是单例，生命周期等同进程，
+            // 若直接持有 Activity 会导致 Activity 泄漏且随旋转屏幕不断堆积）
+            if (appContext == null) appContext = context.applicationContext
 
             // 请求音频焦点
             if (!hasAudioFocus && !requestAudioFocus()) {

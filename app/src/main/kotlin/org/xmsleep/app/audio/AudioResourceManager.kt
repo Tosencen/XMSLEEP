@@ -54,15 +54,16 @@ class AudioResourceManager private constructor(context: Context) {
             val assetsJson = appContext.assets.open("sounds_remote.json").use { inputStream ->
                 inputStream.bufferedReader().use { it.readText() }
             }
-            
-            // 解析 assets 清单获取版本和音频数量
-            val assetsManifest = gson.fromJson(assetsJson, SoundsManifest::class.java)
-            val assetsVersion = assetsManifest.version
-            val assetsSoundCount = assetsManifest.sounds.size
-            
+
+            // 先用流式方式只提取「版本签名」（version + sounds 数量）。
+            // 原先这里会对 assets 与缓存各做一次 gson.fromJson 全量解析（构造数百个 SoundMetadata），
+            // 而本方法在 MainActivity.onCreate 的主线程调用，是冷启动耗时的一部分。
+            // 绝大多数启动都属于「版本一致」，此时完全不需要全量解析。
+            val (assetsVersion, assetsSoundCount) = peekManifestSignature(assetsJson)
+
             // 检查是否需要更新缓存
             var needUpdate = false
-            
+
             if (!manifestCacheFile.exists()) {
                 // 缓存不存在，需要创建
                 needUpdate = true
@@ -70,10 +71,8 @@ class AudioResourceManager private constructor(context: Context) {
                 // 缓存存在，检查版本和音频数量
                 try {
                     val cachedJson = manifestCacheFile.readText()
-                    val cachedManifest = gson.fromJson(cachedJson, SoundsManifest::class.java)
-                    val cachedVersion = cachedManifest.version
-                    val cachedSoundCount = cachedManifest.sounds.size
-                    
+                    val (cachedVersion, cachedSoundCount) = peekManifestSignature(cachedJson)
+
                     // 如果版本不同或音频数量不同，需要更新
                     if (cachedVersion != assetsVersion || cachedSoundCount != assetsSoundCount) {
                         needUpdate = true
@@ -84,9 +83,10 @@ class AudioResourceManager private constructor(context: Context) {
                     Logger.w(TAG, "持久化缓存损坏，重新初始化: ${e.message}")
                 }
             }
-            
-            // 如果需要更新，写入新的缓存
+
+            // 只有确实需要更新时，才做全量解析并写盘
             if (needUpdate) {
+                val assetsManifest = gson.fromJson(assetsJson, SoundsManifest::class.java)
                 manifestCacheFile.writeText(assetsJson)
                 // 同时更新内存缓存
                 remoteManifest = fixManifestData(assetsManifest)
@@ -95,7 +95,52 @@ class AudioResourceManager private constructor(context: Context) {
             Logger.e(TAG, "初始化默认清单失败: ${e.message}")
         }
     }
-    
+
+    /**
+     * 流式读取清单的 version 与 sounds 数量，不构造完整的 SoundsManifest。
+     *
+     * 相比 gson.fromJson 全量解析（会实例化数百个 SoundMetadata 并填充所有字段），
+     * 这里用 JsonReader 逐个跳过无关字段，开销只有全量解析的很小一部分。
+     *
+     * @return (version, sounds 数量)；解析失败时两个分量均为 null，调用方会按「需要更新」处理
+     */
+    private fun peekManifestSignature(json: String): Pair<String?, Int?> {
+        return try {
+            gson.newJsonReader(json.reader()).use { reader ->
+                var version: String? = null
+                var soundCount: Int? = null
+
+                reader.beginObject()
+                while (reader.hasNext()) {
+                    when (reader.nextName()) {
+                        "version" -> version = reader.nextString()
+                        "sounds" -> {
+                            if (reader.peek() == com.google.gson.stream.JsonToken.BEGIN_ARRAY) {
+                                reader.beginArray()
+                                var count = 0
+                                while (reader.hasNext()) {
+                                    reader.skipValue()
+                                    count++
+                                }
+                                reader.endArray()
+                                soundCount = count
+                            } else {
+                                reader.skipValue()
+                            }
+                        }
+                        else -> reader.skipValue()
+                    }
+                }
+                reader.endObject()
+
+                Pair(version, soundCount)
+            }
+        } catch (e: Exception) {
+            Logger.w(TAG, "读取清单版本信息失败: ${e.message}")
+            Pair<String?, Int?>(null, null)
+        }
+    }
+
     /**
      * 获取当前缓存的清单（同步，快速）
      * 优先返回内存缓存，如果没有则返回持久化缓存

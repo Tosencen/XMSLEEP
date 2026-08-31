@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -59,7 +60,7 @@ fun CrashScreen(
             
             // 标题
             Text(
-                text = "应用遇到了问题",
+                text = stringResource(R.string.crash_title),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onErrorContainer
@@ -69,7 +70,7 @@ fun CrashScreen(
             
             // 副标题
             Text(
-                text = "我们已记录此错误，您可以尝试重启应用",
+                text = stringResource(R.string.crash_subtitle),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.7f)
             )
@@ -91,7 +92,7 @@ fun CrashScreen(
                         .padding(16.dp)
                 ) {
                     Text(
-                        text = "错误详情",
+                        text = stringResource(R.string.crash_error_details),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -113,7 +114,7 @@ fun CrashScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(
-                        text = "堆栈跟踪",
+                        text = stringResource(R.string.crash_stack_trace),
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -152,7 +153,7 @@ fun CrashScreen(
                 // 复制按钮
                 OutlinedButton(
                     onClick = {
-                        val fullError = "错误信息:\n$errorMessage\n\n堆栈跟踪:\n$stackTrace"
+                        val fullError = context.getString(R.string.crash_share_text, errorMessage, stackTrace)
                         clipboardManager.setText(AnnotatedString(fullError))
                         showCopiedToast = true
                     },

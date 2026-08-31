@@ -65,45 +65,11 @@ fun UpdateDialog(
                 updateViewModel.checkUpdate(currentVersion)
             }
             
-                AlertDialog(
-                    onDismissRequest = onDismiss,
-                    title = { Text(context.getString(R.string.software_update)) },
-                    text = {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                            Text(context.getString(R.string.checking_update))
-                        }
-                    },
-                    confirmButton = {
-                        TextButton(onClick = onDismiss) {
-                            Text(context.getString(R.string.cancel))
-                        }
-                    }
-                )
+            UpdateProgressDialog(onDismiss = onDismiss)
             }
         
         is UpdateState.Checking -> {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(context.getString(R.string.software_update)) },
-                text = {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        CircularProgressIndicator(modifier = Modifier.size(48.dp))
-                        Text(context.getString(R.string.checking_update))
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.cancel))
-                    }
-                }
-            )
+            UpdateProgressDialog(onDismiss = onDismiss)
         }
         
         is UpdateState.UpToDate -> {
@@ -446,6 +412,34 @@ fun UpdateDialog(
         }
         }
     }
+}
+
+/**
+ * 软件更新"检查中"进度对话框。
+ * UpdateState.Idle 与 UpdateState.Checking 两个状态显示内容完全一致，
+ * 抽成共用组件避免重复（注意：发起检查的 LaunchedEffect 只应存在于 Idle 分支）。
+ */
+@Composable
+private fun UpdateProgressDialog(onDismiss: () -> Unit) {
+    val context = LocalContext.current
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(context.getString(R.string.software_update)) },
+        text = {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                CircularProgressIndicator(modifier = Modifier.size(48.dp))
+                Text(context.getString(R.string.checking_update))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDismiss) {
+                Text(context.getString(R.string.cancel))
+            }
+        }
+    )
 }
 
 /**
