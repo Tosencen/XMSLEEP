@@ -192,7 +192,7 @@ dependencies {
     implementation("androidx.media:media:1.8.0")
     
     // OkHttp - 用于网络请求和文件下载
-    implementation("com.squareup.okhttp3:okhttp:5.3.2")
+    implementation("com.squareup.okhttp3:okhttp:5.5.0")
     
     // Gson - 用于JSON解析
     implementation("com.google.code.gson:gson:2.11.0")
