@@ -44,6 +44,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import org.xmsleep.app.R
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.audio.AudioCacheManager
 import org.xmsleep.app.audio.DownloadProgress
 import org.xmsleep.app.audio.model.AudioSource
@@ -176,15 +178,20 @@ fun StorageManagementDialog(
         refreshStats()
     }
 
-    AlertDialog(
-        onDismissRequest = {
-            downloadJob?.cancel()
-            onDismiss()
-        },
-        title = {
-            Text(context.getString(R.string.storage_management))
-        },
-        text = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = {
+                downloadJob?.cancel()
+                onDismiss()
+            }
+        ) {
+            Text(
+                context.getString(R.string.storage_management),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -298,28 +305,31 @@ fun StorageManagementDialog(
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    cacheManager.clearCache()
-                    refreshStats()
-                    Toast.makeText(context, context.getString(R.string.clear_downloaded), Toast.LENGTH_SHORT).show()
-                },
-                enabled = cacheSize > 0 && downloadingCategoryId == null
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
-                Text(context.getString(R.string.clear_downloaded))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = {
-                downloadJob?.cancel()
-                onDismiss()
-            }) {
-                Text(context.getString(R.string.close))
+                TextButton(onClick = {
+                    downloadJob?.cancel()
+                    onDismiss()
+                }) {
+                    Text(context.getString(R.string.close))
+                }
+                TextButton(
+                    onClick = {
+                        cacheManager.clearCache()
+                        refreshStats()
+                        Toast.makeText(context, context.getString(R.string.clear_downloaded), Toast.LENGTH_SHORT).show()
+                    },
+                    enabled = cacheSize > 0 && downloadingCategoryId == null
+                ) {
+                    Text(context.getString(R.string.clear_downloaded))
+                }
             }
         }
-    )
+    }
 }
 
 private fun formatBytes(bytes: Long): String {

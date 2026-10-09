@@ -59,6 +59,7 @@ import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.haze
 import dev.chrisbanes.haze.hazeChild
 import dev.chrisbanes.haze.materials.ExperimentalHazeMaterialsApi
+import org.xmsleep.app.ui.components.LocalFrostedHazeState
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
@@ -140,7 +141,13 @@ fun MainScreen(
     
     // Haze状态用于毛玻璃效果
     val hazeState = remember { HazeState() }
-    
+    // 遮罩专用 Haze 状态：采样「内容层 + 底部导航栏」，让弹窗遮罩把 tab 也一起模糊
+    // （导航栏自身的 hazeChild 用 hazeState，与本状态不同，避免 haze 源包含自身 child）
+    val hazeMaskState = remember { HazeState() }
+    // 屏内弹窗提升宿主：把 About/Language/Volume/Timer 等屏内弹窗提升到 Box B 之外渲染，
+    // 使其 hazeChild 与 hazeMaskState 成为兄弟（全页模糊 + tab 在遮罩下，而不是被 tab 盖住）
+    val frostedDialogHost = remember { org.xmsleep.app.ui.components.FrostedDialogHostState() }
+
     // 底部导航栏的背景色（用于毛玻璃效果）
     val navBarBackgroundColor = MaterialTheme.colorScheme.surface
     
@@ -401,7 +408,23 @@ fun MainScreen(
     
     // 使用ProvideNavigator提供导航器给子组件
     ProvideNavigator(navigator) {
+        androidx.compose.runtime.CompositionLocalProvider(
+            LocalFrostedHazeState provides hazeMaskState
+        ) {
         Box(modifier = Modifier.fillMaxSize()) {
+            // 遮罩采样源：包住「内容层 + 底部导航栏」，让弹窗遮罩把 tab 也一起模糊
+            // 内部内容层另有 haze(hazeState) 供导航栏自身 hazeChild 采样（不同 state，不冲突）
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .haze(hazeMaskState)
+            ) {
+            // 内容 Haze 源：包住壁纸 + 内容层，导航栏 hazeChild 采样这里做模糊
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .haze(hazeState)
+            ) {
             // 最底层：动画背景（如果用户选择了背景）
             if (!hideAnimation) {
                 org.xmsleep.app.ui.components.AnimatedBackground(
@@ -414,11 +437,9 @@ fun MainScreen(
                 )
             }
             
-            // 内容层 - 应用haze捕获内容用于模糊
+            // 内容层
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .haze(hazeState)
+                modifier = Modifier.fillMaxSize()
             ) {
                 Scaffold(
                     containerColor = Color.Transparent,
@@ -427,6 +448,15 @@ fun MainScreen(
                     bottomBar = {} // 底部导航栏移到外面作为独立层
                 ) { paddingValues ->
                     // NavHost 始终存在，用于处理二级页面导航
+                    // 屏内弹窗（About/Language/Volume/Timer 等）若读取 hazeMaskState 会让
+                    // hazeChild 成为其自身 haze 源（Box B）的后代 → RenderNode 成环 → RenderThread
+                    // 无限递归 SIGSEGV。故在 NavHost 内把 Local 覆盖为 null：屏内弹窗降级为
+                    // 半透明 scrim（不模糊、不崩溃）。需要真模糊的屏在此层内再 provide 自己的 HazeState。
+                    // 同时 provide 弹窗宿主：屏内用 FrostedPopup 把弹窗提升到 Box B 之外渲染。
+                    androidx.compose.runtime.CompositionLocalProvider(
+                        LocalFrostedHazeState provides null,
+                        org.xmsleep.app.ui.components.LocalFrostedDialogHost provides frostedDialogHost
+                    ) {
                     NavHost(
                         navController = navigator.navController,
                         startDestination = "main",
@@ -765,8 +795,10 @@ fun MainScreen(
                 )
             }
         }
+                    } // CompositionLocalProvider(null) 闭合，屏蔽 hazeMaskState 进入屏内
                 }
             }
+            } // Haze 源闭合（壁纸 + 内容层）
             
             // 底部导航栏 - 作为独立层，应用毛玻璃效果
             // 只在主页面显示，且设置页面内容未隐藏时显示
@@ -863,6 +895,8 @@ fun MainScreen(
                 }
             }
         }
+
+        } // 外层 Box 闭合
 
         // 全局浮动播放按钮（新版本 - 吸附式交互）
         org.xmsleep.app.ui.FloatingPlayButtonNew(
@@ -970,34 +1004,54 @@ fun MainScreen(
                 }
             )
         }
+
+        // 毛玻璃浮层演示已上移到导航栏之前（见上方注释），保证 tab 不被遮罩盖住
         
-        // 本地音频权限请求对话框
-        if (showPermissionDialog) {
-            AlertDialog(
-                onDismissRequest = { showPermissionDialog = false },
-                icon = { Icon(Icons.Default.Folder, contentDescription = null) },
-                title = { Text(context.getString(R.string.storage_permission_required)) },
-                text = { Text(context.getString(R.string.permission_denied_hint)) },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            Logger.d("MainScreen", "点击授予权限按钮")
-                            showPermissionDialog = false
-                            audioPermissionLauncher.launch(requiredPermission)
-                            permissionGrantedPending = true
-                            onAudioPermissionGranted()
-                            Logger.d("MainScreen", "权限请求已发送: $requiredPermission")
-                        }
-                    ) {
-                        Text(context.getString(R.string.request_permission))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showPermissionDialog = false }) {
-                        Text(context.getString(R.string.cancel))
-                    }
-                }
+        // 本地音频权限请求对话框（毛玻璃浮层）
+        org.xmsleep.app.ui.components.FrostedGlassSheet(
+            visible = showPermissionDialog,
+            onDismissRequest = { showPermissionDialog = false }
+        ) {
+            Icon(
+                Icons.Default.Folder,
+                contentDescription = null,
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
+            Text(
+                text = context.getString(R.string.storage_permission_required),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            Text(
+                text = context.getString(R.string.permission_denied_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 24.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)
+            ) {
+                TextButton(onClick = { showPermissionDialog = false }) {
+                    Text(context.getString(R.string.cancel))
+                }
+                TextButton(
+                    onClick = {
+                        Logger.d("MainScreen", "点击授予权限按钮")
+                        showPermissionDialog = false
+                        audioPermissionLauncher.launch(requiredPermission)
+                        permissionGrantedPending = true
+                        onAudioPermissionGranted()
+                        Logger.d("MainScreen", "权限请求已发送: $requiredPermission")
+                    }
+                ) {
+                    Text(context.getString(R.string.request_permission))
+                }
+            }
         }
 
         // 开发者来信弹窗
@@ -1006,6 +1060,17 @@ fun MainScreen(
                 onDismiss = { showDeveloperLetter = false }
             )
         }
+
+        // 屏内弹窗提升渲染层：画在导航栏之上（tab 在遮罩下），hazeChild 采样 hazeMaskState
+        // 成为兄弟 → 全页模糊。放在最顶层，保证任何屏内弹窗都盖住 tab。
+        frostedDialogHost.content?.let { hostedContent ->
+            androidx.compose.runtime.CompositionLocalProvider(
+                LocalFrostedHazeState provides hazeMaskState
+            ) {
+                hostedContent()
+            }
+        }
+        } // CompositionLocalProvider 闭合
     }
 }
 
@@ -1113,40 +1178,43 @@ private var hasCheckedRecentPlayOnLaunch = false
 @Composable
 private fun DeveloperLetterDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
-            Icon(
-                Icons.Default.Favorite,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary
-            )
-        },
-        title = {
+    org.xmsleep.app.ui.components.FrostedGlassSheet(
+        visible = true,
+        onDismissRequest = onDismiss
+    ) {
+        Icon(
+            Icons.Default.Favorite,
+            contentDescription = null,
+            modifier = Modifier.size(40.dp),
+            tint = MaterialTheme.colorScheme.primary
+        )
+        Text(
+            text = context.getString(R.string.developer_letter_title),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(top = 16.dp)
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 400.dp)
+                .padding(top = 12.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             Text(
-                text = context.getString(R.string.developer_letter_title),
-                style = MaterialTheme.typography.headlineSmall
+                text = context.getString(R.string.developer_letter_content),
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(max = 400.dp)
-                    .verticalScroll(rememberScrollState()),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = context.getString(R.string.developer_letter_content),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.ok))
-            }
         }
-    )
+        TextButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(top = 12.dp)
+        ) {
+            Text(context.getString(R.string.ok))
+        }
+    }
 }

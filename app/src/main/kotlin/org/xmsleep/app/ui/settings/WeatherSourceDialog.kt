@@ -9,12 +9,15 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import org.xmsleep.app.R
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.weather.WeatherService
 import org.xmsleep.app.weather.WeatherSourceConfig
 import org.xmsleep.app.weather.WeatherSoundMapper
@@ -35,13 +38,21 @@ fun WeatherSourceDialog(
     var showTutorial by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.weather_source_title)) },
-        text = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
+            Text(
+                stringResource(R.string.weather_source_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .heightIn(max = 420.dp)
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
@@ -132,22 +143,12 @@ fun WeatherSourceDialog(
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    WeatherSourceConfig.save(context, host, key)
-                    WeatherSoundMapper.clearLastWeather(context)
-                    Toast.makeText(context, context.getString(R.string.weather_source_save), Toast.LENGTH_SHORT).show()
-                    onDismiss()
-                },
-                enabled = host.isNotBlank() && key.isNotBlank()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
-                Text(stringResource(R.string.weather_source_save))
-            }
-        },
-        dismissButton = {
-            Row {
                 if (WeatherSourceConfig.isConfigured(context)) {
                     TextButton(
                         onClick = {
@@ -165,7 +166,18 @@ fun WeatherSourceDialog(
                 TextButton(onClick = onDismiss) {
                     Text(stringResource(R.string.weather_source_cancel))
                 }
+                TextButton(
+                    onClick = {
+                        WeatherSourceConfig.save(context, host, key)
+                        WeatherSoundMapper.clearLastWeather(context)
+                        Toast.makeText(context, context.getString(R.string.weather_source_save), Toast.LENGTH_SHORT).show()
+                        onDismiss()
+                    },
+                    enabled = host.isNotBlank() && key.isNotBlank()
+                ) {
+                    Text(stringResource(R.string.weather_source_save))
+                }
             }
         }
-    )
+    }
 }

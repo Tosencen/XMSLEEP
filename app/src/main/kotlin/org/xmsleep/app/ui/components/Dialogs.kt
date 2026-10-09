@@ -72,83 +72,89 @@ fun AboutDialog(
 
     // 使用key确保语言变化时重新组合
     key(currentLanguage) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { 
-                Text(composeContext.getString(R.string.about_xmsleep), style = MaterialTheme.typography.headlineSmall)
-            },
-            text = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    // 应用名称和版本
-                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            "XMSLEEP",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.clickable(
-                                interactionSource = remember { MutableInteractionSource() },
-                                indication = null
-                            ) {
-                                xmsleepTapCount++
-                                if (xmsleepTapCount >= 2) {
-                                    xmsleepTapCount = 0
-                                    onShowDeveloperLetter()
-                                }
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
+            Text(
+                composeContext.getString(R.string.about_xmsleep),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 480.dp)
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // 应用名称和版本
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        "XMSLEEP",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null
+                        ) {
+                            xmsleepTapCount++
+                            if (xmsleepTapCount >= 2) {
+                                xmsleepTapCount = 0
+                                onShowDeveloperLetter()
                             }
-                        )
-                        Text(
-                            composeContext.getString(R.string.version, versionName, versionCodeInt),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    
-                    HorizontalDivider()
-                    
-                    // 应用说明（简化版）
-                    Text(
-                        composeContext.getString(R.string.app_description),
-                        style = MaterialTheme.typography.bodyMedium
+                        }
                     )
-                    
-                    HorizontalDivider()
-                    
-                    // 声音来源说明（简化版）
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        Text(
-                            composeContext.getString(R.string.sound_source_title),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Text(
-                            composeContext.getString(R.string.sound_source),
-                            style = MaterialTheme.typography.bodyMedium,
-                            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.4
-                        )
-                    }
-                    
-                    HorizontalDivider()
-                    
-                    // 版权信息
                     Text(
-                        composeContext.getString(R.string.copyright),
+                        composeContext.getString(R.string.version, versionName, versionCodeInt),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
-            },
-            confirmButton = {
-                TextButton(onClick = onDismiss) {
-                    Text(composeContext.getString(R.string.ok))
+                
+                HorizontalDivider()
+                
+                // 应用说明（简化版）
+                Text(
+                    composeContext.getString(R.string.app_description),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                
+                HorizontalDivider()
+                
+                // 声音来源说明（简化版）
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text(
+                        composeContext.getString(R.string.sound_source_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        composeContext.getString(R.string.sound_source),
+                        style = MaterialTheme.typography.bodyMedium,
+                        lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.4
+                    )
                 }
-            },
-            dismissButton = null
-        )
+                
+                HorizontalDivider()
+                
+                // 版权信息
+                Text(
+                    composeContext.getString(R.string.copyright),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            TextButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = 12.dp)
+            ) {
+                Text(composeContext.getString(R.string.ok))
+            }
+        }
     }
 }
 
@@ -168,53 +174,58 @@ fun LanguageSelectionDialog(
             LanguageManager.Language.entries.map { it.code to it.displayName }
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(context.getString(R.string.select_language))
-        },
-        text = {
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items.forEach { (code, name) ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .selectable(
-                                selected = code == selectedCode,
-                                onClick = {
-                                    if (code != selectedCode) {
-                                        onCodeSelected(code)
-                                    } else {
-                                        onDismiss()
-                                    }
-                                },
-                                role = Role.RadioButton
-                            )
-                            .padding(vertical = 12.dp, horizontal = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        RadioButton(
+    FrostedGlassSheet(
+        visible = true,
+        onDismissRequest = onDismiss
+    ) {
+        Text(
+            context.getString(R.string.select_language),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            items.forEach { (code, name) ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .selectable(
                             selected = code == selectedCode,
-                            onClick = null
+                            onClick = {
+                                if (code != selectedCode) {
+                                    onCodeSelected(code)
+                                } else {
+                                    onDismiss()
+                                }
+                            },
+                            role = Role.RadioButton
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = name,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.weight(1f)
-                        )
-                    }
+                        .padding(vertical = 12.dp, horizontal = 4.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    RadioButton(
+                        selected = code == selectedCode,
+                        onClick = null
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.weight(1f)
+                    )
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.ok))
-            }
-        },
-        dismissButton = null
-    )
+        }
+        TextButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(top = 12.dp)
+        ) {
+            Text(context.getString(R.string.ok))
+        }
+    }
 }

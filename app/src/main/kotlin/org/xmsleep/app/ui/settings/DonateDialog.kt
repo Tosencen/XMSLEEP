@@ -38,6 +38,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import org.xmsleep.app.R
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.utils.Logger
 
 /** 微信包名 */
@@ -142,21 +144,12 @@ fun DonateDialog(
         }
     }
 
-    Dialog(
-        onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
-    ) {
-        Card(
-            shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surface
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp)
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
         ) {
-            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
+            Column {
                 Text(
                     text = context.getString(R.string.buy_me_a_coffee),
                     style = MaterialTheme.typography.titleLarge,

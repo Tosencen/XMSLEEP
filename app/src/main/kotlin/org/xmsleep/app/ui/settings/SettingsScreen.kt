@@ -47,6 +47,8 @@ import org.xmsleep.app.ui.starsky.WeatherEditDialog
 import org.xmsleep.app.utils.Logger
 import org.xmsleep.app.weather.WeatherSourceConfig
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 
 /** 网页版在线播放器地址（GitHub Pages） */
 private const val WEB_VERSION_URL = "https://tosencen.github.io/XMSLEEP/player.html"
@@ -530,7 +532,7 @@ fun SettingsScreen(
         }
 
         // 特色功能弹窗
-        if (showFeatureDialog) {
+        FrostedPopup(visible = showFeatureDialog) {
             var showRecentPlayDialog by remember {
                 mutableStateOf(PreferencesManager.getShowRecentPlayDialog(context))
             }
@@ -547,16 +549,22 @@ fun SettingsScreen(
 
             var showAutoPlayTip by remember { mutableStateOf(false) }
 
-            AlertDialog(
-                onDismissRequest = { showFeatureDialog = false },
-                title = {
-                    Text(
-                        text = context.getString(R.string.feature_dialog_title),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
-                text = {
-                    Column {
+            FrostedGlassSheet(
+                visible = true,
+                onDismissRequest = { showFeatureDialog = false }
+            ) {
+                Text(
+                    text = context.getString(R.string.feature_dialog_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 480.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
                         // 启动时显示最近播放
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -704,30 +712,36 @@ fun SettingsScreen(
                             )
                         }
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = { showFeatureDialog = false }) {
-                        Text(context.getString(R.string.ok))
-                    }
+                TextButton(
+                    onClick = { showFeatureDialog = false },
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(top = 12.dp)
+                ) {
+                    Text(context.getString(R.string.ok))
                 }
-            )
+            }
         }
 
         // 社区对话框
-        if (showCommunityDialog) {
-            AlertDialog(
-                onDismissRequest = { showCommunityDialog = false },
-                title = {
-                    Text(
-                        text = context.getString(R.string.community_dialog_title),
-                        style = MaterialTheme.typography.headlineSmall
-                    )
-                },
-                text = {
-                    Column(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+        FrostedPopup(visible = showCommunityDialog) {
+            FrostedGlassSheet(
+                visible = true,
+                onDismissRequest = { showCommunityDialog = false }
+            ) {
+                Text(
+                    text = context.getString(R.string.community_dialog_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .padding(vertical = 8.dp)
+                        .heightIn(max = 480.dp)
+                        .verticalScroll(rememberScrollState()),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
                         // QQ 按钮
                         Surface(
                             modifier = Modifier
@@ -875,13 +889,15 @@ fun SettingsScreen(
                             }
                         }
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = { showCommunityDialog = false }) {
-                        Text(context.getString(R.string.cancel))
-                    }
+                TextButton(
+                    onClick = { showCommunityDialog = false },
+                    modifier = Modifier
+                        .align(Alignment.End)
+                        .padding(top = 12.dp)
+                ) {
+                    Text(context.getString(R.string.cancel))
                 }
-            )
+            }
         }
 
         // 给晓满加油弹窗
@@ -889,18 +905,18 @@ fun SettingsScreen(
             DonateDialog(onDismiss = { showDonateDialog = false })
         }
 
-        // 关于对话框
-        if (showAboutDialog) {
-                AboutDialog(
-                    onDismiss = { showAboutDialog = false },
-                    currentLanguage = currentLanguage,
-                    context = context,
-                    onShowDeveloperLetter = onShowDeveloperLetter
-                )
+        // 关于对话框（提升到顶层渲染：全页模糊 + tab 在遮罩下）
+        FrostedPopup(visible = showAboutDialog) {
+            AboutDialog(
+                onDismiss = { showAboutDialog = false },
+                currentLanguage = currentLanguage,
+                context = context,
+                onShowDeveloperLetter = onShowDeveloperLetter
+            )
         }
     
-        // 语言选择弹窗
-        if (showLanguageDialog) {
+        // 语言选择弹窗（提升到顶层渲染）
+        FrostedPopup(visible = showLanguageDialog) {
             LanguageSelectionDialog(
                 selectedCode = selectedLanguageCode,
                 onCodeSelected = { code: String ->

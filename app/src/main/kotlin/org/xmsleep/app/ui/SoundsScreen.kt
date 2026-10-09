@@ -157,6 +157,7 @@ import org.xmsleep.app.weather.WeatherService
 import org.xmsleep.app.weather.WeatherSoundMapper
 import org.xmsleep.app.utils.Logger
 import org.xmsleep.app.ui.viewmodel.SoundsViewModel
+import org.xmsleep.app.ui.components.FrostedPopup
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -1520,7 +1521,7 @@ fun SoundsScreen(
     }
     
     // 倒计时设置对话框
-    if (showTimerDialog) {
+    FrostedPopup(visible = showTimerDialog) {
         TimerDialog(
             onDismiss = { showTimerDialog = false },
             onTimerSet = { minutes ->

@@ -19,6 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import org.xmsleep.app.R
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.i18n.LanguageManager
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -73,10 +75,17 @@ fun UpdateDialog(
         }
         
         is UpdateState.UpToDate -> {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(context.getString(R.string.software_update)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = onDismiss
+                ) {
+                    Text(
+                        context.getString(R.string.software_update),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -101,24 +110,37 @@ fun UpdateDialog(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.ok))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                    ) {
+                        TextButton(onClick = onDismiss) {
+                            Text(context.getString(R.string.ok))
+                        }
                     }
                 }
-            )
+            }
         }
         
         is UpdateState.HasUpdate -> {
             val version = state.version
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(context.getString(R.string.new_version_found)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = onDismiss
+                ) {
+                    Text(
+                        context.getString(R.string.new_version_found),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .heightIn(max = 420.dp)
                             .verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
@@ -161,29 +183,39 @@ fun UpdateDialog(
                             }
                         }
                     }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            updateViewModel.startDownload()
-                        }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Text(context.getString(R.string.update_now))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.later))
+                        TextButton(onClick = onDismiss) {
+                            Text(context.getString(R.string.later))
+                        }
+                        Button(
+                            onClick = {
+                                updateViewModel.startDownload()
+                            }
+                        ) {
+                            Text(context.getString(R.string.update_now))
+                        }
                     }
                 }
-            )
+            }
         }
         
         is UpdateState.CheckFailed -> {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(context.getString(R.string.check_update_failed)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = onDismiss
+                ) {
+                    Text(
+                        context.getString(R.string.check_update_failed),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -205,32 +237,42 @@ fun UpdateDialog(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            updateViewModel.reset()
-                            updateViewModel.checkUpdate(currentVersion)
-                        }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Text(context.getString(R.string.retry))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.cancel))
+                        TextButton(onClick = onDismiss) {
+                            Text(context.getString(R.string.cancel))
+                        }
+                        TextButton(
+                            onClick = {
+                                updateViewModel.reset()
+                                updateViewModel.checkUpdate(currentVersion)
+                            }
+                        ) {
+                            Text(context.getString(R.string.retry))
+                        }
                     }
                 }
-            )
+            }
         }
         
         is UpdateState.Downloading -> {
-            AlertDialog(
-                onDismissRequest = {
-                    // 下载中不允许关闭
-                },
-                title = { Text(context.getString(R.string.downloading_update)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = {
+                        // 下载中不允许关闭
+                    }
+                ) {
+                    Text(
+                        context.getString(R.string.downloading_update),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     Column(
                         verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
@@ -243,25 +285,37 @@ fun UpdateDialog(
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            updateViewModel.cancelDownload()
-                            onDismiss()
-                        }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Text(context.getString(R.string.cancel))
+                        TextButton(
+                            onClick = {
+                                updateViewModel.cancelDownload()
+                                onDismiss()
+                            }
+                        ) {
+                            Text(context.getString(R.string.cancel))
+                        }
                     }
                 }
-            )
+            }
         }
         
         is UpdateState.Downloaded -> {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(context.getString(R.string.download_complete)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = onDismiss
+                ) {
+                    Text(
+                        context.getString(R.string.download_complete),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -274,57 +328,77 @@ fun UpdateDialog(
                         )
                         Text(context.getString(R.string.download_complete_message))
                     }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            updateViewModel.installApk(state.file)
-                            // 不立即关闭对话框，等待权限请求结果
-                        }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Text(context.getString(R.string.install_now))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.later))
+                        TextButton(onClick = onDismiss) {
+                            Text(context.getString(R.string.later))
+                        }
+                        Button(
+                            onClick = {
+                                updateViewModel.installApk(state.file)
+                                // 不立即关闭对话框，等待权限请求结果
+                            }
+                        ) {
+                            Text(context.getString(R.string.install_now))
+                        }
                     }
                 }
-            )
+            }
         }
         
         is UpdateState.InstallPermissionRequested -> {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(context.getString(R.string.install_permission_required)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = onDismiss
+                ) {
+                    Text(
+                        context.getString(R.string.install_permission_required),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(context.getString(R.string.install_permission_hint))
                     }
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            // 用户从设置返回后，重试安装
-                            updateViewModel.retryInstall()
-                        }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Text(context.getString(R.string.allowed_continue_install))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.cancel))
+                        TextButton(onClick = onDismiss) {
+                            Text(context.getString(R.string.cancel))
+                        }
+                        Button(
+                            onClick = {
+                                // 用户从设置返回后，重试安装
+                                updateViewModel.retryInstall()
+                            }
+                        ) {
+                            Text(context.getString(R.string.allowed_continue_install))
+                        }
                     }
                 }
-            )
+            }
         }
         
         is UpdateState.DownloadFailed -> {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(context.getString(R.string.download_failed)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = onDismiss
+                ) {
+                    Text(
+                        context.getString(R.string.download_failed),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -346,32 +420,42 @@ fun UpdateDialog(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                },
-                confirmButton = {
-                    TextButton(
-                        onClick = {
-                            val state = updateViewModel.updateState.value
-                            if (state is UpdateState.HasUpdate) {
-                                updateViewModel.startDownload()
-                            }
-                        }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
                     ) {
-                        Text(context.getString(R.string.retry))
-                    }
-                },
-                dismissButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.cancel))
+                        TextButton(onClick = onDismiss) {
+                            Text(context.getString(R.string.cancel))
+                        }
+                        TextButton(
+                            onClick = {
+                                val state = updateViewModel.updateState.value
+                                if (state is UpdateState.HasUpdate) {
+                                    updateViewModel.startDownload()
+                                }
+                            }
+                        ) {
+                            Text(context.getString(R.string.retry))
+                        }
                     }
                 }
-            )
+            }
         }
         
         is UpdateState.Installing -> {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(context.getString(R.string.installing)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = onDismiss
+                ) {
+                    Text(
+                        context.getString(R.string.installing),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -379,20 +463,32 @@ fun UpdateDialog(
                         CircularProgressIndicator(modifier = Modifier.size(48.dp))
                         Text(context.getString(R.string.starting_installer))
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.ok))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                    ) {
+                        TextButton(onClick = onDismiss) {
+                            Text(context.getString(R.string.ok))
+                        }
                     }
                 }
-            )
+            }
         }
         
         is UpdateState.InstallFailed -> {
-            AlertDialog(
-                onDismissRequest = onDismiss,
-                title = { Text(context.getString(R.string.install_failed)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = onDismiss
+                ) {
+                    Text(
+                        context.getString(R.string.install_failed),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(
                             Icons.Default.ErrorOutline,
@@ -402,13 +498,18 @@ fun UpdateDialog(
                         )
                         Text(state.error)
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = onDismiss) {
-                        Text(context.getString(R.string.ok))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                    ) {
+                        TextButton(onClick = onDismiss) {
+                            Text(context.getString(R.string.ok))
+                        }
                     }
                 }
-            )
+            }
         }
         }
     }
@@ -422,10 +523,17 @@ fun UpdateDialog(
 @Composable
 private fun UpdateProgressDialog(onDismiss: () -> Unit) {
     val context = LocalContext.current
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.software_update)) },
-        text = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
+            Text(
+                context.getString(R.string.software_update),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -433,13 +541,18 @@ private fun UpdateProgressDialog(onDismiss: () -> Unit) {
                 CircularProgressIndicator(modifier = Modifier.size(48.dp))
                 Text(context.getString(R.string.checking_update))
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.cancel))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                TextButton(onClick = onDismiss) {
+                    Text(context.getString(R.string.cancel))
+                }
             }
         }
-    )
+    }
 }
 
 /**

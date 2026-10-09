@@ -23,6 +23,8 @@ import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Folder
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material3.*
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -1090,74 +1092,82 @@ fun StarSkyScreen(
         }
         
         // 音量调节弹窗
-        if (showVolumeDialog && selectedSoundForVolume != null) {
+        FrostedPopup(visible = showVolumeDialog && selectedSoundForVolume != null) {
             val sound = selectedSoundForVolume!!
-            AlertDialog(
-                onDismissRequest = { showVolumeDialog = false },
-                title = { Text(getSoundDisplayName(sound)) },
-                text = {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Text(
-                            context.getString(R.string.adjust_volume),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+            FrostedGlassSheet(
+                visible = true,
+                onDismissRequest = { showVolumeDialog = false }
+            ) {
+                Text(
+                    getSoundDisplayName(sound),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.padding(bottom = 8.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Text(
+                        context.getString(R.string.adjust_volume),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    // 音量滑块
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        Slider(
+                            value = volume,
+                            onValueChange = {
+                                volume = it
+                                // 实时应用到该声音
+                                audioManager.setRemoteVolume(sound.id, volume)
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            valueRange = 0f..1f,
+                            steps = 19  // 0到100，步长5%
                         )
-                        
-                        // 音量滑块
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                            Slider(
-                                value = volume,
-                                onValueChange = { 
-                                    volume = it
-                                    // 实时应用到该声音
-                                    audioManager.setRemoteVolume(sound.id, volume)
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                valueRange = 0f..1f,
-                                steps = 19  // 0到100，步长5%
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(
+                                text = "0%",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(
-                                    text = "0%",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = "${(volume * 100).toInt()}%",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.primary
-                                )
-                                Text(
-                                    text = "100%",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
+                            Text(
+                                text = "${(volume * 100).toInt()}%",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = "100%",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
-                },
-                confirmButton = {
-                    TextButton(onClick = { 
+                }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+                ) {
+                    TextButton(onClick = { showVolumeDialog = false }) {
+                        Text(context.getString(R.string.cancel))
+                    }
+                    TextButton(onClick = {
                         showVolumeDialog = false
                         Toast.makeText(context, context.getString(R.string.volume_adjusted), Toast.LENGTH_SHORT).show()
                     }) {
                         Text(context.getString(R.string.ok))
                     }
-                },
-                dismissButton = {
-                    TextButton(onClick = { showVolumeDialog = false }) {
-                        Text(context.getString(R.string.cancel))
-                    }
                 }
-            )
+            }
         }
         
         // 每日一言对话框

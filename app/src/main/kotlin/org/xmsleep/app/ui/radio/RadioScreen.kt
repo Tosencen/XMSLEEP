@@ -63,6 +63,8 @@ import kotlinx.coroutines.withContext
 import org.xmsleep.app.ui.ThemeColorCallback
 import org.xmsleep.app.ui.TimerDialog
 import org.xmsleep.app.ui.TimerFAB
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.ui.viewmodel.RadioViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -387,8 +389,8 @@ fun RadioScreen(
 
     }
 
-    // 倒计时对话框
-    if (showTimerDialog) {
+    // 倒计时对话框（提升到顶层渲染：全页模糊 + tab 在遮罩下）
+    FrostedPopup(visible = showTimerDialog) {
         TimerDialog(
             onDismiss = { showTimerDialog = false },
             onTimerSet = { minutes ->
@@ -403,51 +405,59 @@ fun RadioScreen(
         )
     }
 
-    // 音量调节对话框
-    if (showVolumeDialog) {
-        AlertDialog(
-            onDismissRequest = { showVolumeDialog = false },
-            title = { Text(context.getString(R.string.volume)) },
-            text = {
-                Column(
+    // 音量调节对话框（提升到顶层渲染：全页模糊 + tab 在遮罩下）
+    FrostedPopup(visible = showVolumeDialog) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = { showVolumeDialog = false }
+        ) {
+            Text(
+                context.getString(R.string.volume),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Slider(
+                    value = volume,
+                    onValueChange = { viewModel.setVolume(it) },
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    valueRange = 0f..1f,
+                    steps = 19
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Slider(
-                        value = volume,
-                        onValueChange = { viewModel.setVolume(it) },
-                        modifier = Modifier.fillMaxWidth(),
-                        valueRange = 0f..1f,
-                        steps = 19
+                    Text(
+                        text = "0%",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "0%",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "${(volume * 100).toInt()}%",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "100%",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(onClick = { showVolumeDialog = false }) {
-                    Text(context.getString(R.string.ok))
+                    Text(
+                        text = "${(volume * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "100%",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
-        )
+            TextButton(
+                onClick = { showVolumeDialog = false },
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = 12.dp)
+            ) {
+                Text(context.getString(R.string.ok))
+            }
+        }
     }
 
     // Bilibili 搜索结果列表

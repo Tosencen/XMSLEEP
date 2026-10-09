@@ -48,6 +48,7 @@ import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.utils.Logger
+import org.xmsleep.app.ui.components.FrostedPopup
 
 /**
  * 默认区域组件（快捷播放预设栏）
@@ -665,7 +666,7 @@ internal fun BuiltInSoundsContent(
                                 onPinnedChange(item.sound, isPinned)
                             }
                         )
-                        if (showVolumeDialog) {
+                        FrostedPopup(visible = showVolumeDialog) {
                             VolumeDialog(
                                 sound = item.sound,
                                 currentVolume = audioManager.getVolume(item.sound),
@@ -727,7 +728,7 @@ internal fun BuiltInSoundsContent(
                                 onPinnedChange(item.sound, isPinned)
                             }
                         )
-                        if (showVolumeDialog) {
+                        FrostedPopup(visible = showVolumeDialog) {
                             VolumeDialog(
                                 sound = item.sound,
                                 currentVolume = audioManager.getVolume(item.sound),

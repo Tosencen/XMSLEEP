@@ -1,7 +1,9 @@
 package org.xmsleep.app.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -11,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.preferences.PreferencesManager
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.ui.components.WheelPicker
 
 /**
@@ -45,61 +48,69 @@ fun VolumeDialog(
         else -> context.getString(R.string.sound_default)
     }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(soundName) },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    context.getString(R.string.adjust_volume),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+    FrostedGlassSheet(
+        visible = true,
+        onDismissRequest = onDismiss
+    ) {
+        Text(
+            soundName,
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                context.getString(R.string.adjust_volume),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Column(modifier = Modifier.fillMaxWidth()) {
+                Slider(
+                    value = volume,
+                    onValueChange = {
+                        volume = it
+                        onVolumeChange(it)
+                    },
+                    modifier = Modifier.fillMaxWidth(),
+                    valueRange = 0f..1f,
+                    steps = 19
                 )
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Slider(
-                        value = volume,
-                        onValueChange = {
-                            volume = it
-                            onVolumeChange(it)
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        valueRange = 0f..1f,
-                        steps = 19
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "0%",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(
-                            text = "0%",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "${(volume * 100).toInt()}%",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = "100%",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
+                    Text(
+                        text = "${(volume * 100).toInt()}%",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    Text(
+                        text = "100%",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.ok))
-            }
         }
-    )
+        TextButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(top = 12.dp)
+        ) {
+            Text(context.getString(R.string.ok))
+        }
+    }
 }
 
 /**
@@ -120,159 +131,167 @@ fun TimerDialog(
     var selectedMinute by remember { mutableStateOf(initialMinute) }
     val presetMinutes = listOf(15, 30, 45, 60, 90, 120)
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.set_countdown)) },
-        text = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                if (currentTimerMinutes > 0) {
-                    val hours = currentTimerMinutes / 60
-                    val mins = currentTimerMinutes % 60
-                    val statusText = if (hours > 0) {
-                        context.resources.getQuantityString(R.plurals.hours_minutes, hours, hours, if (mins > 0) mins else 0)
-                    } else {
-                        context.resources.getQuantityString(R.plurals.minutes_only, mins, mins)
-                    }
-                    Text(
-                        text = context.getString(R.string.current_countdown, statusText),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                } else if (lastTimerMinutes > 0) {
-                    val lastHours = lastTimerMinutes / 60
-                    val lastMins = lastTimerMinutes % 60
-                    val lastText = if (lastHours > 0) {
-                        context.resources.getQuantityString(R.plurals.hours_minutes, lastHours, lastHours, if (lastMins > 0) lastMins else 0)
-                    } else {
-                        context.resources.getQuantityString(R.plurals.minutes_only, lastMins, lastMins)
-                    }
-                    Text(
-                        text = context.getString(R.string.last_timer_hint, lastText),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+    FrostedGlassSheet(
+        visible = true,
+        onDismissRequest = onDismiss
+    ) {
+        Text(
+            context.getString(R.string.set_countdown),
+            style = MaterialTheme.typography.titleLarge,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(max = 480.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            if (currentTimerMinutes > 0) {
+                val hours = currentTimerMinutes / 60
+                val mins = currentTimerMinutes % 60
+                val statusText = if (hours > 0) {
+                    context.resources.getQuantityString(R.plurals.hours_minutes, hours, hours, if (mins > 0) mins else 0)
+                } else {
+                    context.resources.getQuantityString(R.plurals.minutes_only, mins, mins)
                 }
                 Text(
-                    context.getString(R.string.quick_select),
-                    style = MaterialTheme.typography.labelMedium,
+                    text = context.getString(R.string.current_countdown, statusText),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            } else if (lastTimerMinutes > 0) {
+                val lastHours = lastTimerMinutes / 60
+                val lastMins = lastTimerMinutes % 60
+                val lastText = if (lastHours > 0) {
+                    context.resources.getQuantityString(R.plurals.hours_minutes, lastHours, lastHours, if (lastMins > 0) lastMins else 0)
+                } else {
+                    context.resources.getQuantityString(R.plurals.minutes_only, lastMins, lastMins)
+                }
+                Text(
+                    text = context.getString(R.string.last_timer_hint, lastText),
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val rows = presetMinutes.chunked(3)
-                    rows.forEach { rowItems ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            rowItems.forEach { mins ->
-                                FilterChip(
-                                    onClick = {
-                                        selectedHour = mins / 60
-                                        selectedMinute = mins % 60
-                                    },
-                                    label = { Text(context.resources.getQuantityString(R.plurals.minutes, mins, mins)) },
-                                    selected = (selectedHour * 60 + selectedMinute) == mins,
-                                    modifier = Modifier.weight(1f)
-                                )
-                            }
-                            repeat(3 - rowItems.size) { Spacer(modifier = Modifier.weight(1f)) }
-                        }
-                    }
-                }
-
-                // 自定义时间轮盘选择器
-                Column(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+            }
+            Text(
+                context.getString(R.string.quick_select),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                val rows = presetMinutes.chunked(3)
+                rows.forEach { rowItems ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = context.getString(R.string.hours),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                            val hourItems = remember { (0..24).map { it.toString().padStart(2, '0') } }
-                            WheelPicker(
-                                options = hourItems,
-                                selectedIndex = selectedHour,
-                                onItemSelected = { selectedHour = it },
-                                modifier = Modifier.fillMaxWidth(),
+                        rowItems.forEach { mins ->
+                            FilterChip(
+                                onClick = {
+                                    selectedHour = mins / 60
+                                    selectedMinute = mins % 60
+                                },
+                                label = { Text(context.resources.getQuantityString(R.plurals.minutes, mins, mins)) },
+                                selected = (selectedHour * 60 + selectedMinute) == mins,
+                                modifier = Modifier.weight(1f)
                             )
                         }
+                        repeat(3 - rowItems.size) { Spacer(modifier = Modifier.weight(1f)) }
+                    }
+                }
+            }
 
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = context.getString(R.string.minutes_label),
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(bottom = 8.dp)
-                            )
-                            val minuteItems = remember { (0..59).map { it.toString().padStart(2, '0') } }
-                            WheelPicker(
-                                options = minuteItems,
-                                selectedIndex = selectedMinute,
-                                onItemSelected = { selectedMinute = it },
-                                modifier = Modifier.fillMaxWidth(),
-                            )
-                        }
+            // 自定义时间轮盘选择器
+            Column(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = context.getString(R.string.hours),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        val hourItems = remember { (0..24).map { it.toString().padStart(2, '0') } }
+                        WheelPicker(
+                            options = hourItems,
+                            selectedIndex = selectedHour,
+                            onItemSelected = { selectedHour = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = context.getString(R.string.minutes_label),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        val minuteItems = remember { (0..59).map { it.toString().padStart(2, '0') } }
+                        WheelPicker(
+                            options = minuteItems,
+                            selectedIndex = selectedMinute,
+                            onItemSelected = { selectedMinute = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     }
                 }
-                // 显示当前选择的总时间
-                val totalMinutes = selectedHour * 60 + selectedMinute
-                Text(
-                    text = if (totalMinutes > 0) {
-                        if (selectedHour > 0) {
-                            context.resources.getQuantityString(R.plurals.hours_minutes, selectedHour, selectedHour, selectedMinute)
-                        } else {
-                            context.resources.getQuantityString(R.plurals.minutes_only, selectedMinute, selectedMinute)
-                        }
+            }
+            // 显示当前选择的总时间
+            val totalMinutes = selectedHour * 60 + selectedMinute
+            Text(
+                text = if (totalMinutes > 0) {
+                    if (selectedHour > 0) {
+                        context.resources.getQuantityString(R.plurals.hours_minutes, selectedHour, selectedHour, selectedMinute)
                     } else {
-                        context.resources.getQuantityString(R.plurals.minutes_only, 0, 0)
-                    },
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
-                )
-            }
-        },
-        confirmButton = {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (currentTimerMinutes > 0) {
-                    TextButton(onClick = { onTimerSet(0); onDismiss() }) {
-                        Text(context.getString(R.string.cancel_countdown))
+                        context.resources.getQuantityString(R.plurals.minutes_only, selectedMinute, selectedMinute)
                     }
-                }
-                TextButton(onClick = {
-                    val totalMinutes = selectedHour * 60 + selectedMinute
-                    PreferencesManager.saveLastTimerMinutes(context, totalMinutes)
-                    onTimerSet(totalMinutes)
-                }) {
-                    Text(context.getString(R.string.ok))
-                }
-            }
-        },
-        dismissButton = {
+                } else {
+                    context.resources.getQuantityString(R.plurals.minutes_only, 0, 0)
+                },
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+        ) {
             TextButton(onClick = onDismiss) {
                 Text(context.getString(R.string.cancel))
             }
+            if (currentTimerMinutes > 0) {
+                TextButton(onClick = { onTimerSet(0); onDismiss() }) {
+                    Text(context.getString(R.string.cancel_countdown))
+                }
+            }
+            TextButton(onClick = {
+                val totalMinutes = selectedHour * 60 + selectedMinute
+                PreferencesManager.saveLastTimerMinutes(context, totalMinutes)
+                onTimerSet(totalMinutes)
+            }) {
+                Text(context.getString(R.string.ok))
+            }
         }
-    )
+    }
 }

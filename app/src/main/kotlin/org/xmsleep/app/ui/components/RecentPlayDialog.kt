@@ -59,102 +59,60 @@ fun RecentPlayDialog(
         onDismiss()
     }
     
-    // 透明度动画 - 渐显渐隐
-    val alpha by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = 400,
-            easing = FastOutSlowInEasing
-        ),
-        label = "alpha"
-    )
-    
-    // 缩放动画 - 只在初始出现时从小到大（使用弹簧动画）
-    val scale by animateFloatAsState(
-        targetValue = 1f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow
-        ),
-        label = "scale"
-    )
-    
-    if (alpha > 0f) {
-        Box(
+    // 毛玻璃浮层容器：背景磨砂模糊，点背景关闭、点卡片播放
+    FrostedGlassSheet(
+        visible = visible,
+        onDismissRequest = { visible = false },
+        enterDurationMillis = 400,
+        exitDurationMillis = 400
+    ) {
+        Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
                 .clickable(
                     onClick = {
-                        // 点击背景直接关闭，不播放
+                        // 点击卡片播放最近的音频
+                        onPlayRecent()
                         visible = false
                     },
                     indication = null,
                     interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-                ),
-            contentAlignment = Alignment.Center
+                )
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Card(
-                modifier = Modifier
-                    .padding(horizontal = 32.dp)
-                    .graphicsLayer(
-                        alpha = alpha,
-                        scaleX = scale,
-                        scaleY = scale
-                    )
-                    .clickable(
-                        onClick = {
-                            // 点击卡片播放最近的音频
-                            onPlayRecent()
-                            visible = false
-                        },
-                        indication = null,
-                        interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
-                    ),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f)
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            // 播放按钮图标
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(48.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    // 播放按钮图标
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(48.dp)
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxSize()
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = stringResource(R.string.play),
-                                tint = MaterialTheme.colorScheme.onPrimary,
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
-                    }
-                    
-                    // 文字
-                    Column {
-                        Text(
-                            text = stringResource(R.string.recent_play),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = stringResource(R.string.tap_to_play),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = stringResource(R.string.play),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(28.dp)
+                    )
                 }
+            }
+            
+            // 文字
+            Column {
+                Text(
+                    text = stringResource(R.string.recent_play),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = stringResource(R.string.tap_to_play),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

@@ -30,6 +30,8 @@ import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.timer.TimerManager
 import org.xmsleep.app.ui.TimerDialog
 import org.xmsleep.app.ui.TimerFAB
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.weather.WeatherData
 import org.xmsleep.app.weather.WeatherCodeMapper
 import org.xmsleep.app.weather.WeatherSoundMapper
@@ -237,7 +239,7 @@ fun StarSkySimpleContent(
         }
     }
 
-    if (showTimerDialog) {
+    FrostedPopup(visible = showTimerDialog) {
         TimerDialog(
             onDismiss = { showTimerDialog = false },
             onTimerSet = { minutes ->
@@ -261,54 +263,61 @@ fun StarSkySimpleContent(
         )
     }
 
-    if (showVolumeDialog) {
-        selectedSoundForVolume?.let { sound ->
-            AlertDialog(
-                onDismissRequest = { showVolumeDialog = false },
-                title = { Text(sound.getLocalizedName(currentLanguage)) },
-                text = {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
+    FrostedPopup(visible = showVolumeDialog && selectedSoundForVolume != null) {
+        val sound = selectedSoundForVolume!!
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = { showVolumeDialog = false }
+        ) {
+            Text(
+                sound.getLocalizedName(currentLanguage),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    context.getString(R.string.adjust_volume),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Slider(
+                        value = volume,
+                        onValueChange = {
+                            volume = it
+                            audioManager.setRemoteVolume(sound.id, volume)
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        valueRange = 0f..1f,
+                        steps = 19
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            context.getString(R.string.adjust_volume),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Column(modifier = Modifier.fillMaxWidth()) {
-                            Slider(
-                                value = volume,
-                                onValueChange = {
-                                    volume = it
-                                    audioManager.setRemoteVolume(sound.id, volume)
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                valueRange = 0f..1f,
-                                steps = 19
-                            )
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text("0%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                                Text("${(volume * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-                                Text("100%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                            }
-                        }
-                    }
-                },
-                confirmButton = {
-                    TextButton(onClick = {
-                        showVolumeDialog = false
-                        Toast.makeText(context, context.getString(R.string.volume_adjusted), Toast.LENGTH_SHORT).show()
-                    }) {
-                        Text(context.getString(R.string.ok))
+                        Text("0%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("${(volume * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                        Text("100%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
-            )
+            }
+            TextButton(
+                onClick = {
+                    showVolumeDialog = false
+                    Toast.makeText(context, context.getString(R.string.volume_adjusted), Toast.LENGTH_SHORT).show()
+                },
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(top = 12.dp)
+            ) {
+                Text(context.getString(R.string.ok))
+            }
         }
     }
 }

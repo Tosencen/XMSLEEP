@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import org.xmsleep.app.R
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.weather.WeatherCodeMapper
 import org.xmsleep.app.weather.WeatherSoundMapper
 import org.xmsleep.app.weather.WeatherType
@@ -75,21 +77,25 @@ fun WeatherEditDialog(
         mutableStateOf(currentMapping?.soundIds ?: emptyList())
     }
     
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(ctx.getString(R.string.weather_sound_mapping))
+                Text(
+                    ctx.getString(R.string.weather_sound_mapping),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
                 TextButton(onClick = onRefreshWeather) {
                     Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
                 }
             }
-        },
-        text = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -180,32 +186,35 @@ fun WeatherEditDialog(
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    // 保存映射
-                    val newMappings = mappings.toMutableList()
-                    newMappings.removeAll { it.weatherTypes.contains(selectedWeatherType) }
-                    newMappings.add(
-                        WeatherSoundMapper.SoundMapping(
-                            weatherTypes = listOf(selectedWeatherType),
-                            soundIds = selectedSoundIdsList
-                        )
-                    )
-                    WeatherSoundMapper.saveMappings(context, newMappings)
-                    onDismiss()
-                }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
-                Text(ctx.getString(R.string.save))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(ctx.getString(R.string.cancel))
+                TextButton(onClick = onDismiss) {
+                    Text(ctx.getString(R.string.cancel))
+                }
+                TextButton(
+                    onClick = {
+                        // 保存映射
+                        val newMappings = mappings.toMutableList()
+                        newMappings.removeAll { it.weatherTypes.contains(selectedWeatherType) }
+                        newMappings.add(
+                            WeatherSoundMapper.SoundMapping(
+                                weatherTypes = listOf(selectedWeatherType),
+                                soundIds = selectedSoundIdsList
+                            )
+                        )
+                        WeatherSoundMapper.saveMappings(context, newMappings)
+                        onDismiss()
+                    }
+                ) {
+                    Text(ctx.getString(R.string.save))
+                }
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -231,12 +240,22 @@ fun ManualWeatherSelectorDialog(
         95 to context.getString(R.string.weather_option_thunderstorm)
     )
     
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(context.getString(R.string.weather_manual_select)) },
-        text = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
+            Text(
+                context.getString(R.string.weather_manual_select),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 420.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 Text(
                     text = context.getString(R.string.weather_location_failed),
@@ -256,12 +275,16 @@ fun ManualWeatherSelectorDialog(
                     }
                 }
             }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.cancel))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                TextButton(onClick = onDismiss) {
+                    Text(context.getString(R.string.cancel))
+                }
             }
         }
-    )
+    }
 }

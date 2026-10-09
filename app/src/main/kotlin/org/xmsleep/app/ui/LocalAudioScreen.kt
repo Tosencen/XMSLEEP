@@ -47,6 +47,8 @@ import androidx.compose.material.icons.filled.Sort
 import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -704,26 +706,38 @@ fun LocalAudioScreen(
     }
 
     // Volume dialog
-    if (showVolumeDialog && selectedAudioForVolume != null) {
+    FrostedPopup(visible = showVolumeDialog && selectedAudioForVolume != null) {
         val audio = selectedAudioForVolume!!
         var volume by remember(audio.id) { mutableStateOf(localAudioPlayer.getVolume(audio.id)) }
-        AlertDialog(
-            onDismissRequest = { showVolumeDialog = false },
-            title = { Text(audio.title) },
-            text = {
-                Column(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text(context.getString(R.string.adjust_volume), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Slider(value = volume, onValueChange = { volume = it; localAudioPlayer.setVolume(audio.id, it) }, modifier = Modifier.fillMaxWidth(), valueRange = 0f..1f, steps = 19)
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                        Text("0%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text("${(volume * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
-                        Text("100%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = { showVolumeDialog = false }
+        ) {
+            Text(
+                audio.title,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Column(modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(context.getString(R.string.adjust_volume), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Slider(value = volume, onValueChange = { volume = it; localAudioPlayer.setVolume(audio.id, it) }, modifier = Modifier.fillMaxWidth(), valueRange = 0f..1f, steps = 19)
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Text("0%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("${(volume * 100).toInt()}%", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+                    Text("100%", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
-            },
-            confirmButton = { TextButton(onClick = { showVolumeDialog = false }) { Text(context.getString(R.string.ok)) } },
-            dismissButton = { TextButton(onClick = { showVolumeDialog = false }) { Text(context.getString(R.string.cancel)) } }
-        )
+            }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                TextButton(onClick = { showVolumeDialog = false }) { Text(context.getString(R.string.cancel)) }
+                TextButton(onClick = { showVolumeDialog = false }) { Text(context.getString(R.string.ok)) }
+            }
+        }
     }
 
     // Context menu
