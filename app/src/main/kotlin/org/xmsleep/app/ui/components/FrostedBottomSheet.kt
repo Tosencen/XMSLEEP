@@ -169,7 +169,8 @@ fun FrostedBottomSheet(
                         ),
                         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                     )
-                    .navigationBarsPadding(),
+                    .navigationBarsPadding()
+                    .padding(top = 16.dp),
                 content = content
             )
         }
