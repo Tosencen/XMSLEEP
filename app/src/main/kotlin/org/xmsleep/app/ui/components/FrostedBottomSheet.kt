@@ -3,27 +3,34 @@ package org.xmsleep.app.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +38,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -66,12 +74,16 @@ fun FrostedBottomSheet(
     // 之前位移用 spring 会过冲（面板冲过终点再回弹），底部抽屉不该这样弹。
     val alphaProgress = remember { Animatable(0f) }
     val slideProgress = remember { Animatable(0f) }
+    // 拖拽下拉位移：按住把手往下滑时实时累积，松手后超过阈值则关闭，否则弹回
+    val dragOffset = remember { Animatable(0f) }
+    val dragScope = rememberCoroutineScope()
     // 仅在入场开始/退场结束各翻转一次，避免组合期逐帧读动画值导致内容反复重组。
     var rendered by remember { mutableStateOf(false) }
 
     LaunchedEffect(effectiveVisible) {
         if (effectiveVisible) {
             rendered = true
+            dragOffset.snapTo(0f)
             coroutineScope {
                 launch {
                     alphaProgress.animateTo(
@@ -112,6 +124,8 @@ fun FrostedBottomSheet(
     // 上滑位移：用固定偏移（≥ 屏高）把面板推出屏幕底部，避免依赖 onSizeChanged 的测量时序
     val density = LocalDensity.current
     val slideOffsetPx = remember(density) { with(density) { 800.dp.toPx() } }
+    // 拖拽关闭阈值：下拉超过 120dp 即松手关闭
+    val dismissThresholdPx = remember(density) { with(density) { 120.dp.toPx() } }
 
     Box(
         modifier = modifier
@@ -147,7 +161,7 @@ fun FrostedBottomSheet(
                 .fillMaxWidth()
                 .graphicsLayer {
                     alpha = alphaProgress.value.coerceIn(0f, 1f)
-                    translationY = (1f - slideProgress.value) * slideOffsetPx
+                    translationY = (1f - slideProgress.value) * slideOffsetPx + dragOffset.value
                 },
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             color = Color.Transparent
@@ -170,9 +184,59 @@ fun FrostedBottomSheet(
                         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                     )
                     .navigationBarsPadding()
-                    .padding(top = 16.dp),
-                content = content
-            )
+            ) {
+                // MD3 拖拽把手：32×4dp、2dp 圆角、onSurfaceVariant 40%；按住下滑超过阈值关闭
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInput(Unit) {
+                            detectVerticalDragGestures(
+                                onDragEnd = {
+                                    if (dragOffset.value >= dismissThresholdPx) {
+                                        onDismissRequest()
+                                    } else {
+                                        dragScope.launch {
+                                            dragOffset.animateTo(
+                                                targetValue = 0f,
+                                                animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy)
+                                            )
+                                        }
+                                    }
+                                },
+                                onDragCancel = {
+                                    dragScope.launch {
+                                        dragOffset.animateTo(
+                                            targetValue = 0f,
+                                            animationSpec = spring(dampingRatio = Spring.DampingRatioNoBouncy)
+                                        )
+                                    }
+                                },
+                                onVerticalDrag = { change, dragAmount ->
+                                    change.consume()
+                                    // 只允许向下滑（dragAmount > 0 为向下），上滑不响应
+                                    if (dragAmount > 0f || dragOffset.value > 0f) {
+                                        dragScope.launch {
+                                            dragOffset.snapTo(
+                                                (dragOffset.value + dragAmount).coerceAtLeast(0f)
+                                            )
+                                        }
+                                    }
+                                }
+                            )
+                        }
+                        .padding(top = 12.dp, bottom = 20.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(32.dp)
+                            .height(4.dp)
+                            .clip(RoundedCornerShape(2.dp))
+                            .background(MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f))
+                    )
+                }
+                content()
+            }
         }
     }
 }
