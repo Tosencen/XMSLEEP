@@ -1,6 +1,7 @@
 package org.xmsleep.app.ui
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -14,7 +15,6 @@ import org.xmsleep.app.R
 import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.ui.components.FrostedGlassSheet
-import org.xmsleep.app.ui.components.WheelPicker
 
 /**
  * 音量调节对话框
@@ -127,8 +127,12 @@ fun TimerDialog(
     val lastTimerMinutes = remember { PreferencesManager.getLastTimerMinutes(context) }
     val initialHour = if (currentTimerMinutes > 0) currentTimerMinutes / 60 else (if (lastTimerMinutes > 0) lastTimerMinutes / 60 else 0)
     val initialMinute = if (currentTimerMinutes > 0) currentTimerMinutes % 60 else (if (lastTimerMinutes > 0) lastTimerMinutes % 60 else 30)
-    var selectedHour by remember { mutableStateOf(initialHour) }
-    var selectedMinute by remember { mutableStateOf(initialMinute) }
+    // M3 圆盘时间选择器（24 小时制）：小时 0–23、分钟 0–59
+    val timePickerState = rememberTimePickerState(
+        initialHour = initialHour.coerceIn(0, 23),
+        initialMinute = initialMinute.coerceIn(0, 59),
+        is24Hour = true
+    )
     val presetMinutes = listOf(15, 30, 45, 60, 90, 120)
 
     FrostedGlassSheet(
@@ -144,7 +148,7 @@ fun TimerDialog(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 480.dp)
+                .heightIn(max = 640.dp)
                 .verticalScroll(rememberScrollState())
                 .padding(vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -181,95 +185,26 @@ fun TimerDialog(
                 style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Column(
-                modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val rows = presetMinutes.chunked(3)
-                rows.forEach { rowItems ->
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        rowItems.forEach { mins ->
-                            FilterChip(
-                                onClick = {
-                                    selectedHour = mins / 60
-                                    selectedMinute = mins % 60
-                                },
-                                label = { Text(context.resources.getQuantityString(R.plurals.minutes, mins, mins)) },
-                                selected = (selectedHour * 60 + selectedMinute) == mins,
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
-                        repeat(3 - rowItems.size) { Spacer(modifier = Modifier.weight(1f)) }
-                    }
+                presetMinutes.forEach { mins ->
+                    FilterChip(
+                        onClick = {
+                            timePickerState.hour = mins / 60
+                            timePickerState.minute = mins % 60
+                        },
+                        label = { Text(context.resources.getQuantityString(R.plurals.minutes, mins, mins)) },
+                        selected = (timePickerState.hour * 60 + timePickerState.minute) == mins
+                    )
                 }
             }
 
-            // 自定义时间轮盘选择器
-            Column(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = context.getString(R.string.hours),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        val hourItems = remember { (0..24).map { it.toString().padStart(2, '0') } }
-                        WheelPicker(
-                            options = hourItems,
-                            selectedIndex = selectedHour,
-                            onItemSelected = { selectedHour = it },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
-
-                    Column(
-                        modifier = Modifier.weight(1f),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = context.getString(R.string.minutes_label),
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        )
-                        val minuteItems = remember { (0..59).map { it.toString().padStart(2, '0') } }
-                        WheelPicker(
-                            options = minuteItems,
-                            selectedIndex = selectedMinute,
-                            onItemSelected = { selectedMinute = it },
-                            modifier = Modifier.fillMaxWidth(),
-                        )
-                    }
-                }
-            }
-            // 显示当前选择的总时间
-            val totalMinutes = selectedHour * 60 + selectedMinute
-            Text(
-                text = if (totalMinutes > 0) {
-                    if (selectedHour > 0) {
-                        context.resources.getQuantityString(R.plurals.hours_minutes, selectedHour, selectedHour, selectedMinute)
-                    } else {
-                        context.resources.getQuantityString(R.plurals.minutes_only, selectedMinute, selectedMinute)
-                    }
-                } else {
-                    context.resources.getQuantityString(R.plurals.minutes_only, 0, 0)
-                },
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
+            // M3 圆盘时间选择器（小时/分钟同一圆盘，点击中央数字切换模式）
+            TimePicker(state = timePickerState)
         }
         Row(
             modifier = Modifier
@@ -286,7 +221,7 @@ fun TimerDialog(
                 }
             }
             TextButton(onClick = {
-                val totalMinutes = selectedHour * 60 + selectedMinute
+                val totalMinutes = timePickerState.hour * 60 + timePickerState.minute
                 PreferencesManager.saveLastTimerMinutes(context, totalMinutes)
                 onTimerSet(totalMinutes)
             }) {
