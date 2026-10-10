@@ -42,6 +42,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.xmsleep.app.R
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.service.BreathingService
 import org.xmsleep.app.utils.Logger
 import java.util.Locale
@@ -486,24 +488,24 @@ private fun DurationDialog(
     val context = LocalContext.current
     val presetOptions = listOf(2, 5, 8, 10, 15, 20)
     
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
             Icon(
                 imageVector = Icons.Outlined.Timer,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(40.dp)
             )
-        },
-        title = {
             Text(
                 text = context.getString(R.string.select_duration),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 8.dp)
             )
-        },
-        text = {
             Column {
                 // 预设按钮
                 Text(
@@ -569,16 +571,16 @@ private fun DurationDialog(
                     steps = 11
                 )
             }
-        },
-        confirmButton = {
             Button(
                 onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
             ) {
                 Text(context.getString(R.string.done))
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -708,27 +710,30 @@ private fun BreathingMethodTutorialDialog(
 ) {
     val context = LocalContext.current
     
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.HelpOutline,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(40.dp)
             )
-        },
-        title = {
             Text(
                 text = method.name,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 8.dp)
             )
-        },
-        text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 420.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 // 副标题
                 Text(
@@ -784,16 +789,16 @@ private fun BreathingMethodTutorialDialog(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-        },
-        confirmButton = {
             Button(
                 onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
             ) {
                 Text(context.getString(R.string.got_it))
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -804,24 +809,24 @@ private fun ScreenOnSettingsDialog(
 ) {
     val context = LocalContext.current
     
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
             Icon(
                 imageVector = Icons.Outlined.LightMode,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(40.dp)
             )
-        },
-        title = {
             Text(
                 text = context.getString(R.string.keep_screen_on),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 8.dp)
             )
-        },
-        text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -863,14 +868,14 @@ private fun ScreenOnSettingsDialog(
                     }
                 )
             }
-        },
-        confirmButton = {
             Button(
                 onClick = onDismiss,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
             ) {
                 Text(context.getString(R.string.done))
             }
         }
-    )
+    }
 }

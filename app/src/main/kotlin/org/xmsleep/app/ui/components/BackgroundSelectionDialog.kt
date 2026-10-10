@@ -68,10 +68,17 @@ fun BackgroundSelectionDialog(
     val confirmText = remember(currentLanguage) { localizedContext.getString(android.R.string.ok) }
     val cancelText = remember(currentLanguage) { localizedContext.getString(android.R.string.cancel) }
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = dialogTitle) },
-        text = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
+            Text(
+                text = dialogTitle,
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
             val showColorSection = currentSelection == BackgroundSelection.None ||
                     currentSelection == BackgroundSelection.Custom
             val colorSectionTitle = remember(currentLanguage) { localizedContext.getString(R.string.theme_color) }
@@ -175,18 +182,21 @@ fun BackgroundSelectionDialog(
                     }
                 }
             }
-        },
-        confirmButton = {
-            TextButton(onClick = onConfirm) {
-                Text(text = confirmText)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(text = cancelText)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                TextButton(onClick = onDismiss) {
+                    Text(text = cancelText)
+                }
+                TextButton(onClick = onConfirm) {
+                    Text(text = confirmText)
+                }
             }
         }
-    )
+    }
 }
 
 

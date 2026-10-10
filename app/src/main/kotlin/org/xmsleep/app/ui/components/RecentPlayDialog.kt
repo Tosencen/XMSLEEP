@@ -62,9 +62,7 @@ fun RecentPlayDialog(
     // 毛玻璃浮层容器：背景磨砂模糊，点背景关闭、点卡片播放
     FrostedGlassSheet(
         visible = visible,
-        onDismissRequest = { visible = false },
-        enterDurationMillis = 400,
-        exitDurationMillis = 400
+        onDismissRequest = { visible = false }
     ) {
         Row(
             modifier = Modifier

@@ -9,6 +9,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -33,6 +35,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.xmsleep.app.R
 import org.xmsleep.app.preferences.PreferencesManager
 import org.xmsleep.app.ui.components.WheelPicker
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import kotlin.math.min
 
 /**
@@ -398,16 +402,17 @@ private fun CountdownDialog(
     var selectedMinute by remember { mutableIntStateOf(30) }
     val quickOptions = listOf(15, 30, 45, 60, 90, 120)
 
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
-        title = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
             Text(
                 text = context.getString(R.string.flip_clock_set_countdown),
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-        },
-        text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -522,25 +527,28 @@ private fun CountdownDialog(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    val totalMinutes = selectedHour * 60 + selectedMinute
-                    if (totalMinutes > 0) {
-                        onConfirm(totalMinutes)
-                    }
-                }
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
             ) {
-                Text(context.getString(R.string.flip_clock_start), color = MaterialTheme.colorScheme.primary)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.flip_clock_cancel), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                TextButton(onClick = onDismiss) {
+                    Text(context.getString(R.string.flip_clock_cancel), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                }
+                TextButton(
+                    onClick = {
+                        val totalMinutes = selectedHour * 60 + selectedMinute
+                        if (totalMinutes > 0) {
+                            onConfirm(totalMinutes)
+                        }
+                    }
+                ) {
+                    Text(context.getString(R.string.flip_clock_start), color = MaterialTheme.colorScheme.primary)
+                }
             }
         }
-    )
+    }
 }
 
 @Composable
@@ -550,18 +558,23 @@ private fun FontSelectorDialog(
     onDismiss: () -> Unit,
     onSelect: (ClockFont) -> Unit
 ) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        containerColor = MaterialTheme.colorScheme.surface,
-        title = {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
             Text(
                 text = context.getString(R.string.flip_clock_select_font),
-                color = MaterialTheme.colorScheme.onSurface
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
-        },
-        text = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 420.dp)
+                    .verticalScroll(rememberScrollState())
             ) {
                 ClockFont.entries.forEach { font ->
                     val isSelected = font == currentFont
@@ -629,12 +642,16 @@ private fun FontSelectorDialog(
                     }
                 }
             }
-        },
-        confirmButton = {},
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(context.getString(R.string.flip_clock_cancel), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End)
+            ) {
+                TextButton(onClick = onDismiss) {
+                    Text(context.getString(R.string.flip_clock_cancel), color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f))
+                }
             }
         }
-    )
+    }
 }

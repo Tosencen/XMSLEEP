@@ -1,13 +1,17 @@
 package org.xmsleep.app.ui.components
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import kotlinx.coroutines.delay
 
 /**
  * 屏内弹窗提升宿主。
@@ -41,14 +45,28 @@ class FrostedDialogHostState {
 val LocalFrostedDialogHost = staticCompositionLocalOf<FrostedDialogHostState?> { null }
 
 /**
+ * FrostedPopup 传给内容的真实可见性。
+ *
+ * 调用方在 [FrostedPopup] 内写的 [FrostedGlassSheet] 通常固定 `visible = true`（显隐由
+ * FrostedPopup 挂载/卸载控制）。但退场需要 FrostedGlassSheet 知道"正在关闭"才能播退场动画，
+ * 因此由 FrostedPopup 通过本 Local 下发真实 visible，FrostedGlassSheet 以 `visible && 本值`
+ * 作为有效可见性。不在 FrostedPopup 内（如独立使用）时默认 true，不影响原有行为。
+ */
+val LocalFrostedPopupVisible = staticCompositionLocalOf { true }
+
+/** 退场动画播放时长内保持挂载，之后再卸载（须 ≥ FrostedGlassSheet 退场 tween 时长）。 */
+private const val FROSTED_POPUP_EXIT_UNMOUNT_DELAY_MS = 300L
+
+/**
  * 屏内弹窗包装：有宿主时把 [content] 提升到 MainScreen 顶层渲染（全页模糊、tab 在遮罩下），
  * 无宿主时降级为就地渲染。用法：
  * ```
  * FrostedPopup(visible = showDialog) {
- *     SomeDialog(onDismiss = { showDialog = false }, ...)
+ *     FrostedGlassSheet(visible = true, onDismissRequest = { showDialog = false }) { ... }
  * }
  * ```
- * 弹窗自身的 onDismiss 仍由调用方把 visible 置 false，宿主据此卸载。
+ * 显示时立即挂载；隐藏时先保持挂载 [FROSTED_POPUP_EXIT_UNMOUNT_DELAY_MS] 让退场动画播完，
+ * 再卸载宿主。
  */
 @Composable
 fun FrostedPopup(
@@ -61,14 +79,29 @@ fun FrostedPopup(
         if (visible) content()
         return
     }
-    // 用 rememberUpdatedState 保证宿主持有的 lambda 始终调用最新 content
+    // 用 rememberUpdatedState 保证宿主持有的 lambda 始终调用最新 content / visible
     val currentContent by rememberUpdatedState(content)
-    // visible 变化时同步到宿主：true → 提升渲染；false → 卸载。
-    // 用 DisposableEffect 而非 LaunchedEffect：组合体被移除时（如 LazyColumn item 滚出）
-    // 通过 onDispose 卸载宿主，避免宿主残留一个已销毁的 content 组合体导致崩溃。
-    DisposableEffect(visible) {
+    val currentVisible by rememberUpdatedState(visible)
+
+    // 挂载状态：显示立即挂载；隐藏延迟卸载，给退场动画留时间
+    var mounted by remember { mutableStateOf(false) }
+    LaunchedEffect(visible) {
         if (visible) {
-            host.show { currentContent() }
+            mounted = true
+        } else {
+            delay(FROSTED_POPUP_EXIT_UNMOUNT_DELAY_MS)
+            mounted = false
+        }
+    }
+
+    // mounted 变化时同步宿主；组合体被移除（如切屏/LazyColumn 滚出）时兜底卸载
+    DisposableEffect(mounted) {
+        if (mounted) {
+            host.show {
+                CompositionLocalProvider(LocalFrostedPopupVisible provides currentVisible) {
+                    currentContent()
+                }
+            }
         } else {
             host.dismiss()
         }

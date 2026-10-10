@@ -30,6 +30,8 @@ import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.meditation.MeditationPlayerManager
 import org.xmsleep.app.theme.grayscale
 import org.xmsleep.app.ui.components.PlayingAnimation
+import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.ui.meditation.MeditationCategory
 import org.xmsleep.app.ui.meditation.MeditationManifest
 import java.io.InputStreamReader
@@ -358,12 +360,26 @@ private fun RhythmParam(label: String, value: String) {
 @Composable
 private fun BreathingMethodTutorialDialog(method: BreathingMethod, onDismiss: () -> Unit) {
     val context = LocalContext.current
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        icon = { Icon(Icons.AutoMirrored.Filled.HelpOutline, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(40.dp)) },
-        title = { Text(method.name, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold) },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.verticalScroll(rememberScrollState())) {
+    FrostedPopup(visible = true) {
+        FrostedGlassSheet(
+            visible = true,
+            onDismissRequest = onDismiss
+        ) {
+            Icon(Icons.AutoMirrored.Filled.HelpOutline, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(40.dp))
+            Text(
+                method.name,
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            Column(
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(max = 420.dp)
+                    .verticalScroll(rememberScrollState())
+            ) {
                 Text(method.subtitle, style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
                 Divider()
                 Text(method.description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -383,7 +399,14 @@ private fun BreathingMethodTutorialDialog(method: BreathingMethod, onDismiss: ()
                 Text(rhythmDetail,
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
-        },
-        confirmButton = { Button(onClick = onDismiss, modifier = Modifier.fillMaxWidth()) { Text(context.getString(R.string.got_it)) } }
-    )
+            Button(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 12.dp)
+            ) {
+                Text(context.getString(R.string.got_it))
+            }
+        }
+    }
 }

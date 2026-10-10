@@ -1,7 +1,9 @@
 package org.xmsleep.app.ui.components
 
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -18,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
@@ -48,7 +51,7 @@ val LocalFrostedHazeState = staticCompositionLocalOf<HazeState?> { null }
  *   出场以透明度 0→1 淡入交叉淡化（页面保持清晰 → 磨砂层盖上）
  * - 面板底色默认 surfaceVariant.copy(alpha = 0.42f)，跟随主题
  * - 面板从 0.94 放大到 1 浮起
- * - 使用 cubic-bezier(0.2, 0.7, 0.2, 1) 入场 1 秒，关闭 300ms
+ * - 使用 spring（中等回弹）驱动入场/退场，手感对齐系统权限弹窗
  *
  * [hazeState] 为可选：不传则回退到 [LocalFrostedHazeState]，
  * 两者都无时降级为普通半透明遮罩。必须与 Haze 源（Modifier.haze）
@@ -61,25 +64,41 @@ fun FrostedGlassSheet(
     hazeState: HazeState? = null,
     modifier: Modifier = Modifier,
     sheetColor: Color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.42f),
-    blurRadius: Dp = 10.dp,
-    enterDurationMillis: Int = 1000,
-    exitDurationMillis: Int = 300,
+    blurRadius: Dp = 14.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val resolvedHazeState = hazeState ?: LocalFrostedHazeState.current
-    // 单一 progress 驱动遮罩淡入/面板缩放，避免多状态失步
-    val progress by animateFloatAsState(
-        targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(
-            durationMillis = if (visible) enterDurationMillis else exitDurationMillis,
-            easing = CubicBezierEasing(0.2f, 0.7f, 0.2f, 1f)
-        ),
-        label = "frosted_sheet_progress"
-    )
+    // 有效可见性：FrostedPopup 内由 Local 下发真实 visible（本参数通常恒为 true），
+    // 独立使用时退化为本参数。
+    val effectiveVisible = visible && LocalFrostedPopupVisible.current
+    // 入场从 0 弹到 1（spring 自然回弹，对齐系统权限弹窗手感）；
+    // 退场用加速 tween 快速淡出缩小（同系统弹窗退场）。
+    // 必须用 Animatable 从 0 起步 + LaunchedEffect 主动驱动：
+    // animateFloatAsState 首次组合会直接取目标值、无入场动画（弹窗"瞬间蹦出"显僵硬）。
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(effectiveVisible) {
+        if (effectiveVisible) {
+            progress.animateTo(
+                targetValue = 1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessMediumLow
+                )
+            )
+        } else {
+            progress.animateTo(
+                targetValue = 0f,
+                animationSpec = tween(
+                    durationMillis = 220,
+                    easing = FastOutLinearInEasing
+                )
+            )
+        }
+    }
 
     val surfaceColor = MaterialTheme.colorScheme.surface
 
-    if (progress <= 0f) return
+    if (progress.value <= 0f) return
 
     Box(
         modifier = modifier
@@ -97,7 +116,7 @@ fun FrostedGlassSheet(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .graphicsLayer { alpha = progress }
+                .graphicsLayer { alpha = progress.value.coerceIn(0f, 1f) }
                 .then(
                     if (resolvedHazeState != null) {
                         Modifier.hazeChild(state = resolvedHazeState) {
@@ -115,9 +134,9 @@ fun FrostedGlassSheet(
             modifier = Modifier
                 .padding(horizontal = 32.dp)
                 .graphicsLayer(
-                    alpha = progress,
-                    scaleX = 0.94f + 0.06f * progress,
-                    scaleY = 0.94f + 0.06f * progress
+                    alpha = progress.value.coerceIn(0f, 1f),
+                    scaleX = 0.94f + 0.06f * progress.value,
+                    scaleY = 0.94f + 0.06f * progress.value
                 ),
             shape = RoundedCornerShape(24.dp),
             color = Color.Transparent
