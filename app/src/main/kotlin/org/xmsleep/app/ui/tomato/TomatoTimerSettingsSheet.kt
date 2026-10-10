@@ -57,6 +57,8 @@ fun TomatoTimerSettingsSheet(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .padding(horizontal = 20.dp)
+                    .padding(bottom = 24.dp)
             ) {
             Text(
                 text = stringResource(R.string.tomato_settings_title),

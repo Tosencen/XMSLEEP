@@ -2,8 +2,7 @@ package org.xmsleep.app.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutLinearInEasing
-import androidx.compose.animation.core.Spring
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -63,8 +62,8 @@ fun FrostedBottomSheet(
     // 有效可见性：FrostedPopup 内由 Local 下发真实 visible + 宿主退场状态；独立使用时退化为本参数
     val effectiveVisible = visible && LocalFrostedPopupVisible.current && !LocalFrostedHostDismissing.current
 
-    // 动画拆分（与 FrostedGlassSheet 同思路）：alpha 用快速 tween 立即可见，位移用 spring 上滑回弹。
-    // 之前 alpha 直接跟随 spring 值 → spring 起步慢导致淡入迟滞、观感僵硬。
+    // 动画拆分（与 FrostedGlassSheet 同思路）：alpha 用快速 tween 立即可见，位移用 tween 平滑上滑。
+    // 之前位移用 spring 会过冲（面板冲过终点再回弹），底部抽屉不该这样弹。
     val alphaProgress = remember { Animatable(0f) }
     val slideProgress = remember { Animatable(0f) }
     // 仅在入场开始/退场结束各翻转一次，避免组合期逐帧读动画值导致内容反复重组。
@@ -83,10 +82,7 @@ fun FrostedBottomSheet(
                 launch {
                     slideProgress.animateTo(
                         targetValue = 1f,
-                        animationSpec = spring(
-                            dampingRatio = Spring.DampingRatioLowBouncy,
-                            stiffness = Spring.StiffnessMediumLow
-                        )
+                        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
                     )
                 }
             }
@@ -173,8 +169,7 @@ fun FrostedBottomSheet(
                         ),
                         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
                     )
-                    .navigationBarsPadding()
-                    .padding(24.dp),
+                    .navigationBarsPadding(),
                 content = content
             )
         }

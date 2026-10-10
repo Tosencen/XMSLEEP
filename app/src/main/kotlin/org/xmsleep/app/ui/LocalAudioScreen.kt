@@ -746,7 +746,7 @@ fun LocalAudioScreen(
         val isFavorite = favoriteLocalAudios.contains(selectedAudioForMenu!!.uri.toString())
         FrostedPopup(visible = true) {
             FrostedBottomSheet(visible = true, onDismissRequest = { showContextMenu = false }) {
-                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).padding(bottom = 16.dp)) {
                     Text(selectedAudioForMenu!!.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 16.dp), maxLines = 2, overflow = TextOverflow.Ellipsis)
                     Surface(onClick = { toggleFavorite(selectedAudioForMenu!!); showContextMenu = false }, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
                         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -810,7 +810,8 @@ fun LocalAudioScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
-                        .padding(bottom = 8.dp)
+                        .padding(horizontal = 20.dp)
+                        .padding(bottom = 24.dp)
                 ) {
                 // 标题栏
                 Text(

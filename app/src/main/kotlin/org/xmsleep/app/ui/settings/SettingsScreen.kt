@@ -995,10 +995,16 @@ fun SettingsScreen(
                 120 to context.getString(R.string.countdown_2_hours)
             )
             
-            AlertDialog(
-                onDismissRequest = { showAutoCountdownDialog = false },
-                title = { Text(context.getString(R.string.select_countdown_time)) },
-                text = {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = { showAutoCountdownDialog = false }
+                ) {
+                    Text(
+                        text = context.getString(R.string.select_countdown_time),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
                     Column(
                         modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -1041,14 +1047,16 @@ fun SettingsScreen(
                             }
                         }
                     }
-                },
-                confirmButton = {},
-                dismissButton = {
-                    TextButton(onClick = { showAutoCountdownDialog = false }) {
-                        Text(context.getString(R.string.cancel))
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = { showAutoCountdownDialog = false }) {
+                            Text(context.getString(R.string.cancel))
+                        }
                     }
                 }
-            )
+            }
         }
         
         // 天气编辑对话框

@@ -101,7 +101,8 @@ fun BackgroundSettingsSheet(
                 modifier = Modifier
                     .fillMaxWidth()
                     .verticalScroll(rememberScrollState())
-                    .padding(bottom = 8.dp)
+                    .padding(horizontal = 16.dp)
+                    .padding(bottom = 32.dp)
             ) {
                 // === Radio Preview ===
                 Box(
