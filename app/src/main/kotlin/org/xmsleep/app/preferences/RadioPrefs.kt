@@ -84,22 +84,4 @@ object RadioPrefs {
         }
         return rooms
     }
-
-    fun saveRadioFloatingButtonPosition(context: Context, y: Float, isLeft: Boolean) {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        prefs.edit()
-            .putFloat(Constants.PrefsKeys.RADIO_FLOATING_BUTTON_Y, y)
-            .putBoolean(Constants.PrefsKeys.RADIO_FLOATING_BUTTON_IS_LEFT, isLeft)
-            .apply()
-    }
-
-    fun getRadioFloatingButtonY(context: Context): Float {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getFloat(Constants.PrefsKeys.RADIO_FLOATING_BUTTON_Y, -1f)
-    }
-
-    fun getRadioFloatingButtonIsLeft(context: Context): Boolean {
-        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return prefs.getBoolean(Constants.PrefsKeys.RADIO_FLOATING_BUTTON_IS_LEFT, true)
-    }
 }

@@ -380,14 +380,6 @@ fun RadioScreen(
                 .padding(end = 16.dp, bottom = fabBottomPadding)
         )
 
-        FloatingRadioBubble(
-            visible = playingRoomId != null && isPlaying,
-            room = playingRoomInfo,
-            roomId = playingRoomId,
-            isPlaying = isPlaying,
-            viewModel = viewModel,
-        )
-
     }
 
     // 倒计时对话框（提升到顶层渲染：全页模糊 + tab 在遮罩下）

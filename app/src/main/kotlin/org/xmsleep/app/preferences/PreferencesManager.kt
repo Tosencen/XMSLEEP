@@ -301,13 +301,6 @@ object PreferencesManager {
     fun getBilibiliPinnedRoomsInfo(context: Context): List<BilibiliApi.LiveRoom> =
         RadioPrefs.getBilibiliPinnedRoomsInfo(context)
 
-    fun saveRadioFloatingButtonPosition(context: Context, y: Float, isLeft: Boolean) =
-        RadioPrefs.saveRadioFloatingButtonPosition(context, y, isLeft)
-
-    fun getRadioFloatingButtonY(context: Context): Float = RadioPrefs.getRadioFloatingButtonY(context)
-
-    fun getRadioFloatingButtonIsLeft(context: Context): Boolean = RadioPrefs.getRadioFloatingButtonIsLeft(context)
-
     // ==================== UI 与通用 ====================
 
     fun saveFloatingButtonPosition(context: Context, x: Float, y: Float, isLeft: Boolean) =
