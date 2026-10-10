@@ -313,7 +313,7 @@ fun BackgroundSettingsSheet(
                     Text(localizedContext.getString(android.R.string.cancel))
                 }
                 Spacer(Modifier.width(8.dp))
-                FilledTonalButton(onClick = {
+                TextButton(onClick = {
                     onConfirm(
                         BackgroundSettings(
                             selection = localSelection,
