@@ -92,21 +92,21 @@ fun BackgroundSettingsSheet(
         }
     } else null
 
-    ModalBottomSheet(
-        onDismissRequest = onDismiss,
-        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 32.dp)
+    FrostedPopup(visible = true) {
+        FrostedBottomSheet(
+            visible = true,
+            onDismissRequest = onDismiss
         ) {
-            // === Radio Preview ===
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(bottom = 8.dp)
+            ) {
+                // === Radio Preview ===
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
             ) {
                 RadioPreview(
                     backgroundSelection = localSelection,
@@ -328,6 +328,7 @@ fun BackgroundSettingsSheet(
             }
         }
     }
+}
 }
 
 @Composable

@@ -68,9 +68,9 @@ fun FrostedGlassSheet(
     content: @Composable ColumnScope.() -> Unit
 ) {
     val resolvedHazeState = hazeState ?: LocalFrostedHazeState.current
-    // 有效可见性：FrostedPopup 内由 Local 下发真实 visible（本参数通常恒为 true），
+    // 有效可见性：FrostedPopup 内由 Local 下发真实 visible + 宿主退场状态（本参数通常恒为 true），
     // 独立使用时退化为本参数。
-    val effectiveVisible = visible && LocalFrostedPopupVisible.current
+    val effectiveVisible = visible && LocalFrostedPopupVisible.current && !LocalFrostedHostDismissing.current
     // 入场从 0 弹到 1（spring 自然回弹，对齐系统权限弹窗手感）；
     // 退场用加速 tween 快速淡出缩小（同系统弹窗退场）。
     // 必须用 Animatable 从 0 起步 + LaunchedEffect 主动驱动：

@@ -7,11 +7,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * 屏内弹窗提升宿主。
@@ -23,50 +27,75 @@ import kotlinx.coroutines.delay
  * 通过本宿主把弹窗内容提升到 MainScreen Box B 之外渲染：
  * - 画在导航栏之上，tab 被遮罩盖住（而不是盖住弹窗）
  * - hazeChild 采样 hazeMaskState 成为兄弟 → 全页模糊（壁纸 + 内容 + tab 一起模糊）
+ *
+ * 宿主同时管理退场生命周期：无论调用方以 `visible` 驱动还是以 `if` 包裹卸载，
+ * 都先置 [dismissing] 让内容播退场动画，延迟后再卸载，避免弹窗"瞬间消失"。
  */
 @Stable
 class FrostedDialogHostState {
+    private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+    private var exitJob: Job? = null
+
     /** 当前提升渲染的弹窗内容；null 表示无弹窗 */
     internal var content by mutableStateOf<(@Composable () -> Unit)?>(null)
         private set
 
+    /** 是否处于退场中（内容仍挂载、正在播退场动画） */
+    internal var dismissing by mutableStateOf(false)
+        private set
+
+    val isVisible: Boolean get() = content != null
+
     internal fun show(content: @Composable () -> Unit) {
+        exitJob?.cancel()
+        dismissing = false
         this.content = content
     }
 
-    fun dismiss() {
-        this.content = null
+    /** 开始退场：置 [dismissing] 让内容播退场动画，延迟后卸载。 */
+    internal fun beginExit() {
+        if (content == null || dismissing) return
+        dismissing = true
+        exitJob = scope.launch {
+            delay(EXIT_UNMOUNT_DELAY_MS)
+            content = null
+            dismissing = false
+        }
     }
 
-    val isVisible: Boolean get() = content != null
+    fun dismiss() {
+        exitJob?.cancel()
+        content = null
+        dismissing = false
+    }
 }
 
 /** MainScreen 在 Box B 之外 provide；屏内通过它把弹窗提升渲染。 */
 val LocalFrostedDialogHost = staticCompositionLocalOf<FrostedDialogHostState?> { null }
 
 /**
- * FrostedPopup 传给内容的真实可见性。
- *
- * 调用方在 [FrostedPopup] 内写的 [FrostedGlassSheet] 通常固定 `visible = true`（显隐由
- * FrostedPopup 挂载/卸载控制）。但退场需要 FrostedGlassSheet 知道"正在关闭"才能播退场动画，
- * 因此由 FrostedPopup 通过本 Local 下发真实 visible，FrostedGlassSheet 以 `visible && 本值`
- * 作为有效可见性。不在 FrostedPopup 内（如独立使用）时默认 true，不影响原有行为。
+ * FrostedPopup 传给内容的真实可见性（false 表示调用方已把 visible 置 false、正在关闭）。
+ * 不在 FrostedPopup 内（如独立使用）时默认 true。
  */
 val LocalFrostedPopupVisible = staticCompositionLocalOf { true }
 
+/** 宿主是否处于退场中（内容应播退场动画）。 */
+val LocalFrostedHostDismissing = staticCompositionLocalOf { false }
+
 /** 退场动画播放时长内保持挂载，之后再卸载（须 ≥ FrostedGlassSheet 退场 tween 时长）。 */
-private const val FROSTED_POPUP_EXIT_UNMOUNT_DELAY_MS = 300L
+private const val EXIT_UNMOUNT_DELAY_MS = 300L
 
 /**
  * 屏内弹窗包装：有宿主时把 [content] 提升到 MainScreen 顶层渲染（全页模糊、tab 在遮罩下），
  * 无宿主时降级为就地渲染。用法：
  * ```
+ * // 方式一：visible 驱动（推荐，调用方常驻组合、用 visible 控制显隐）
  * FrostedPopup(visible = showDialog) {
  *     FrostedGlassSheet(visible = true, onDismissRequest = { showDialog = false }) { ... }
  * }
+ * // 方式二：if 包裹的自定义弹窗（卸载时宿主仍会播退场动画再卸载）
+ * if (showDialog) { SomeFrostedDialog(onDismiss = { showDialog = false }) }
  * ```
- * 显示时立即挂载；隐藏时先保持挂载 [FROSTED_POPUP_EXIT_UNMOUNT_DELAY_MS] 让退场动画播完，
- * 再卸载宿主。
  */
 @Composable
 fun FrostedPopup(
@@ -83,30 +112,27 @@ fun FrostedPopup(
     val currentContent by rememberUpdatedState(content)
     val currentVisible by rememberUpdatedState(visible)
 
-    // 挂载状态：显示立即挂载；隐藏延迟卸载，给退场动画留时间
-    var mounted by remember { mutableStateOf(false) }
+    // visible → 宿主挂载 / 开始退场
     LaunchedEffect(visible) {
         if (visible) {
-            mounted = true
-        } else {
-            delay(FROSTED_POPUP_EXIT_UNMOUNT_DELAY_MS)
-            mounted = false
-        }
-    }
-
-    // mounted 变化时同步宿主；组合体被移除（如切屏/LazyColumn 滚出）时兜底卸载
-    DisposableEffect(mounted) {
-        if (mounted) {
             host.show {
-                CompositionLocalProvider(LocalFrostedPopupVisible provides currentVisible) {
+                CompositionLocalProvider(
+                    LocalFrostedPopupVisible provides currentVisible,
+                    LocalFrostedHostDismissing provides host.dismissing
+                ) {
                     currentContent()
                 }
             }
         } else {
-            host.dismiss()
+            host.beginExit()
         }
+    }
+
+    // 组合体被移除（if 包裹的自定义弹窗卸载 / 切屏 / LazyColumn 滚出）时：
+    // 若宿主仍在显示则开始退场（播退场动画后再卸载），避免弹窗"瞬间消失"
+    DisposableEffect(Unit) {
         onDispose {
-            host.dismiss()
+            if (host.isVisible && !host.dismissing) host.beginExit()
         }
     }
 }

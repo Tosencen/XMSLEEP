@@ -48,6 +48,7 @@ import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedBottomSheet
 import org.xmsleep.app.ui.components.FrostedGlassSheet
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -743,31 +744,27 @@ fun LocalAudioScreen(
     // Context menu
     if (showContextMenu && selectedAudioForMenu != null) {
         val isFavorite = favoriteLocalAudios.contains(selectedAudioForMenu!!.uri.toString())
-        val sheetState = rememberModalBottomSheetState()
-        ModalBottomSheet(
-            onDismissRequest = { showContextMenu = false },
-            sheetState = sheetState,
-            containerColor = MaterialTheme.colorScheme.surface,
-            tonalElevation = 0.dp
-        ) {
-            Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-                Text(selectedAudioForMenu!!.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                Surface(onClick = { toggleFavorite(selectedAudioForMenu!!); showContextMenu = false }, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, contentDescription = null, tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
-                        Text(if (isFavorite) context.getString(R.string.remove_from_favorite) else context.getString(R.string.add_to_favorite), style = MaterialTheme.typography.bodyLarge)
+        FrostedPopup(visible = true) {
+            FrostedBottomSheet(visible = true, onDismissRequest = { showContextMenu = false }) {
+                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                    Text(selectedAudioForMenu!!.title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(vertical = 16.dp), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Surface(onClick = { toggleFavorite(selectedAudioForMenu!!); showContextMenu = false }, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(if (isFavorite) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder, contentDescription = null, tint = if (isFavorite) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface)
+                            Text(if (isFavorite) context.getString(R.string.remove_from_favorite) else context.getString(R.string.add_to_favorite), style = MaterialTheme.typography.bodyLarge)
+                        }
                     }
-                }
-                Surface(onClick = { showContextMenu = false; renameText = selectedAudioForMenu!!.title; showRenameDialog = true }, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.DriveFileRenameOutline, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
-                        Text(context.getString(R.string.rename), style = MaterialTheme.typography.bodyLarge)
+                    Surface(onClick = { showContextMenu = false; renameText = selectedAudioForMenu!!.title; showRenameDialog = true }, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.DriveFileRenameOutline, contentDescription = null, tint = MaterialTheme.colorScheme.onSurface)
+                            Text(context.getString(R.string.rename), style = MaterialTheme.typography.bodyLarge)
+                        }
                     }
-                }
-                Surface(onClick = { showContextMenu = false; showDeleteDialog = true }, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
-                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Filled.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                        Text(context.getString(R.string.delete), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.error)
+                    Surface(onClick = { showContextMenu = false; showDeleteDialog = true }, modifier = Modifier.fillMaxWidth(), color = MaterialTheme.colorScheme.surface) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                            Text(context.getString(R.string.delete), style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.error)
+                        }
                     }
                 }
             }
@@ -807,18 +804,14 @@ fun LocalAudioScreen(
 
     // 文件夹管理弹层：勾选要收录的文件夹（白名单）
     if (showFolderManager) {
-        ModalBottomSheet(
-            onDismissRequest = { showFolderManager = false },
-            containerColor = MaterialTheme.colorScheme.surface,
-            tonalElevation = 0.dp
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp)
-                    .padding(bottom = 24.dp)
-            ) {
+        FrostedPopup(visible = true) {
+            FrostedBottomSheet(visible = true, onDismissRequest = { showFolderManager = false }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(bottom = 8.dp)
+                ) {
                 // 标题栏
                 Text(
                     text = context.getString(R.string.manage_folders),
@@ -867,6 +860,7 @@ fun LocalAudioScreen(
                                 onClick = { toggleFolderVisibility(entry.path) }
                             )
                         }
+                    }
                 }
             }
         }

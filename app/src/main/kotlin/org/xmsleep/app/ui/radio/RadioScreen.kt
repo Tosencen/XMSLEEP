@@ -64,6 +64,7 @@ import org.xmsleep.app.ui.ThemeColorCallback
 import org.xmsleep.app.ui.TimerDialog
 import org.xmsleep.app.ui.TimerFAB
 import org.xmsleep.app.ui.components.FrostedPopup
+import org.xmsleep.app.ui.components.FrostedBottomSheet
 import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.ui.viewmodel.RadioViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -464,15 +465,16 @@ fun RadioScreen(
     if (showBilibiliSheet) {
         var selectedTag by remember { mutableStateOf("白噪音") }
 
-        ModalBottomSheet(
-            onDismissRequest = { showBilibiliSheet = false; isEditMode = false },
-            sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(8f / 9f)
+        FrostedPopup(visible = true) {
+            FrostedBottomSheet(
+                visible = true,
+                onDismissRequest = { showBilibiliSheet = false; isEditMode = false }
             ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight(8f / 9f)
+                ) {
                 LaunchedEffect(selectedTag) {
                     viewModel.searchBilibili(selectedTag)
                 }
@@ -638,6 +640,7 @@ fun RadioScreen(
             }
         }
     }
+}
 
 
 }

@@ -15,14 +15,11 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -37,15 +34,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import org.xmsleep.app.R
 import org.xmsleep.app.preferences.PreferencesManager
+import org.xmsleep.app.ui.components.FrostedBottomSheet
+import org.xmsleep.app.ui.components.FrostedPopup
 import org.xmsleep.app.ui.settings.updateVibrationSetting
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TomatoTimerSettingsSheet(
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var selectedRingtone by remember { mutableStateOf(PreferencesManager.getTomatoRingtone(context)) }
     var pulseEnabled by remember { mutableStateOf(PreferencesManager.getTomatoPulseAnimation(context)) }
     var vibrateEnabled by remember { mutableStateOf(PreferencesManager.getTomatoVibrate(context)) }
@@ -55,13 +52,12 @@ fun TomatoTimerSettingsSheet(
         onDispose { TomatoRingtonePlayer.stopPreview() }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 32.dp)
-        ) {
+    FrostedPopup(visible = true) {
+        FrostedBottomSheet(visible = true, onDismissRequest = onDismiss) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
             Text(
                 text = stringResource(R.string.tomato_settings_title),
                 style = MaterialTheme.typography.titleMedium
@@ -160,6 +156,7 @@ fun TomatoTimerSettingsSheet(
             }
         }
     }
+}
 }
 
 @Composable
