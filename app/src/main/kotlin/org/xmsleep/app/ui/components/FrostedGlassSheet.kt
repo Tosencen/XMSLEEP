@@ -22,7 +22,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +36,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeChild
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * 全局毛玻璃 Haze 状态。
@@ -71,34 +75,58 @@ fun FrostedGlassSheet(
     // 有效可见性：FrostedPopup 内由 Local 下发真实 visible + 宿主退场状态（本参数通常恒为 true），
     // 独立使用时退化为本参数。
     val effectiveVisible = visible && LocalFrostedPopupVisible.current && !LocalFrostedHostDismissing.current
-    // 入场从 0 弹到 1（spring 自然回弹，对齐系统权限弹窗手感）；
-    // 退场用加速 tween 快速淡出缩小（同系统弹窗退场）。
-    // 必须用 Animatable 从 0 起步 + LaunchedEffect 主动驱动：
-    // animateFloatAsState 首次组合会直接取目标值、无入场动画（弹窗"瞬间蹦出"显僵硬）。
-    val progress = remember { Animatable(0f) }
+
+    // 动画拆分为两条通道（手感关键）：
+    // - alpha 用快速 tween 淡入淡出 → 立即可见、不拖泥带水；
+    // - scale 用 spring 弹起/回弹 → 轻盈浮起。
+    // 之前 alpha 直接跟随 spring 值：spring 起步慢导致淡入迟滞、观感僵硬。
+    val alphaProgress = remember { Animatable(0f) }
+    val scaleProgress = remember { Animatable(0.94f) }
+    // 仅在入场开始/退场结束各翻转一次，避免在组合期逐帧读动画值导致内容反复重组（复杂弹窗会掉帧）。
+    var rendered by remember { mutableStateOf(false) }
+
     LaunchedEffect(effectiveVisible) {
         if (effectiveVisible) {
-            progress.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessMediumLow
-                )
-            )
+            rendered = true
+            coroutineScope {
+                launch {
+                    alphaProgress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 160, easing = FastOutLinearInEasing)
+                    )
+                }
+                launch {
+                    scaleProgress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    )
+                }
+            }
         } else {
-            progress.animateTo(
-                targetValue = 0f,
-                animationSpec = tween(
-                    durationMillis = 220,
-                    easing = FastOutLinearInEasing
-                )
-            )
+            coroutineScope {
+                launch {
+                    alphaProgress.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = 180, easing = FastOutLinearInEasing)
+                    )
+                }
+                launch {
+                    scaleProgress.animateTo(
+                        targetValue = 0.94f,
+                        animationSpec = tween(durationMillis = 180, easing = FastOutLinearInEasing)
+                    )
+                }
+            }
+            rendered = false
         }
     }
 
     val surfaceColor = MaterialTheme.colorScheme.surface
 
-    if (progress.value <= 0f) return
+    if (!rendered) return
 
     Box(
         modifier = modifier
@@ -113,10 +141,11 @@ fun FrostedGlassSheet(
         // 磨砂遮罩：采样页面内容做固定半径模糊，整个层以 alpha 淡入出场
         // 与底部导航栏同一配方：hazeChild 内用不透明 surface 垫色，模糊画在垫色之上
         // 若无可用 haze 状态则降级为半透明 surface 遮罩
+        // alpha/scale 在绘制期读取（graphicsLayer lambda），动画过程不触发重组
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .graphicsLayer { alpha = progress.value.coerceIn(0f, 1f) }
+                .graphicsLayer { alpha = alphaProgress.value.coerceIn(0f, 1f) }
                 .then(
                     if (resolvedHazeState != null) {
                         Modifier.hazeChild(state = resolvedHazeState) {
@@ -133,11 +162,11 @@ fun FrostedGlassSheet(
         Surface(
             modifier = Modifier
                 .padding(horizontal = 32.dp)
-                .graphicsLayer(
-                    alpha = progress.value.coerceIn(0f, 1f),
-                    scaleX = 0.94f + 0.06f * progress.value,
-                    scaleY = 0.94f + 0.06f * progress.value
-                ),
+                .graphicsLayer {
+                    alpha = alphaProgress.value.coerceIn(0f, 1f)
+                    scaleX = scaleProgress.value
+                    scaleY = scaleProgress.value
+                },
             shape = RoundedCornerShape(24.dp),
             color = Color.Transparent
         ) {

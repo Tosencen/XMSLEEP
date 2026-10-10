@@ -22,7 +22,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +37,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import dev.chrisbanes.haze.HazeState
 import dev.chrisbanes.haze.hazeChild
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 
 /**
  * 毛玻璃底部抽屉（Frosted Bottom Sheet）。
@@ -57,28 +62,56 @@ fun FrostedBottomSheet(
     val resolvedHazeState = hazeState ?: LocalFrostedHazeState.current
     // 有效可见性：FrostedPopup 内由 Local 下发真实 visible + 宿主退场状态；独立使用时退化为本参数
     val effectiveVisible = visible && LocalFrostedPopupVisible.current && !LocalFrostedHostDismissing.current
-    // 入场从底部弹到 1（spring）；退场加速下滑（tween）。用 Animatable 从 0 起步才有入场动画。
-    val progress = remember { Animatable(0f) }
+
+    // 动画拆分（与 FrostedGlassSheet 同思路）：alpha 用快速 tween 立即可见，位移用 spring 上滑回弹。
+    // 之前 alpha 直接跟随 spring 值 → spring 起步慢导致淡入迟滞、观感僵硬。
+    val alphaProgress = remember { Animatable(0f) }
+    val slideProgress = remember { Animatable(0f) }
+    // 仅在入场开始/退场结束各翻转一次，避免组合期逐帧读动画值导致内容反复重组。
+    var rendered by remember { mutableStateOf(false) }
+
     LaunchedEffect(effectiveVisible) {
         if (effectiveVisible) {
-            progress.animateTo(
-                targetValue = 1f,
-                animationSpec = spring(
-                    dampingRatio = Spring.DampingRatioLowBouncy,
-                    stiffness = Spring.StiffnessMediumLow
-                )
-            )
+            rendered = true
+            coroutineScope {
+                launch {
+                    alphaProgress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 160, easing = FastOutLinearInEasing)
+                    )
+                }
+                launch {
+                    slideProgress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioLowBouncy,
+                            stiffness = Spring.StiffnessMediumLow
+                        )
+                    )
+                }
+            }
         } else {
-            progress.animateTo(
-                targetValue = 0f,
-                animationSpec = tween(durationMillis = 220, easing = FastOutLinearInEasing)
-            )
+            coroutineScope {
+                launch {
+                    alphaProgress.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = 180, easing = FastOutLinearInEasing)
+                    )
+                }
+                launch {
+                    slideProgress.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = 180, easing = FastOutLinearInEasing)
+                    )
+                }
+            }
+            rendered = false
         }
     }
 
     val surfaceColor = MaterialTheme.colorScheme.surface
 
-    if (progress.value <= 0f) return
+    if (!rendered) return
 
     // 上滑位移：用固定偏移（≥ 屏高）把面板推出屏幕底部，避免依赖 onSizeChanged 的测量时序
     val density = LocalDensity.current
@@ -95,10 +128,11 @@ fun FrostedBottomSheet(
         contentAlignment = Alignment.BottomCenter
     ) {
         // 磨砂遮罩：采样页面内容做固定半径模糊，整个层以 alpha 淡入
+        // alpha/位移在绘制期读取（graphicsLayer lambda），动画过程不触发重组
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .graphicsLayer { alpha = progress.value.coerceIn(0f, 1f) }
+                .graphicsLayer { alpha = alphaProgress.value.coerceIn(0f, 1f) }
                 .then(
                     if (resolvedHazeState != null) {
                         Modifier.hazeChild(state = resolvedHazeState) {
@@ -116,8 +150,8 @@ fun FrostedBottomSheet(
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer {
-                    alpha = progress.value.coerceIn(0f, 1f)
-                    translationY = (1f - progress.value) * slideOffsetPx
+                    alpha = alphaProgress.value.coerceIn(0f, 1f)
+                    translationY = (1f - slideProgress.value) * slideOffsetPx
                 },
             shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
             color = Color.Transparent
