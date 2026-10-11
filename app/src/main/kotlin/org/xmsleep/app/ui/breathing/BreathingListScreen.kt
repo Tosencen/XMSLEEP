@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -35,6 +36,19 @@ import org.xmsleep.app.ui.meditation.MeditationManifest
 import java.io.InputStreamReader
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+/**
+ * 无限水平滑动的 PagerState：虚拟大页数 + 取模映射，
+ * 初始页对齐到 itemCount 的倍数，保证从第 0 项起左右均可滑动
+ */
+@Composable
+private fun rememberInfinitePagerState(itemCount: Int): PagerState {
+    val mid = Int.MAX_VALUE / 2
+    return rememberPagerState(
+        initialPage = if (itemCount > 0) mid - mid % itemCount else 0,
+        pageCount = { if (itemCount > 0) Int.MAX_VALUE else 0 }
+    )
+}
+
 @Composable
 fun BreathingListScreen(
     onMethodClick: (String) -> Unit,
@@ -43,7 +57,7 @@ fun BreathingListScreen(
 ) {
     val context = LocalContext.current
     val methods = remember { BreathingMethods.getMethods(context) }
-    val pagerState = rememberPagerState(pageCount = { methods.size })
+    val pagerState = rememberInfinitePagerState(methods.size)
     var showTutorialMethod by remember { mutableStateOf<BreathingMethod?>(null) }
     val languageCode = LanguageManager.getCurrentLanguage(context).code
 
@@ -103,10 +117,11 @@ fun BreathingListScreen(
                 contentPadding = PaddingValues(horizontal = 32.dp),
                 pageSpacing = 16.dp
             ) { page ->
+                val method = methods[page % methods.size]
                 BreathingMethodCard(
-                    method = methods[page],
-                    onClick = { onMethodClick(methods[page].id) },
-                    onHelpClick = { showTutorialMethod = methods[page] }
+                    method = method,
+                    onClick = { onMethodClick(method.id) },
+                    onHelpClick = { showTutorialMethod = method }
                 )
             }
         }
@@ -126,18 +141,18 @@ private fun MeditationCategoriesRow(
     playingCategoryId: String?
 ) {
     val context = LocalContext.current
-    val backgroundColor = MaterialTheme.colorScheme.primary
-    val contentColor = MaterialTheme.colorScheme.onPrimary
+    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
+    val contentColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     HorizontalPager(
-        state = rememberPagerState(pageCount = { categories.size }),
+        state = rememberInfinitePagerState(categories.size),
         modifier = Modifier
             .fillMaxWidth()
             .height(180.dp),
         contentPadding = PaddingValues(horizontal = 32.dp),
         pageSpacing = 16.dp
     ) { page ->
-        val category = categories[page]
+        val category = categories[page % categories.size]
         val showAnimation = isPlaying && playingCategoryId == category.id
 
         Box(

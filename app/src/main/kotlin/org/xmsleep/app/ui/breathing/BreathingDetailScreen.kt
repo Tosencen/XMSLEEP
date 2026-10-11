@@ -278,18 +278,21 @@ fun BreathingDetailScreen(
                 
                 Spacer(modifier = Modifier.height(32.dp))
                 
-                // 按钮区域：时长图标按钮 + 开始/停止按钮（竖排）
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                // 按钮区域：时长按钮（左）+ 播放/停止按钮（右，更宽）
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 48.dp)
                 ) {
                     // 时长图标按钮 - 显示倒计时
                     FilledTonalButton(
                         onClick = { showDurationSelector = true },
                         shape = RoundedCornerShape(12.dp),
+                        contentPadding = PaddingValues(0.dp),
                         modifier = Modifier
-                            .width(160.dp)
-                            .height(48.dp)
+                            .width(72.dp)
+                            .height(64.dp)
                     ) {
                         if (isBreathing && remainingSeconds > 0) {
                             // 倒计时显示
@@ -299,7 +302,8 @@ fun BreathingDetailScreen(
                                 text = String.format(Locale.getDefault(), "%d:%02d", minutes, seconds),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 1
                             )
                         } else {
                             Icon(
@@ -311,16 +315,19 @@ fun BreathingDetailScreen(
                         }
                     }
                     
-                    // 开始/停止按钮
+                    // 播放/停止按钮：空闲主色、运行主题第三色，便于区分
                     Button(
                         onClick = { toggleBreathing() },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
+                            containerColor = if (isBreathing) MaterialTheme.colorScheme.tertiaryContainer
+                                             else MaterialTheme.colorScheme.primary,
+                            contentColor = if (isBreathing) MaterialTheme.colorScheme.onTertiaryContainer
+                                           else MaterialTheme.colorScheme.onPrimary
                         ),
                         shape = RoundedCornerShape(12.dp),
                         contentPadding = PaddingValues(0.dp),
                         modifier = Modifier
-                            .width(160.dp)
+                            .weight(1f)
                             .height(64.dp)
                     ) {
                         Box(
@@ -330,21 +337,19 @@ fun BreathingDetailScreen(
                             Text(
                                 text = if (isBreathing) context.getString(R.string.stop) else context.getString(R.string.play),
                                 style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 modifier = Modifier.align(Alignment.Center)
                             )
                             
-                            // 进度条（只在开始时显示，底部对齐）
+                            // 进度条（只在运行时显示，贴按钮底边）
                             if (isBreathing && totalTime > 0) {
                                 LinearProgressIndicator(
                                     progress = { (totalTime - timeLeft).toFloat() / totalTime.toFloat() },
                                     modifier = Modifier
                                         .align(Alignment.BottomCenter)
                                         .fillMaxWidth()
-                                        .height(4.dp)
-                                        .offset(y = (-2).dp),
-                                    color = MaterialTheme.colorScheme.primary,
-                                    trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                        .height(4.dp),
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                    trackColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.2f)
                                 )
                             }
                         }

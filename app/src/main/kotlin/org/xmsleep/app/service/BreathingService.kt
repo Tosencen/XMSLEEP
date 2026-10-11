@@ -231,41 +231,44 @@ class BreathingService : Service() {
         BreathingSession.timeLeftMillis.value = totalTime
 
         job = serviceScope?.launch {
-            while (BreathingSession.timeLeftMillis.value > 0 && isRunning) {
-                // 吸气
-                onPhaseEnter(BreathPhase.INHALE)
-                for (i in methodInhale downTo 1) {
-                    BreathingSession.phaseCountdown.value = i
-                    if (!tick()) return@launch
-                }
-                // 屏息（如果有的话）
-                if (methodHold > 0) {
-                    onPhaseEnter(BreathPhase.HOLD)
-                    for (i in methodHold downTo 1) {
+            try {
+                while (BreathingSession.timeLeftMillis.value > 0 && isRunning) {
+                    // 吸气
+                    onPhaseEnter(BreathPhase.INHALE)
+                    for (i in methodInhale downTo 1) {
                         BreathingSession.phaseCountdown.value = i
                         if (!tick()) return@launch
                     }
-                }
-                // 呼气
-                onPhaseEnter(BreathPhase.EXHALE)
-                for (i in methodExhale downTo 1) {
-                    BreathingSession.phaseCountdown.value = i
-                    if (!tick()) return@launch
-                }
-                // 呼气后屏息（箱式呼吸）
-                if (methodHoldAfter > 0) {
-                    onPhaseEnter(BreathPhase.HOLD_AFTER)
-                    for (i in methodHoldAfter downTo 1) {
+                    // 屏息（如果有的话）
+                    if (methodHold > 0) {
+                        onPhaseEnter(BreathPhase.HOLD)
+                        for (i in methodHold downTo 1) {
+                            BreathingSession.phaseCountdown.value = i
+                            if (!tick()) return@launch
+                        }
+                    }
+                    // 呼气
+                    onPhaseEnter(BreathPhase.EXHALE)
+                    for (i in methodExhale downTo 1) {
                         BreathingSession.phaseCountdown.value = i
                         if (!tick()) return@launch
                     }
+                    // 呼气后屏息（箱式呼吸）
+                    if (methodHoldAfter > 0) {
+                        onPhaseEnter(BreathPhase.HOLD_AFTER)
+                        for (i in methodHoldAfter downTo 1) {
+                            BreathingSession.phaseCountdown.value = i
+                            if (!tick()) return@launch
+                        }
+                    }
+                    BreathingSession.breathCount.value = BreathingSession.breathCount.value + 1
                 }
-                BreathingSession.breathCount.value = BreathingSession.breathCount.value + 1
+            } finally {
+                // 自然结束 / 手动停止 / 取消都统一收尾，复位会话状态
+                stopBreathing()
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
             }
-            // 时间到
-            stopBreathing()
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            stopSelf()
         }
     }
 
