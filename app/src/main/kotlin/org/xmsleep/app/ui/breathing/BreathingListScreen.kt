@@ -24,11 +24,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.materialkolor.ktx.toHct
 import org.xmsleep.app.R
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.meditation.MeditationPlayerManager
-import org.xmsleep.app.theme.grayscale
 import org.xmsleep.app.ui.components.PlayingAnimation
 import org.xmsleep.app.ui.components.FrostedPopup
 import org.xmsleep.app.ui.components.FrostedGlassSheet
@@ -128,8 +126,8 @@ private fun MeditationCategoriesRow(
     playingCategoryId: String?
 ) {
     val context = LocalContext.current
-    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant
-    val contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val backgroundColor = MaterialTheme.colorScheme.primary
+    val contentColor = MaterialTheme.colorScheme.onPrimary
 
     HorizontalPager(
         state = rememberPagerState(pageCount = { categories.size }),
@@ -241,18 +239,15 @@ private fun BreathingMethodCard(
     onHelpClick: () -> Unit
 ) {
     val context = LocalContext.current
-    // 黑白模式下 colorScheme.primary 已被去饱和，纯灰经 HCT 往返转换约有 2~3 的浮点误差，
-    // 而真实彩色主题的 primary chroma 通常在 30 以上，阈值取 10 可安全区分
-    val isMonochrome = MaterialTheme.colorScheme.primary.toHct().chroma < 10.0
-    val rawRhythmColor = when (method.id) {
-        "sleep_478" -> Color(0xFF5C6BC0)
-        "box_4444" -> Color(0xFF26A69A)
-        "belly_46" -> Color(0xFF66BB6A)
-        "stress_426" -> Color(0xFFFF8A65)
-        else -> MaterialTheme.colorScheme.primary
+    val colorScheme = MaterialTheme.colorScheme
+    // 主题色系：容器色（柔和）+ 主色反色，随主题/黑白模式自动适配
+    val (rhythmColor, contentColor) = when (method.id) {
+        "sleep_478" -> colorScheme.primaryContainer to colorScheme.onPrimaryContainer
+        "box_4444" -> colorScheme.secondaryContainer to colorScheme.onSecondaryContainer
+        "belly_46" -> colorScheme.tertiaryContainer to colorScheme.onTertiaryContainer
+        "stress_426" -> colorScheme.inversePrimary to colorScheme.onSurface
+        else -> colorScheme.primaryContainer to colorScheme.onPrimaryContainer
     }
-    // 黑白模式下对硬编码彩色去饱和，保留各方法间的明暗差异
-    val rhythmColor = if (isMonochrome) rawRhythmColor.grayscale() else rawRhythmColor
 
     Box(
         modifier = Modifier.fillMaxSize()
@@ -265,14 +260,14 @@ private fun BreathingMethodCard(
             Column {
                 if (method.isPrimary) {
                     Surface(
-                        color = Color.White.copy(alpha = 0.3f),
+                        color = contentColor.copy(alpha = 0.3f),
                         shape = RoundedCornerShape(6.dp),
                         modifier = Modifier.padding(bottom = 10.dp)
                     ) {
                         Text(
                             text = context.getString(R.string.breathing_method_primary),
                             style = MaterialTheme.typography.labelSmall,
-                            color = Color.White,
+                            color = contentColor,
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
                         )
                     }
@@ -281,42 +276,42 @@ private fun BreathingMethodCard(
                     text = method.name,
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = contentColor,
                     lineHeight = 28.sp
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = method.subtitle,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.8f)
+                    color = contentColor.copy(alpha = 0.8f)
                 )
             }
 
             RhythmVisualization(
                 inhale = method.inhale, hold = method.hold,
-                exhale = method.exhale, holdAfter = method.holdAfter, color = Color.White
+                exhale = method.exhale, holdAfter = method.holdAfter, color = contentColor
             )
 
             Column {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                     method.tags.take(2).forEach { tag ->
-                        Surface(color = Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(6.dp)) {
-                            Text(text = tag, style = MaterialTheme.typography.labelSmall, color = Color.White,
+                        Surface(color = contentColor.copy(alpha = 0.2f), shape = RoundedCornerShape(6.dp)) {
+                            Text(text = tag, style = MaterialTheme.typography.labelSmall, color = contentColor,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp))
                         }
                     }
                     IconButton(onClick = onHelpClick, modifier = Modifier.size(32.dp)) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.HelpOutline,
                             contentDescription = context.getString(R.string.tutorial),
-                            tint = Color.White.copy(alpha = 0.8f), modifier = Modifier.size(20.dp))
+                            tint = contentColor.copy(alpha = 0.8f), modifier = Modifier.size(20.dp))
                     }
                 }
                 Spacer(modifier = Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    if (method.inhale > 0) RhythmParam(label = context.getString(R.string.inhale).removeSuffix("..."), value = "${method.inhale}s")
-                    if (method.hold > 0) RhythmParam(label = context.getString(R.string.hold).removeSuffix("..."), value = "${method.hold}s")
-                    if (method.exhale > 0) RhythmParam(label = context.getString(R.string.exhale).removeSuffix("..."), value = "${method.exhale}s")
-                    if (method.holdAfter > 0) RhythmParam(label = context.getString(R.string.hold_after).removeSuffix("..."), value = "${method.holdAfter}s")
+                    if (method.inhale > 0) RhythmParam(label = context.getString(R.string.inhale).removeSuffix("..."), value = "${method.inhale}s", contentColor = contentColor)
+                    if (method.hold > 0) RhythmParam(label = context.getString(R.string.hold).removeSuffix("..."), value = "${method.hold}s", contentColor = contentColor)
+                    if (method.exhale > 0) RhythmParam(label = context.getString(R.string.exhale).removeSuffix("..."), value = "${method.exhale}s", contentColor = contentColor)
+                    if (method.holdAfter > 0) RhythmParam(label = context.getString(R.string.hold_after).removeSuffix("..."), value = "${method.holdAfter}s", contentColor = contentColor)
                 }
             }
         }
@@ -350,10 +345,10 @@ private fun RhythmVisualization(inhale: Int, hold: Int, exhale: Int, holdAfter: 
 }
 
 @Composable
-private fun RhythmParam(label: String, value: String) {
+private fun RhythmParam(label: String, value: String, contentColor: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color.White)
-        Text(text = label, style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f))
+        Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = contentColor)
+        Text(text = label, style = MaterialTheme.typography.labelSmall, color = contentColor.copy(alpha = 0.7f))
     }
 }
 
