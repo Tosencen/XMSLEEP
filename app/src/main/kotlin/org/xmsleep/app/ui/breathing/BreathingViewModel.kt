@@ -1,15 +1,13 @@
 package org.xmsleep.app.ui.breathing
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
 /**
- * 呼吸练习 ViewModel - 管理呼吸状态和计时器
+ * 呼吸练习 ViewModel - 仅管理呼吸法与时长选择。
+ * 计时与相位状态机已迁入 BreathingService（前台服务，支持息屏续播），
+ * 运行时状态请观察 BreathingSession。
  */
 class BreathingViewModel : ViewModel() {
 
@@ -35,14 +33,6 @@ class BreathingViewModel : ViewModel() {
     private val _durationMinutes = MutableStateFlow(defaultMethod.defaultDurationMinutes)
     val durationMinutes = _durationMinutes.asStateFlow()
 
-    private val _isActive = MutableStateFlow(false)
-    val isActive = _isActive.asStateFlow()
-
-    private val _remainingSeconds = MutableStateFlow(0)
-    val remainingSeconds = _remainingSeconds.asStateFlow()
-
-    private var timerJob: Job? = null
-
     /**
      * 选择呼吸法
      */
@@ -56,40 +46,5 @@ class BreathingViewModel : ViewModel() {
      */
     fun setDuration(minutes: Int) {
         _durationMinutes.value = minutes
-    }
-
-    /**
-     * 开始呼吸练习
-     */
-    fun startBreathing() {
-        if (_isActive.value) return
-
-        _isActive.value = true
-        _remainingSeconds.value = _durationMinutes.value * 60
-
-        timerJob?.cancel()
-        timerJob = viewModelScope.launch {
-            while (_remainingSeconds.value > 0) {
-                delay(1000L)
-                _remainingSeconds.value -= 1
-            }
-            // 计时结束自动停止
-            stopBreathing()
-        }
-    }
-
-    /**
-     * 停止呼吸练习
-     */
-    fun stopBreathing() {
-        timerJob?.cancel()
-        timerJob = null
-        _isActive.value = false
-        _remainingSeconds.value = 0
-    }
-
-    override fun onCleared() {
-        stopBreathing()
-        super.onCleared()
     }
 }

@@ -223,6 +223,10 @@ object PreferencesManager {
 
     fun getKeepScreenOn(context: Context): Boolean = TimerPrefs.getKeepScreenOn(context)
 
+    fun saveBreathingVoiceEnabled(context: Context, enabled: Boolean) = TimerPrefs.saveBreathingVoiceEnabled(context, enabled)
+
+    fun getBreathingVoiceEnabled(context: Context): Boolean = TimerPrefs.getBreathingVoiceEnabled(context)
+
     fun saveTomatoRingtone(context: Context, ringtoneId: String) = TimerPrefs.saveTomatoRingtone(context, ringtoneId)
 
     fun getTomatoRingtone(context: Context): String = TimerPrefs.getTomatoRingtone(context)

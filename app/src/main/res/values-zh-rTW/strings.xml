@@ -639,6 +639,8 @@
     <string name="screen_on_enabled">螢幕常亮已開啟</string>
     <string name="screen_on_disabled">螢幕常亮已關閉</string>
     <string name="screen_on_description">呼吸練習期間保持螢幕常亮，避免自動鎖屏</string>
+    <string name="breathing_voice_guide">語音提示</string>
+    <string name="breathing_voice_guide_description">在每個呼吸階段播放「吸氣、屏息、呼氣」語音引導</string>
     <string name="tutorial">教程</string>
     
     <!-- Common prompts -->

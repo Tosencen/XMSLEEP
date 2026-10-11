@@ -672,6 +672,8 @@
     <string name="screen_on_enabled">画面オン有効</string>
     <string name="screen_on_disabled">画面オン無効</string>
     <string name="screen_on_description">呼吸練習中は画面の自動ロックを防ぐ</string>
+    <string name="breathing_voice_guide">音声ガイド</string>
+    <string name="breathing_voice_guide_description">各呼吸フェーズで「息を吸って、息を止めて、息を吐いて」の音声ガイドを再生</string>
     <string name="tutorial">チュートリアル</string>
     
     <!-- Common prompts -->

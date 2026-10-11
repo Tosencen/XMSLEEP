@@ -669,6 +669,8 @@
     <string name="screen_on_enabled">화면 켜기 활성화됨</string>
     <string name="screen_on_disabled">화면 켜기 비활성화됨</string>
     <string name="screen_on_description">호흡 운동 중 화면 자동 잠금 방지</string>
+    <string name="breathing_voice_guide">음성 안내</string>
+    <string name="breathing_voice_guide_description">각 호흡 단계에서 "들이마시기, 멈춤, 내쉬기" 음성 안내 재생</string>
     <string name="tutorial">튜토리얼</string>
     
     <!-- Common prompts -->

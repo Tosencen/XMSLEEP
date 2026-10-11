@@ -40,6 +40,16 @@ object TimerPrefs {
         return prefs.getBoolean(Constants.PrefsKeys.KEEP_SCREEN_ON, true)
     }
 
+    fun saveBreathingVoiceEnabled(context: Context, enabled: Boolean) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("breathing_voice_enabled", enabled).apply()
+    }
+
+    fun getBreathingVoiceEnabled(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean("breathing_voice_enabled", true)
+    }
+
     fun saveTomatoRingtone(context: Context, ringtoneId: String) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         prefs.edit().putString(Constants.PrefsKeys.TOMATO_RINGTONE, ringtoneId).apply()

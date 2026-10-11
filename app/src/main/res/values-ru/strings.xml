@@ -708,6 +708,8 @@
     <string name="screen_on_enabled">Экран включён</string>
     <string name="screen_on_disabled">Экран выключен</string>
     <string name="screen_on_description">Держать экран включённым во время дыхательных упражнений</string>
+    <string name="breathing_voice_guide">Голосовые подсказки</string>
+    <string name="breathing_voice_guide_description">Воспроизводить голосовые подсказки «Вдох, Задержка, Выдох» на каждом этапе дыхания</string>
     <string name="tutorial">Руководство</string>
     
     <!-- Common prompts -->

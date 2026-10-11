@@ -688,6 +688,8 @@
     <string name="screen_on_enabled">Screen On Enabled</string>
     <string name="screen_on_disabled">Screen On Disabled</string>
     <string name="screen_on_description">Keep screen on during breathing exercises to prevent auto lock</string>
+    <string name="breathing_voice_guide">Voice Guidance</string>
+    <string name="breathing_voice_guide_description">Play "Inhale, Hold, Exhale" voice prompts at each breathing phase</string>
     <string name="tutorial">Tutorial</string>
     
     <!-- Common prompts -->

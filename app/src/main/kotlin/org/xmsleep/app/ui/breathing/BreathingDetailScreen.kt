@@ -2,7 +2,6 @@ package org.xmsleep.app.ui.breathing
 
 import android.content.Context
 import android.content.Intent
-import android.media.MediaPlayer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.animation.expandVertically
@@ -24,6 +23,7 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Timer
+import androidx.compose.material.icons.outlined.GraphicEq
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,13 +39,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import org.xmsleep.app.R
 import org.xmsleep.app.ui.components.FrostedPopup
 import org.xmsleep.app.ui.components.FrostedGlassSheet
 import org.xmsleep.app.service.BreathingService
-import org.xmsleep.app.utils.Logger
+import org.xmsleep.app.service.BreathingSession
+import org.xmsleep.app.service.BreathPhase
 import java.util.Locale
 
 // 从 Context 中查找 Activity
@@ -93,12 +92,13 @@ fun BreathingDetailScreen(
 ) {
     val currentMethod by viewModel.currentMethod.collectAsStateWithLifecycle()
     val durationMinutes by viewModel.durationMinutes.collectAsStateWithLifecycle()
-    val isBreathing by viewModel.isActive.collectAsStateWithLifecycle()
-    val remainingSeconds by viewModel.remainingSeconds.collectAsStateWithLifecycle()
-    
-    var breathPhase by remember { mutableStateOf(BreathPhase.INHALE) }
-    var breathCount by remember { mutableIntStateOf(0) }
-    var phaseCountdown by remember { mutableIntStateOf(0) }
+    // 运行时状态全部来自 BreathingSession（Service 写入，支持息屏续播）
+    val isBreathing by BreathingSession.isActive.collectAsStateWithLifecycle()
+    val breathPhase by BreathingSession.phase.collectAsStateWithLifecycle()
+    val breathCount by BreathingSession.breathCount.collectAsStateWithLifecycle()
+    val phaseCountdown by BreathingSession.phaseCountdown.collectAsStateWithLifecycle()
+    val remainingSeconds = (BreathingSession.timeLeftMillis.collectAsStateWithLifecycle().value / 1000).toInt()
+
     var showDurationSelector by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -116,11 +116,9 @@ fun BreathingDetailScreen(
         onDispose {
             // 清除屏幕常亮
             activity?.window?.clearFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-            
-            // 停止呼吸功能
-            if (isBreathing) {
-                viewModel.stopBreathing()
-                // 停止后台服务
+
+            // 停止呼吸服务
+            if (BreathingSession.isActive.value) {
                 val stopIntent = Intent(context, BreathingService::class.java).apply {
                     action = BreathingService.ACTION_STOP
                 }
@@ -128,78 +126,42 @@ fun BreathingDetailScreen(
             }
         }
     }
-    
+
     // 教程弹窗状态
     var showTutorialDialog by remember { mutableStateOf(false) }
-    
-    // 常亮设置弹窗状态
+
+    // 常亮/人声设置弹窗状态
     var showScreenOnDialog by remember { mutableStateOf(false) }
-    var keepScreenOn by remember { 
-        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getKeepScreenOn(context)) 
+    var keepScreenOn by remember {
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getKeepScreenOn(context))
     }
-    
+    var voiceEnabled by remember {
+        mutableStateOf(org.xmsleep.app.preferences.PreferencesManager.getBreathingVoiceEnabled(context))
+    }
+
     // 倒计时相关
     val totalTime = durationMinutes * 60 * 1000L
     val timeLeft = remainingSeconds * 1000L
-    
-    // MediaPlayer 用于播放呼吸声音
-    var mediaPlayer: MediaPlayer? by remember { mutableStateOf(null) }
-    
-    // 倒计时逻辑 - 使用 ViewModel 的状态
-    LaunchedEffect(isBreathing) {
+
+    // 开始/停止呼吸：启停前台服务（相位状态机与音频全部在 Service 内）
+    fun toggleBreathing() {
         if (isBreathing) {
-            // 启动后台服务
-            val serviceIntent = Intent(context, BreathingService::class.java).apply {
-                putExtra("total_time", remainingSeconds * 1000L)
-            }
-            context.startForegroundService(serviceIntent)
-        } else {
-            // 停止服务
             val stopIntent = Intent(context, BreathingService::class.java).apply {
                 action = BreathingService.ACTION_STOP
             }
             context.startService(stopIntent)
-        }
-    }
-    
-    // 初始化 MediaPlayer
-    DisposableEffect(context) {
-        mediaPlayer = MediaPlayer()
-        onDispose {
-            mediaPlayer?.release()
-        }
-    }
-    
-    // 播放呼吸声音
-    LaunchedEffect(breathPhase, isBreathing) {
-        if (isBreathing) {
-            when (breathPhase) {
-                BreathPhase.INHALE -> {
-                    // 播放吸气声
-                    mediaPlayer?.reset()
-                    context.assets.openFd("breathing/breath-in.ogg").use { afd ->
-                        mediaPlayer?.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-                    }
-                    mediaPlayer?.prepare()
-                    mediaPlayer?.start()
-                }
-                BreathPhase.EXHALE -> {
-                    // 播放呼气声
-                    mediaPlayer?.reset()
-                    context.assets.openFd("breathing/breath-out.ogg").use { afd ->
-                        mediaPlayer?.setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
-                    }
-                    mediaPlayer?.prepare()
-                    mediaPlayer?.start()
-                }
-                else -> {
-                    // 屏息时停止声音
-                    mediaPlayer?.pause()
-                }
+        } else {
+            val serviceIntent = Intent(context, BreathingService::class.java).apply {
+                putExtra("total_time", durationMinutes * 60 * 1000L)
+                putExtra("inhale", currentMethod.inhale)
+                putExtra("hold", currentMethod.hold)
+                putExtra("exhale", currentMethod.exhale)
+                putExtra("hold_after", currentMethod.holdAfter)
             }
+            context.startForegroundService(serviceIntent)
         }
     }
-    
+
     // 屏幕常亮 - Compose 风格
     KeepScreenOn(condition = isBreathing && keepScreenOn, activity = activity)
     
@@ -351,13 +313,7 @@ fun BreathingDetailScreen(
                     
                     // 开始/停止按钮
                     Button(
-                        onClick = { 
-                            if (isBreathing) {
-                                viewModel.stopBreathing()
-                            } else {
-                                viewModel.startBreathing()
-                            }
-                        },
+                        onClick = { toggleBreathing() },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer
                         ),
@@ -414,69 +370,22 @@ fun BreathingDetailScreen(
         )
     }
     
-    // 常亮设置弹窗
+    // 常亮/人声设置弹窗
     if (showScreenOnDialog) {
         ScreenOnSettingsDialog(
             keepScreenOn = keepScreenOn,
-            onKeepScreenOnChange = { 
+            onKeepScreenOnChange = {
                 keepScreenOn = it
                 org.xmsleep.app.preferences.PreferencesManager.saveKeepScreenOn(context, it)
+            },
+            voiceEnabled = voiceEnabled,
+            onVoiceEnabledChange = {
+                voiceEnabled = it
+                org.xmsleep.app.preferences.PreferencesManager.saveBreathingVoiceEnabled(context, it)
             },
             onDismiss = { showScreenOnDialog = false }
         )
     }
-    
-    // 呼吸循环逻辑
-    LaunchedEffect(isBreathing, currentMethod) {
-        if (isBreathing) {
-            breathCount = 0
-            while (isBreathing) {
-                // 吸气
-                breathPhase = BreathPhase.INHALE
-                for (i in currentMethod.inhale downTo 1) {
-                    phaseCountdown = i
-                    delay(1000L)
-                }
-                
-                // 屏息（如果有的话）
-                if (currentMethod.hold > 0) {
-                    breathPhase = BreathPhase.HOLD
-                    for (i in currentMethod.hold downTo 1) {
-                        phaseCountdown = i
-                        delay(1000L)
-                    }
-                }
-                
-                // 呼气
-                breathPhase = BreathPhase.EXHALE
-                for (i in currentMethod.exhale downTo 1) {
-                    phaseCountdown = i
-                    delay(1000L)
-                }
-                
-                // 呼气后屏息（箱式呼吸）
-                if (currentMethod.holdAfter > 0) {
-                    breathPhase = BreathPhase.HOLD_AFTER
-                    for (i in currentMethod.holdAfter downTo 1) {
-                        phaseCountdown = i
-                        delay(1000L)
-                    }
-                }
-                
-                breathCount++
-            }
-        } else {
-            breathPhase = BreathPhase.INHALE
-            phaseCountdown = 0
-        }
-    }
-}
-
-private enum class BreathPhase {
-    INHALE,      // 吸气
-    HOLD,        // 屏息
-    EXHALE,      // 呼气
-    HOLD_AFTER   // 呼气后屏息（箱式呼吸）
 }
 
 @Composable
@@ -805,10 +714,12 @@ private fun BreathingMethodTutorialDialog(
 private fun ScreenOnSettingsDialog(
     keepScreenOn: Boolean,
     onKeepScreenOnChange: (Boolean) -> Unit,
+    voiceEnabled: Boolean,
+    onVoiceEnabledChange: (Boolean) -> Unit,
     onDismiss: () -> Unit
 ) {
     val context = LocalContext.current
-    
+
     FrostedPopup(visible = true) {
         FrostedGlassSheet(
             visible = true,
@@ -835,7 +746,7 @@ private fun ScreenOnSettingsDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                
+
                 // 开关控件
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -852,7 +763,7 @@ private fun ScreenOnSettingsDialog(
                         onCheckedChange = onKeepScreenOnChange
                     )
                 }
-                
+
                 // 状态提示
                 Text(
                     text = if (keepScreenOn) {
@@ -867,6 +778,43 @@ private fun ScreenOnSettingsDialog(
                         MaterialTheme.colorScheme.onSurfaceVariant
                     }
                 )
+
+                HorizontalDivider()
+
+                // 语音提示
+                Text(
+                    text = context.getString(R.string.breathing_voice_guide_description),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.GraphicEq,
+                            contentDescription = null,
+                            tint = if (voiceEnabled) MaterialTheme.colorScheme.primary
+                                   else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = context.getString(R.string.breathing_voice_guide),
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                    Switch(
+                        checked = voiceEnabled,
+                        onCheckedChange = onVoiceEnabledChange
+                    )
+                }
             }
             Button(
                 onClick = onDismiss,
