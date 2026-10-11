@@ -169,8 +169,9 @@ fun LanguageSelectionDialog(
 ) {
     val context = LocalContext.current
 
-    val items = remember {
-        listOf(LanguageManager.SYSTEM_CODE to "跟随系统") +
+    val followSystemLabel = context.getString(R.string.language_follow_system)
+    val items = remember(followSystemLabel) {
+        listOf(LanguageManager.SYSTEM_CODE to followSystemLabel) +
             LanguageManager.Language.entries.map { it.code to it.displayName }
     }
 

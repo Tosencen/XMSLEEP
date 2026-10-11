@@ -35,6 +35,9 @@
     <string name="background_1">배경 1</string>
     <string name="background_6">배경 6</string>
     <string name="theme_color">테마 색상</string>
+    <string name="language_follow_system">시스템 설정 따르기</string>
+    <string name="background_hint_title">배경 설정 팁</string>
+    <string name="background_hint_message">다크 테마를 강력히 권장합니다. 배경을 사용할 때는 테마 색상에 맞추기를 켜면 테마색과 배경색이 조화롭게 어울리지만, 끄면 어울리지 않아 보일 수 있습니다. 번거로우면 단색 배경을 사용해도 좋습니다. 편안한 밤 되세요!</string>
     <string name="change_background">배경 변경</string>
     <string name="built_in_background">내장 배경</string>
     <string name="opacity">불투명도</string>

@@ -38,6 +38,9 @@
     <string name="background_1">Background 1</string>
     <string name="background_6">Background 6</string>
     <string name="theme_color">Theme Color</string>
+    <string name="language_follow_system">Follow system</string>
+    <string name="background_hint_title">Background Tips</string>
+    <string name="background_hint_message">Dark theme is strongly recommended. If you use a background, enable the option to adapt theme colors, otherwise the theme and background may clash and look off. If that feels like too much hassle, a plain background works great too. Sweet dreams!</string>
     <string name="change_background">Change Background</string>
     <string name="built_in_background">Built-in</string>
     <string name="opacity">Opacity</string>

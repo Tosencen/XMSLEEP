@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Cloud
 import androidx.compose.material.icons.outlined.LightMode
@@ -102,6 +103,7 @@ fun SettingsScreen(
     var showUpdateDialog by remember { mutableStateOf(false) }
     var showLanguageDialog by remember { mutableStateOf(false) }
     var showBackgroundDialog by remember { mutableStateOf(false) }
+    var showBackgroundHintDialog by remember { mutableStateOf(false) }
     var showFeatureDialog by remember { mutableStateOf(false) }
     var showCommunityDialog by remember { mutableStateOf(false) }
     var showDonateDialog by remember { mutableStateOf(false) }
@@ -287,6 +289,16 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     },
+                    trailingContent = {
+                        IconButton(onClick = { showBackgroundHintDialog = true }) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.HelpOutline,
+                                contentDescription = context.getString(R.string.background_hint_title),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    },
                     onClick = { showBackgroundDialog = true }
                 ),
                 SettingsCategoryItem(
@@ -391,7 +403,7 @@ fun SettingsScreen(
                     trailingContent = {
                         Text(
                             if (selectedLanguageCode == LanguageManager.SYSTEM_CODE) {
-                                "跟随系统"
+                                context.getString(R.string.language_follow_system)
                             } else {
                                 currentLanguage.displayName
                             },
@@ -937,6 +949,44 @@ fun SettingsScreen(
                     weatherSourceSummary = weatherSourceSummaryLabel(context)
                 }
             )
+        }
+
+        // 背景设置提示弹窗
+        if (showBackgroundHintDialog) {
+            FrostedPopup(visible = true) {
+                FrostedGlassSheet(
+                    visible = true,
+                    onDismissRequest = { showBackgroundHintDialog = false }
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.HelpOutline,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(40.dp)
+                    )
+                    Text(
+                        text = context.getString(R.string.background_hint_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
+                    Text(
+                        text = context.getString(R.string.background_hint_message),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
+                    Button(
+                        onClick = { showBackgroundHintDialog = false },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp)
+                    ) {
+                        Text(context.getString(R.string.got_it))
+                    }
+                }
+            }
         }
         
         // 背景选择底部弹窗

@@ -38,6 +38,9 @@
     <string name="background_1">背景 1</string>
     <string name="background_6">背景 6</string>
     <string name="theme_color">テーマカラー</string>
+    <string name="language_follow_system">システムに従う</string>
+    <string name="background_hint_title">背景設定のヒント</string>
+    <string name="background_hint_message">ダークテーマを強くおすすめします。背景を使用する場合は「テーマカラーに合わせる」を有効にすると、テーマ色と背景色が調和します。無効だと合いが悪く見えます。面倒な場合は単色の背景でも大丈夫です。良い眠りを！</string>
     <string name="change_background">背景を変更</string>
     <string name="built_in_background">内蔵背景</string>
     <string name="opacity">透明度</string>

@@ -709,6 +709,7 @@ fun MainScreen(
                 ThemeSettingsScreen(
                     darkMode = darkMode,
                     selectedColor = selectedColor,
+                    paletteColors = paletteColors,
                     useDynamicColor = useDynamicColor,
                     useBlackBackground = useBlackBackground,
                     useMonochrome = useMonochrome,
