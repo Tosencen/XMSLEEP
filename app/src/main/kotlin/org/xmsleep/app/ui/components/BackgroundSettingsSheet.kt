@@ -127,7 +127,10 @@ fun BackgroundSettingsSheet(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 OutlinedButton(
-                    onClick = { localSelection = BackgroundSelection.None },
+                    onClick = {
+                        localSelection = BackgroundSelection.None
+                        onSelectionChange(BackgroundSelection.None)
+                    },
                     modifier = Modifier.weight(1f),
                     border = null,
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -180,6 +183,7 @@ fun BackgroundSettingsSheet(
                             }
                             .clickable {
                                 localColor = color
+                                onColorChange(color)
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -209,10 +213,15 @@ fun BackgroundSettingsSheet(
                     onClick = {
                         if (localSelection == BackgroundSelection.Background1) {
                             localSelection = BackgroundSelection.None
+                            onSelectionChange(BackgroundSelection.None)
                         } else {
                             localSelection = BackgroundSelection.Background1
+                            onSelectionChange(BackgroundSelection.Background1)
                             // 内置背景搭配专属主题色，色板同步高亮
-                            BackgroundSelection.Background1.themeColor?.let { localColor = it }
+                            BackgroundSelection.Background1.themeColor?.let {
+                                localColor = it
+                                onColorChange(it)
+                            }
                         }
                     },
                     modifier = Modifier
@@ -226,9 +235,14 @@ fun BackgroundSettingsSheet(
                     onClick = {
                         if (localSelection == BackgroundSelection.Background6) {
                             localSelection = BackgroundSelection.None
+                            onSelectionChange(BackgroundSelection.None)
                         } else {
                             localSelection = BackgroundSelection.Background6
-                            BackgroundSelection.Background6.themeColor?.let { localColor = it }
+                            onSelectionChange(BackgroundSelection.Background6)
+                            BackgroundSelection.Background6.themeColor?.let {
+                                localColor = it
+                                onColorChange(it)
+                            }
                         }
                     },
                     modifier = Modifier
@@ -267,7 +281,10 @@ fun BackgroundSettingsSheet(
                     }
                     Slider(
                         value = localOpacity,
-                        onValueChange = { localOpacity = it },
+                        onValueChange = {
+                            localOpacity = it
+                            onOpacityChange(it)
+                        },
                         valueRange = 0.05f..1f,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = hasBg,
@@ -298,7 +315,10 @@ fun BackgroundSettingsSheet(
                     }
                     Slider(
                         value = localBlurRadius,
-                        onValueChange = { localBlurRadius = it },
+                        onValueChange = {
+                            localBlurRadius = it
+                            onBlurRadiusChange(it)
+                        },
                         valueRange = 0f..25f,
                         modifier = Modifier.fillMaxWidth(),
                         enabled = hasBg,

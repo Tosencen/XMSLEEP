@@ -5,38 +5,11 @@ import android.graphics.Bitmap
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
-import androidx.annotation.DrawableRes
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import java.io.FileNotFoundException
 
 class ThemeColorExtractor(private val context: Context) {
-
-    fun extractDominantColorSync(@DrawableRes drawableResId: Int): Color? {
-        return try {
-            val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                val source = ImageDecoder.createSource(context.resources, drawableResId)
-                ImageDecoder.decodeBitmap(source) { decoder, _, _ ->
-                    decoder.setTargetSampleSize(2)
-                }
-            } else {
-                @Suppress("DEPRECATION")
-                android.graphics.BitmapFactory.decodeResource(
-                    context.resources,
-                    drawableResId,
-                    android.graphics.BitmapFactory.Options().apply {
-                        inSampleSize = 2
-                    }
-                )
-            }
-            bitmap?.let { extractFromBitmap(it) }
-        } catch (e: Exception) {
-            Logger.e("ThemeColorExtractor", "同步提取主题色失败: ${e.message}", e)
-            null
-        }
-    }
 
     fun extractDominantColorFromUri(uri: Uri): Color? {
         return try {
@@ -73,12 +46,6 @@ class ThemeColorExtractor(private val context: Context) {
         return color
     }
 
-    suspend fun extractThemeColor(
-        @DrawableRes drawableResId: Int
-    ): Color = withContext(Dispatchers.IO) {
-        extractDominantColorSync(drawableResId) ?: Color(0xFF6750A4)
-    }
-
     private fun selectBestThemeColor(palette: Palette): Int {
         Logger.d("ThemeColorExtractor", "=== 调色板分析 ===")
         palette.dominantSwatch?.let { 
@@ -101,13 +68,5 @@ class ThemeColorExtractor(private val context: Context) {
         }
         Logger.d("ThemeColorExtractor", "✗ 使用默认颜色")
         return 0xFF6750A4.toInt()
-    }
-
-    suspend fun extractThemeColors(
-        drawableResIds: List<Int>
-    ): List<Color> = withContext(Dispatchers.IO) {
-        drawableResIds.map { resId ->
-            extractThemeColor(resId)
-        }
     }
 }

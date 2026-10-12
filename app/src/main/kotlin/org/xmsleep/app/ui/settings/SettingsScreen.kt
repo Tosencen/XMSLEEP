@@ -133,11 +133,13 @@ fun SettingsScreen(
         }
     }
     
-    // 定期检查权限状态
-    LaunchedEffect(Unit) {
+    // 生命周期回前台时重查权限：授权对话框关闭（Activity resume）后即时刷新天气开关
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    androidx.lifecycle.compose.LifecycleResumeEffect(lifecycleOwner, Unit) {
         hasLocationPermission = androidx.core.content.ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+        onPauseOrDispose { }
     }
 
     val updateState by updateViewModel.updateState.collectAsStateWithLifecycle()

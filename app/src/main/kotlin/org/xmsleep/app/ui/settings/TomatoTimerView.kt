@@ -611,7 +611,19 @@ private fun createNotificationChannel(context: Context) {
  * 更新通知渠道的震动设置（设置弹窗切换震动开关时调用）
  */
 fun updateVibrationSetting(context: Context, enabled: Boolean) {
-    createNotificationChannel(context)
+    val channel = NotificationChannel(
+        NOTIFICATION_CHANNEL_ID,
+        context.getString(R.string.tomato_timer_title),
+        NotificationManager.IMPORTANCE_HIGH
+    ).apply {
+        description = context.getString(R.string.tomato_focus_complete_title)
+        enableVibration(enabled)
+        if (enabled) {
+            vibrationPattern = longArrayOf(0, 300, 200, 300)
+        }
+    }
+    context.getSystemService(NotificationManager::class.java)
+        .createNotificationChannel(channel)
 }
 
 /**

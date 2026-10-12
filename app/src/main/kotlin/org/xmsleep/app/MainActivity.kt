@@ -187,13 +187,11 @@ fun XMSLEEPApp() {
         }
     }
     
-    // 位置权限请求 launcher（用于天气功能）
-    var onLocationPermissionResult: ((Boolean) -> Unit)? = null
+    // 位置权限请求 launcher（用于天气功能，SettingsScreen 内使用）
     val locationPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         Logger.d("MainActivity", "位置权限请求结果: $isGranted")
-        onLocationPermissionResult?.invoke(isGranted)
     }
 
     // 调色板颜色列表（硬编码的柔和粉彩色，12色）
@@ -219,41 +217,7 @@ fun XMSLEEPApp() {
         mutableStateOf(PreferencesManager.getDarkMode(context))
     }
     
-    // 背景动画的主题色（从缩略图同步提取）
-    val backgroundThemeColors = remember {
-        val colors = mutableMapOf<BackgroundSelection, Color>()
-        val extractor = ThemeColorExtractor(context)
-        
-        Logger.d("MainActivity", "=== 开始提取背景主题色 ===")
-        
-        BackgroundSelection.entries.forEach { bg ->
-            if (bg != BackgroundSelection.None) {
-                val color = if (bg.themeColor != null) {
-                    bg.themeColor
-                } else if (bg.thumbnailResourceId != null) {
-                    Logger.d("MainActivity", "尝试从缩略图提取: ${bg.thumbnailResourceId}")
-                    val extracted = extractor.extractDominantColorSync(bg.thumbnailResourceId!!)
-                    Logger.d("MainActivity", "提取结果: $extracted")
-                    extracted
-                } else {
-                    null
-                }
-                
-                if (color != null) {
-                    colors[bg] = color
-                    val colorValue = color.value
-                    val colorHex = colorValue.toString(16).padStart(16, '0').substring(8).uppercase()
-                    Logger.d("MainActivity", "✓ 背景 ${bg.name}: hex=#$colorHex")
-                } else {
-                    Logger.d("MainActivity", "✗ 背景 ${bg.name}: 提取失败")
-                }
-            }
-        }
-        
-        Logger.d("MainActivity", "=== 背景主题色提取完成，共提取 ${colors.size} 个颜色 ===")
-        colors.toMap()
-    }
-    
+    // 背景动画的主题色已由 BackgroundSelection.themeColor 静态声明，无需运行时提取
     var backgroundSelection by remember {
         mutableStateOf(PreferencesManager.getBackgroundSelection(context))
     }
