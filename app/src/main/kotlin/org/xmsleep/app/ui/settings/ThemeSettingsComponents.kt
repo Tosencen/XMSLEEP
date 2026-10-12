@@ -22,6 +22,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -55,6 +56,8 @@ fun ThemeSettingsScreen(
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
+    // 标题栏随滚动收起，回滚即现，避免与滚动内容重叠
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     
     // 监听滚动事件
     LaunchedEffect(scrollState.isScrollInProgress) {
@@ -63,8 +66,9 @@ fun ThemeSettingsScreen(
         }
     }
     
-    // 固定 TopAppBar，不随滚动隐藏
+    // 固定 TopAppBar，随滚动隐藏/显示
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = Color.Transparent, // 透明背景，显示背景动画
         topBar = {
             TopAppBar(
@@ -95,7 +99,8 @@ fun ThemeSettingsScreen(
                 ),
                 // TopAppBar 使用系统栏和显示区域切口
                 windowInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout)
-                    .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                    .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+                scrollBehavior = scrollBehavior
             )
         }
     ) { paddingValues ->

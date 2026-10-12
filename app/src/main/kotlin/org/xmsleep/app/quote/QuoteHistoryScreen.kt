@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -58,7 +59,10 @@ fun QuoteHistoryScreen(
         }
     }
     
+    // 标题栏随滚动收起，回滚即现，避免与滚动内容重叠
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         containerColor = androidx.compose.ui.graphics.Color.Transparent, // 设置透明背景，让背景动画显示
         topBar = {
             TopAppBar(
@@ -91,7 +95,8 @@ fun QuoteHistoryScreen(
                     containerColor = androidx.compose.ui.graphics.Color.Transparent // TopBar 也设置透明
                 ),
                 windowInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout)
-                    .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                    .only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+                scrollBehavior = scrollBehavior
             )
         }
     ) { paddingValues ->
