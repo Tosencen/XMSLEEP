@@ -26,6 +26,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -88,6 +89,9 @@ fun FrostedGlassSheet(
     LaunchedEffect(effectiveVisible) {
         if (effectiveVisible) {
             rendered = true
+            // 等一帧让内容完成首次组合布局（复杂弹窗如天气源含多个 TextField，
+            // 首布局易超 16ms；若与动画首帧同帧，面板绘制会滞后于 alpha 淡入 →观感生硬）
+            withFrameNanos { }
             coroutineScope {
                 launch {
                     alphaProgress.animateTo(
