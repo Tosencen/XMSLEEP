@@ -38,6 +38,7 @@
     <string name="background_1">背景 1</string>
     <string name="background_6">背景 6</string>
     <string name="theme_color">主題顏色</string>
+    <string name="theme_palette">主題配色</string>
     <string name="language_follow_system">跟隨系統</string>
     <string name="background_hint_title">背景設定提示</string>
     <string name="background_hint_message">強烈建議使用深色主題，選擇使用背景的話建議勾選適配相關的主題色系，不然主題色與背景顏色不搭會顯得不好看，嫌麻煩的話可以使用純背景，祝你有個好睡眠</string>

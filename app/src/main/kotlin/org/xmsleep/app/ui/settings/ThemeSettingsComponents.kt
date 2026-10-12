@@ -1,31 +1,34 @@
 package org.xmsleep.app.ui.settings
 
 import android.os.Build
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Contrast
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Palette
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.materialkolor.hct.Hct
+import com.materialkolor.ktx.toHct
 import org.xmsleep.app.R
 import org.xmsleep.app.theme.DarkModeOption
 import org.xmsleep.app.ui.icons.Tonality
@@ -109,47 +112,6 @@ fun ThemeSettingsScreen(
                 .padding(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            // 主题颜色选择
-            Column {
-                Text(
-                    text = context.getString(R.string.theme_color),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
-                ) {
-                    paletteColors.forEach { color ->
-                        val isSelected = selectedColor == color
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .clip(CircleShape)
-                                .background(color)
-                                .let { mod ->
-                                    if (isSelected) mod.border(2.dp, MaterialTheme.colorScheme.primary, CircleShape) else mod
-                                }
-                                .clickable { onColorChange(color) },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isSelected) {
-                                Icon(
-                                    Icons.Default.Check,
-                                    contentDescription = null,
-                                    tint = if (color.luminance() > 0.35f) Color.Black.copy(alpha = 0.7f) else Color.White,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-            
             // 主题设置卡片
             SettingsCategory(
                 items = buildList {
@@ -251,8 +213,142 @@ fun ThemeSettingsScreen(
                 }
             )
             
+            // 主题配色（底部）
+            ThemeColorCard(
+                paletteColors = paletteColors,
+                selectedColor = selectedColor,
+                enabled = !useDynamicColor,
+                onColorChange = onColorChange
+            )
+            
             // 底部留出安全空间
             Spacer(modifier = Modifier.height(16.dp))
+        }
+    }
+}
+
+/**
+ * 主题配色分组（参照 XMVISIO）：primary 色标题 + FlowRow 居中色板网格；
+ * 动态颜色开启时整组置灰禁用。
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ThemeColorCard(
+    paletteColors: List<Color>,
+    selectedColor: Color,
+    enabled: Boolean,
+    onColorChange: (Color) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp)
+            .alpha(if (enabled) 1f else 0.5f)
+    ) {
+        Column(modifier = Modifier.padding(vertical = 8.dp)) {
+            Text(
+                text = LocalContext.current.getString(R.string.theme_palette),
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 12.dp)
+            )
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                paletteColors.forEach { color ->
+                    ColorButton(
+                        color = color,
+                        selected = color == selectedColor,
+                        enabled = enabled,
+                        onClick = { onColorChange(color) },
+                        modifier = Modifier.padding(4.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
+ * 颜色按钮（参照 XMVISIO ColorButton）：圆角方块托底，内嵌三色圆
+ * （HCT 生成：主色调 tone80 + 左下浅 tone90 + 右下深 tone60）；
+ * 选中时圆心弹出勾选圆（带缩放动画），无描边。
+ */
+@Composable
+private fun ColorButton(
+    color: Color,
+    selected: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val containerSize by animateDpAsState(
+        targetValue = if (selected) 28.dp else 0.dp,
+        label = "selectedContainer"
+    )
+    val iconSize by animateDpAsState(
+        targetValue = if (selected) 16.dp else 0.dp,
+        label = "selectedIcon"
+    )
+
+    Surface(
+        modifier = modifier
+            .size(64.dp)
+            .clickable(enabled = enabled, onClick = onClick),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            // HCT 色彩空间生成同色相三色调
+            val hct = color.toHct()
+            val color1 = Color(Hct.from(hct.hue, 40.0, 80.0).toInt())  // 主色调
+            val color2 = Color(Hct.from(hct.hue, 40.0, 90.0).toInt())  // 浅色
+            val color3 = Color(Hct.from(hct.hue, 40.0, 60.0).toInt())  // 深色
+
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(color1)
+            ) {
+                // 左下浅色块
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .size(24.dp)
+                        .background(color2)
+                )
+                // 右下深色块
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .size(24.dp)
+                        .background(color3)
+                )
+                // 选中状态：圆心动画容器 + Check 图标
+                if (selected) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(containerSize)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                            modifier = Modifier.size(iconSize)
+                        )
+                    }
+                }
+            }
         }
     }
 }

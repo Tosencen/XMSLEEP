@@ -38,6 +38,7 @@
     <string name="background_1">Фон 1</string>
     <string name="background_6">Фон 6</string>
     <string name="theme_color">Цвет темы</string>
+    <string name="theme_palette">Палитра темы</string>
     <string name="language_follow_system">Следовать системе</string>
     <string name="background_hint_title">Совет по фону</string>
     <string name="background_hint_message">Настоятельно рекомендуется тёмная тема. Если используете фон, включите опцию адаптации к цветам темы, иначе цвет темы и фон могут не сочетаться и выглядеть некрасиво. Если это слишком сложно — отлично подойдёт однотонный фон. Спокойного сна!</string>
