@@ -453,6 +453,19 @@ fun XMSLEEPApp() {
 
                         backgroundSelection = newBackground
                         PreferencesManager.saveBackgroundSelection(context, newBackground)
+
+                        // 内置背景自动搭配主题色（并关闭动态颜色，否则种子色不生效）；
+                        // 切回纯色/自定义时自动打开动态颜色
+                        val bgThemeColor = newBackground.themeColor
+                        if (bgThemeColor != null) {
+                            selectedColor = bgThemeColor
+                            PreferencesManager.saveSelectedColor(context, bgThemeColor)
+                            useDynamicColor = false
+                            PreferencesManager.saveUseDynamicColor(context, false)
+                        } else {
+                            useDynamicColor = true
+                            PreferencesManager.saveUseDynamicColor(context, true)
+                        }
                     },
                     onSoundCardsColumnsCountChange = {
                         soundCardsColumnsCount = it

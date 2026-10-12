@@ -207,8 +207,13 @@ fun BackgroundSettingsSheet(
                     isSelected = localSelection == BackgroundSelection.Background1,
                     label = localizedContext.getString(R.string.built_in_background),
                     onClick = {
-                        localSelection = if (localSelection == BackgroundSelection.Background1)
-                            BackgroundSelection.None else BackgroundSelection.Background1
+                        if (localSelection == BackgroundSelection.Background1) {
+                            localSelection = BackgroundSelection.None
+                        } else {
+                            localSelection = BackgroundSelection.Background1
+                            // 内置背景搭配专属主题色，色板同步高亮
+                            BackgroundSelection.Background1.themeColor?.let { localColor = it }
+                        }
                     },
                     modifier = Modifier
                         .weight(1f)
@@ -219,8 +224,12 @@ fun BackgroundSettingsSheet(
                     isSelected = localSelection == BackgroundSelection.Background6,
                     label = localizedContext.getString(R.string.built_in_background),
                     onClick = {
-                        localSelection = if (localSelection == BackgroundSelection.Background6)
-                            BackgroundSelection.None else BackgroundSelection.Background6
+                        if (localSelection == BackgroundSelection.Background6) {
+                            localSelection = BackgroundSelection.None
+                        } else {
+                            localSelection = BackgroundSelection.Background6
+                            BackgroundSelection.Background6.themeColor?.let { localColor = it }
+                        }
                     },
                     modifier = Modifier
                         .weight(1f)
