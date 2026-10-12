@@ -168,14 +168,29 @@ fun WeatherSourceDialog(
                 }
                 TextButton(
                     onClick = {
-                        WeatherSourceConfig.save(context, host, key)
-                        WeatherSoundMapper.clearLastWeather(context)
-                        Toast.makeText(context, context.getString(R.string.weather_source_save), Toast.LENGTH_SHORT).show()
-                        onDismiss()
+                        // 保存前强制验证 host/key，通过才存盘；失败留在弹窗显示错误
+                        scope.launch {
+                            testing = true
+                            status = null
+                            val r = WeatherService().validateQWeather(host, key)
+                            if (r.isSuccess) {
+                                WeatherSourceConfig.save(context, host, key)
+                                WeatherSoundMapper.clearLastWeather(context)
+                                Toast.makeText(context, context.getString(R.string.weather_source_save), Toast.LENGTH_SHORT).show()
+                                onDismiss()
+                            } else {
+                                status = context.getString(R.string.weather_source_test_fail, r.exceptionOrNull()?.message ?: "")
+                                testing = false
+                            }
+                        }
                     },
-                    enabled = host.isNotBlank() && key.isNotBlank()
+                    enabled = !testing && host.isNotBlank() && key.isNotBlank()
                 ) {
-                    Text(stringResource(R.string.weather_source_save))
+                    if (testing) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text(stringResource(R.string.weather_source_save))
+                    }
                 }
             }
         }
