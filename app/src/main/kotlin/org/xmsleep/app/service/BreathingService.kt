@@ -122,7 +122,7 @@ class BreathingService : Service() {
         val builder = android.app.Notification.Builder(this, CHANNEL_ID)
             .setContentTitle(lc.getString(R.string.breathing_notification_title))
             .setContentText("$phaseText · ${lc.getString(R.string.breathing_notification_time_left, timeText)}")
-            .setSmallIcon(android.R.drawable.ic_media_play)
+            .setSmallIcon(R.drawable.ic_media_play)
             .setContentIntent(mainPendingIntent)
             .setOngoing(true)
             .setVisibility(android.app.Notification.VISIBILITY_PUBLIC)
@@ -136,7 +136,7 @@ class BreathingService : Service() {
 
         builder.addAction(
             android.app.Notification.Action.Builder(
-                android.graphics.drawable.Icon.createWithResource(this, android.R.drawable.ic_media_pause),
+                android.graphics.drawable.Icon.createWithResource(this, R.drawable.ic_stop),
                 lc.getString(R.string.stop),
                 stopPendingIntent
             ).build()
