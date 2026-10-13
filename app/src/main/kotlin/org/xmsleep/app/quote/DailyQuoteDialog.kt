@@ -45,7 +45,7 @@ import java.util.Locale
 fun DailyQuoteDialog(
     quote: Quote?,
     onDismiss: () -> Unit,
-    onRefresh: () -> Unit = {},
+    onRefresh: (() -> Unit)? = null,
     isLoading: Boolean = false,
     imageUrl: String? = null,
     imageCopyright: String? = null
@@ -323,8 +323,8 @@ fun DailyQuoteDialog(
                     }
                 }
                 
-                // 刷新按钮 - 右下角角标样式（参考音频卡片下载角标）
-                if (!isLoading && quote != null) {
+                // 刷新按钮 - 右下角角标样式（参考音频卡片下载角标）；仅接入刷新回调时显示
+                if (!isLoading && quote != null && onRefresh != null) {
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
