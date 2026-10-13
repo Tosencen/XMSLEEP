@@ -38,8 +38,9 @@ object Constants {
     // 注意：jsDelivr 不托管 GitHub Release 附件（404），故改用 Release 代理。
     // 代理地址需带末尾斜杠，拼接规则为 "$proxy$githubReleaseUrl"
     val GITHUB_PROXIES = listOf(
-        "https://ghproxy.net/",           // 国内可直连的 GitHub Release 加速代理（首选）
-        "https://mirror.ghproxy.com/"     // 备用加速代理（ghproxy.net 不可达时兜底）
+        "https://gh-proxy.com/",          // 国内可直连的 GitHub Release 加速代理（首选）
+        "https://ghfast.top/",            // 备用加速代理（gh-proxy.com 不可达时兜底）
+        "https://ghproxy.net/"            // 第三备份（速度偏慢，仅前两者都不可用时兜底）
     )
     
     // ==================== 仓库信息 ====================
