@@ -168,7 +168,7 @@ fun StorageManagementDialog(
             val totalCount = categoryTotalCount
             downloadingCategoryId = null
             refreshStats()
-            Toast.makeText(context, "$catName 下载完成: $successCount/$totalCount", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.storage_download_complete, catName, successCount, totalCount), Toast.LENGTH_SHORT).show()
         }
     }
 

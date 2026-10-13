@@ -822,4 +822,9 @@
     <string name="crash_share_text">Сообщение об ошибке:\n%1$s\n\nТрассировка стека:\n%2$s</string>
     <string name="starsky_play_failed_no_file">Не удалось воспроизвести: не удалось получить аудиофайл</string>
     <string name="starsky_load_failed">Загрузка не удалась: %1$s</string>
+    <string name="preset_default_name">Пресет %1$d</string>
+    <string name="storage_download_complete">%1$s: загрузка завершена (%2$d/%3$d)</string>
+    <string name="weather_qweather_incomplete">Заполните поля Host и Key</string>
+    <string name="weather_empty_response">Пустой ответ</string>
+    <string name="weather_qweather_error_code">QWeather вернул code=%1$s (недействительный Key или недостаточно прав)</string>
 </resources>

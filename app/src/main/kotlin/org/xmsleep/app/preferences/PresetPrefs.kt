@@ -2,6 +2,7 @@ package org.xmsleep.app.preferences
 
 import android.content.Context
 import org.xmsleep.app.Constants
+import org.xmsleep.app.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,6 +16,10 @@ object PresetPrefs {
 
     data class PresetEntry(val id: Int, val name: String)
 
+    /** 默认预设名（走资源字符串，支持本地化）；id 从 1 开始。 */
+    private fun defaultPresetName(context: Context, id: Int): String =
+        context.getString(R.string.preset_default_name, id)
+
     private val _allPresetRemotePinned = MutableStateFlow<Set<String>>(emptySet())
     val allPresetRemotePinned: StateFlow<Set<String>> = _allPresetRemotePinned.asStateFlow()
 
@@ -25,7 +30,7 @@ object PresetPrefs {
     private fun migratePresets(context: Context) {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         if (prefs.contains(Constants.PrefsKeys.PRESET_LIST)) {
-            ensureMinimumPresets(prefs, 3)
+            ensureMinimumPresets(context, prefs, 3)
             return
         }
         // 读取旧数据
@@ -38,11 +43,11 @@ object PresetPrefs {
         val hasOldData = local1.isNotEmpty() || local2.isNotEmpty() || local3.isNotEmpty() ||
                 remote1.isNotEmpty() || remote2.isNotEmpty() || remote3.isNotEmpty()
         if (!hasOldData) {
-            createDefaultPresets(prefs)
+            createDefaultPresets(context)
             return
         }
         // 迁移旧数据
-        val names = listOf("预设1", "预设2", "预设3")
+        val names = (1..3).map { defaultPresetName(context, it) }
         val locals = listOf(local1, local2, local3)
         val remotes = listOf(remote1, remote2, remote3)
         val ids = mutableListOf<Int>()
@@ -58,13 +63,13 @@ object PresetPrefs {
             }
         }
         prefs.edit().putString(Constants.PrefsKeys.PRESET_LIST, ids.joinToString(",")).apply()
-        ensureMinimumPresets(prefs, 3)
+        ensureMinimumPresets(context, prefs, 3)
     }
 
-    private fun ensureMinimumPresets(prefs: android.content.SharedPreferences, minCount: Int) {
+    private fun ensureMinimumPresets(context: Context, prefs: android.content.SharedPreferences, minCount: Int) {
         val listStr = prefs.getString(Constants.PrefsKeys.PRESET_LIST, null)
         if (listStr.isNullOrBlank()) {
-            createDefaultPresets(prefs)
+            createDefaultPresets(context)
             return
         }
         val ids = listStr.split(",").mapNotNull { it.toIntOrNull() }.toMutableSet()
@@ -73,7 +78,7 @@ object PresetPrefs {
             if (!ids.contains(i)) {
                 ids.add(i)
                 prefs.edit()
-                    .putString(Constants.PrefsKeys.PRESET_NAME_PREFIX + i, "预设$i")
+                    .putString(Constants.PrefsKeys.PRESET_NAME_PREFIX + i, defaultPresetName(context, i))
                     .putStringSet(Constants.PrefsKeys.PRESET_LOCAL_PREFIX + i, emptySet())
                     .putStringSet(Constants.PrefsKeys.PRESET_REMOTE_PREFIX + i, emptySet())
                     .apply()
@@ -85,8 +90,9 @@ object PresetPrefs {
         }
     }
 
-    private fun createDefaultPresets(prefs: android.content.SharedPreferences) {
-        val names = listOf("预设1", "预设2", "预设3")
+    private fun createDefaultPresets(context: Context) {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val names = (1..3).map { defaultPresetName(context, it) }
         for (i in 0..2) {
             val id = i + 1
             prefs.edit()
@@ -110,7 +116,8 @@ object PresetPrefs {
         if (listStr.isNullOrBlank()) return emptyList()
         return listStr.split(",").mapNotNull { idStr ->
             val id = idStr.toIntOrNull() ?: return@mapNotNull null
-            val name = prefs.getString(Constants.PrefsKeys.PRESET_NAME_PREFIX + id, "预设$id") ?: "预设$id"
+            val name = prefs.getString(Constants.PrefsKeys.PRESET_NAME_PREFIX + id, null)
+                ?: defaultPresetName(context, id)
             PresetEntry(id, name)
         }
     }

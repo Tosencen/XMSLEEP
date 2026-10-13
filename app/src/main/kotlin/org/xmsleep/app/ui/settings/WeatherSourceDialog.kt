@@ -86,7 +86,7 @@ fun WeatherSourceDialog(
                         scope.launch {
                             testing = true
                             status = null
-                            val r = WeatherService().validateQWeather(host, key)
+                            val r = WeatherService().validateQWeather(host, key, context)
                             status = if (r.isSuccess) {
                                 context.getString(R.string.weather_source_test_ok)
                             } else {
@@ -172,7 +172,7 @@ fun WeatherSourceDialog(
                         scope.launch {
                             testing = true
                             status = null
-                            val r = WeatherService().validateQWeather(host, key)
+                            val r = WeatherService().validateQWeather(host, key, context)
                             if (r.isSuccess) {
                                 WeatherSourceConfig.save(context, host, key)
                                 WeatherSoundMapper.clearLastWeather(context)

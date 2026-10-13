@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 12+（API >= 31）的备份/设备迁移规则：通过 AndroidManifest 的
+  android:dataExtractionRules="@xml/data_extraction_rules" 引用。
+
+  策略与 backup_rules.xml 保持一致：保留备份能力，但排除含个人数据/凭据的
+  SharedPreferences（听声日记、每日一言历史、天气凭据/缓存、更新状态），
+  非敏感的应用设置（app_prefs、language_prefs）仍允许随云备份/设备迁移。
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="sharedpref" path="listening_diary.xml" />
+        <exclude domain="sharedpref" path="daily_quote.xml" />
+        <exclude domain="sharedpref" path="weather_source_prefs.xml" />
+        <exclude domain="sharedpref" path="weather_prefs.xml" />
+        <exclude domain="sharedpref" path="update_prefs.xml" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="sharedpref" path="listening_diary.xml" />
+        <exclude domain="sharedpref" path="daily_quote.xml" />
+        <exclude domain="sharedpref" path="weather_source_prefs.xml" />
+        <exclude domain="sharedpref" path="weather_prefs.xml" />
+        <exclude domain="sharedpref" path="update_prefs.xml" />
+    </device-transfer>
+</data-extraction-rules>

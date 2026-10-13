@@ -17,8 +17,8 @@ data class MeditationSession(
 ) {
     fun getLocalizedName(languageCode: String): String {
         return when (languageCode) {
-            "zh" -> name
-            "zh-TW" -> nameZhTW.ifEmpty { name }
+            "zh_CN", "zh" -> name
+            "zh_TW" -> nameZhTW.ifEmpty { name }
             "en" -> nameEn.ifEmpty { name }
             "ja" -> nameJa.ifEmpty { name }
             "ko" -> nameKo.ifEmpty { name }
@@ -47,8 +47,8 @@ data class MeditationCategory(
 ) {
     fun getLocalizedName(languageCode: String): String {
         return when (languageCode) {
-            "zh" -> name
-            "zh-TW" -> nameZhTW.ifEmpty { name }
+            "zh_CN", "zh" -> name
+            "zh_TW" -> nameZhTW.ifEmpty { name }
             "en" -> nameEn.ifEmpty { name }
             "ja" -> nameJa.ifEmpty { name }
             "ko" -> nameKo.ifEmpty { name }

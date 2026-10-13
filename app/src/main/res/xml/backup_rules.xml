@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Android 11 及以下（API <= 30）的备份规则：通过 AndroidManifest 的
+  android:fullBackupContent="@xml/backup_rules" 引用。
+
+  策略：保留备份能力（便于换机恢复设置），但排除含个人数据/凭据的
+  SharedPreferences，避免通过 adb backup / 云备份导出：
+    - listening_diary     听声日记（个人收听记录）
+    - daily_quote         每日一言与历史
+    - weather_source_prefs 和风天气 Host/Key（加密凭据）
+    - weather_prefs       天气缓存
+    - update_prefs        更新检查状态
+  非敏感的 app_prefs（外观/预设/收藏）与 language_prefs（语言）仍会备份。
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="listening_diary.xml" />
+    <exclude domain="sharedpref" path="daily_quote.xml" />
+    <exclude domain="sharedpref" path="weather_source_prefs.xml" />
+    <exclude domain="sharedpref" path="weather_prefs.xml" />
+    <exclude domain="sharedpref" path="update_prefs.xml" />
+</full-backup-content>

@@ -774,4 +774,9 @@
     <string name="crash_share_text">오류 메시지:\n%1$s\n\n스택 추적:\n%2$s</string>
     <string name="starsky_play_failed_no_file">재생 실패: 오디오 파일을 가져올 수 없습니다</string>
     <string name="starsky_load_failed">로드 실패: %1$s</string>
+    <string name="preset_default_name">프리셋 %1$d</string>
+    <string name="storage_download_complete">%1$s 다운로드 완료: %2$d/%3$d</string>
+    <string name="weather_qweather_incomplete">Host와 Key를 모두 입력하세요</string>
+    <string name="weather_empty_response">빈 응답</string>
+    <string name="weather_qweather_error_code">QWeather가 code=%1$s을(를) 반환했습니다 (Key가 유효하지 않거나 권한 부족)</string>
 </resources>

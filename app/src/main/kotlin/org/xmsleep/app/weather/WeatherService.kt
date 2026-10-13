@@ -194,22 +194,28 @@ class WeatherService {
         }
     }
 
-    /** 校验用户填写的和风 Host+Key 是否可用 */
-    suspend fun validateQWeather(host: String, key: String): Result<Unit> = withContext(Dispatchers.IO) {
+    /** 校验用户填写的和风 Host+Key 是否可用（错误信息本地化，context 可空以兼容无 UI 场景） */
+    suspend fun validateQWeather(host: String, key: String, context: android.content.Context? = null): Result<Unit> = withContext(Dispatchers.IO) {
         try {
             val normalized = host.trim().removePrefix("https://").removePrefix("http://").trim()
             if (normalized.isEmpty() || key.isBlank()) {
-                return@withContext Result.failure(Exception("请填写完整的 Host 和 Key"))
+                return@withContext Result.failure(
+                    Exception(context?.getString(R.string.weather_qweather_incomplete) ?: "请填写完整的 Host 和 Key")
+                )
             }
             val url = "https://$normalized/v7/weather/now?location=116.41,39.92&key=${key.trim()}"
             val response = client.newCall(Request.Builder().url(url).get().build()).execute()
             response.use {
                 if (!it.isSuccessful) return@withContext Result.failure(Exception("HTTP ${it.code}"))
-                val body = it.body?.string() ?: return@withContext Result.failure(Exception("空响应"))
+                val body = it.body?.string() ?: return@withContext Result.failure(
+                    Exception(context?.getString(R.string.weather_empty_response) ?: "空响应")
+                )
                 val json = JSONObject(body)
                 val code = json.optString("code", "")
                 if (code == "200") Result.success(Unit)
-                else Result.failure(Exception("和风返回 code=$code（Key 无效或权限不足）"))
+                else Result.failure(
+                    Exception(context?.getString(R.string.weather_qweather_error_code, code) ?: "和风返回 code=$code（Key 无效或权限不足）")
+                )
             }
         } catch (e: Exception) {
             Result.failure(e)

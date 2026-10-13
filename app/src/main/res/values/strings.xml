@@ -774,4 +774,9 @@
     <string name="crash_share_text">错误信息:\n%1$s\n\n堆栈跟踪:\n%2$s</string>
     <string name="starsky_load_failed">加载失败: %1$s</string>
     <string name="starsky_play_failed_no_file">播放失败: 无法获取音频文件</string>
+    <string name="preset_default_name">预设%1$d</string>
+    <string name="storage_download_complete">%1$s 下载完成：%2$d/%3$d</string>
+    <string name="weather_qweather_incomplete">请填写完整的 Host 和 Key</string>
+    <string name="weather_empty_response">空响应</string>
+    <string name="weather_qweather_error_code">和风返回 code=%1$s（Key 无效或权限不足）</string>
 </resources>

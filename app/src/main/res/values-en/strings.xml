@@ -784,4 +784,9 @@
     <string name="crash_share_text">Error message:\n%1$s\n\nStack trace:\n%2$s</string>
     <string name="starsky_play_failed_no_file">Playback failed: unable to get audio file</string>
     <string name="starsky_load_failed">Load failed: %1$s</string>
+    <string name="preset_default_name">Preset %1$d</string>
+    <string name="storage_download_complete">%1$s download complete: %2$d/%3$d</string>
+    <string name="weather_qweather_incomplete">Please fill in both Host and Key</string>
+    <string name="weather_empty_response">Empty response</string>
+    <string name="weather_qweather_error_code">QWeather returned code=%1$s (invalid Key or insufficient permission)</string>
 </resources>
