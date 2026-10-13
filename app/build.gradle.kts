@@ -184,11 +184,11 @@ dependencies {
     implementation("com.google.firebase:firebase-crashlytics")
     
     // ExoPlayer/Media3 - 用于无缝循环播放音频（声音模块需要）
-    implementation("androidx.media3:media3-exoplayer:1.8.0")
-    implementation("androidx.media3:media3-exoplayer-hls:1.8.0")
-    implementation("androidx.media3:media3-ui:1.8.0")
-    implementation("androidx.media3:media3-common:1.8.0")
-    implementation("androidx.media3:media3-session:1.8.0")
+    implementation("androidx.media3:media3-exoplayer:1.11.0")
+    implementation("androidx.media3:media3-exoplayer-hls:1.11.0")
+    implementation("androidx.media3:media3-ui:1.11.0")
+    implementation("androidx.media3:media3-common:1.11.0")
+    implementation("androidx.media3:media3-session:1.11.0")
     implementation("androidx.media:media:1.8.0")
     
     // OkHttp - 用于网络请求和文件下载
