@@ -172,7 +172,7 @@ dependencies {
     implementation("me.saket.squigglyslider:squigglyslider:1.0.0")
     
     // Kotlin Serialization
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.11.0")
     
     // Lottie - 用于显示JSON动画
     implementation("com.airbnb.android:lottie:6.3.0")
