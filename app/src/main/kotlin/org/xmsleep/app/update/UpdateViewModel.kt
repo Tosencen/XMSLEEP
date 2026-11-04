@@ -282,9 +282,9 @@ class UpdateViewModel(private val app: Application) : AndroidViewModel(app) {
                 }
             }
             
-            // 下载文件（带智能回退）
+            // 下载文件（带智能回退 + 字节数完整性校验）
             val downloadedFile = withContext(Dispatchers.IO) {
-                fileDownloader.download(version.downloadUrls, apkFile)
+                fileDownloader.download(version.downloadUrls, apkFile, version.sizeBytes)
             }
             
             progressJob?.cancel()

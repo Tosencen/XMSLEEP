@@ -19,7 +19,8 @@ import java.util.concurrent.TimeUnit
 class FileDownloader {
     private val client = NetworkClient.newBuilder()
         .connectTimeout(15, TimeUnit.SECONDS)  // 连接超时，避免被墙节点长时间阻塞
-        .readTimeout(90, TimeUnit.SECONDS)    // APK 文件较大，使用更长读取超时
+        .readTimeout(90, TimeUnit.SECONDS)     // APK 文件较大，使用更长读取超时
+        .callTimeout(300, TimeUnit.SECONDS)    // 单次请求总时长上限，防止龟速流无限拖
         .build()
 
     companion object {
@@ -29,6 +30,8 @@ class FileDownloader {
         // 低于 MIN_SPEED_BPS 视为劣质代理源，立即放弃本源切换下一个（慢速流不会触发 readTimeout）
         private const val MIN_SPEED_CHECK_BYTES = 512L * 1024
         private const val MIN_SPEED_BPS = 50L * 1024
+        private const val BUFFER_SIZE = 64 * 1024
+        private const val PROGRESS_EMIT_INTERVAL_MS = 150L  // 进度上报节流，避免高频重组
     }
 
     /** 源速度过低，直接放弃本源（不做同源重试） */
@@ -44,11 +47,14 @@ class FileDownloader {
      * 下载文件（多下载源依次回退 + 重试机制）
      * 依次尝试 downloadUrls 中的每个地址，某个失败则自动切换到下一个，
      * 全部失败后才上报最终失败（附带每个源的失败原因）。
+     * 完整性校验：下载字节数必须与 expectedBytes（Release 资产大小）一致，
+     * 防止镜像返回 200 + 错误页被当成 APK 缓存安装。
      * @param urls 下载源列表（按优先级排序）
      * @param destinationFile 目标文件
+     * @param expectedBytes 期望字节数（0=未知，此时仅按 HTTP 头校验）
      * @return 成功返回文件，失败返回 null
      */
-    suspend fun download(urls: List<String>, destinationFile: File): File? = withContext(Dispatchers.IO) {
+    suspend fun download(urls: List<String>, destinationFile: File, expectedBytes: Long = 0L): File? = withContext(Dispatchers.IO) {
         // 确保父目录存在
         destinationFile.parentFile?.mkdirs()
 
@@ -58,11 +64,19 @@ class FileDownloader {
             return@withContext null
         }
 
+        // 已下载完整文件直接复用（外层另有签名校验兜底）
+        if (expectedBytes > 0 && destinationFile.isFile && destinationFile.length() == expectedBytes) {
+            Logger.d("FileDownloader", "发现已下载的完整文件，直接复用: ${destinationFile.path}")
+            _progress.value = 1f
+            _state.value = DownloadState.Success(destinationFile)
+            return@withContext destinationFile
+        }
+
         val errors = mutableListOf<String>()
         uniqueUrls.forEachIndexed { index, url ->
             Logger.d("FileDownloader", "尝试下载源 ($index/${uniqueUrls.size}): $url")
             try {
-                return@withContext downloadWithUrl(url, destinationFile)
+                return@withContext downloadWithUrl(url, destinationFile, expectedBytes)
             } catch (e: Exception) {
                 Logger.w("FileDownloader", "下载源失败，切换到下一个: $url (${e.message})")
                 errors += "${shortenUrl(url)}: ${e.message}"
@@ -77,13 +91,15 @@ class FileDownloader {
 
     /**
      * 使用指定URL下载文件（带重试机制）
+     * 下载先写入 .part 临时文件，字节数校验通过后才改名为目标文件，避免截断文件被误认为完整。
      * 失败时抛出最后一次异常，由外层 download() 汇总各源错误信息。
      * SlowSourceException（低速源）不做同源重试，直接抛给外层切换下一源。
      */
-    private suspend fun downloadWithUrl(url: String, destinationFile: File): File = withContext(Dispatchers.IO) {
+    private suspend fun downloadWithUrl(url: String, destinationFile: File, expectedBytes: Long): File = withContext(Dispatchers.IO) {
         var lastException: Exception? = null
 
         for (attempt in 1..MAX_RETRY_COUNT) {
+            val partFile = File(destinationFile.parentFile, destinationFile.name + ".part")
             try {
                 _state.value = DownloadState.Downloading(0f)
                 _progress.value = 0f
@@ -100,32 +116,38 @@ class FileDownloader {
 
                 val body = response.body ?: throw IOException("Response body is null")
 
-                val totalBytes = body.contentLength()
+                // 优先以 HTTP 头为准，缺失时用 API 给的资产大小
+                val contentLength = body.contentLength()
+                val totalBytes = if (contentLength > 0) contentLength else expectedBytes
                 var downloadedBytes = 0L
                 var lastCheckBytes = 0L
                 var lastCheckTime = System.currentTimeMillis()
+                var lastEmitTime = 0L
 
-                FileOutputStream(destinationFile).use { output ->
+                FileOutputStream(partFile).use { output ->
                     body.byteStream().use { input ->
-                        val buffer = ByteArray(8192)
+                        val buffer = ByteArray(BUFFER_SIZE)
                         var bytesRead: Int
 
                         while (input.read(buffer).also { bytesRead = it } != -1) {
                             output.write(buffer, 0, bytesRead)
                             downloadedBytes += bytesRead
 
-                            val progressValue = if (totalBytes > 0) {
-                                downloadedBytes.toFloat() / totalBytes
-                            } else {
-                                0f
+                            // 进度节流上报（150ms），避免 8KB 级高频 StateFlow 触发重组
+                            val now = System.currentTimeMillis()
+                            if (now - lastEmitTime >= PROGRESS_EMIT_INTERVAL_MS) {
+                                lastEmitTime = now
+                                val progressValue = if (totalBytes > 0) {
+                                    downloadedBytes.toFloat() / totalBytes
+                                } else {
+                                    0f
+                                }
+                                _progress.value = progressValue
+                                _state.value = DownloadState.Downloading(progressValue)
                             }
-
-                            _progress.value = progressValue
-                            _state.value = DownloadState.Downloading(progressValue)
 
                             // 低速检测：每积累 512KB 统计一次平均速度
                             if (downloadedBytes - lastCheckBytes >= MIN_SPEED_CHECK_BYTES) {
-                                val now = System.currentTimeMillis()
                                 val elapsedSec = (now - lastCheckTime) / 1000.0
                                 if (elapsedSec >= 1.0) {
                                     val speedBps = ((downloadedBytes - lastCheckBytes) / elapsedSec).toLong()
@@ -140,13 +162,27 @@ class FileDownloader {
                     }
                 }
 
+                // 字节数校验：防截断下载 / 镜像 200 + 错误页被当 APK 安装
+                val expected = if (totalBytes > 0) totalBytes else expectedBytes
+                if (expected > 0 && downloadedBytes != expected) {
+                    throw IOException("下载不完整：$downloadedBytes/$expected 字节")
+                }
+
+                // 校验通过，.part 改名为正式文件
+                if (destinationFile.exists()) destinationFile.delete()
+                if (!partFile.renameTo(destinationFile)) {
+                    partFile.copyTo(destinationFile, overwrite = true)
+                    partFile.delete()
+                }
+
                 _state.value = DownloadState.Success(destinationFile)
                 _progress.value = 1f
-                Logger.d("FileDownloader", "下载成功 (尝试 $attempt/$MAX_RETRY_COUNT)")
+                Logger.d("FileDownloader", "下载成功 (尝试 $attempt/$MAX_RETRY_COUNT, $downloadedBytes 字节)")
                 return@withContext destinationFile
 
             } catch (e: Exception) {
                 lastException = e
+                partFile.delete()  // 清理半截文件，避免污染下次下载
                 Logger.w("FileDownloader", "下载失败 (尝试 $attempt/$MAX_RETRY_COUNT): ${e.message}")
 
                 if (e is SlowSourceException) {

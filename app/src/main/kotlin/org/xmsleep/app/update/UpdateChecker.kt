@@ -29,55 +29,20 @@ class UpdateChecker(
     
     /**
      * 检查是否有新版本
+     * 检查阶段双通道：gh-proxy.com 镜像 API 优先（国内可达），直连 GitHub API 兜底。
      * @param currentVersion 当前版本号（如 "1.0.0"）
      * @return 如果有新版本返回 NewVersion，否则返回 null
      * @throws IOException 当网络错误或rate limit时抛出
      */
     suspend fun checkLatestVersion(currentVersion: String): NewVersion? = withContext(Dispatchers.IO) {
         try {
-            val url = "${Constants.GITHUB_API_BASE_URL}/repos/$repositoryOwner/$repositoryName/releases/latest"
-            Logger.d("UpdateChecker", "请求URL: $url")
-            Logger.d("UpdateChecker", "当前版本: $currentVersion")
-            
-            val requestBuilder = Request.Builder()
-                .url(url)
-                .header("Accept", "application/vnd.github.v3+json")
+            val apiUrl = "${Constants.GITHUB_API_BASE_URL}/repos/$repositoryOwner/$repositoryName/releases/latest"
+            // 镜像优先、直链兜底（镜像失败不抛错，继续走直连）
+            val body = fetchReleaseBody("$API_MIRROR$apiUrl") ?: fetchReleaseBody(apiUrl)
+                ?: throw IOException("检查更新失败：网络不可达")
 
-            Logger.d("UpdateChecker", "使用未认证请求（限制60次/小时）")
-            
-            val request = requestBuilder.get().build()
-            
-            val response = client.newCall(request).execute()
-            response.use {
-                // 检查 rate limit
-                val remaining = it.header("X-RateLimit-Remaining")?.toIntOrNull() ?: -1
-                val rateLimitReset = it.header("X-RateLimit-Reset")?.toLongOrNull()
-                
-                Logger.d("UpdateChecker", "HTTP响应码: ${it.code}, RateLimit剩余: $remaining")
-                
-                if (!it.isSuccessful) {
-                    // 处理 rate limit 错误
-                    if (it.code == 403 && remaining == 0) {
-                        // Rate limit 已耗尽
-                        val resetTime = rateLimitReset?.let { 
-                            java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
-                                .format(java.util.Date(it * 1000))
-                        } ?: "稍后"
-                        Logger.e("UpdateChecker", "Rate limit已耗尽，重置时间: $resetTime")
-                        throw IOException("GitHub API 请求次数已达上限，请于 $resetTime 后重试")
-                    }
-                    val errorBody = it.body?.string()
-                    Logger.e("UpdateChecker", "HTTP请求失败: ${it.code}, 响应体: $errorBody")
-                    return@withContext null
-                }
-                
-                val body = it.body?.string() ?: run {
-                    Logger.e("UpdateChecker", "响应体为空")
-                    return@withContext null
-                }
-            
-            Logger.d("UpdateChecker", "响应体长度: ${body.length}")
-            
+            Logger.d("UpdateChecker", "当前版本: $currentVersion, 响应体长度: ${body.length}")
+
             val release = json.decodeFromString<GitHubRelease>(body)
             Logger.d("UpdateChecker", "最新Release: tagName=${release.tagName}, name=${release.name}, assets数量=${release.assets.size}")
             
@@ -104,7 +69,8 @@ class UpdateChecker(
                         name = release.name.ifEmpty { release.tagName },
                         changelog = release.body,
                         downloadUrls = downloadUrls,
-                        publishedAt = release.publishedAt
+                        publishedAt = release.publishedAt,
+                        sizeBytes = apkAsset.size
                     )
                     Logger.d("UpdateChecker", "返回NewVersion: version=${newVersion.version}, 下载源数量=${newVersion.downloadUrls.size}")
                     return@withContext newVersion
@@ -114,9 +80,8 @@ class UpdateChecker(
             } else {
                 Logger.d("UpdateChecker", "当前版本已是最新版本或更新")
             }
-            
-                null
-            }
+
+            null
         } catch (e: IOException) {
             // 重新抛出IOException，让UpdateViewModel正确处理
             Logger.e("UpdateChecker", "IOException: ${e.message}", e)
@@ -128,6 +93,51 @@ class UpdateChecker(
         }
     }
     
+    companion object {
+        /** GitHub API 镜像（gh-proxy.com 可代理 api.github.com，国内可达） */
+        private const val API_MIRROR = "https://gh-proxy.com/"
+    }
+
+    /**
+     * 拉取 releases/latest JSON。成功返回响应体；普通失败返回 null（由调用方换下一通道）。
+     * - 直连通道遇 rate limit（403 且剩余 0）抛 IOException，携带重置时间提示用户
+     * - 镜像通道遇 rate limit 仅返回 null 换直连（镜像额度与本机无关，直连可能仍可用）
+     */
+    private fun fetchReleaseBody(url: String): String? {
+        return try {
+            val request = Request.Builder()
+                .url(url)
+                .header("Accept", "application/vnd.github.v3+json")
+                .get()
+                .build()
+            client.newCall(request).execute().use { resp ->
+                val remaining = resp.header("X-RateLimit-Remaining")?.toIntOrNull() ?: -1
+                Logger.d("UpdateChecker", "HTTP ${resp.code} ($url), RateLimit剩余: $remaining")
+                if (!resp.isSuccessful) {
+                    if (resp.code == 403 && remaining == 0) {
+                        val resetTime = resp.header("X-RateLimit-Reset")?.toLongOrNull()?.let {
+                            java.text.SimpleDateFormat("yyyy-MM-dd HH:mm", java.util.Locale.getDefault())
+                                .format(java.util.Date(it * 1000))
+                        } ?: "稍后"
+                        if (!url.startsWith(API_MIRROR)) {
+                            Logger.e("UpdateChecker", "直连 Rate limit已耗尽，重置时间: $resetTime")
+                            throw IOException("GitHub API 请求次数已达上限，请于 $resetTime 后重试")
+                        }
+                        Logger.w("UpdateChecker", "镜像 Rate limit已耗尽，改走直连")
+                    } else {
+                        Logger.w("UpdateChecker", "请求失败 HTTP ${resp.code}: $url")
+                    }
+                    return@use null
+                }
+                resp.body?.string()
+            }
+        } catch (e: IOException) {
+            if (e.message?.contains("请求次数已达上限") == true) throw e
+            Logger.w("UpdateChecker", "通道失败: $url (${e.message})")
+            null
+        }
+    }
+
     /**
      * 构建下载源列表（按国内可达性排序）
      * 依次尝试多个 GitHub Release 代理（如 ghproxy.net），最后以 GitHub 原始直链兜底。
@@ -195,5 +205,6 @@ data class NewVersion(
     val name: String,
     val changelog: String,
     val downloadUrls: List<String>,  // 下载源列表（按优先级排序，依次尝试）
-    val publishedAt: String
+    val publishedAt: String,
+    val sizeBytes: Long = 0          // Release 资产字节数（下载完整性校验用，0=未知）
 )
