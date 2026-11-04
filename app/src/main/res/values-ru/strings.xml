@@ -827,4 +827,7 @@
     <string name="weather_qweather_incomplete">Заполните поля Host и Key</string>
     <string name="weather_empty_response">Пустой ответ</string>
     <string name="weather_qweather_error_code">QWeather вернул code=%1$s (недействительный Key или недостаточно прав)</string>
+    <string name="meditation_download">Скачать</string>
+    <string name="meditation_downloaded">Загружено</string>
+    <string name="meditation_download_failed">Не удалось скачать</string>
 </resources>

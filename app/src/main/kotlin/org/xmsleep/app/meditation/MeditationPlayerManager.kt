@@ -7,6 +7,7 @@ import android.media.AudioManager as SystemAudioManager
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
+import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.DefaultHttpDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
@@ -120,8 +121,11 @@ class MeditationPlayerManager private constructor() {
                     )
                 )
             }
+            // DefaultDataSource 按 scheme 分发：file:// 走 FileDataSource（本地下载缓存），
+            // http(s) 走上面带 B 站请求头的 HTTP 源；直接用 HTTP 源会把 file:// 强转 HttpURLConnection 而崩溃
+            val dataSourceFactory = DefaultDataSource.Factory(context.applicationContext, httpDataSourceFactory)
             exoPlayer = ExoPlayer.Builder(context.applicationContext)
-                .setMediaSourceFactory(DefaultMediaSourceFactory(httpDataSourceFactory))
+                .setMediaSourceFactory(DefaultMediaSourceFactory(dataSourceFactory))
                 .build().apply {
                 setAudioAttributes(
                     androidx.media3.common.AudioAttributes.Builder()

@@ -789,4 +789,7 @@
     <string name="weather_qweather_incomplete">Please fill in both Host and Key</string>
     <string name="weather_empty_response">Empty response</string>
     <string name="weather_qweather_error_code">QWeather returned code=%1$s (invalid Key or insufficient permission)</string>
+    <string name="meditation_download">Download</string>
+    <string name="meditation_downloaded">Downloaded</string>
+    <string name="meditation_download_failed">Download failed</string>
 </resources>

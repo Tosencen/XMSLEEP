@@ -782,4 +782,7 @@
     <string name="weather_qweather_incomplete">Host と Key を入力してください</string>
     <string name="weather_empty_response">空の応答</string>
     <string name="weather_qweather_error_code">QWeather が code=%1$s を返しました（Key が無効または権限不足）</string>
+    <string name="meditation_download">ダウンロード</string>
+    <string name="meditation_downloaded">ダウンロード済み</string>
+    <string name="meditation_download_failed">ダウンロードに失敗しました</string>
 </resources>

@@ -773,4 +773,7 @@
     <string name="weather_qweather_incomplete">請填寫完整的 Host 和 Key</string>
     <string name="weather_empty_response">空回應</string>
     <string name="weather_qweather_error_code">和風回傳 code=%1$s（Key 無效或權限不足）</string>
+    <string name="meditation_download">下載</string>
+    <string name="meditation_downloaded">已下載</string>
+    <string name="meditation_download_failed">下載失敗</string>
 </resources>

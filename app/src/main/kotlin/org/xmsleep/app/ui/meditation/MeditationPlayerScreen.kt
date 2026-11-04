@@ -1,16 +1,19 @@
 package org.xmsleep.app.ui.meditation
 
 import android.content.Context
+import android.net.Uri
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.RepeatOne
@@ -39,9 +42,12 @@ import androidx.compose.ui.res.painterResource
 import org.xmsleep.app.R
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.meditation.BilibiliAudioHelper
+import org.xmsleep.app.meditation.MeditationDownloadManager
 import org.xmsleep.app.meditation.MeditationPlayerManager
+import org.xmsleep.app.utils.Logger
 import java.io.InputStreamReader
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,6 +60,9 @@ fun MeditationPlayerScreen(
     val languageCode = LanguageManager.getCurrentLanguage(context).code
     val scope = rememberCoroutineScope()
     val playerManager = remember { MeditationPlayerManager.getInstance() }
+    val downloadManager = remember { MeditationDownloadManager.getInstance(context) }
+    val downloadedIds by downloadManager.downloadedIds.collectAsStateWithLifecycle()
+    val downloadingIds by downloadManager.downloadingIds.collectAsStateWithLifecycle()
 
     val manifest = remember {
         loadMeditationManifest(context)
@@ -126,12 +135,13 @@ fun MeditationPlayerScreen(
                 isLoading = true
                 try {
                     val audioUrl = withContext(Dispatchers.IO) {
-                        if (session.audioUrl.isNotEmpty()) {
-                            session.audioUrl
-                        } else if (session.sourceId.isNotEmpty()) {
-                            BilibiliAudioHelper.getAudioUrl(session.sourceId)
-                        } else {
-                            null
+                        // 已下载的音频优先走本地文件，未命中再解析（B 站接口失效/断网也能听）
+                        val cached = downloadManager.getCachedFile(session.id)
+                        when {
+                            cached != null -> Uri.fromFile(cached).toString()
+                            session.audioUrl.isNotEmpty() -> session.audioUrl
+                            session.sourceId.isNotEmpty() -> BilibiliAudioHelper.getAudioUrl(session.sourceId)
+                            else -> null
                         }
                     }
                     if (audioUrl != null) {
@@ -211,7 +221,8 @@ fun MeditationPlayerScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState()), // 整页上下滑动，单一滚动容器（标题栏随滚动收起）
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(32.dp))
@@ -405,25 +416,58 @@ fun MeditationPlayerScreen(
                         .padding(bottom = 12.dp)
                 )
 
-                LazyRow(
-                    state = rememberLazyListState(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.fillMaxWidth()
+                // 两列网格随整页滚动（scrollable Column 内不嵌 lazy，40 会话直接全量布局）
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    itemsIndexed(sessions) { index, session ->
-                        val isSelected = index == currentSessionIndex
-                        MeditationAudioCard(
-                            session = session,
-                            languageCode = languageCode,
-                            isSelected = isSelected,
-                            onClick = {
-                                if (index != currentSessionIndex) {
-                                    playerManager.stop()
-                                    currentSessionIndex = index
-                                    pendingAutoPlay = true
-                                }
+                    sessions.chunked(2).forEach { row ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            row.forEach { session ->
+                                val index = sessions.indexOfFirst { it.id == session.id }
+                                val isSelected = index == currentSessionIndex
+                                val isDownloaded = session.id in downloadedIds
+                                val downloadProgress = downloadingIds[session.id]
+                                MeditationAudioCard(
+                                    session = session,
+                                    languageCode = languageCode,
+                                    isSelected = isSelected,
+                                    isDownloaded = isDownloaded,
+                                    downloadProgress = downloadProgress,
+                                    modifier = Modifier.weight(1f),
+                                    onClick = {
+                                        if (index != currentSessionIndex) {
+                                            playerManager.stop()
+                                            currentSessionIndex = index
+                                            pendingAutoPlay = true
+                                        }
+                                    },
+                                    onDownloadClick = {
+                                        // 取证日志：记录角标点击来源，异常下载可对照 tap 操作排查
+                                        Logger.d(
+                                            "MeditationDownload",
+                                            "角标点击 index=$index id=${session.id} downloaded=$isDownloaded inProgress=${downloadProgress != null}"
+                                        )
+                                        if (!isDownloaded && downloadProgress == null) {
+                                            scope.launch {
+                                                val ok = downloadManager.download(session)
+                                                Toast.makeText(
+                                                    context,
+                                                    context.getString(
+                                                        if (ok) R.string.meditation_downloaded
+                                                        else R.string.meditation_download_failed
+                                                    ),
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            }
+                                        }
+                                    }
+                                )
                             }
-                        )
+                        }
                     }
                 }
             }
@@ -521,7 +565,11 @@ private fun MeditationAudioCard(
     session: MeditationSession,
     languageCode: String,
     isSelected: Boolean,
-    onClick: () -> Unit
+    isDownloaded: Boolean,
+    downloadProgress: Float?,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    onDownloadClick: () -> Unit
 ) {
     val cardColor = if (isSelected) {
         MaterialTheme.colorScheme.primaryContainer
@@ -530,34 +578,79 @@ private fun MeditationAudioCard(
     }
 
     Surface(
-        modifier = Modifier
-            .width(150.dp)
+        modifier = modifier
+            .fillMaxWidth()
             .height(80.dp),
         shape = RoundedCornerShape(12.dp),
         color = cardColor,
         onClick = onClick
     ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = session.getLocalizedName(languageCode),
-                style = MaterialTheme.typography.bodySmall,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                lineHeight = 16.sp
-            )
-            Text(
-                text = session.durationText,
-                style = MaterialTheme.typography.labelSmall,
-                color = if (isSelected) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
+        Box {
+            Column(
+                modifier = Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = session.getLocalizedName(languageCode),
+                    style = MaterialTheme.typography.bodySmall,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    lineHeight = 16.sp
+                )
+                Text(
+                    text = session.durationText,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                )
+            }
+
+            // 右下角下载角标（对角圆角贴角样式，同每日一言刷新按钮）
+            // 三态配色（柔和区分）：已下载 primaryContainer 绿底+主色勾 / 下载中绿底转圈 / 未下载中性灰底箭头
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .size(32.dp)
+                    .background(
+                        color = if (isDownloaded) {
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) // 淡绿底，弱化存在感
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                        },
+                        shape = RoundedCornerShape(
+                            topStart = 16.dp,
+                            topEnd = 0.dp,
+                            bottomEnd = 12.dp, // 与卡片 12dp 圆角一致，贴角无缝
+                            bottomStart = 0.dp
+                        )
+                    )
+                    .clickable(onClick = onDownloadClick),
+                contentAlignment = Alignment.Center
+            ) {
+                when {
+                    isDownloaded -> Icon(
+                        Icons.Default.Check,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    downloadProgress != null -> CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                    else -> Icon(
+                        Icons.Default.Download,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-            )
+            }
         }
     }
 }

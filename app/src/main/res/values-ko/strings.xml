@@ -779,4 +779,7 @@
     <string name="weather_qweather_incomplete">Host와 Key를 모두 입력하세요</string>
     <string name="weather_empty_response">빈 응답</string>
     <string name="weather_qweather_error_code">QWeather가 code=%1$s을(를) 반환했습니다 (Key가 유효하지 않거나 권한 부족)</string>
+    <string name="meditation_download">다운로드</string>
+    <string name="meditation_downloaded">다운로드 완료</string>
+    <string name="meditation_download_failed">다운로드 실패</string>
 </resources>
