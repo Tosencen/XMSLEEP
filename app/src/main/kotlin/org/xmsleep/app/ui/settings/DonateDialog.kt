@@ -35,8 +35,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import org.xmsleep.app.R
 import org.xmsleep.app.ui.components.FrostedPopup
 import org.xmsleep.app.ui.components.FrostedGlassSheet

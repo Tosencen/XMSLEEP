@@ -2,14 +2,8 @@ package org.xmsleep.app.ui.breathing
 
 import android.content.Context
 import android.content.Intent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -17,10 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.automirrored.filled.HelpOutline
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material.icons.outlined.GraphicEq
@@ -34,10 +25,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.xmsleep.app.R
@@ -47,18 +36,6 @@ import org.xmsleep.app.service.BreathingService
 import org.xmsleep.app.service.BreathingSession
 import org.xmsleep.app.service.BreathPhase
 import java.util.Locale
-
-// 从 Context 中查找 Activity
-private fun Context.findActivity(): android.app.Activity? {
-    var context = this
-    while (context is android.content.ContextWrapper) {
-        if (context is android.app.Activity) {
-            return context
-        }
-        context = context.baseContext
-    }
-    return null
-}
 
 /**
  * 屏幕常亮 Composable - Compose 风格
@@ -557,66 +534,6 @@ private fun BreathingCircle(
                 .size(animatedSize)
                 .clip(CircleShape)
                 .background(innerCircleColor)
-        )
-    }
-}
-
-@Composable
-private fun DurationSelector(
-    selectedMinutes: Int,
-    onDurationChange: (Int) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-    val presetOptions = listOf(2, 5, 10, 15)
-    
-    Column(modifier = modifier) {
-        // 预设按钮
-        Text(
-            text = context.getString(R.string.preset_duration),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            presetOptions.forEach { minutes ->
-                FilterChip(
-                    selected = selectedMinutes == minutes,
-                    onClick = { onDurationChange(minutes) },
-                    label = { Text(context.resources.getQuantityString(R.plurals.minutes, minutes, minutes)) }
-                )
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        // 滑杆
-        Text(
-            text = context.getString(R.string.custom_duration),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        
-        Spacer(modifier = Modifier.height(8.dp))
-        
-        Text(
-            text = context.resources.getQuantityString(R.plurals.minutes, selectedMinutes, selectedMinutes),
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold
-        )
-        
-        Slider(
-            value = selectedMinutes.toFloat(),
-            onValueChange = { onDurationChange(it.toInt()) },
-            valueRange = 0f..60f,
-            steps = 59
         )
     }
 }

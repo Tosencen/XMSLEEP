@@ -2,7 +2,6 @@ package org.xmsleep.app.audio
 
 import android.content.Context
 import android.net.Uri
-import android.os.PowerManager
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem

@@ -2,7 +2,6 @@ package org.xmsleep.app.i18n
 
 import android.content.Context
 import android.content.res.Configuration
-import android.os.Build
 import org.xmsleep.app.Constants
 import java.util.Locale
 

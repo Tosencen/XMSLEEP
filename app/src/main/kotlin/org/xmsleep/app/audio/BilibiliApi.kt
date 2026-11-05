@@ -4,7 +4,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl
 import okhttp3.Request
-import org.json.JSONArray
 import org.json.JSONObject
 import org.xmsleep.app.utils.Logger
 import org.xmsleep.app.utils.NetworkClient

@@ -104,8 +104,6 @@
     <string name="light_mode">Светлая</string>
     <string name="dark_mode">Тёмная</string>
     <string name="auto_mode">Авто</string>
-    <string name="hours">ч</string>
-    <string name="minutes_label">мин</string>
     <plurals name="hours_minutes">
         <item quantity="one">%1$d час %2$d мин.</item>
         <item quantity="few">%1$d часа %2$d мин.</item>
@@ -145,19 +143,13 @@
     <string name="join_group_description">Подпишитесь на новости</string>
     <string name="buy_me_a_coffee">Поддержать Сяо Мань</string>
     <string name="buy_me_a_coffee_description">Ваша поддержка — мой мотив продолжать обновления</string>
-    <string name="donate_message">Если XMSLEEP вам помог, поддержите Сяо Мань. Ваша поддержка — мой мотив продолжать обновления!</string>
     <string name="donate_amount_1">Оплатить завтрак Сяо Мань</string>
     <string name="donate_amount_2">Оплатить метро для Сяо Мань</string>
     <string name="donate_amount_3">Оплатить обед Сяо Мань</string>
-    <string name="donate_tip">QR-код сохранён в галерею. Нажмите «Оплатить через WeChat» и выберите изображение в «Альбоме» сканера WeChat</string>
     <string name="donate_hint">QR-код автоматически сохраняется в галерею. Нажмите «Сканировать», чтобы открыть WeChat, затем выберите изображение из галереи, чтобы завершить донатинг.</string>
-    <string name="go_wechat_pay">Оплатить через WeChat</string>
     <string name="go_wechat_scan">Сканировать через WeChat</string>
     <string name="wechat_not_installed">WeChat не установлен</string>
     <string name="wechat_launch_failed">Не удалось открыть WeChat. Откройте сканер вручную</string>
-    <string name="pay_done">Оплата завершена</string>
-    <string name="donate_thanks">Спасибо за поддержку!</string>
-    <string name="save_to_gallery">Сохранить в галерею</string>
     <string name="wechat_pay_qr">Мой QR-код</string>
     <string name="qr_saved">QR-код сохранён в галерею</string>
     <string name="qr_save_failed">Не удалось сохранить, попробуйте ещё раз</string>
@@ -280,7 +272,6 @@
     <string name="sort_size_desc">Сначала большие</string>
     <string name="no_matching_audio">Нет аудио, соответствующего фильтрам</string>
     <string name="unknown_folder">Неизвестная папка</string>
-    <string name="filter">Фильтр</string>
     <string name="filter_folder_section">Папка</string>
     <string name="filter_duration_section">Длительность</string>
     <string name="manage_folders">Управление папками</string>
@@ -288,8 +279,6 @@
     <string name="manage_folders_system_section">Системные папки (скрыты по умолчанию)</string>
     <string name="manage_folders_other_section">Остальные папки (видны по умолчанию)</string>
     <string name="manage_folders_no_system_audio">В системных папках пока нет аудио</string>
-    <string name="clear_filter">Сбросить фильтры</string>
-    
     <!-- Daily Quote Feature -->
     <string name="daily_quote">Цитата дня</string>
     <string name="daily_quote_description">Просмотр истории цитат</string>
@@ -827,7 +816,6 @@
     <string name="weather_qweather_incomplete">Заполните поля Host и Key</string>
     <string name="weather_empty_response">Пустой ответ</string>
     <string name="weather_qweather_error_code">QWeather вернул code=%1$s (недействительный Key или недостаточно прав)</string>
-    <string name="meditation_download">Скачать</string>
     <string name="meditation_downloaded">Загружено</string>
     <string name="meditation_download_failed">Не удалось скачать</string>
 </resources>

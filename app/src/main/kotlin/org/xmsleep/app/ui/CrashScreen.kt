@@ -1,6 +1,5 @@
 package org.xmsleep.app.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -20,7 +19,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.xmsleep.app.R
-import kotlin.system.exitProcess
 
 /**
  * 崩溃异常页面

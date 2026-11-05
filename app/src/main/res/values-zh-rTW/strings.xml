@@ -113,8 +113,6 @@
     <string name="light_mode">淺色</string>
     <string name="dark_mode">深色</string>
     <string name="auto_mode">自動</string>
-    <string name="hours">小時</string>
-    <string name="minutes_label">分鐘</string>
     <plurals name="hours_minutes">
         <item quantity="other">%1$d小時%2$d分鐘</item>
     </plurals>
@@ -148,19 +146,13 @@
     <string name="join_group_description">關注我獲取最新資訊</string>
     <string name="buy_me_a_coffee">給晓满加油</string>
     <string name="buy_me_a_coffee_description">你的支持是我持續更新的動力</string>
-    <string name="donate_message">如果 XMSLEEP 對你有幫助，可以贊助晓满，你的支持是我持續更新的動力！</string>
     <string name="donate_amount_1">請晓满喫早餐</string>
     <string name="donate_amount_2">請晓满坐地鐵</string>
     <string name="donate_amount_3">請晓满喫午餐</string>
-    <string name="donate_tip">收款碼已自動儲存到相簿，點「去微信支付」，在微信掃一掃中選「相簿」的圖片即可</string>
     <string name="donate_hint">收款碼已自動儲存到相冊，點擊「去微信掃碼」打開微信後，在「掃一掃」中選擇相冊裡的圖片即可完成打賞</string>
-    <string name="go_wechat_pay">去微信支付</string>
     <string name="go_wechat_scan">去微信掃碼</string>
     <string name="wechat_not_installed">未偵測到微信，請先安裝微信</string>
     <string name="wechat_launch_failed">開啟微信失敗，請手動打開微信掃碼</string>
-    <string name="pay_done">支付完成</string>
-    <string name="donate_thanks">感謝支持！</string>
-    <string name="save_to_gallery">儲存到相簿</string>
     <string name="wechat_pay_qr">我的二維碼</string>
     <string name="qr_saved">二維碼已儲存到相簿</string>
     <string name="qr_save_failed">儲存失敗，請重試</string>
@@ -276,7 +268,6 @@
     <string name="sort_size_desc">大小（大→小）</string>
     <string name="no_matching_audio">沒有符合篩選條件的音頻</string>
     <string name="unknown_folder">未知資料夾</string>
-    <string name="filter">篩選</string>
     <string name="filter_folder_section">資料夾</string>
     <string name="filter_duration_section">時長</string>
     <string name="manage_folders">管理資料夾</string>
@@ -284,8 +275,6 @@
     <string name="manage_folders_system_section">系統資料夾（預設隱藏）</string>
     <string name="manage_folders_other_section">其他資料夾（預設顯示）</string>
     <string name="manage_folders_no_system_audio">系統資料夾暫無音訊</string>
-    <string name="clear_filter">清除篩選</string>
-    
     <!-- 一言一句功能 -->
     <string name="daily_quote">一言一句</string>
     <string name="daily_quote_description">查看歷史名句記錄</string>
@@ -773,7 +762,6 @@
     <string name="weather_qweather_incomplete">請填寫完整的 Host 和 Key</string>
     <string name="weather_empty_response">空回應</string>
     <string name="weather_qweather_error_code">和風回傳 code=%1$s（Key 無效或權限不足）</string>
-    <string name="meditation_download">下載</string>
     <string name="meditation_downloaded">已下載</string>
     <string name="meditation_download_failed">下載失敗</string>
 </resources>

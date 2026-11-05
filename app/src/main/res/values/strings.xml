@@ -116,8 +116,6 @@
     <string name="light_mode">浅色</string>
     <string name="dark_mode">深色</string>
     <string name="auto_mode">自动</string>
-    <string name="hours">小时</string>
-    <string name="minutes_label">分钟</string>
     <plurals name="hours_minutes">
         <item quantity="other">%1$d小时%2$d分钟</item>
     </plurals>
@@ -153,22 +151,16 @@
     <string name="join_group_description">关注我获取最新资讯</string>
     <string name="buy_me_a_coffee">给晓满加油</string>
     <string name="buy_me_a_coffee_description">你的支持是我持续更新的动力</string>
-    <string name="donate_message">如果 XMSLEEP 对你有帮助，可以赞助晓满，你的支持是我持续更新的动力！</string>
     <string name="donate_amount_1">请晓满吃早餐</string>
     <string name="donate_amount_2">请晓满坐地铁</string>
     <string name="donate_amount_3">请晓满吃午餐</string>
     <string name="donate_amount_value_1">¥5.4</string>
     <string name="donate_amount_value_2">¥6.9</string>
     <string name="donate_amount_value_3">¥16.8</string>
-    <string name="donate_tip">收款码已自动保存到相册，点「去微信支付」，在微信扫一扫中选「相册」的图片即可</string>
     <string name="donate_hint">收款码已自动保存到相册，点击「去微信扫码」打开微信后，在「扫一扫」中选择相册里的图片即可完成打赏</string>
-    <string name="go_wechat_pay">去微信支付</string>
     <string name="go_wechat_scan">去微信扫码</string>
     <string name="wechat_not_installed">未检测到微信，请先安装微信</string>
     <string name="wechat_launch_failed">拉起微信失败，请手动打开微信扫码</string>
-    <string name="pay_done">支付完成</string>
-    <string name="donate_thanks">感谢支持！</string>
-    <string name="save_to_gallery">保存到相册</string>
     <string name="qr_saved">收款码已保存到相册</string>
     <string name="qr_save_failed">保存失败，请重试</string>
     <string name="wechat_pay_qr">我的二维码</string>
@@ -259,7 +251,6 @@
     <string name="sort_size_desc">大小（大→小）</string>
     <string name="no_matching_audio">没有符合筛选条件的音频</string>
     <string name="unknown_folder">未知文件夹</string>
-    <string name="filter">筛选</string>
     <string name="filter_folder_section">文件夹</string>
     <string name="filter_duration_section">时长</string>
     <string name="manage_folders">管理文件夹</string>
@@ -267,7 +258,6 @@
     <string name="manage_folders_system_section">系统文件夹（默认隐藏）</string>
     <string name="manage_folders_other_section">其他文件夹（默认显示）</string>
     <string name="manage_folders_no_system_audio">系统文件夹暂无音频</string>
-    <string name="clear_filter">清除筛选</string>
     <string name="no_local_audio">暂无本地音频</string>
     <string name="search_audio">搜索音频</string>
     <string name="no_search_results">未找到匹配的音频</string>
@@ -779,7 +769,6 @@
     <string name="weather_qweather_incomplete">请填写完整的 Host 和 Key</string>
     <string name="weather_empty_response">空响应</string>
     <string name="weather_qweather_error_code">和风返回 code=%1$s（Key 无效或权限不足）</string>
-    <string name="meditation_download">下载</string>
     <string name="meditation_downloaded">已下载</string>
     <string name="meditation_download_failed">下载失败</string>
 </resources>

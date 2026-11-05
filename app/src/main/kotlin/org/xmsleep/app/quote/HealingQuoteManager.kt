@@ -2,7 +2,6 @@ package org.xmsleep.app.quote
 
 import android.content.Context
 import java.util.Calendar
-import java.util.concurrent.ThreadLocalRandom
 
 /**
  * 治愈句子管理器

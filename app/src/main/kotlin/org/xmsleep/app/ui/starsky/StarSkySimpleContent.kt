@@ -32,7 +32,6 @@ import org.xmsleep.app.ui.TimerDialog
 import org.xmsleep.app.ui.TimerFAB
 import org.xmsleep.app.ui.components.FrostedPopup
 import org.xmsleep.app.ui.components.FrostedGlassSheet
-import org.xmsleep.app.weather.WeatherData
 import org.xmsleep.app.weather.WeatherCodeMapper
 import org.xmsleep.app.weather.WeatherSoundMapper
 import com.airbnb.lottie.compose.LottieAnimation

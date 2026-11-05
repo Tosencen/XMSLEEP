@@ -7,7 +7,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Icon
-import android.os.Build
 import androidx.media3.session.MediaSession
 import org.xmsleep.app.MainActivity
 import org.xmsleep.app.R

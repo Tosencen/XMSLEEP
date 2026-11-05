@@ -1,7 +1,6 @@
 package org.xmsleep.app.audio
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothHeadset
 import android.bluetooth.BluetoothProfile
 import android.content.BroadcastReceiver
@@ -10,7 +9,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioDeviceInfo
 import android.media.AudioManager as SystemAudioManager
-import android.os.Build
 import org.xmsleep.app.utils.Logger
 
 /**

@@ -38,7 +38,6 @@ import org.xmsleep.app.audio.AudioManager
 import org.xmsleep.app.i18n.LanguageManager
 import org.xmsleep.app.Constants
 import org.xmsleep.app.ui.components.AboutDialog
-import org.xmsleep.app.ui.components.BackgroundSettings
 import org.xmsleep.app.ui.components.BackgroundSettingsSheet
 import org.xmsleep.app.ui.components.LanguageSelectionDialog
 import org.xmsleep.app.ui.BackgroundSelection
@@ -1249,21 +1248,6 @@ private fun remuxVideoWithoutAudio(context: Context, uri: Uri, destFile: java.io
         false
     } finally {
         try { extractor.release() } catch (_: Exception) {}
-    }
-}
-
-/**
- * 格式化剩余时间
- */
-private fun formatTimeLeft(millis: Long): String {
-    val totalSeconds = millis / 1000
-    val hours = totalSeconds / 3600
-    val minutes = (totalSeconds % 3600) / 60
-    val seconds = totalSeconds % 60
-    
-    return when {
-        hours > 0 -> String.format("%d:%02d:%02d", hours, minutes, seconds)
-        else -> String.format("%02d:%02d", minutes, seconds)
     }
 }
 

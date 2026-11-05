@@ -8,7 +8,6 @@ import android.graphics.Canvas
 import android.os.Binder
 import android.os.IBinder
 import androidx.core.content.ContextCompat
-import androidx.media3.common.Player
 import androidx.media3.session.MediaSession
 import org.xmsleep.app.MainActivity
 import org.xmsleep.app.R
