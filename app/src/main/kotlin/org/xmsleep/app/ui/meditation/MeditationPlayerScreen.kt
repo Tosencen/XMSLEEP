@@ -470,6 +470,9 @@ fun MeditationPlayerScreen(
                         }
                     }
                 }
+
+                // 列表尾部留白：避免最后一张卡片贴屏幕底被手势条遮挡
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }
