@@ -78,6 +78,7 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 - **Volume Persistence**: Volume settings are automatically saved and restored on app restart
 - **Bluetooth Headset Support**: Automatically pauses playback when Bluetooth headset disconnects
 - **Bilibili Live Radio**: Search and play Bilibili live streaming rooms, pin favorite rooms for quick access
+- **Meditation**: Built-in sleep meditation audios, downloadable for offline playback without a network
 
 ### 🎨 Interface & Experience
 - **Beautiful Animations**: Built-in sounds come with WebP animations to enhance visual experience
@@ -120,12 +121,46 @@ Built with Material Design 3 guidelines, the app features a clean and beautiful 
 
 ## 📦 Current Version
 
-- **Version**: 2.3.3
-- **Version Code**: 48
+- **Version**: 2.3.5
+- **Version Code**: 50
 - **Min SDK**: Android 8.0 (API 26)
 - **Target SDK**: Android 15 (API 35)
 
 ## 🆕 Latest Updates
+
+### v2.3.5
+
+#### 🎨 New Features
+- **Offline download for meditation audios**: One-tap download from the audio list (bottom-right badge with three states), success/failure Toast notifications, downloaded audios play offline
+- **Full-page scrolling**: The meditation player now scrolls as a single page (replacing the fixed-height list), the top bar collapses on scroll, and a bottom spacer prevents clipping
+
+#### 🐛 Fixes
+- **Offline playback crash**: Local cached audio now plays via the file source, fixing crashes caused by feeding `file://` into the HTTP source
+- **Bilibili audio 403**: Added UA/Referer/Origin headers, fixing rejected audio stream resolution and downloads
+- **More reliable update checks**: Falls back through gh-proxy mirrors, verifies download byte integrity and reuses existing files
+
+#### ✨ Improvements
+- **Badge states**: Downloaded = faint green, not downloaded = gray, easy to tell apart at a glance
+- **Dead-code cleanup**: Removed unused imports, unreferenced functions and redundant string keys
+
+### v2.3.4
+
+#### 🎨 New Features
+- **Frosted glass dialogs**: New FrostedGlassSheet component; global dialogs and bottom sheets rebuilt with an MD3 drag handle
+- **Breathing foreground service**: Phase state machine moved into a foreground service with multilingual voice prompts, infinite list paging, auto-cleanup when finished
+- **Theme color grid**: XMVISIO-style three-color circle grid with center check animation; built-in backgrounds auto-match their dedicated theme color
+- **Secondary-page top bar**: Hides while scrolling and reappears when scrolling back, avoiding title/content overlap
+- **Timer dial picker**: Custom countdown time now uses an M3 circular time picker
+
+#### ✨ Improvements
+- **QWeather key validation**: Host/key are validated before saving; on failure the dialog stays open and shows the error
+- **Update download source replacement with low-speed source switching**; precise ProGuard keep rules, sensitive SP excluded from backup, localization fixes (zh-TW language code)
+
+#### 🐛 Fixes
+- Rigid dialog enter/exit animations and doubled borders on bottom dialogs
+- Background settings callbacks, location permission refresh, vibration toggle semantics (P0)
+- Switching back to no/custom background no longer force-enables dynamic colors
+- Hidden the unconnected refresh button in the quote history dialog; breathing notification icon switched to a solid style
 
 ### v2.3.3
 
